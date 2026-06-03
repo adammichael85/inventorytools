@@ -1,5 +1,3 @@
-import { supabase } from '@/lib/supabase'
-
 export async function convertPDF(base64: string, mediaType: string) {
   const response = await fetch('/api/convert', {
     method: 'POST',
@@ -19,10 +17,13 @@ export async function saveConversion(params: {
   items: number
   duration_seconds: number
 }) {
-  await supabase.from('conversions').insert({
-    address: params.address,
-    rooms: params.rooms,
-    items: params.items,
-    duration_seconds: params.duration_seconds,
-  })
+  try {
+    await fetch('/api/save-conversion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    })
+  } catch (e) {
+    // Silent fail — don't break the conversion if saving fails
+  }
 }
