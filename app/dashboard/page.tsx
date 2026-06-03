@@ -311,7 +311,7 @@ export default function Dashboard() {
                       {section.fields.map(f => (
                         <div key={f.label}>
                           <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6 }}>{f.label}</label>
-                          <input type={f.type || 'text'} defaultValue={f.val} placeholder={f.type === 'password' ? '••••••••' : ''} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                          <input type={(f as any).type || 'text'} defaultValue={f.val} placeholder={(f as any).type === 'password' ? '••••••••' : ''} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
                         </div>
                       ))}
                     </div>
