@@ -4,20 +4,20 @@ import { createClient } from '@supabase/supabase-js'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const authHeader = req.headers.get('authorization')
-    
+
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
-    
-    await supabase.from('conversions').insert({
+
+    const { error } = await supabase.from('conversions').insert({
       address: body.address,
       rooms: body.rooms,
       items: body.items,
       duration_seconds: body.duration_seconds,
     })
-    
+
+    if (error) throw new Error(error.message)
     return NextResponse.json({ ok: true })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
