@@ -4,9 +4,9 @@ export async function convertPDF(base64: string, mediaType: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ base64, mediaType })
   })
-  if (!response.ok) {
-    const err = await response.json()
-    throw new Error(err.error || 'Conversion failed')
-  }
-  return response.json()
+  const data = await response.json()
+  if (!response.ok) throw new Error(data.error || 'Conversion failed')
+  if (data.error) throw new Error(data.error)
+  if (!data.rooms) throw new Error('No rooms found in response: ' + JSON.stringify(data).slice(0, 200))
+  return data
 }
