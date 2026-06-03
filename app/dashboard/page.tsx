@@ -143,7 +143,7 @@ export default function Dashboard() {
       setConvertState('done')
 
       if (accessToken) {
-        await saveConversion({ address: data.address || selectedFile.name, rooms: rooms.length, items: totalItems, duration_seconds: duration, accessToken })
+        await saveConversion({ address: data.address || selectedFile.name, rooms: rooms.length, items: totalItems, duration_seconds: duration })
         loadConversions(accessToken)
       }
 

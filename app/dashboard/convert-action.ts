@@ -1,7 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+import { supabase } from '@/lib/supabase'
 
 export async function convertPDF(base64: string, mediaType: string) {
   const response = await fetch('/api/convert', {
@@ -21,11 +18,7 @@ export async function saveConversion(params: {
   rooms: number
   items: number
   duration_seconds: number
-  accessToken: string
 }) {
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    global: { headers: { Authorization: `Bearer ${params.accessToken}` } }
-  })
   await supabase.from('conversions').insert({
     address: params.address,
     rooms: params.rooms,
