@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     const { base64, mediaType } = await req.json()
 
     const message = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 16000,
       system: `You are an inventory data extractor. Extract ALL rooms from a property inventory PDF.
 
