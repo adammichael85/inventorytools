@@ -1,7 +1,8 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { convertPDF } from './convert-action'
+import { supabase } from '@/lib/supabase'
 
 const TEAL = '#1D9E75'
 const TEAL_LIGHT = '#E1F5EE'
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const [page, setPage] = useState('dashboard')
   const [showConvert, setShowConvert] = useState(false)
   const [showTopup, setShowTopup] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
   const [convertState, setConvertState] = useState<'idle'|'selected'|'processing'|'done'|'error'>('idle')
   const [selectedFile, setSelectedFile] = useState<File|null>(null)
   const [selectedCredits, setSelectedCredits] = useState<{credits:number,price:number}|null>(null)
@@ -25,6 +27,13 @@ export default function Dashboard() {
   const [convertError, setConvertError] = useState('')
   const [docxUrl, setDocxUrl] = useState<string|null>(null)
   const [docxName, setDocxName] = useState('')
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setUserEmail(data.session.user.email || '')
+      else window.location.href = '/auth'
+    })
+  }, [])
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z' },
@@ -165,10 +174,9 @@ export default function Dashboard() {
         </nav>
         <div style={{ padding: '14px 10px', borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 8 }}>
-            <div style={{ width: 30, height: 30, borderRadius: '50%', background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: TEAL_DARK }}>JS</div>
+            <div style={{ width: 30, height: 30, borderRadius: '50%', background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: TEAL_DARK }}>{userEmail.slice(0,2).toUpperCase() || 'U'}</div>
             <div>
-              <p style={{ fontSize: 12, fontWeight: 600, color: TEXT, margin: 0 }}>Jane Smith</p>
-              <p style={{ fontSize: 11, color: HINT, margin: 0 }}>ABC Inventories Ltd</p>
+              <p style={{ fontSize: 11, color: MUTED, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userEmail}</p>
             </div>
           </div>
         </div>
