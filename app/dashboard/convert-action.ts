@@ -1,18 +1,52 @@
 import { supabase } from '@/lib/supabase'
 
-export async function convertPDF(base64: string, mediaType: string) {
-  // Get session token
+async function extractTextFromPDF(file: File): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer()
+  const pdfjsLib = await import('pdfjs-dist')
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+  
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+  let fullText = ''
+  
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i)
+    const textContent = await page.getTextContent()
+    const pageText = textContent.items
+      .map((item: any) => item.str)
+      .join(' ')
+    fullText += pageText + '\n'
+  }
+  
+  return fullText
+}
+
+export async function convertPDF(base64: string, mediaType: string, file?: File) {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) throw new Error('Not logged in')
 
-  // Get Anthropic key from our secure endpoint
   const tokenRes = await fetch('/api/token', {
     headers: { Authorization: `Bearer ${session.access_token}` }
   })
   if (!tokenRes.ok) throw new Error('Failed to get token')
   const { key } = await tokenRes.json()
 
-  // Call Anthropic directly from browser - no file size limits!
+  // Extract text from PDF locally - no size limits!
+  let textContent = ''
+  if (file) {
+    try {
+      textContent = await extractTextFromPDF(file)
+    } catch(e) {
+      console.log('Text extraction failed, falling back to base64')
+    }
+  }
+
+  const messageContent = textContent.length > 100 
+    ? [{ type: 'text', text: `Here is the full text content of an inventory PDF. Extract all rooms and items from it:\n\n${textContent}` }]
+    : [
+        { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
+        { type: 'text', text: 'Extract every room and all their items. Return raw JSON only.' }
+      ]
+
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -34,20 +68,14 @@ RULES — follow exactly:
   - Any "Disagreed by tenant" sections
   - Any "Information provided by tenant" text
   - Append all extra text into the description field, separated by " | "
-- Copy all values VERBATIM from the PDF. Zero edits, zero additions.
+- Copy all values VERBATIM. Zero edits, zero additions.
 - The ITEM column must be copied exactly as it appears.
 - If condition is not stated use "". If a field is blank use "".
 - Return ONLY a raw JSON object. No markdown. No code fences.
 - First character must be { and last character must be }
 - Format: {"address":"12 Milliners Court","rooms":[{"roomName":"Hallway","rows":[{"item":"...","description":"...","condition":"..."}]}]}
 - For "address": extract only the first line of the property address.`,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
-          { type: 'text', text: 'Extract every room and all their items. Return raw JSON only.' }
-        ]
-      }]
+      messages: [{ role: 'user', content: messageContent }]
     })
   })
 
