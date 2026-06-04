@@ -22,7 +22,7 @@ RULES — follow exactly:
   - The main inspector description
   - Any "Disagreed by tenant" sections
   - Any "Information provided by tenant" text
-  - Append all extra text into the description field, separated by a newline character \n
+  - Each separate line or bullet point from the PDF must be on its own line in the description field. Use actual newline characters (\n) to separate each distinct piece of information. Do NOT join lines with commas or pipes.
 - Copy all values VERBATIM from the PDF. Zero edits, zero additions.
 - The ITEM column must be copied exactly as it appears.
 - If condition is not stated use "". If a field is blank use "".
