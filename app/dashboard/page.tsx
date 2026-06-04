@@ -85,7 +85,7 @@ export default function Dashboard() {
     const timer = setInterval(() => setElapsed(e => e + 1), 1000)
 
     try {
-      const base64 = await compressAndEncode(selectedFile)
+      const base64 = await fileToBase64(selectedFile)
       const data = await convertPDF(base64, 'application/pdf')
 
       const rooms = (data.rooms || []).filter((r: any) => (r.rows || []).length > 0)
@@ -403,7 +403,29 @@ export default function Dashboard() {
                     <p style={{ fontSize: 13, color: HINT }}>or click to browse</p>
                   </div>
                 </label>
-                <input id="pdf-upload" type="file" accept="application/pdf" style={{ display: 'none' }} onChange={e => { if (e.target.files?.[0]) { setSelectedFile(e.target.files[0]); setConvertState('selected') } }} />
+                <input id="pdf-upload" type="file" accept="application/pdf" style={{ display: 'none' }} onChange={async e => { 
+    if (e.target.files?.[0]) { 
+      const file = e.target.files[0]
+      setSelectedFile(file)
+      setConvertState('selected')
+      // Start compression immediately
+      setCompressing(true)
+      setOriginalSize(file.size)
+      try {
+        const { PDFDocument } = await import('pdf-lib')
+        const arrayBuffer = await file.arrayBuffer()
+        const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true })
+        const compressed = await pdfDoc.save({ useObjectStreams: true })
+        const blob = new Blob([new Uint8Array(compressed as unknown as ArrayBuffer)], { type: 'application/pdf' })
+        const compressedFile = new File([blob], file.name, { type: 'application/pdf' })
+        setCompressedSize(compressedFile.size)
+        setSelectedFile(compressedFile)
+      } catch(e) {
+        // keep original
+      }
+      setCompressing(false)
+    } 
+  }} />
               </div>
             )}
 
