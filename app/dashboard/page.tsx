@@ -105,7 +105,7 @@ export default function Dashboard() {
         children.push(new Table({
           width: { size: COL_ITEM + COL_DESC + COL_COND, type: WidthType.DXA },
           rows: [
-            new TableRow({ tableHeader: true, children: [makeCell('ITEM', COL_ITEM), makeCell('DESCRIPTION', COL_DESC), makeCell('CONDITION', COL_COND)] }),
+            new TableRow({ children: [makeCell('ITEM', COL_ITEM), makeCell('DESCRIPTION', COL_DESC), makeCell('CONDITION', COL_COND)] }),
             ...rows.map((row: any) => new TableRow({ children: [makeCell(row.item, COL_ITEM), makeCell(row.description, COL_DESC), makeCell(row.condition, COL_COND)] }))
           ]
         }))
