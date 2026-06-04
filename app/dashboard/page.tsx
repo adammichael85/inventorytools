@@ -127,7 +127,7 @@ export default function Dashboard() {
 
     } catch (err: any) {
       clearInterval(timer)
-      setConvertError(err.message || 'Something went wrong')
+      setConvertError(err.message || err.toString() || JSON.stringify(err) || 'Something went wrong')
       setConvertState('error')
     }
   }
