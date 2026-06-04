@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { convertPDF } from './convert-action'
+import { PDFDocument } from 'pdf-lib'
 import { supabase } from '@/lib/supabase'
 
 const TEAL = '#1D9E75'
@@ -53,6 +54,23 @@ export default function Dashboard() {
     })
   }
 
+  async function compressAndEncode(file: File): Promise<string> {
+    try {
+      const arrayBuffer = await file.arrayBuffer()
+      const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true })
+      // Re-save without unnecessary metadata to reduce size
+      const compressed = await pdfDoc.save({ useObjectStreams: true })
+      const blob = new Blob([compressed], { type: 'application/pdf' })
+      const compressedFile = new File([blob], file.name, { type: 'application/pdf' })
+      console.log('Original:', (file.size/1024/1024).toFixed(1)+'MB', 'Compressed:', (compressedFile.size/1024/1024).toFixed(1)+'MB')
+      return fileToBase64(compressedFile)
+    } catch (e) {
+      // If compression fails, just use original
+      console.log('Compression failed, using original')
+      return fileToBase64(file)
+    }
+  }
+
   async function startConvert() {
     if (!selectedFile) return
     setConvertState('processing')
@@ -63,7 +81,7 @@ export default function Dashboard() {
     const timer = setInterval(() => setElapsed(e => e + 1), 1000)
 
     try {
-      const base64 = await fileToBase64(selectedFile)
+      const base64 = await compressAndEncode(selectedFile)
       const data = await convertPDF(base64, 'application/pdf')
 
       const rooms = (data.rooms || []).filter((r: any) => (r.rows || []).length > 0)
