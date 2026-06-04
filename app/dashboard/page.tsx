@@ -60,7 +60,7 @@ export default function Dashboard() {
       const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true })
       // Re-save without unnecessary metadata to reduce size
       const compressed = await pdfDoc.save({ useObjectStreams: true })
-      const blob = new Blob([compressed], { type: 'application/pdf' })
+      const blob = new Blob([new Uint8Array(compressed as unknown as ArrayBuffer)], { type: 'application/pdf' })
       const compressedFile = new File([blob], file.name, { type: 'application/pdf' })
       console.log('Original:', (file.size/1024/1024).toFixed(1)+'MB', 'Compressed:', (compressedFile.size/1024/1024).toFixed(1)+'MB')
       return fileToBase64(compressedFile)
