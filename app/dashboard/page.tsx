@@ -118,7 +118,7 @@ export default function Dashboard() {
       const b64 = await Packer.toBase64String(doc)
       const byteArray = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
       const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-      const url = URL.createObjectURL(blob)
+      if (docxUrl) URL.revokeObjectURL(docxUrl); const url = URL.createObjectURL(blob)
       const name = (data.address || 'inventory').replace(/[^a-zA-Z0-9 _-]/g, '').trim() + '.docx'
       setDocxUrl(url)
       setDocxName(name)
