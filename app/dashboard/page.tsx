@@ -427,7 +427,17 @@ export default function Dashboard() {
                 <div style={{ background: TEAL_LIGHT, border: `1px solid ${TEAL}`, borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16 }}>
                   <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
                   <p style={{ fontSize: 15, fontWeight: 700, color: TEAL_DARK, marginBottom: 4 }}>Conversion complete!</p>
-                  <p style={{ fontSize: 13, color: MUTED }}>{processingRooms.length} rooms extracted in {elapsed}s</p>
+                  <p style={{ fontSize: 13, color: MUTED }}>{processingRooms.length} rooms in {elapsed}s</p>
+                  <div style={{ marginTop: 12 }}>
+                    {processingRooms.map((room, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', borderBottom: '1px solid rgba(29,158,117,0.15)' }}>
+                        <div style={{ width: 16, height: 16, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg>
+                        </div>
+                        <span style={{ fontSize: 12, color: TEAL_DARK }}>{room.name}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <a href={docxUrl} download={docxName} style={{ display: 'block', width: '100%', padding: 13, borderRadius: 10, background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, textAlign: 'center', textDecoration: 'none', marginBottom: 10, boxSizing: 'border-box' }}>↓ Download {docxName}</a>
                 <button onClick={closeConvert} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Close</button>
