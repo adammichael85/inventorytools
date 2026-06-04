@@ -26,6 +26,9 @@ export default function Dashboard() {
   const [processingRooms, setProcessingRooms] = useState<{name:string,state:string}[]>([])
   const [elapsed, setElapsed] = useState(0)
   const [convertError, setConvertError] = useState('')
+  const [compressing, setCompressing] = useState(false)
+  const [originalSize, setOriginalSize] = useState(0)
+  const [compressedSize, setCompressedSize] = useState(0)
   const [docxUrl, setDocxUrl] = useState<string|null>(null)
   const [docxName, setDocxName] = useState('')
 
@@ -56,17 +59,18 @@ export default function Dashboard() {
 
   async function compressAndEncode(file: File): Promise<string> {
     try {
+      setCompressing(true)
+      setOriginalSize(file.size)
       const arrayBuffer = await file.arrayBuffer()
       const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true })
-      // Re-save without unnecessary metadata to reduce size
       const compressed = await pdfDoc.save({ useObjectStreams: true })
       const blob = new Blob([new Uint8Array(compressed as unknown as ArrayBuffer)], { type: 'application/pdf' })
       const compressedFile = new File([blob], file.name, { type: 'application/pdf' })
-      console.log('Original:', (file.size/1024/1024).toFixed(1)+'MB', 'Compressed:', (compressedFile.size/1024/1024).toFixed(1)+'MB')
+      setCompressedSize(compressedFile.size)
+      setCompressing(false)
       return fileToBase64(compressedFile)
     } catch (e) {
-      // If compression fails, just use original
-      console.log('Compression failed, using original')
+      setCompressing(false)
       return fileToBase64(file)
     }
   }
@@ -505,7 +509,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } } @keyframes progress { 0% { width: 5%; margin-left: 0 } 50% { width: 60%; margin-left: 20% } 100% { width: 5%; margin-left: 100% } }`}</style>
     </div>
   )
 }
