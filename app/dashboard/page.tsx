@@ -107,11 +107,21 @@ export default function Dashboard() {
       const cellBorders = { top: border, bottom: border, left: border, right: border }
       const COL_ITEM = 2499, COL_DESC = 3972, COL_COND = 3115
 
+      const toLines = (text) => {
+        if (!text) return ['']
+        return text.split(' | ').join('
+')
+          .split('
+')
+          .map(l => String(l).replace(/[^	
+ -ÿ]/g, '').trim())
+          .filter(Boolean)
+      }
       const makeCell = (text: string, colWidth: number) => new TableCell({
         borders: cellBorders,
         width: { size: colWidth, type: WidthType.DXA },
         verticalAlign: VerticalAlign.TOP,
-        children: [new Paragraph({ children: [new TextRun({ text: text || '', font: 'Arial', size: 20 })] })]
+        children: toLines(text).map(line => new Paragraph({ children: [new TextRun({ text: line, font: 'Arial', size: 20, color: '000000' })] }))
       })
 
       const children: any[] = []
@@ -121,7 +131,7 @@ export default function Dashboard() {
         await new Promise(res => setTimeout(res, 30))
 
         if (i > 0) children.push(new Paragraph({ children: [new TextRun({ text: '', font: 'Arial', size: 20 })], spacing: { after: 120 } }))
-        children.push(new Paragraph({ children: [new TextRun({ text: room.roomName, font: 'Arial', size: 28, bold: true })] }))
+        children.push(new Paragraph({ children: [new TextRun({ text: room.roomName || '', font: 'Arial', size: 28, bold: true, color: '000000' })] }))
 
         const rows = [{ item: 'Further views', description: '', condition: '' }, ...room.rows]
         children.push(new Table({
