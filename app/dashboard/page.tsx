@@ -111,7 +111,7 @@ export default function Dashboard() {
         borders: cellBorders,
         width: { size: colWidth, type: WidthType.DXA },
         verticalAlign: VerticalAlign.TOP,
-        children: [new Paragraph({ children: [new TextRun({ text: text || '', font: 'Arial', size: 20 })] })]
+        children: (text || '').split(' | ').map(function(line){return new Paragraph({children:[new TextRun({text:line.trim(),font:'Arial',size:20,color:'000000'})]})})
       })
 
       const children: any[] = []
