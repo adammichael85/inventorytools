@@ -395,13 +395,18 @@ export default function Dashboard() {
 
             {convertState === 'processing' && (
               <div style={{ padding: 24 }}>
-                <div style={{ background: TEAL_LIGHT, borderRadius: 10, padding: '14px 16px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2.5px solid rgba(29,158,117,0.25)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: TEAL_DARK, margin: 0 }}>Processing...</p>
-                    <p style={{ fontSize: 11, color: '#0F6E56', margin: 0 }}>{selectedFile?.name}</p>
+                <div style={{ background: TEAL_LIGHT, borderRadius: 10, padding: '14px 16px', marginBottom: 18 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2.5px solid rgba(29,158,117,0.25)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: TEAL_DARK, margin: 0 }}>Processing...</p>
+                      <p style={{ fontSize: 11, color: '#0F6E56', margin: 0 }}>{selectedFile?.name}</p>
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#0F6E56' }}>⏱ {elapsed}s</span>
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0F6E56' }}>⏱ {elapsed}s</span>
+                  <div style={{ height: 4, borderRadius: 20, background: 'rgba(29,158,117,0.2)', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', borderRadius: 20, background: TEAL, animation: 'progress 2s ease-in-out infinite' }} />
+                  </div>
                 </div>
                 {processingRooms.map((room, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: `1px solid ${BORDER}`, opacity: room.state === 'pending' ? 0.35 : 1 }}>
@@ -469,7 +474,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } } @keyframes progress { 0% { width: 0%; margin-left: 0 } 50% { width: 60%; margin-left: 20% } 100% { width: 0%; margin-left: 100% } }`}</style>
     </div>
   )
 }
