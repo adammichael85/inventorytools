@@ -7,6 +7,6 @@ export async function convertPDF(base64: string, mediaType: string) {
   const data = await response.json()
   if (!response.ok) throw new Error(data.error || 'Conversion failed')
   if (data.error) throw new Error(data.error)
-  if (!data.rooms) throw new Error('No rooms found: ' + JSON.stringify(data).slice(0, 200))
+  if (!data.rooms) throw new Error('No rooms found in response: ' + JSON.stringify(data).slice(0, 200))
   return data
 }
