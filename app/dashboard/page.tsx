@@ -80,7 +80,7 @@ export default function Dashboard() {
         borders: cellBorders,
         width: { size: colWidth, type: WidthType.DXA },
         verticalAlign: VerticalAlign.TOP,
-        children: [new Paragraph({ children: [new TextRun({ text: text || '', font: 'Arial', size: 20 })] })]
+        children: [new Paragraph({ children: [new TextRun({ text: text || '', font: 'Arial', size: 20, color: '000000' })] })]
       })
 
       const children: any[] = []
@@ -90,7 +90,7 @@ export default function Dashboard() {
         await new Promise(res => setTimeout(res, 30))
 
         if (i > 0) children.push(new Paragraph({ children: [new TextRun({ text: '', font: 'Arial', size: 20 })], spacing: { after: 120 } }))
-        children.push(new Paragraph({ children: [new TextRun({ text: room.roomName, font: 'Arial', size: 28, bold: true })] }))
+        children.push(new Paragraph({ children: [new TextRun({ text: room.roomName, font: 'Arial', size: 28, bold: true, color: '000000' })] }))
 
         const rows = [{ item: 'Further views', description: '', condition: '' }, ...room.rows]
         children.push(new Table({
