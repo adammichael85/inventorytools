@@ -10,20 +10,3 @@ export async function convertPDF(base64: string, mediaType: string) {
   if (!data.rooms) throw new Error('No rooms found: ' + JSON.stringify(data).slice(0, 200))
   return data
 }
-
-export async function saveConversion(params: {
-  address: string
-  rooms: number
-  items: number
-  duration_seconds: number
-}) {
-  try {
-    await fetch('/api/save-conversion', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params)
-    })
-  } catch (e) {
-    // Silent fail — don't break the conversion if saving fails
-  }
-}

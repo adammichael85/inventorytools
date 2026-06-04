@@ -1,8 +1,7 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
-import { convertPDF, saveConversion } from './convert-action'
+import { convertPDF } from './convert-action'
 
 const TEAL = '#1D9E75'
 const TEAL_LIGHT = '#E1F5EE'
@@ -13,15 +12,6 @@ const SURFACE = '#FFFFFF'
 const TEXT = '#1A2820'
 const MUTED = '#5A7068'
 const HINT = '#94AEA6'
-
-type Conversion = {
-  id: string
-  address: string
-  rooms: number
-  items: number
-  duration_seconds: number
-  created_at: string
-}
 
 export default function Dashboard() {
   const [page, setPage] = useState('dashboard')
@@ -35,24 +25,6 @@ export default function Dashboard() {
   const [convertError, setConvertError] = useState('')
   const [docxUrl, setDocxUrl] = useState<string|null>(null)
   const [docxName, setDocxName] = useState('')
-  const [conversions, setConversions] = useState<Conversion[]>([])
-  const [userEmail, setUserEmail] = useState('')
-  const [accessToken, setAccessToken] = useState('')
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        setUserEmail(data.session.user.email || '')
-        setAccessToken(data.session.access_token)
-        loadConversions(data.session.access_token)
-      }
-    })
-  }, [])
-
-  async function loadConversions(token: string) {
-    const { data } = await supabase.from('conversions').select('*').order('created_at', { ascending: false }).limit(20)
-    if (data) setConversions(data)
-  }
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z' },
@@ -78,15 +50,17 @@ export default function Dashboard() {
     setConvertError('')
     setElapsed(0)
     setProcessingRooms([{ name: 'Reading PDF...', state: 'active' }])
-    const startTime = Date.now()
-    const timer = setInterval(() => setElapsed(Math.floor((Date.now() - startTime) / 1000)), 1000)
+
+    const timer = setInterval(() => setElapsed(e => e + 1), 1000)
 
     try {
       const base64 = await fileToBase64(selectedFile)
       const data = await convertPDF(base64, 'application/pdf')
+
       const rooms = (data.rooms || []).filter((r: any) => (r.rows || []).length > 0)
       setProcessingRooms(rooms.map((r: any) => ({ name: r.roomName, state: 'pending' })))
 
+      // Load docx library
       if (!(window as any).docx) {
         await new Promise<void>((resolve, reject) => {
           const s = document.createElement('script')
@@ -106,19 +80,19 @@ export default function Dashboard() {
         borders: cellBorders,
         width: { size: colWidth, type: WidthType.DXA },
         verticalAlign: VerticalAlign.TOP,
-        children: [new Paragraph({ children: [new TextRun({ text: text || '', font: 'Arial', size: 20, color: '000000' })] })]
+        children: [new Paragraph({ children: [new TextRun({ text: text || '', font: 'Arial', size: 20 })] })]
       })
 
       const children: any[] = []
-      let totalItems = 0
       for (let i = 0; i < rooms.length; i++) {
         const room = rooms[i]
         setProcessingRooms(prev => prev.map((r, idx) => idx === i ? { ...r, state: 'active' } : r))
         await new Promise(res => setTimeout(res, 30))
+
         if (i > 0) children.push(new Paragraph({ children: [new TextRun({ text: '', font: 'Arial', size: 20 })], spacing: { after: 120 } }))
-        children.push(new Paragraph({ children: [new TextRun({ text: room.roomName, font: 'Arial', size: 28, bold: true, color: '000000' })] }))
+        children.push(new Paragraph({ children: [new TextRun({ text: room.roomName, font: 'Arial', size: 28, bold: true })] }))
+
         const rows = [{ item: 'Further views', description: '', condition: '' }, ...room.rows]
-        totalItems += room.rows.length
         children.push(new Table({
           width: { size: COL_ITEM + COL_DESC + COL_COND, type: WidthType.DXA },
           rows: [
@@ -126,6 +100,7 @@ export default function Dashboard() {
             ...rows.map((row: any) => new TableRow({ children: [makeCell(row.item, COL_ITEM), makeCell(row.description, COL_DESC), makeCell(row.condition, COL_COND)] }))
           ]
         }))
+
         setProcessingRooms(prev => prev.map((r, idx) => idx === i ? { ...r, state: 'done' } : r))
         await new Promise(res => setTimeout(res, 30))
       }
@@ -138,14 +113,8 @@ export default function Dashboard() {
       const name = (data.address || 'inventory').replace(/[^a-zA-Z0-9 _-]/g, '').trim() + '.docx'
       setDocxUrl(url)
       setDocxName(name)
-      const duration = Math.floor((Date.now() - startTime) / 1000)
-      clearInterval(timer)
       setConvertState('done')
-
-      if (accessToken) {
-        await saveConversion({ address: data.address || selectedFile.name, rooms: rooms.length, items: totalItems, duration_seconds: duration })
-        loadConversions(accessToken)
-      }
+      clearInterval(timer)
 
     } catch (err: any) {
       clearInterval(timer)
@@ -162,22 +131,19 @@ export default function Dashboard() {
     setConvertError('')
   }
 
-  function formatDate(iso: string) {
-    const d = new Date(iso)
-    const now = new Date()
-    const diff = now.getTime() - d.getTime()
-    if (diff < 86400000) return 'Today, ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-    if (diff < 172800000) return 'Yesterday, ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-  }
-
-  const totalSpent = conversions.length * 3.5
-  const avgTime = conversions.length > 0 ? Math.round(conversions.reduce((s, c) => s + c.duration_seconds, 0) / conversions.length) : 0
+  const conversions = [
+    { name: '12 Milliners Court', rooms: 9, time: '38s', date: 'Today, 09:14' },
+    { name: '7 Ashford Road', rooms: 6, time: '31s', date: 'Today, 08:52' },
+    { name: 'Flat 3, Crown House', rooms: 4, time: '24s', date: 'Yesterday, 16:30' },
+    { name: '22 The Elms', rooms: 11, time: '52s', date: 'Yesterday, 11:05' },
+    { name: '9 Oak Lane', rooms: 7, time: '35s', date: '2 Jun, 14:18' },
+  ]
 
   return (
     <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", display: 'flex', height: '100vh', overflow: 'hidden', background: BG }}>
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
+      {/* SIDEBAR */}
       <aside style={{ width: 220, background: SURFACE, borderRight: `1px solid ${BORDER}`, display: 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0 }}>
         <div style={{ height: 64, padding: '0 18px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
@@ -198,31 +164,34 @@ export default function Dashboard() {
           ))}
         </nav>
         <div style={{ padding: '14px 10px', borderTop: `1px solid ${BORDER}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px' }}>
-            <div style={{ width: 30, height: 30, borderRadius: '50%', background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: TEAL_DARK, flexShrink: 0 }}>{userEmail.slice(0,2).toUpperCase() || 'U'}</div>
-            <p style={{ fontSize: 11, color: MUTED, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userEmail}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 8 }}>
+            <div style={{ width: 30, height: 30, borderRadius: '50%', background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: TEAL_DARK }}>JS</div>
+            <div>
+              <p style={{ fontSize: 12, fontWeight: 600, color: TEXT, margin: 0 }}>Jane Smith</p>
+              <p style={{ fontSize: 11, color: HINT, margin: 0 }}>ABC Inventories Ltd</p>
+            </div>
           </div>
         </div>
       </aside>
 
+      {/* MAIN */}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 32px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
-            <h1 style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3, margin: 0 }}>{page === 'dashboard' ? 'Dashboard' : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
-            <p style={{ fontSize: 12, color: HINT, margin: 0 }}>{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <h1 style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3, margin: 0 }}>{page === 'dashboard' ? 'Good morning 👋' : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
+            <p style={{ fontSize: 12, color: HINT, margin: 0 }}>Wednesday, 3 June 2026</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>{conversions.length} conversions</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>17 credits remaining</div>
             <button onClick={() => setShowConvert(true)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>+ Convert PDF</button>
           </div>
         </div>
 
         <div style={{ flex: 1, overflow: 'auto', padding: 28 }}>
-
           {page === 'dashboard' && (
             <div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 16, marginBottom: 28 }}>
-                {[['Total reports', conversions.length.toString(), 'all time'],['Total spent', `£${totalSpent.toFixed(2)}`, '@ £3.50 per report'],['Avg. time', conversions.length > 0 ? `${avgTime}s` : '—', 'per conversion'],['Est. saving', `£${(conversions.length * 15).toFixed(2)}`, 'vs. external typist']].map(([label,val,sub]) => (
+                {[['This month','34','reports converted'],['Spent','£119','@ £3.50 per report'],['Avg. time','42s','per conversion'],['Est. saving','£374','vs. external typist']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
@@ -230,38 +199,75 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
-                <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Recent conversions</h2>
-                  <button onClick={() => setPage('reports')} style={{ fontSize: 12, color: TEAL, background: 'none', border: 'none', cursor: 'pointer' }}>View all →</button>
-                </div>
-                {conversions.length === 0 ? (
-                  <div style={{ padding: 40, textAlign: 'center', color: HINT }}>
-                    <p style={{ fontSize: 14, marginBottom: 16 }}>No conversions yet</p>
-                    <button onClick={() => setShowConvert(true)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Convert your first PDF</button>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
+                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+                  <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Recent conversions</h2>
+                    <a href="#" style={{ fontSize: 12, color: TEAL, textDecoration: 'none' }}>View all →</a>
                   </div>
-                ) : (
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead><tr style={{ background: BG }}>{['Property','Rooms','Items','Time','Cost','Date'].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}</tr></thead>
-                    <tbody>{conversions.slice(0,5).map(c => (
-                      <tr key={c.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
-                        <td style={{ padding: '12px 20px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                            <div style={{ width: 30, height: 30, borderRadius: 7, background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    <thead><tr style={{ background: BG }}>
+                      {['Property','Rooms','Time','Cost','Date',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
+                    </tr></thead>
+                    <tbody>
+                      {conversions.map(c => (
+                        <tr key={c.name} style={{ borderBottom: `1px solid ${BORDER}` }}>
+                          <td style={{ padding: '12px 20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                              <div style={{ width: 30, height: 30, borderRadius: 7, background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                              </div>
+                              <div>
+                                <p style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: 0 }}>{c.name}</p>
+                                <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{c.date}</p>
+                              </div>
                             </div>
-                            <p style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: 0 }}>{c.address}</p>
-                          </div>
-                        </td>
-                        <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms}</td>
-                        <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.items}</td>
-                        <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds}s</td>
-                        <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
-                        <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{formatDate(c.created_at)}</td>
-                      </tr>
-                    ))}</tbody>
+                          </td>
+                          <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms</td>
+                          <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.time}</td>
+                          <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
+                          <td style={{ padding: '12px 20px' }}><span style={{ background: '#E6F9F2', color: '#0A6B48', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>● Complete</span></td>
+                          <td style={{ padding: '12px 20px' }}><button style={{ padding: '5px 12px', borderRadius: 7, border: `1px solid ${BORDER}`, background: SURFACE, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>↓ .docx</button></td>
+                        </tr>
+                      ))}
+                    </tbody>
                   </table>
-                )}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+                    <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Credits</h3></div>
+                    <div style={{ padding: 18 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span style={{ fontWeight: 600 }}>17 remaining</span><span style={{ color: HINT }}>of 50 purchased</span></div>
+                      <div style={{ height: 8, borderRadius: 20, background: BORDER, overflow: 'hidden', marginBottom: 14 }}><div style={{ width: '34%', height: '100%', background: TEAL, borderRadius: 20 }} /></div>
+                      <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>Each conversion costs <strong style={{ color: TEXT }}>1 credit (£3.50)</strong>. Credits never expire.</p>
+                      <button onClick={() => setShowTopup(true)} style={{ width: '100%', padding: 10, borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Buy more credits</button>
+                    </div>
+                  </div>
+                  <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+                    <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>This month</h3></div>
+                    <div style={{ padding: 18 }}>
+                      {[['Reports converted','34'],['Total spent','£119.00'],['Avg. per report','£3.50'],['Est. saving vs. typist','£374.00']].map(([l,v],i) => (
+                        <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
+                          <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+                    <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Activity</h3></div>
+                    <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {[['12 Milliners Court — download ready','Today, 09:14',true],['7 Ashford Road — download ready','Today, 08:52',true],['Sarah M. joined your team','Yesterday, 17:01',false],['50 credits purchased — £175.00','1 Jun, 09:00',false]].map(([text,time,active]) => (
+                        <div key={text as string} style={{ display: 'flex', gap: 10 }}>
+                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: active ? TEAL : BORDER, flexShrink: 0, marginTop: 4 }} />
+                          <div>
+                            <p style={{ fontSize: 12, color: TEXT, margin: 0 }}>{text as string}</p>
+                            <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{time as string}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -269,46 +275,38 @@ export default function Dashboard() {
           {page === 'reports' && (
             <div>
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
-                <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}` }}>
-                  <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>All conversions ({conversions.length})</h2>
+                <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', gap: 12 }}>
+                  <input placeholder="Search by address..." style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none' }} />
                 </div>
-                {conversions.length === 0 ? (
-                  <div style={{ padding: 40, textAlign: 'center', color: HINT }}>
-                    <p style={{ fontSize: 14 }}>No conversions yet.</p>
-                  </div>
-                ) : (
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead><tr style={{ background: BG }}>{['Property','Rooms','Items','Time','Cost','Date'].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}</tr></thead>
-                    <tbody>{conversions.map(c => (
-                      <tr key={c.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
-                        <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 500 }}>{c.address}</td>
-                        <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms}</td>
-                        <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.items}</td>
-                        <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds}s</td>
-                        <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
-                        <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{formatDate(c.created_at)}</td>
-                      </tr>
-                    ))}</tbody>
-                  </table>
-                )}
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead><tr style={{ background: BG }}>{['Property','Rooms','Time','Cost','Date',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}</tr></thead>
+                  <tbody>{conversions.map(c => (<tr key={c.name} style={{ borderBottom: `1px solid ${BORDER}` }}>
+                    <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 500 }}>{c.name}</td>
+                    <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms</td>
+                    <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.time}</td>
+                    <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
+                    <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{c.date}</td>
+                    <td style={{ padding: '12px 20px' }}><button style={{ padding: '5px 12px', borderRadius: 7, border: `1px solid ${BORDER}`, background: SURFACE, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>↓ .docx</button></td>
+                  </tr>))}</tbody>
+                </table>
               </div>
             </div>
           )}
 
           {page === 'billing' && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px' }}>Billing</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Billing</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
                 <div style={{ background: TEAL, borderRadius: 14, padding: 24, color: '#fff' }}>
-                  <p style={{ fontSize: 12, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Total spent</p>
-                  <p style={{ fontSize: 42, fontWeight: 700, letterSpacing: -1, lineHeight: 1, marginBottom: 6 }}>£{totalSpent.toFixed(2)}</p>
-                  <p style={{ fontSize: 14, opacity: 0.8, marginBottom: 20 }}>{conversions.length} conversions @ £3.50 each</p>
-                  <button onClick={() => setShowTopup(true)} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#fff', color: TEAL, fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Buy credits</button>
+                  <p style={{ fontSize: 12, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Current balance</p>
+                  <p style={{ fontSize: 42, fontWeight: 700, letterSpacing: -1, lineHeight: 1, marginBottom: 6 }}>17</p>
+                  <p style={{ fontSize: 14, opacity: 0.8, marginBottom: 20 }}>credits remaining</p>
+                  <button onClick={() => setShowTopup(true)} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#fff', color: TEAL, fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Buy more credits</button>
                 </div>
                 <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
-                  {[['Reports converted', conversions.length.toString()],['Avg. time', avgTime > 0 ? `${avgTime}s` : '—'],['Total spent', `£${totalSpent.toFixed(2)}`],['Est. saving vs. typist', `£${(conversions.length * 15).toFixed(2)}`]].map(([l,v],i) => (
+                  {[['Reports converted','34'],['Credits used','34'],['Total spent','£119.00'],['Est. saving','£374.00']].map(([l,v],i) => (
                     <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
-                      <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
+                      <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600 }}>{v}</span>
                     </div>
                   ))}
                 </div>
@@ -320,22 +318,38 @@ export default function Dashboard() {
             <div style={{ maxWidth: 600 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px' }}>Settings</h2>
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
-                <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Account</p>
-                <p style={{ fontSize: 13, color: MUTED, marginBottom: 16 }}>Signed in as <strong style={{ color: TEXT }}>{userEmail}</strong></p>
-                <button onClick={() => supabase.auth.signOut().then(() => window.location.href = '/')} style={{ padding: '9px 20px', borderRadius: 9, border: '1px solid #E2EAE7', background: 'transparent', color: TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Sign out</button>
+                <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>Profile</p>
+                {[['First name','Jane'],['Last name','Smith'],['Email','jane@abcinventories.co.uk'],['Company','ABC Inventories Ltd']].map(([l,v]) => (
+                  <div key={l} style={{ marginBottom: 14 }}>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6 }}>{l}</label>
+                    <input defaultValue={v} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  </div>
+                ))}
+                <button style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Save changes</button>
               </div>
             </div>
           )}
 
           {page === 'team' && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px' }}>Team</h2>
-              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
-                <p style={{ fontSize: 13, color: MUTED }}>Team features coming soon.</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Team</h2>
+                <button style={{ padding: '9px 18px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>+ Invite member</button>
+              </div>
+              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+                {[{name:'Jane Smith',email:'jane@abcinventories.co.uk',role:'Admin',avatar:'JS'},{name:'Sarah Mitchell',email:'sarah@abcinventories.co.uk',role:'Member',avatar:'SM'},{name:'Tom Davies',email:'tom@abcinventories.co.uk',role:'Member',avatar:'TD'}].map((m,i,arr) => (
+                  <div key={m.name} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px', borderBottom: i < arr.length-1 ? `1px solid ${BORDER}` : 'none' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: TEAL_DARK }}>{m.avatar}</div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{m.name}</p>
+                      <p style={{ fontSize: 12, color: HINT, margin: 0 }}>{m.email}</p>
+                    </div>
+                    <span style={{ fontSize: 12, background: m.role === 'Admin' ? TEAL_LIGHT : BG, color: m.role === 'Admin' ? TEAL_DARK : MUTED, padding: '3px 10px', borderRadius: 20 }}>{m.role}</span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
-
         </div>
       </main>
 
@@ -344,9 +358,10 @@ export default function Dashboard() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 480, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
             <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£3.50 per conversion</p></div>
+              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>1 credit (£3.50) · 17 remaining</p></div>
               <button onClick={closeConvert} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
             </div>
+
             {convertState === 'idle' && (
               <div style={{ padding: 24 }}>
                 <label htmlFor="pdf-upload">
@@ -361,6 +376,7 @@ export default function Dashboard() {
                 <input id="pdf-upload" type="file" accept="application/pdf" style={{ display: 'none' }} onChange={e => { if (e.target.files?.[0]) { setSelectedFile(e.target.files[0]); setConvertState('selected') } }} />
               </div>
             )}
+
             {convertState === 'selected' && selectedFile && (
               <div style={{ padding: 24 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: BG, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
@@ -372,10 +388,11 @@ export default function Dashboard() {
                     <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{(selectedFile.size / 1024 / 1024).toFixed(1)} MB</p>
                   </div>
                 </div>
-                <button onClick={startConvert} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer', marginBottom: 10 }}>Convert now — £3.50</button>
+                <button onClick={startConvert} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer', marginBottom: 10 }}>Convert now — 1 credit (£3.50)</button>
                 <button onClick={() => setConvertState('idle')} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Choose different file</button>
               </div>
             )}
+
             {convertState === 'processing' && (
               <div style={{ padding: 24 }}>
                 <div style={{ background: TEAL_LIGHT, borderRadius: 10, padding: '14px 16px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -396,17 +413,19 @@ export default function Dashboard() {
                 ))}
               </div>
             )}
+
             {convertState === 'done' && docxUrl && (
               <div style={{ padding: 24 }}>
                 <div style={{ background: TEAL_LIGHT, border: `1px solid ${TEAL}`, borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16 }}>
                   <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
                   <p style={{ fontSize: 15, fontWeight: 700, color: TEAL_DARK, marginBottom: 4 }}>Conversion complete!</p>
-                  <p style={{ fontSize: 13, color: MUTED }}>{processingRooms.length} rooms · {elapsed}s</p>
+                  <p style={{ fontSize: 13, color: MUTED }}>{processingRooms.length} rooms extracted in {elapsed}s</p>
                 </div>
                 <a href={docxUrl} download={docxName} style={{ display: 'block', width: '100%', padding: 13, borderRadius: 10, background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, textAlign: 'center', textDecoration: 'none', marginBottom: 10, boxSizing: 'border-box' }}>↓ Download {docxName}</a>
                 <button onClick={closeConvert} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Close</button>
               </div>
             )}
+
             {convertState === 'error' && (
               <div style={{ padding: 24 }}>
                 <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: 16, marginBottom: 16 }}>
