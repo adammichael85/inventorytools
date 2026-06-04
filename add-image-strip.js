@@ -1,4 +1,7 @@
-import { supabase } from '@/lib/supabase'
+const fs = require('fs');
+let c = fs.readFileSync('app/dashboard/convert-action.ts', 'utf8');
+
+const newContent = `import { supabase } from '@/lib/supabase'
 
 async function stripImagesFromPDF(file: File): Promise<File> {
   try {
@@ -65,3 +68,7 @@ export async function convertPDF(base64: string, mediaType: string, originalFile
   if (!data.rooms) throw new Error('No rooms found: ' + JSON.stringify(data).slice(0, 200))
   return data
 }
+`;
+
+fs.writeFileSync('app/dashboard/convert-action.ts', newContent);
+console.log('done');
