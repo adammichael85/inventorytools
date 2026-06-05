@@ -81,17 +81,21 @@ export default function Dashboard() {
     setConvertError('')
     setElapsed(0)
     setProcessingRooms([{ name: 'Reading PDF...', state: 'active' }])
+    let currentStage = 'Reading PDF'
 
     const timer = setInterval(() => setElapsed(e => e + 1), 1000)
 
     try {
+      currentStage = 'Reading PDF'
       const base64 = await fileToBase64(selectedFile)
+      currentStage = 'Calling AI API'
       const data = await convertPDF(base64, 'application/pdf')
 
       const rooms = (data.rooms || []).filter((r: any) => (r.rows || []).length > 0)
       setProcessingRooms(rooms.map((r: any) => ({ name: r.roomName, state: 'pending' })))
 
       // Load docx library
+      currentStage = 'Loading Word document library'
       if (!(window as any).docx) {
         await new Promise<void>((resolve, reject) => {
           const s = document.createElement('script')
@@ -136,6 +140,7 @@ export default function Dashboard() {
         await new Promise(res => setTimeout(res, 30))
       }
 
+      currentStage = 'Building Word document'
       const doc = new Document({ sections: [{ properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } }, children }] })
       const b64 = await Packer.toBase64String(doc)
       const byteArray = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
