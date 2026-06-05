@@ -123,7 +123,7 @@ export default function Dashboard() {
         if (i > 0) children.push(new Paragraph({ children: [new TextRun({ text: '', font: 'Arial', size: 20 })], spacing: { after: 120 } }))
         children.push(new Paragraph({ children: [new TextRun({ text: room.roomName, font: 'Arial', size: 28, bold: true })] }))
 
-        const rows = [{ item: 'Further views', description: '', condition: '' }, ...room.rows]
+        const rows = room.rows
         children.push(new Table({
           width: { size: COL_ITEM + COL_DESC + COL_COND, type: WidthType.DXA },
           rows: [

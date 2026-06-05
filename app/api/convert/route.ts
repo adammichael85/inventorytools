@@ -44,7 +44,7 @@ COPY RULE
 Copy text EXACTLY. Do not correct spelling, improve grammar, reword, summarise, remove, add, merge or split rows.
 
 DESCRIPTION FORMATTING
-Place each sentence on its own line inside the description field, separated by the pipe character " | ".
+Place each sentence or phrase on its own line inside the description field, separated by the pipe character " | ". Split on every full stop, comma-separated feature, or new line in the original PDF.
 
 CONDITION FORMATTING  
 Place each value on its own line inside the condition field, separated by the pipe character " | ".
