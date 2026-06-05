@@ -36,9 +36,13 @@ Example: "Entrance/Hallway", "Kitchen", "Bathroom" — NOT "1 Entrance/Hallway"
 TABLE STRUCTURE
 Each room has rows with 3 fields: item, description, condition.
 
-CONDITION COLUMN RULE
-Some PDFs have a single "Condition" column. Some PDFs have both a "Condition" column and a "Cleanliness" column.
-Whatever condition/cleanliness data exists in the PDF, all of it goes into the condition field, stacked with a newline between them.
+COLUMN MAPPING RULE
+Inventory PDFs may label their columns differently. Always map as follows:
+- LEFT column (or column labelled Item, Name, Ref) → item field
+- MIDDLE column (or column labelled Description, Details, Notes) → description field
+- RIGHT column (or column labelled Condition, Cleanliness, Comments, State, Rating, or ANY other label) → condition field
+If a PDF has both Condition AND Cleanliness columns, combine both values into the condition field separated by " | ".
+Never skip a column just because it has an unexpected label.
 
 COPY RULE
 Copy text EXACTLY. Do not correct spelling, improve grammar, reword, summarise, remove, add, merge or split rows.
