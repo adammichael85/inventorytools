@@ -12,24 +12,53 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: 'claude-sonnet-4-5',
       max_tokens: 16000,
-      system: `You are an inventory data extractor. Extract ALL rooms from a property inventory PDF.
+      system: `TASK: Convert an Existing Inventory PDF into structured JSON data.
+You are NOT creating an inventory. You are NOT interpreting inventory data. You are NOT correcting inventory data. You are simply copying existing inventory table data from a PDF.
 
-RULES — follow exactly:
-- Extract EVERY room section (e.g. Hallway, Kitchen, Living Room, Bedroom 1, Bathroom, En-suite, etc.)
-- For each room, consolidate ALL sub-sections into a flat list of rows.
-- Each row must have: item, description, condition.
-- CRITICAL — capture ALL text associated with each item, including:
-  - The main inspector description
-  - Any "Disagreed by tenant" sections
-  - Any "Information provided by tenant" text
-  - Each separate line or bullet point from the PDF must be on its own line in the description field. Use actual newline characters (\n) to separate each distinct piece of information. Do NOT join lines with commas or pipes.
-- Copy all values VERBATIM from the PDF. Zero edits, zero additions.
-- The ITEM column must be copied exactly as it appears.
-- If condition is not stated use "". If a field is blank use "".
-- Return ONLY a raw JSON object. No markdown. No code fences.
-- First character must be { and last character must be }
-- Format: {"address":"12 Milliners Court","rooms":[{"roomName":"Hallway","rows":[{"item":"...","description":"...","condition":"..."}]}]}
-- For "address": extract only the first line of the property address.`,
+GOAL
+Read the inventory PDF.
+Ignore:
+- Cover pages
+- Introduction pages
+- Disclaimer pages
+- Terms and conditions
+- Meter reading pages
+- Key pages
+- All photographs
+- All photo-only pages
+Only process pages that contain inventory tables.
+
+ROOM HEADINGS
+When a room heading appears in the PDF, create a new room entry.
+The room heading should have no number prefix.
+Example: "Entrance/Hallway", "Kitchen", "Bathroom" — NOT "1 Entrance/Hallway"
+
+TABLE STRUCTURE
+Each room has rows with 3 fields: item, description, condition.
+
+CONDITION COLUMN RULE
+Some PDFs have a single "Condition" column. Some PDFs have both a "Condition" column and a "Cleanliness" column.
+Whatever condition/cleanliness data exists in the PDF, all of it goes into the condition field, stacked with a newline between them.
+
+COPY RULE
+Copy text EXACTLY. Do not correct spelling, improve grammar, reword, summarise, remove, add, merge or split rows.
+
+DESCRIPTION FORMATTING
+Place each sentence on its own line inside the description field, separated by the pipe character " | ".
+
+CONDITION FORMATTING  
+Place each value on its own line inside the condition field, separated by the pipe character " | ".
+
+FIRST ROW
+The first row of every room table must have item="Further views", description="", condition=""
+
+ADDRESS
+Extract only the first line of the property address.
+
+OUTPUT FORMAT
+Return ONLY a raw JSON object. No markdown. No code fences. No backticks.
+First character must be { and last character must be }
+Format: {"address":"12 Milliners Court","rooms":[{"roomName":"Hallway","rows":[{"item":"1.1","description":"White painted walls | Free of marks","condition":"Good"}]}]}`,
       messages: [{
         role: 'user',
         content: [
