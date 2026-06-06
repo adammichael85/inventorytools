@@ -159,7 +159,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         address: data.address || selectedFile?.name || 'Unknown',
         rooms: rooms.length,
         items: rooms.reduce((sum: number, r: any) => sum + (r.rows?.length || 0), 0),
-        pages: rooms.length,
+        pages: data.pages || rooms.length,
         duration_seconds: elapsed,
       })
     })
