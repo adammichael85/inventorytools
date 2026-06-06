@@ -63,7 +63,7 @@ ADDRESS
 Extract only the first line of the property address.
 
 PAGES
-Count the total number of pages in the PDF that contain inventory table data (ignore cover pages, photos etc). Include this as the "pages" field in the JSON.
+Count how many pages the resulting Word document will have. Each room typically fills one page. A room with many items may fill 2 pages. Estimate based on the amount of content per room. Include this as the "pages" field in the JSON.
 
 OUTPUT FORMAT
 Return ONLY a raw JSON object. No markdown. No code fences. No backticks.
