@@ -450,8 +450,8 @@ Use the EXTREME compression to reduce the file size dramatically to save convers
                 {selectedFile.size > 3 * 1024 * 1024 && (
                   <div style={{ background: '#FFF8E1', border: '1px solid #FFD54F', borderRadius: 9, padding: '10px 14px', marginBottom: 16 }}>
                     <p style={{ fontSize: 12, fontWeight: 600, color: '#7B5E00', margin: '0 0 4px' }}>⚠️ Large file detected ({(selectedFile.size / 1024 / 1024).toFixed(1)} MB)</p>
-                    <p style={{ fontSize: 12, color: '#7B5E00', margin: '0 0 2px' }}>For files over 3MB, compress first at <a href="https://www.ilovepdf.com/compress_pdf" target="_blank" style={{ color: '#7B5E00', fontWeight: 600 }}>ilovepdf.com</a></p>
-                    <p style={{ fontSize: 12, color: '#7B5E00', margin: 0 }}>Use <strong>EXTREME</strong> compression to reduce the file size dramatically to save conversion time.</p>
+                    <p style={{ fontSize: 12, color: '#7B5E00', margin: '0 0 8px' }}>For files over 3MB, compress first at <a href="https://www.ilovepdf.com/compress_pdf" target="_blank" style={{ color: '#7B5E00', fontWeight: 600 }}>ilovepdf.com</a></p>
+                    <p style={{ fontSize: 12, color: '#7B5E00', margin: 0 }}>Use <strong>EXTREME</strong> compression to reduce the file size dramatically and save conversion time.</p>
                   </div>
                 )}
                 <button onClick={startConvert} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer', marginBottom: 10 }}>Convert now — 1 credit (£3.50)</button>
