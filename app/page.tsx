@@ -62,7 +62,7 @@ export default function Home() {
         </div>
       </div>
       <div style={{ height: 40, background: 'rgba(247,249,248,0.95)', borderTop: '1px solid #E2EAE7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#94AEA6', flexShrink: 0 }}>
-        <strong style={{ color: '#1A2820', marginRight: 4 }}>£3.50</strong> per conversion · Any tool · Credits never expire · First 5 free
+        <strong style={{ color: '#1A2820', marginRight: 4 }}>£3.50</strong> per conversion · Any tool · Credits never expire 
       </div>
     </main>
   )

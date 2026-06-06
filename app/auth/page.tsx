@@ -112,7 +112,7 @@ export default function Auth() {
             {tab === 'signup' && (
               <div>
                 <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.4, marginBottom: 6 }}>Start for free</h2>
-                <p style={{ fontSize: 14, color: '#5A7068', marginBottom: 28 }}>First 5 reports free. No credit card required.</p>
+                <p style={{ fontSize: 14, color: '#5A7068', marginBottom: 28 }}>Create your account to get started.</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                   <div>
                     <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>First name</label>
