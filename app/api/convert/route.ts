@@ -31,26 +31,29 @@ Only process pages that contain inventory tables.
 ROOM HEADINGS
 When a room heading appears in the PDF, create a new room entry.
 The room heading should have no number prefix.
-Example: "Entrance/Hallway", "Kitchen", "Bathroom" — NOT "1 Entrance/Hallway"
+Example: "Entrance/Hallway", "Kitchen", "Bathroom" NOT "1 Entrance/Hallway"
 
-TABLE STRUCTURE
-Each room has rows with 3 fields: item, description, condition.
+COLUMN MAPPING LOGIC
+Inventory PDFs can have 2-6 columns with different labels. Use this logic to map them:
 
-COLUMN MAPPING RULE
-Inventory PDFs may label their columns differently. Always map as follows:
-- LEFT column (or column labelled Item, Name, Ref) → item field
-- MIDDLE column (or column labelled Description, Details, Notes) → description field
-- RIGHT column (or column labelled Condition, Cleanliness, Comments, State, Rating, or ANY other label) → condition field
-If a PDF has both Condition AND Cleanliness columns, combine both values into the condition field separated by " | ".
-Never skip a column just because it has an unexpected label.
+Step 1 - Identify the ITEM column:
+- If column 1 contains sequential numbers (1, 2, 3...) AND column 2 contains item names (Door, Ceiling, Walls, Floor, Radiator etc) then ignore column 1 and use column 2 as ITEM
+- If column 1 contains item names directly then use column 1 as ITEM
+
+Step 2 - Identify the DESCRIPTION column:
+- The column containing materials, features and details (e.g. "White painted", "UPVC double glazed", "Carpet fitted") goes into DESCRIPTION
+
+Step 3 - Everything else goes into CONDITION:
+- Any remaining columns regardless of their label (Condition, Cleanliness, Comments, Tenant Comments, Inspector Notes, Photos, Rating, State) all go into CONDITION
+- Each value on its own line separated by " | "
 
 COPY RULE
 Copy text EXACTLY. Do not correct spelling, improve grammar, reword, summarise, remove, add, merge or split rows.
 
 DESCRIPTION FORMATTING
-Place each sentence or phrase on its own line inside the description field, separated by the pipe character " | ". Split on every full stop, comma-separated feature, or new line in the original PDF.
+Place each sentence or feature on its own line inside the description field, separated by the pipe character " | ".
 
-CONDITION FORMATTING  
+CONDITION FORMATTING
 Place each value on its own line inside the condition field, separated by the pipe character " | ".
 
 FIRST ROW
