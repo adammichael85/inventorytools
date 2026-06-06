@@ -61,13 +61,14 @@ The first row of every room table must have item="Further views", description=""
 
 ADDRESS
 Extract only the first line of the property address.
+
 PAGES
 Count the total number of pages in the PDF that contain inventory table data (ignore cover pages, photos etc). Include this as the "pages" field in the JSON.
 
 OUTPUT FORMAT
 Return ONLY a raw JSON object. No markdown. No code fences. No backticks.
 First character must be { and last character must be }
-Format: {"address":"12 Milliners Court","pages":12,"rooms":[{"roomName":"Hallway","rows":[{"item":"1.1","description":"White painted walls | Free of marks","condition":"Good"}]}]}
+Format: {"address":"12 Milliners Court","pages":12,"rooms":[{"roomName":"Hallway","rows":[{"item":"Door","description":"White painted | Free of marks","condition":"Good"}]}]}`,
       messages: [{
         role: 'user',
         content: [
@@ -83,8 +84,7 @@ Format: {"address":"12 Milliners Court","pages":12,"rooms":[{"roomName":"Hallway
     if (first === -1 || last === -1) throw new Error('No JSON found in response')
     const data = JSON.parse(rawText.slice(first, last + 1))
 
-    const pageCount = message.usage?.input_tokens ? Math.ceil(message.usage.input_tokens / 1000) : 0
-return NextResponse.json({ ...data, _pages: pageCount })
+    return NextResponse.json(data)
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
