@@ -458,7 +458,10 @@ export default function Dashboard() {
                     <p style={{ fontSize: 13, fontWeight: 600, color: TEAL_DARK, margin: 0 }}>Processing...</p>
                     <p style={{ fontSize: 11, color: '#0F6E56', margin: 0 }}>{selectedFile?.name}</p>
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0F6E56' }}>⏱ {elapsed}s</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0F6E56' }}>⏱ {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</span>
+                </div>
+                <div style={{ height: 4, borderRadius: 20, background: 'rgba(29,158,117,0.2)', overflow: 'hidden', marginBottom: 14 }}>
+                  <div style={{ height: '100%', borderRadius: 20, background: '#1D9E75', animation: 'progress 2s ease-in-out infinite' }} />
                 </div>
                 {processingRooms.map((room, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: `1px solid ${BORDER}`, opacity: room.state === 'pending' ? 0.35 : 1 }}>
@@ -488,7 +491,7 @@ export default function Dashboard() {
                     ))}
                   </div>
                 </div>
-                <a href={docxUrl} download={docxName} style={{ display: 'block', width: '100%', padding: 13, borderRadius: 10, background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, textAlign: 'center', textDecoration: 'none', marginBottom: 10, boxSizing: 'border-box' }}>↓ Download {docxName}</a>
+                <a href={docxUrl} download={docxName} onClick={() => setTimeout(() => window.location.reload(), 2000)} style={{ display: 'block', width: '100%', padding: 13, borderRadius: 10, background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, textAlign: 'center', textDecoration: 'none', marginBottom: 10, boxSizing: 'border-box' }}>↓ Download {docxName}</a>
                 <button onClick={closeConvert} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Close</button>
               </div>
             )}
