@@ -407,7 +407,7 @@ export default function Dashboard() {
                     <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your PDF here</p>
                     <p style={{ fontSize: 13, color: HINT }}>or click to browse</p>
 <p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>For files over 3MB, compress first at ilovepdf.com</p>
-<p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>FUse the EXTREME compression to reduce the file size dramatically to save conversion time.</p>
+<p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>Use the EXTREME compression to reduce the file size dramatically to save conversion time.</p>
                   </div>
                 </label>
                 <input id="pdf-upload" type="file" accept="application/pdf" style={{ display: 'none' }} onChange={async e => { 
