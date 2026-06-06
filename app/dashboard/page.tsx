@@ -149,6 +149,22 @@ export default function Dashboard() {
       const name = (data.address || 'inventory').replace(/[^a-zA-Z0-9 _-]/g, '').trim() + '.docx'
       setDocxUrl(url)
       setDocxName(name)
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (session) {
+    fetch('/api/save-conversion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: session.user.id,
+        address: data.address || selectedFile?.name || 'Unknown',
+        rooms: rooms.length,
+        items: totalItems,
+        pages: data._pages || 0,
+        duration_seconds: duration,
+      })
+    })
+  }
+})
       setConvertState('done')
       clearInterval(timer)
 
