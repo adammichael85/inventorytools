@@ -160,7 +160,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         rooms: rooms.length,
         items: rooms.reduce((sum: number, r: any) => sum + (r.rows?.length || 0), 0),
         pages: data._pages || 0,
-        duration_seconds: duration,
+        duration_seconds: elapsed,
       })
     })
   }
