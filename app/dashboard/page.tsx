@@ -158,7 +158,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         user_id: session.user.id,
         address: data.address || selectedFile?.name || 'Unknown',
         rooms: rooms.length,
-        items: totalItems,
+        items: rooms.reduce((sum: number, r: any) => sum + (r.rows?.length || 0), 0),
         pages: data._pages || 0,
         duration_seconds: duration,
       })
