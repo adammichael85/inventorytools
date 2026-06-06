@@ -30,9 +30,9 @@ export default function Home() {
           </div>
           <div style={{ textAlign: 'center', maxWidth: 340 }}>
             <h2 style={{ fontSize: 32, fontWeight: 700, color: '#1A2820', marginBottom: 12, letterSpacing: -0.5 }}>PDF to Word</h2>
-            <p style={{ fontSize: 15, color: '#5A7068', lineHeight: 1.7, marginBottom: 24 }}>Upload any inventory PDF and get a perfectly formatted Word document in under 60 seconds. Every room, every item, verbatim.</p>
+            <p style={{ fontSize: 15, color: '#5A7068', lineHeight: 1.7, marginBottom: 24 }}>Upload any inventory PDF and get a perfectly formatted Word document in 1–4 minutes depending on file size. Every room, every item, verbatim.</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginBottom: 20 }}>
-              {['Any PDF format', 'Under 60 seconds*', 'Verbatim extraction', 'Tenant disputes included'].map(t => (
+              {['Any PDF format', '1–4 mins depending on file size', 'Verbatim extraction', 'Tenant disputes included'].map(t => (
                 <span key={t} style={{ fontSize: 12, fontWeight: 500, padding: '5px 12px', borderRadius: 20, background: '#E1F5EE', color: '#085041' }}>{t}</span>
               ))}
             </div>

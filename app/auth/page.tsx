@@ -58,9 +58,9 @@ export default function Auth() {
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff', display: 'inline-block' }} /> AI-powered · Built for inventory clerks
             </div>
             <h2 style={{ fontSize: 36, fontWeight: 700, color: '#fff', lineHeight: 1.2, letterSpacing: -0.5, marginBottom: 16 }}>Your reports. Done in seconds.</h2>
-            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 40 }}>Upload any inventory PDF and get a perfectly formatted Word document in under 60 seconds.*</p>
+            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 40 }}>Upload any inventory PDF and get a perfectly formatted Word document in 1–4 minutes depending on file size.*</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {[['⏱', 'Under 60 seconds*', 'vs. 45–90 mins with a typist'], ['💷', '£3.50 flat rate', 'Any size property. No monthly fees.'], ['✓', '100% verbatim', 'Every word copied exactly as-is']].map(([icon, title, sub]) => (
+              {[['⏱', '1–4 mins depending on file size', 'vs. 45–90 mins with a typist'], ['💷', '£3.50 flat rate', 'Any size property. No monthly fees.'], ['✓', '100% verbatim', 'Every word copied exactly as-is']].map(([icon, title, sub]) => (
                 <div key={title} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{icon}</div>
                   <div>
