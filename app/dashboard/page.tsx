@@ -170,7 +170,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
     } catch (err: any) {
       clearInterval(timer)
-      setConvertError(err.message || err.toString() || JSON.stringify(err) || 'Something went wrong')
+      setConvertError(typeof err === 'string' ? err : err.message || err.toString() || JSON.stringify(err) || 'Unknown error')
       setConvertState('error')
     }
   }
