@@ -81,7 +81,8 @@ Format: {"address":"12 Milliners Court","rooms":[{"roomName":"Hallway","rows":[{
     if (first === -1 || last === -1) throw new Error('No JSON found in response')
     const data = JSON.parse(rawText.slice(first, last + 1))
 
-    return NextResponse.json(data)
+    const pageCount = message.usage?.input_tokens ? Math.ceil(message.usage.input_tokens / 1000) : 0
+return NextResponse.json({ ...data, _pages: pageCount })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
