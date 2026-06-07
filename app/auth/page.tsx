@@ -36,7 +36,7 @@ export default function Auth() {
     })
     if (error) { setError(error.message); setLoading(false); return }
     if (data.user) {
-      const profileRes = const profileRes = await fetch('/api/create-profile', {
+      const profileRes = await fetch('/api/create-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
