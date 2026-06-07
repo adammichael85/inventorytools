@@ -29,6 +29,7 @@ export default function Dashboard() {
   const [processingRooms, setProcessingRooms] = useState<{name:string,state:string}[]>([])
   const [elapsed, setElapsed] = useState(0)
   const [convertError, setConvertError] = useState('')
+  const [conversions, setConversions] = useState<any[]>([])
   const [compressing, setCompressing] = useState(false)
   const [originalSize, setOriginalSize] = useState(0)
   const [compressedSize, setCompressedSize] = useState(0)
