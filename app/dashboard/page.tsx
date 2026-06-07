@@ -286,9 +286,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                         <tr key={c.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
                           <td style={{ padding: '12px 20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                              <div style={{ width: 30, height: 30, borderRadius: 7, background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-                              </div>
+                              
                               <div>
                                 <p style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: 0 }}>{c.address}</p>
                                 <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{new Date(c.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}</p>
@@ -299,7 +297,18 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                           <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
                           <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
                           <td style={{ padding: '12px 20px' }}><span style={{ background: '#E6F9F2', color: '#0A6B48', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>● Complete</span></td>
-                          <td style={{ padding: '12px 20px', fontSize: 11, color: HINT }}>Archived</td>
+                          <td style={{ padding: '12px 20px' }}>
+                          {c.file_path ? (
+                            <button onClick={async () => {
+                              const { data } = await supabase.storage.from('documents').createSignedUrl(c.file_path, 60)
+                              if (data?.signedUrl) { const a = document.createElement('a'); a.href = data.signedUrl; a.download = c.address + '.docx'; a.click() }
+                            }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title="Download Word doc">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9,15 12,18 15,15"/></svg>
+                            </button>
+                          ) : (
+                            <span style={{ fontSize: 11, color: HINT }}>—</span>
+                          )}
+                        </td>
                         </tr>
                       ))}
                     </tbody>

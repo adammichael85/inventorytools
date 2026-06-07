@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
       address: body.address,
       rooms: body.rooms,
       duration_seconds: body.duration_seconds,
+      file_path: body.file_path || null,
     })
     if (convError) throw new Error(convError.message)
 
