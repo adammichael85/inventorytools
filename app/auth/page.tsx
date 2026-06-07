@@ -36,7 +36,7 @@ export default function Auth() {
     })
     if (error) { setError(error.message); setLoading(false); return }
     if (data.user) {
-      await fetch('/api/create-profile', {
+      const profileRes = const profileRes = await fetch('/api/create-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -48,6 +48,8 @@ export default function Auth() {
           company_phone: phone,
         })
       })
+      const profileData = await profileRes.json()
+      console.log('Profile save result:', profileData)
     }
     setMessage('Check your email to confirm your account!')
     setLoading(false)
