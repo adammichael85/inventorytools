@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [selectedCredits, setSelectedCredits] = useState<{credits:number,price:number}|null>(null)
   const [processingRooms, setProcessingRooms] = useState<{name:string,state:string}[]>([])
   const [elapsed, setElapsed] = useState(0)
+  const elapsedRef = React.useRef(0)
   const [convertError, setConvertError] = useState('')
   const [conversions, setConversions] = useState<any[]>([])
   const [compressing, setCompressing] = useState(false)
@@ -97,10 +98,11 @@ export default function Dashboard() {
     setConvertState('processing')
     setConvertError('')
     setElapsed(0)
+    elapsedRef.current = 0
     setProcessingRooms([{ name: 'Reading PDF...', state: 'active' }])
     let currentStage = 'Reading PDF'
 
-    const timer = setInterval(() => setElapsed(e => e + 1), 1000)
+    const timer = setInterval(() => { elapsedRef.current += 1; setElapsed(elapsedRef.current) }, 1000)
 
     try {
       currentStage = 'Reading PDF'
@@ -177,7 +179,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         rooms: rooms.length,
         items: rooms.reduce((sum: number, r: any) => sum + (r.rows?.length || 0), 0),
         pages: data.pages || rooms.length,
-        duration_seconds: elapsed,
+        duration_seconds: elapsedRef.current,
       })
     })
   }
@@ -260,7 +262,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           {page === 'dashboard' && (
             <div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 16, marginBottom: 28 }}>
-                {[['Total reports', conversions.length.toString(), 'all time'],['Total spent', '£'+(conversions.length * 3.5).toFixed(2), '@ £3.50 per report'],['Avg. time', conversions.length > 0 ? (Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length) >= 60 ? Math.floor(Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length)/60)+'m' : Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length)+'s') : '—', 'per conversion'],['Est. saving', '£'+((conversions.length * 3.5) * 4).toFixed(2), 'vs. external typist']].map(([label,val,sub]) => (
+                {[['Total reports', conversions.length.toString(), 'all time'],['Total spent', '£'+(conversions.length * 3.5).toFixed(2), '@ £3.50 per report'],['Avg. time', conversions.length > 0 ? (Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length) >= 60 ? Math.floor(Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length)/60)+'m' : Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length)+'s') : '—', 'per conversion'],['Est. saving', '£'+(conversions.length * 15).toFixed(2), 'vs. external typist']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
@@ -296,7 +298,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                           <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
                           <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
                           <td style={{ padding: '12px 20px' }}><span style={{ background: '#E6F9F2', color: '#0A6B48', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>● Complete</span></td>
-                          <td style={{ padding: '12px 20px' }}><button style={{ padding: '5px 12px', borderRadius: 7, border: `1px solid ${BORDER}`, background: SURFACE, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>↓ .docx</button></td>
+                          <td style={{ padding: '12px 20px', fontSize: 11, color: HINT }}>Archived</td>
                         </tr>
                       ))}
                     </tbody>
@@ -315,7 +317,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>This month</h3></div>
                     <div style={{ padding: 18 }}>
-                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*3.5).toFixed(2)],['Avg. per report','£3.50'],['Est. saving vs. typist','£'+((conversions.length*3.5)*4).toFixed(2)]].map(([l,v],i) => (
+                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*3.5).toFixed(2)],['Avg. per report','£3.50'],['Est. saving vs. typist','£'+(conversions.length*15).toFixed(2)]].map(([l,v],i) => (
                         <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                           <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
                         </div>
