@@ -262,8 +262,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ flex: 1, overflow: 'auto', padding: 28 }}>
           {page === 'dashboard' && (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 16, marginBottom: 28 }}>
-                {[['Total reports', conversions.length.toString(), 'all time'],['Total spent', '£'+(conversions.length * 3.5).toFixed(2), '@ £3.50 per report'],['Avg. time', conversions.length > 0 ? (Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length) >= 60 ? Math.floor(Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length)/60)+'m' : Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length)+'s') : '—', 'per conversion'],['Est. saving', '£'+(conversions.length * 15).toFixed(2), 'vs. external typist']].map(([label,val,sub]) => (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 28 }}>
+                {[['Total reports', conversions.length.toString(), 'all time'],['Total spent', '£'+(conversions.length * 3.5).toFixed(2), '@ £3.50 per report'],['Avg. time', conversions.length > 0 ? ((()=>{ const avg=Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length); return avg>=60 ? Math.floor(avg/60)+'m '+(avg%60)+'s' : avg+'s' })()) : '—', 'per conversion'],['Est. saving', '£'+(conversions.length * 15).toFixed(2), 'vs. external typist']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
