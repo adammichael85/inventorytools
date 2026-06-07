@@ -36,8 +36,21 @@ export default function Dashboard() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setUserEmail(data.session.user.email || '')
-      else window.location.href = '/auth'
+      if (!data.session) { window.location.href = '/auth'; return }
+      const session = data.session
+      setUserEmail(session.user.email || '')
+      setAccessToken(session.access_token)
+      // Load profile (credits + name)
+      supabase.from('profiles').select('credits, full_name').eq('id', session.user.id).single().then(({ data: profile }) => {
+        if (profile) {
+          setCredits(profile.credits || 0)
+          setUserName(profile.full_name || session.user.email || '')
+        }
+      })
+      // Load conversions
+      supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => {
+        if (convs) setConversions(convs)
+      })
     })
   }, [])
 
@@ -167,6 +180,14 @@ supabase.auth.getSession().then(({ data: { session } }) => {
     })
   }
 })
+      .then(() => {
+        supabase.auth.getSession().then(({ data }) => {
+          if (data.session) {
+            supabase.from('profiles').select('credits').eq('id', data.session.user.id).single().then(({ data: p }) => { if (p) setCredits(p.credits || 0) })
+            supabase.from('conversions').select('*').eq('user_id', data.session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => { if (convs) setConversions(convs) })
+          }
+        })
+      })
       setConvertState('done')
       clearInterval(timer)
 
@@ -465,7 +486,14 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{(selectedFile.size / 1024 / 1024).toFixed(1)} MB</p>
                   </div>
                 </div>
-                <button onClick={startConvert} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer', marginBottom: 10 }}>Convert now — 1 credit (£3.50)</button>
+                {credits <= 0 ? (
+                  <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 10, padding: 14, textAlign: 'center', marginBottom: 10 }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#DC2626', margin: '0 0 6px' }}>No credits remaining</p>
+                    <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Purchase credits to continue converting.</p>
+                  </div>
+                ) : (
+                  <button onClick={startConvert} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer', marginBottom: 10 }}>Convert now — 1 credit (£3.50)</button>
+                )}
                 <button onClick={() => setConvertState('idle')} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Choose different file</button>
               </div>
             )}
