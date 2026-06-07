@@ -233,7 +233,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             <p style={{ fontSize: 12, color: HINT, margin: 0 }}>Wednesday, 3 June 2026</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>17 credits remaining</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>{credits} credits remaining</div>
             <button onClick={() => setShowConvert(true)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>+ Convert PDF</button>
           </div>
         </div>
@@ -409,7 +409,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 480, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
             <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>1 credit (£3.50) · 17 remaining</p></div>
+              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>1 credit (£3.50) · {credits} remaining</p></div>
               <button onClick={closeConvert} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
             </div>
 
