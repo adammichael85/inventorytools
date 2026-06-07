@@ -248,7 +248,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 32px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
             <h1 style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3, margin: 0 }}>{page === 'dashboard' ? 'Good morning 👋' : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
-            <p style={{ fontSize: 12, color: HINT, margin: 0 }}>Wednesday, 3 June 2026</p>
+            <p style={{ fontSize: 12, color: HINT, margin: 0 }}>{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>{credits} credits remaining</div>
@@ -260,7 +260,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           {page === 'dashboard' && (
             <div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 16, marginBottom: 28 }}>
-                {[['This month','34','reports converted'],['Spent','£119','@ £3.50 per report'],['Avg. time','42s','per conversion'],['Est. saving','£374','vs. external typist']].map(([label,val,sub]) => (
+                {[['Total reports', conversions.length.toString(), 'all time'],['Total spent', '£'+(conversions.length * 3.5).toFixed(2), '@ £3.50 per report'],['Avg. time', conversions.length > 0 ? (Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length) >= 60 ? Math.floor(Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length)/60)+'m' : Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length)+'s') : '—', 'per conversion'],['Est. saving', '£'+((conversions.length * 3.5) * 4).toFixed(2), 'vs. external typist']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
@@ -280,20 +280,20 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     </tr></thead>
                     <tbody>
                       {conversions.map(c => (
-                        <tr key={c.name} style={{ borderBottom: `1px solid ${BORDER}` }}>
+                        <tr key={c.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
                           <td style={{ padding: '12px 20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                               <div style={{ width: 30, height: 30, borderRadius: 7, background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
                               </div>
                               <div>
-                                <p style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: 0 }}>{c.name}</p>
-                                <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{c.date}</p>
+                                <p style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: 0 }}>{c.address}/p>
+                                <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{new Date(c.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}/p>
                               </div>
                             </div>
                           </td>
-                          <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms</td>
-                          <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.time}</td>
+                          <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms/td>
+                          <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}/td>
                           <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
                           <td style={{ padding: '12px 20px' }}><span style={{ background: '#E6F9F2', color: '#0A6B48', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>● Complete</span></td>
                           <td style={{ padding: '12px 20px' }}><button style={{ padding: '5px 12px', borderRadius: 7, border: `1px solid ${BORDER}`, background: SURFACE, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>↓ .docx</button></td>
@@ -306,8 +306,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Credits</h3></div>
                     <div style={{ padding: 18 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span style={{ fontWeight: 600 }}>17 remaining</span><span style={{ color: HINT }}>of 50 purchased</span></div>
-                      <div style={{ height: 8, borderRadius: 20, background: BORDER, overflow: 'hidden', marginBottom: 14 }}><div style={{ width: '34%', height: '100%', background: TEAL, borderRadius: 20 }} /></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span style={{ fontWeight: 600 }}>{credits} remaining</span><span style={{ color: HINT }}>credits</span></div>
+                      <div style={{ height: 8, borderRadius: 20, background: BORDER, overflow: 'hidden', marginBottom: 14 }}><div style={{ width: Math.min(100, (credits / 50) * 100) + '%', height: '100%', background: TEAL, borderRadius: 20 }} /></div>
                       <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>Each conversion costs <strong style={{ color: TEXT }}>1 credit (£3.50)</strong>. Credits never expire.</p>
                       <button onClick={() => setShowTopup(true)} style={{ width: '100%', padding: 10, borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Buy more credits</button>
                     </div>
@@ -315,7 +315,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>This month</h3></div>
                     <div style={{ padding: 18 }}>
-                      {[['Reports converted','34'],['Total spent','£119.00'],['Avg. per report','£3.50'],['Est. saving vs. typist','£374.00']].map(([l,v],i) => (
+                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*3.5).toFixed(2)],['Avg. per report','£3.50'],['Est. saving vs. typist','£'+((conversions.length*3.5)*4).toFixed(2)]].map(([l,v],i) => (
                         <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                           <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
                         </div>
@@ -325,12 +325,12 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Activity</h3></div>
                     <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                      {[['12 Milliners Court — download ready','Today, 09:14',true],['7 Ashford Road — download ready','Today, 08:52',true],['Sarah M. joined your team','Yesterday, 17:01',false],['50 credits purchased — £175.00','1 Jun, 09:00',false]].map(([text,time,active]) => (
+                      {conversions.slice(0,4).map((conv, i) => (
                         <div key={text as string} style={{ display: 'flex', gap: 10 }}>
-                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: active ? TEAL : BORDER, flexShrink: 0, marginTop: 4 }} />
+                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: TEAL, flexShrink: 0, marginTop: 4 }} />
                           <div>
-                            <p style={{ fontSize: 12, color: TEXT, margin: 0 }}>{text as string}</p>
-                            <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{time as string}</p>
+                            <p style={{ fontSize: 12, color: TEXT, margin: 0 }}>{conv.address} — ready</p>
+                            <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{new Date(conv.created_at).toLocaleDateString('en-GB', {day:'numeric',month:'short'})}</p>
                           </div>
                         </div>
                       ))}
@@ -349,12 +349,12 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead><tr style={{ background: BG }}>{['Property','Rooms','Time','Cost','Date',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}</tr></thead>
-                  <tbody>{conversions.map(c => (<tr key={c.name} style={{ borderBottom: `1px solid ${BORDER}` }}>
-                    <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 500 }}>{c.name}</td>
-                    <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms</td>
-                    <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.time}</td>
+                  <tbody>{conversions.map(c => (<tr key={c.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
+                    <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 500 }}>{c.address}/td>
+                    <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms/td>
+                    <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}/td>
                     <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
-                    <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{c.date}</td>
+                    <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{new Date(c.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}/td>
                     <td style={{ padding: '12px 20px' }}><button style={{ padding: '5px 12px', borderRadius: 7, border: `1px solid ${BORDER}`, background: SURFACE, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>↓ .docx</button></td>
                   </tr>))}</tbody>
                 </table>
