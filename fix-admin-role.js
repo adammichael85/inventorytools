@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+const fs = require('fs');
+
+const newContent = `import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 export async function POST(req: NextRequest) {
@@ -33,3 +35,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+`;
+
+fs.writeFileSync('app/api/create-profile/route.ts', newContent);
+console.log('done');
