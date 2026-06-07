@@ -287,8 +287,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
                               </div>
                               <div>
-                                <p style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: 0 }}>{c.address}/p>
-                                <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{new Date(c.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}/p>
+                                <p style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: 0 }}>{c.address}</p>
+                                <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{new Date(c.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}</p>
                               </div>
                             </div>
                           </td>
