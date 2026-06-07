@@ -302,7 +302,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                           {c.file_path ? (
                             <button onClick={async () => {
                               const { data } = await supabase.storage.from('documents').createSignedUrl(c.file_path, 60)
-                              if (data?.signedUrl) { const a = document.createElement('a'); a.href = data.signedUrl; a.download = (c.address || 'inventory').replace(/[^a-zA-Z0-9 _-]/g,'').trim() + '.docx'; a.click() }
+                              if (data?.signedUrl) { const response = await fetch(data.signedUrl); const fileBlob = await response.blob(); const blobUrl = URL.createObjectURL(fileBlob); const a = document.createElement('a'); a.href = blobUrl; a.download = (c.address || 'inventory').replace(/[^a-zA-Z0-9 _-]/g,'').trim() + '.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(blobUrl) }
                             }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title="Download Word doc">
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9,15 12,18 15,15"/></svg>
                             </button>
