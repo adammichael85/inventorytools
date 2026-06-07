@@ -488,21 +488,9 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             </div>
           )}
 
-          {page === 'settings' && (
-            <div style={{ maxWidth: 600 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px' }}>Settings</h2>
-              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
-                <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>Profile</p>
-                {[['First name','Jane'],['Last name','Smith'],['Email','jane@abcinventories.co.uk'],['Company','ABC Inventories Ltd']].map(([l,v]) => (
-                  <div key={l} style={{ marginBottom: 14 }}>
-                    <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6 }}>{l}</label>
-                    <input defaultValue={v} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-                  </div>
-                ))}
-                <button style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Save changes</button>
-              </div>
-            </div>
-          )}
+           {page === 'settings' && (
+            <SettingsPage supabase={supabase} userEmail={userEmail} TEXT={TEXT} MUTED={MUTED} TEAL={TEAL} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} />
+          )}}
 
           {page === 'team' && (
             <div>
