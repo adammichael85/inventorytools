@@ -36,15 +36,17 @@ export default function Auth() {
     })
     if (error) { setError(error.message); setLoading(false); return }
     if (data.user) {
-      await supabase.from('profiles').insert({
-        id: data.user.id,
-        full_name: firstName + ' ' + lastName,
-        role: 'user',
-        company_name: company,
-        company_position: position,
-        company_address: address,
-        company_phone: phone,
-        credits: 0,
+      await fetch('/api/create-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: data.user.id,
+          full_name: firstName + ' ' + lastName,
+          company_name: company,
+          company_position: position,
+          company_address: address,
+          company_phone: phone,
+        })
       })
     }
     setMessage('Check your email to confirm your account!')
