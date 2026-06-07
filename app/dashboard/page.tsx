@@ -478,7 +478,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <button onClick={() => setShowTopup(true)} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#fff', color: TEAL, fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Buy more credits</button>
                 </div>
                 <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
-                  {[['Reports converted','34'],['Credits used','34'],['Total spent','£119.00'],['Est. saving','£374.00']].map(([l,v],i) => (
+                  {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*3.5).toFixed(2)],['Avg. conv. time',conversions.length>0?(()=>{const avg=Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length);return avg>=60?Math.floor(avg/60)+'m '+(avg%60)+'s':avg+'s'})():'—'],['Est. saving vs. typist','£'+(conversions.length*15).toFixed(2)]].map(([l,v],i) => (
                     <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                       <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600 }}>{v}</span>
                     </div>
