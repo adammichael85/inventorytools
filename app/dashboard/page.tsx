@@ -292,8 +292,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                               </div>
                             </div>
                           </td>
-                          <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms/td>
-                          <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}/td>
+                          <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms</td>
+                          <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
                           <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
                           <td style={{ padding: '12px 20px' }}><span style={{ background: '#E6F9F2', color: '#0A6B48', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>● Complete</span></td>
                           <td style={{ padding: '12px 20px' }}><button style={{ padding: '5px 12px', borderRadius: 7, border: `1px solid ${BORDER}`, background: SURFACE, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>↓ .docx</button></td>
@@ -350,11 +350,11 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead><tr style={{ background: BG }}>{['Property','Rooms','Time','Cost','Date',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}</tr></thead>
                   <tbody>{conversions.map(c => (<tr key={c.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
-                    <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 500 }}>{c.address}/td>
-                    <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms/td>
-                    <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}/td>
+                    <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 500 }}>{c.address}</td>
+                    <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms</td>
+                    <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
                     <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
-                    <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{new Date(c.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}/td>
+                    <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{new Date(c.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}</td>
                     <td style={{ padding: '12px 20px' }}><button style={{ padding: '5px 12px', borderRadius: 7, border: `1px solid ${BORDER}`, background: SURFACE, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>↓ .docx</button></td>
                   </tr>))}</tbody>
                 </table>
