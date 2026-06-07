@@ -326,7 +326,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Activity</h3></div>
                     <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
                       {conversions.slice(0,4).map((conv, i) => (
-                        <div key={text as string} style={{ display: 'flex', gap: 10 }}>
+                        <div key={conv.id || i} style={{ display: 'flex', gap: 10 }}>
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: TEAL, flexShrink: 0, marginTop: 4 }} />
                           <div>
                             <p style={{ fontSize: 12, color: TEXT, margin: 0 }}>{conv.address} — ready</p>
