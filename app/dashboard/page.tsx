@@ -208,13 +208,6 @@ supabase.auth.getSession().then(({ data: { session } }) => {
     setConvertError('')
   }
 
-  const conversions = [
-    { name: '12 Milliners Court', rooms: 9, time: '38s', date: 'Today, 09:14' },
-    { name: '7 Ashford Road', rooms: 6, time: '31s', date: 'Today, 08:52' },
-    { name: 'Flat 3, Crown House', rooms: 4, time: '24s', date: 'Yesterday, 16:30' },
-    { name: '22 The Elms', rooms: 11, time: '52s', date: 'Yesterday, 11:05' },
-    { name: '9 Oak Lane', rooms: 7, time: '35s', date: '2 Jun, 14:18' },
-  ]
 
   return (
     <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", display: 'flex', height: '100vh', overflow: 'hidden', background: BG }}>
