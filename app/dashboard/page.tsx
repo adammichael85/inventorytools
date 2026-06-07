@@ -20,6 +20,8 @@ export default function Dashboard() {
   const [showConvert, setShowConvert] = useState(false)
   const [showTopup, setShowTopup] = useState(false)
   const [userEmail, setUserEmail] = useState('')
+  const [credits, setCredits] = useState(0)
+  const [userName, setUserName] = useState('')
   const [convertState, setConvertState] = useState<'idle'|'selected'|'processing'|'done'|'error'>('idle')
   const [selectedFile, setSelectedFile] = useState<File|null>(null)
   const [selectedCredits, setSelectedCredits] = useState<{credits:number,price:number}|null>(null)
