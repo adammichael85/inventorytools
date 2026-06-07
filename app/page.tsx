@@ -23,9 +23,9 @@ export default function Home() {
         </div>
       </nav>
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        <Link href="/pdf-to-word" onMouseEnter={() => setHovered('pdf')} onMouseLeave={() => setHovered(null)} style={{ flex: leftFlex, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, background: '#F7F9F8', textDecoration: 'none', transition: 'flex 0.4s cubic-bezier(0.4,0,0.2,1)', overflow: 'hidden' }}>
+        <Link href="/pdf-to-word"  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, background: '#F7F9F8', textDecoration: 'none', transition: 'flex 0.4s cubic-bezier(0.4,0,0.2,1)', overflow: 'hidden' }}>
           <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 2, color: '#94AEA6', marginBottom: 20 }}>Tool 1</p>
-          <div style={{ width: 80, height: 80, background: '#fff', border: '1px solid #E2EAE7', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, transition: 'transform 0.3s', transform: hovered === 'pdf' ? 'scale(1.08)' : 'scale(1)' }}>
+          <div style={{ width: 80, height: 80, background: '#fff', border: '1px solid #E2EAE7', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, transition: 'transform 0.3s', transform: 'scale(1)' }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14,2 14,8 20,8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
           </div>
           <div style={{ textAlign: 'center', maxWidth: 340 }}>
@@ -37,15 +37,15 @@ export default function Home() {
               ))}
             </div>
             <p style={{ fontSize: 13, color: '#5A7068', marginBottom: 24 }}><strong style={{ color: '#1A2820' }}>£3.50</strong> flat rate · any size property</p>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 10, background: '#1D9E75', color: '#fff', fontSize: 15, fontWeight: 600, transition: 'transform 0.2s', transform: hovered === 'pdf' ? 'translateY(-2px)' : 'translateY(0)' }}>Get started →</div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 10, background: '#1D9E75', color: '#fff', fontSize: 15, fontWeight: 600, transition: 'transform 0.2s', transform: 'translateY(0)' }}>Get started →</div>
           </div>
         </Link>
         <div style={{ width: 1, background: '#E2EAE7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1 }}>
           <div style={{ background: '#fff', border: '1px solid #E2EAE7', borderRadius: 20, padding: '8px 14px', fontSize: 12, fontWeight: 600, color: '#94AEA6' }}>or</div>
         </div>
-        <div onMouseEnter={() => setHovered('audio')} onMouseLeave={() => setHovered(null)} style={{ flex: rightFlex, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, background: '#1D9E75', transition: 'flex 0.4s cubic-bezier(0.4,0,0.2,1)', overflow: 'hidden' }}>
+        <div  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, background: '#1D9E75', transition: 'flex 0.4s cubic-bezier(0.4,0,0.2,1)', overflow: 'hidden' }}>
           <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 2, color: 'rgba(255,255,255,0.6)', marginBottom: 20 }}>Tool 2</p>
-          <div style={{ width: 80, height: 80, background: 'rgba(255,255,255,0.2)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, transition: 'transform 0.3s', transform: hovered === 'audio' ? 'scale(1.08)' : 'scale(1)' }}>
+          <div style={{ width: 80, height: 80, background: 'rgba(255,255,255,0.2)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, transition: 'transform 0.3s', transform: 'scale(1)' }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" /><path d="M19 10v2a7 7 0 01-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>
           </div>
           <div style={{ textAlign: 'center', maxWidth: 340 }}>
