@@ -438,8 +438,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ flex: 1, overflow: 'auto', padding: 28 }}>
           {page === 'dashboard' && (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 28 }}>
-                {[['Total reports', conversions.length.toString(), 'all time'],['Total spent', '£'+(conversions.length * 3.5).toFixed(2), '@ £3.50 per report'],['Avg. time', conversions.length > 0 ? ((()=>{ const avg=Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length); return avg>=60 ? Math.floor(avg/60)+'m '+(avg%60)+'s' : avg+'s' })()) : '—', 'per conversion'],['Total time', (()=>{ const tot=conversions.reduce((s,r)=>s+(r.duration_seconds||0),0); return tot>=60 ? Math.floor(tot/60)+'m '+(tot%60)+'s' : tot+'s' })(), 'all conversions'],['Est. saving', '£'+(conversions.length * 15).toFixed(2), 'vs. external typist']].map(([label,val,sub]) => (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 4 }}>
+                {[['Total reports', conversions.length.toString(), 'all time'],['Total spent', '£'+(conversions.length * 3.5).toFixed(2), '@ £3.50 per report'],['Avg. time', conversions.length > 0 ? ((()=>{ const avg=Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length); return avg>=60 ? Math.floor(avg/60)+'m '+(avg%60)+'s' : avg+'s' })()) : '—', 'per conversion'],['Total time', (()=>{ const tot=conversions.reduce((s,r)=>s+(r.duration_seconds||0),0); return tot>=60 ? Math.floor(tot/60)+'m '+(tot%60)+'s' : tot+'s' })(), 'all conversions'],['Est. saving', '£'+(conversions.length * 12).toFixed(2), 'vs. external typist*']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
@@ -508,7 +508,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>This month</h3></div>
                     <div style={{ padding: 18 }}>
-                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*3.5).toFixed(2)],['Avg. per report','£3.50'],['Est. saving vs. typist','£'+(conversions.length*15).toFixed(2)]].map(([l,v],i) => (
+                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*3.5).toFixed(2)],['Avg. per report','£3.50'],['Est. saving vs. typist','£'+(conversions.length*12).toFixed(2)]].map(([l,v],i) => (
                         <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                           <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
                         </div>
@@ -566,7 +566,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <button onClick={() => setShowTopup(true)} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#fff', color: TEAL, fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Buy more credits</button>
                 </div>
                 <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
-                  {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*3.5).toFixed(2)],['Avg. conv. time',conversions.length>0?(()=>{const avg=Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length);return avg>=60?Math.floor(avg/60)+'m '+(avg%60)+'s':avg+'s'})():'—'],['Est. saving vs. typist','£'+(conversions.length*15).toFixed(2)]].map(([l,v],i) => (
+                  {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*3.5).toFixed(2)],['Avg. conv. time',conversions.length>0?(()=>{const avg=Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length);return avg>=60?Math.floor(avg/60)+'m '+(avg%60)+'s':avg+'s'})():'—'],['Est. saving vs. typist','£'+(conversions.length*12).toFixed(2)]].map(([l,v],i) => (
                     <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                       <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600 }}>{v}</span>
                     </div>
