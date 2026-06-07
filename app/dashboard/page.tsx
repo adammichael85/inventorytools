@@ -490,7 +490,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
            {page === 'settings' && (
             <SettingsPage supabase={supabase} userEmail={userEmail} TEXT={TEXT} MUTED={MUTED} TEAL={TEAL} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} />
-          )}}
+          )}
 
           {page === 'team' && (
             <div>
