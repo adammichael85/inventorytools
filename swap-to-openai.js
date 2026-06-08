@@ -1,11 +1,13 @@
-export const maxDuration = 300
+const fs = require('fs');
+
+const newContent = `export const maxDuration = 300
 
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-const SYSTEM_PROMPT = `Convert inventory PDF to JSON. Extract room inventory data only.
+const SYSTEM_PROMPT = \`Convert inventory PDF to JSON. Extract room inventory data only.
 
 IGNORE: cover pages, abbreviations, contents, meter pages, key pages, photo pages.
 
@@ -20,15 +22,15 @@ RULES:
 - Extra columns (Comments, Tenant Comments) go into condition field separated by " | "
 
 OUTPUT: Raw JSON only. No markdown. No backticks. No explanation.
-{"address":"...","pages":7,"rooms":[{"roomName":"...","rows":[{"item":"...","description":"...","condition":"..."}]}]}`
+{"address":"...","pages":7,"rooms":[{"roomName":"...","rows":[{"item":"...","description":"...","condition":"..."}]}]}\`
 
 function repairJSON(text: string): any {
   const first = text.indexOf('{')
   const last = text.lastIndexOf('}')
   if (first === -1 || last === -1) throw new Error('No JSON in response')
-  let s = text.slice(first, last + 1).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+  let s = text.slice(first, last + 1).replace(/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]/g, '')
   try { return JSON.parse(s) } catch(e1) {}
-  s = s.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']')
+  s = s.replace(/,\\s*}/g, '}').replace(/,\\s*]/g, ']')
   try { return JSON.parse(s) } catch(e2) {
     throw new Error('JSON parse failed: ' + (e2 as Error).message)
   }
@@ -49,7 +51,7 @@ export async function POST(req: NextRequest) {
             {
               type: 'image_url',
               image_url: {
-                url: `data:${mediaType};base64,${base64}`,
+                url: \`data:\${mediaType};base64,\${base64}\`,
                 detail: 'high'
               }
             },
@@ -79,3 +81,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+`;
+
+fs.writeFileSync('app/api/convert/route.ts', newContent);
+console.log('done');
