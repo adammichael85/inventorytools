@@ -1,11 +1,13 @@
-export const maxDuration = 300
+const fs = require('fs');
+
+const newContent = `export const maxDuration = 300
 
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const SYSTEM_PROMPT = `Convert inventory PDF to JSON. Extract all rooms with their items.
+const SYSTEM_PROMPT = \`Convert inventory PDF to JSON. Extract all rooms with their items.
 
 IGNORE: cover pages, abbreviations pages, contents pages, meter pages, key pages, photo pages.
 PROCESS: only pages with inventory tables.
@@ -22,7 +24,7 @@ RULES:
 - Extra columns (Comments, Tenant Comments etc) go into condition field
 
 OUTPUT: Raw JSON only. No markdown. No backticks. No explanation.
-{"address":"...","rooms":[{"roomName":"...","rows":[{"item":"...","description":"...","condition":"..."}]}]}`
+{"address":"...","rooms":[{"roomName":"...","rows":[{"item":"...","description":"...","condition":"..."}]}]}\`
 
 function repairJSON(text: string): any {
   const first = text.indexOf('{')
@@ -30,17 +32,17 @@ function repairJSON(text: string): any {
   if (first === -1 || last === -1) throw new Error('No JSON in response')
   
   let s = text.slice(first, last + 1)
-  s = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+  s = s.replace(/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]/g, '')
   
   try { return JSON.parse(s) } catch(e1) {}
   
-  s = s.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']')
+  s = s.replace(/,\\s*}/g, '}').replace(/,\\s*]/g, ']')
   try { return JSON.parse(s) } catch(e2) {}
   
   // Find last complete room and truncate there
   const rooms: any[] = []
   let pos = 0
-  const roomRegex = /"roomName"\s*:\s*"([^"]+)"/g
+  const roomRegex = /"roomName"\\s*:\\s*"([^"]+)"/g
   let match
   while ((match = roomRegex.exec(s)) !== null) {
     rooms.push(match.index)
@@ -92,3 +94,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+`;
+
+fs.writeFileSync('app/api/convert/route.ts', newContent);
+console.log('done');
