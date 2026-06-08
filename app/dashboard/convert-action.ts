@@ -29,6 +29,28 @@ export async function extractTextFromPDF(file: File): Promise<string> {
   })
 }
 
+
+export async function extractTextFromDOCX(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const run = () => {
+      const mammoth = (window as any).mammoth
+      file.arrayBuffer().then((buf: ArrayBuffer) => {
+        mammoth.extractRawText({ arrayBuffer: buf }).then((result: any) => {
+          resolve(result.value || '')
+        }).catch(reject)
+      }).catch(reject)
+    }
+    if ((window as any).mammoth) {
+      run()
+    } else {
+      const s = document.createElement('script')
+      s.src = 'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js'
+      s.onload = run
+      s.onerror = () => reject(new Error('mammoth.js load failed'))
+      document.head.appendChild(s)
+    }
+  })
+}
 export async function convertPDF(base64: string, mediaType: string, originalFile?: File) {
   let body: any = { base64, mediaType }
   if (originalFile) {

@@ -471,7 +471,7 @@ export default function Dashboard() {
       currentStage = 'Reading PDF'
       const base64 = await fileToBase64(selectedFile)
       currentStage = 'Calling AI API'
-      const data = await convertPDF(base64, 'application/pdf', selectedFile)
+      const data = await convertPDF(base64, selectedFile?.name.toLowerCase().endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf', selectedFile)
 
       const rooms = (data.rooms || []).filter((r: any) => (r.rows || []).length > 0)
       setProcessingRooms(rooms.map((r: any) => ({ name: r.roomName, state: 'pending' })))
@@ -798,11 +798,11 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     </div>
                     <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your PDF here</p>
                     <p style={{ fontSize: 13, color: HINT }}>or click to browse</p>
-<p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>For files over 3MB, compress first at ilovepdf.com</p>
+<p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>Accepts PDF and Word (.docx) files · For large PDFs, compress first at ilovepdf.com</p>
 <p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>Use the EXTREME compression to reduce the file size dramatically to save conversion time.</p>
                   </div>
                 </label>
-                <input id="pdf-upload" type="file" accept="application/pdf" style={{ display: 'none' }} onChange={async e => { 
+                <input id="pdf-upload" type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display: 'none' }} onChange={async e => { 
     if (e.target.files?.[0]) { 
       const file = e.target.files[0]
       setSelectedFile(file)
