@@ -82,7 +82,7 @@ Format: {"address":"12 Milliners Court","pages":12,"rooms":[{"roomName":"Hallway
     const first = rawText.indexOf('{')
     const last = rawText.lastIndexOf('}')
     if (first === -1 || last === -1) throw new Error('No JSON found in response')
-    let data; try { data = JSON.parse(rawText.slice(first, last + 1)) } catch(parseErr) { const cleaned = rawText.slice(first, last + 1).replace(/,s*}/g, "}").replace(/,s*]/g, "]"); data = JSON.parse(cleaned) }
+    let data; try { data = JSON.parse(rawText.slice(first, last + 1)) } catch(parseErr) { const cleaned = rawText.slice(first, last + 1).replace(/,[\s\n]+}/g, "}").replace(/,[\s\n]+]/g, "]"); data = JSON.parse(cleaned) }
 
     return NextResponse.json(data)
   } catch (err: any) {
