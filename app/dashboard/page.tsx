@@ -721,7 +721,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
 
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", display: 'flex', height: '100vh', overflow: 'hidden', background: BG }}>
+    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', overflow: 'hidden', background: BG }}>
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
       {/* SIDEBAR */}
