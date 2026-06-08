@@ -1,4 +1,5 @@
 'use client'
+import React from 'react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -17,6 +18,12 @@ export default function Auth() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const [inactiveMsg, setInactiveMsg] = useState(false)
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('reason=inactivity')) {
+      setInactiveMsg(true)
+    }
+  }, [])
   const router = useRouter()
 
   async function handleSignIn() {
@@ -109,6 +116,7 @@ export default function Auth() {
               ))}
             </div>
 
+            {inactiveMsg && <div style={{ background: '#FFF8E1', border: '1px solid #FFD54F', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#7B5E00', marginBottom: 16 }}>⏱ You have been logged out due to inactivity. Please sign in again.</div>}
             {error && <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#DC2626', marginBottom: 16 }}>{error}</div>}
             {message && <div style={{ background: TL, border: '1px solid #A7F3D0', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: TD, marginBottom: 16 }}>{message}</div>}
 
