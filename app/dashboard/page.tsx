@@ -487,7 +487,8 @@ export default function Dashboard() {
   }, [])
   const [showMobileNav, setShowMobileNav] = React.useState(false)
 
-  const [page, setPage] = useState('dashboard')
+  const [page, setPageState] = useState('dashboard')
+  function setPage(p: string) { setPageState(p); setTimeout(() => { const main = document.querySelector('main div[style*="overflow"]') as HTMLElement; if (main) main.scrollTop = 0 }, 0) }
   const [showConvert, setShowConvert] = useState(false)
   const [showTopup, setShowTopup] = useState(false)
   const [userEmail, setUserEmail] = useState('')
