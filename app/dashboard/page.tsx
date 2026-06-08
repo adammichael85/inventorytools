@@ -19,6 +19,22 @@ const HINT = '#94AEA6'
 
 
 
+
+function timeAgo(dateStr: string): string {
+  const now = new Date()
+  const then = new Date(dateStr)
+  const secs = Math.floor((now.getTime() - then.getTime()) / 1000)
+  if (secs < 60) return 'just now'
+  const mins = Math.floor(secs / 60)
+  if (mins < 60) return mins + ' min' + (mins !== 1 ? 's' : '') + ' ago'
+  const hours = Math.floor(mins / 60)
+  const remMins = mins % 60
+  if (hours < 24) return hours + 'h ' + (remMins > 0 ? remMins + 'm ' : '') + 'ago'
+  const days = Math.floor(hours / 24)
+  if (days < 7) return days + ' day' + (days !== 1 ? 's' : '') + ' ago'
+  return then.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+}
+
 function StatsPage({ conversions, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
   const [period, setPeriod] = React.useState('month')
   const chartRef = React.useRef<any>(null)
@@ -694,7 +710,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: TEAL, flexShrink: 0, marginTop: 4 }} />
                           <div>
                             <p style={{ fontSize: 12, color: TEXT, margin: 0 }}>{conv.address} — ready</p>
-                            <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{new Date(conv.created_at).toLocaleDateString('en-GB', {day:'numeric',month:'short'})}</p>
+                            <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{timeAgo(conv.created_at)}</p>
                           </div>
                         </div>
                       ))}
