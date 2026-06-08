@@ -756,14 +756,14 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
       {/* MAIN */}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-        <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 32px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: isMobile ? '0 16px' : '0 32px', height: isMobile ? 56 : 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
-            <h1 style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3, margin: 0 }}>{page === 'dashboard' ? ((() => { const h = new Date().getHours(); return (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ' ' + (userName || userEmail).split(' ')[0] + ' 👋' })()) : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
+            <h1 style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3, margin: 0 }}>{page === 'dashboard' ? ((() => { const h = new Date().getHours(); return (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ' ' + (userName || userEmail).split(' ')[0] + (isMobile ? '' : ' 👋') })()) : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
             <p style={{ fontSize: 12, color: HINT, margin: 0 }}>{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>{credits} credits remaining</div>
-            <button onClick={() => setShowConvert(true)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>+ Convert PDF</button>
+            <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>{credits} credits remaining</div>
+            <button onClick={() => setShowConvert(true)} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer' }}>+ Convert PDF</button>
           </div>
         </div>
 
