@@ -80,13 +80,13 @@ Format: {"address":"12 Milliners Court","pages":7,"rooms":[{"roomName":"Hallway"
 
 async function convertChunk(base64: string, mediaType: string, instruction: string) {
   const message = await client.messages.create({
-    model: 'claude-sonnet-4-5',
+    model: 'claude-sonnet-4-5' as const,
     max_tokens: 8192,
     system: SYSTEM_PROMPT,
     messages: [{
       role: 'user',
       content: [
-        { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
+        { type: 'document', source: { type: 'base64', media_type: mediaType as 'application/pdf', data: base64 } },
         { type: 'text', text: instruction }
       ]
     }]
