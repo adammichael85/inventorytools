@@ -1,4 +1,5 @@
-
+const fs = require('fs');
+const content = `
 async function extractTextFromPDF(file) {
   return new Promise((resolve, reject) => {
     const loadScript = () => {
@@ -12,7 +13,7 @@ async function extractTextFromPDF(file) {
             page.getTextContent().then(content => 
               content.items.map(item => item.str).join(' ')
             )
-          ))).then(pageTexts => resolve(pageTexts.join('\n'))).catch(reject)
+          ))).then(pageTexts => resolve(pageTexts.join('\\n'))).catch(reject)
         }).catch(reject)
       }).catch(reject)
     }
@@ -52,3 +53,6 @@ export async function convertPDF(base64, mediaType, originalFile) {
   if (!data.rooms) throw new Error('No rooms found: ' + JSON.stringify(data).slice(0, 200))
   return data
 }
+`;
+fs.writeFileSync('app/dashboard/convert-action.ts', content);
+console.log('done');
