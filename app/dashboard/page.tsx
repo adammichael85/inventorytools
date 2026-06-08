@@ -867,6 +867,25 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             </div>
           )}
 
+          {page === 'convert' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+              <div style={{ width: 64, height: 64, borderRadius: 16, background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              </div>
+              <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 8px' }}>Convert PDF to Word</h2>
+              <p style={{ fontSize: 14, color: '#5A7068', margin: '0 0 24px', textAlign: 'center' }}>Upload any inventory PDF or Word doc and get a perfectly formatted Word document.</p>
+              {credits <= 0 ? (
+                <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 10, padding: 14, textAlign: 'center', maxWidth: 300 }}>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#DC2626', margin: '0 0 6px' }}>No credits remaining</p>
+                  <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Purchase credits to continue.</p>
+                </div>
+              ) : (
+                <button onClick={() => setShowConvert(true)} style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: '#1D9E75', color: '#fff', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>+ Convert now — 1 credit (£3.50)</button>
+              )}
+              <p style={{ fontSize: 12, color: '#94AEA6', marginTop: 16 }}>{credits} credit{credits !== 1 ? 's' : ''} remaining</p>
+            </div>
+          )}
+
           {page === 'reports' && (
             <div>
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
