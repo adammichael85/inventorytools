@@ -779,8 +779,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </div>
                 ))}
               </div>
-              <div style={{ display: isMobile ? 'none' : 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
-                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 20 }}>
+                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden', display: isMobile ? 'none' : 'block' }}>
                   <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0, display: isMobile ? 'none' : 'block' }}>Recent conversions</h2>
                     <button onClick={() => setPage('reports')} style={{ fontSize: 12, color: TEAL, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>View all →</button>
