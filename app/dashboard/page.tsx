@@ -455,7 +455,7 @@ export default function Dashboard() {
       currentStage = 'Reading PDF'
       const base64 = await fileToBase64(selectedFile)
       currentStage = 'Calling AI API'
-      const data = await convertPDF(base64, 'application/pdf', selectedFile)
+      const data = await convertPDF(base64, 'application/pdf')
 
       const rooms = (data.rooms || []).filter((r: any) => (r.rows || []).length > 0)
       setProcessingRooms(rooms.map((r: any) => ({ name: r.roomName, state: 'pending' })))

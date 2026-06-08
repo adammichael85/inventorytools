@@ -1,26 +1,26 @@
 export const maxDuration = 300
-export const dynamic = "force-dynamic"
 
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const SYSTEM_PROMPT = `Convert inventory text to JSON. Extract room inventory data only.
+const SYSTEM_PROMPT = `Convert inventory PDF to JSON. Extract room inventory data only.
 
-IGNORE sections: abbreviations, contents, meter readings, key lists, photo references, property summaries.
+IGNORE: cover pages, abbreviations, contents, meter pages, key pages, photo pages.
 
 RULES:
 - Room names: no number prefix
+- Room heading at page bottom = items continue on next page
 - Number column = ignore, use next column as ITEM
-- Strip: photo counts, duplicate conditions (Good Good = Good), "No further comment", "Information provided by tenant"
+- Strip: photo counts, "No further comment", "Information provided by tenant", duplicate conditions
 - Replace double quotes in text with single quotes
 - First row of every room: {"item":"Further views","description":"","condition":""}
-- Descriptions: separate features with " | "
-- Extra columns go into condition field separated by " | "
+- Descriptions: separate with " | "
+- Extra columns (Comments, Tenant Comments) go into condition field
 
 OUTPUT: Raw JSON only. No markdown. No backticks.
-{"address":"...","pages":7,"rooms":[{"roomName":"...","rows":[{"item":"...","description":"...","condition":"..."}]}]}`
+{"address":"...","rooms":[{"roomName":"...","rows":[{"item":"...","description":"...","condition":"..."}]}]}`
 
 function repairJSON(text: string): any {
   const first = text.indexOf('{')
@@ -34,39 +34,52 @@ function repairJSON(text: string): any {
   }
 }
 
+async function extractRooms(base64: string, mediaType: string, instruction: string) {
+  const stream = await client.messages.stream({
+    model: 'claude-sonnet-4-5',
+    max_tokens: 8192,
+    system: SYSTEM_PROMPT,
+    messages: [{
+      role: 'user',
+      content: [
+        { type: 'document', source: { type: 'base64', media_type: mediaType as 'application/pdf', data: base64 } },
+        { type: 'text', text: instruction }
+      ]
+    }]
+  })
+  const message = await stream.finalMessage()
+  const rawText = message.content.map((c: any) => c.text || '').join('').trim()
+  return repairJSON(rawText)
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { base64, mediaType, extractedText } = body
+    const { base64, mediaType } = await req.json()
 
-    let message
-    if (extractedText && extractedText.trim().length > 100) {
-      message = await client.messages.create({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 8192,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: extractedText + '\n\nExtract ALL rooms and items. Return raw JSON only.' }]
-      })
-    } else {
-      message = await client.messages.create({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 8192,
-        system: SYSTEM_PROMPT,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'document', source: { type: 'base64', media_type: mediaType as 'application/pdf', data: base64 } },
-            { type: 'text', text: 'Extract ALL rooms and items. Return raw JSON only.' }
-          ]
-        }]
-      })
-    }
+    // First pass: get address and first half of rooms
+    const pass1 = await extractRooms(base64, mediaType,
+      'Extract the property address and the FIRST HALF of the inventory rooms only (roughly the first 50% of the document). Stop after you have extracted half the rooms. Return raw JSON only.'
+    )
 
-    const rawText = message.content.map((c: any) => c.text || '').join('').trim()
-    const data = repairJSON(rawText)
-    if (!data.rooms || data.rooms.length === 0) throw new Error('No rooms found')
+    const firstRooms = pass1.rooms || []
+    const lastRoomName = firstRooms.length > 0 ? firstRooms[firstRooms.length - 1].roomName : ''
 
-    return NextResponse.json({ address: data.address || '', pages: data.pages || data.rooms.length, rooms: data.rooms })
+    // Second pass: get remaining rooms
+    const pass2 = await extractRooms(base64, mediaType,
+      `Extract inventory rooms from the SECOND HALF of this PDF only. Start from the room AFTER "${lastRoomName}". Do not repeat any rooms from the first half. Return raw JSON only.`
+    )
+
+    const secondRooms = pass2.rooms || []
+    const allRooms = [...firstRooms, ...secondRooms]
+
+    if (allRooms.length === 0) throw new Error('No rooms found')
+
+    return NextResponse.json({
+      address: pass1.address || '',
+      pages: allRooms.length,
+      rooms: allRooms
+    })
+
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
