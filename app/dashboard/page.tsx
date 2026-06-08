@@ -193,6 +193,7 @@ export default function Dashboard() {
   const elapsedRef = React.useRef(0)
   const [convertError, setConvertError] = useState('')
   const [conversions, setConversions] = useState<any[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [compressing, setCompressing] = useState(false)
   const [originalSize, setOriginalSize] = useState(0)
   const [compressedSize, setCompressedSize] = useState(0)
@@ -212,6 +213,25 @@ export default function Dashboard() {
       if (convs) setConversions(convs)
     }
   }
+
+
+  // Auto logout after 10 mins inactivity
+  React.useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>
+    const reset = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        supabase.auth.signOut().then(() => { window.location.href = '/auth' })
+      }, 10 * 60 * 1000)
+    }
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click']
+    events.forEach(e => window.addEventListener(e, reset))
+    reset()
+    return () => {
+      clearTimeout(timer)
+      events.forEach(e => window.removeEventListener(e, reset))
+    }
+  }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -538,11 +558,11 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             <div>
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                 <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', gap: 12 }}>
-                  <input placeholder="Search by address..." style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none' }} />
+                  <input placeholder="Search by address..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none' }} />
                 </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead><tr style={{ background: BG }}>{['Property','Rooms','Conv. Time','Cost','Date',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}</tr></thead>
-                  <tbody>{conversions.map(c => (<tr key={c.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
+                  <tbody>{conversions.filter(c => !searchQuery || (c.address||'').toLowerCase().includes(searchQuery.toLowerCase())).map(c => (<tr key={c.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
                     <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 500 }}>{c.address}</td>
                     <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms</td>
                     <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
