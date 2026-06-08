@@ -616,7 +616,7 @@ export default function Dashboard() {
       currentStage = 'Reading PDF'
       const base64 = await fileToBase64(selectedFile)
       currentStage = 'Calling AI API'
-      const data = await convertPDF(base64, selectedFile?.name.toLowerCase().endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf', selectedFile)
+      const { data: { session: sess } } = await supabase.auth.getSession(); const data = await convertPDF(base64, selectedFile?.name.toLowerCase().endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf', selectedFile, sess?.user?.id)
 
       const rooms = (data.rooms || []).filter((r: any) => (r.rows || []).length > 0)
       setProcessingRooms(rooms.map((r: any) => ({ name: r.roomName, state: 'pending' })))
