@@ -433,7 +433,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
       </div>
 
       {profile?.role === 'admin' && (
-        <div style={{ background: SURFACE, border: '1px solid #FECACA', borderRadius: 14, padding: 24 }}>
+        <div style={{ background: SURFACE, border: '1px solid #FECACA', marginTop: 16, borderRadius: 14, padding: 24 }}>
           <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 8px', color: '#DC2626' }}>Danger zone</p>
           <p style={{ fontSize: 13, color: MUTED, marginBottom: 16 }}>Permanently delete your company account. This will remove all users, conversions, files and data. This cannot be undone.</p>
           <DeleteAccountButton supabase={supabase} profile={profile} userEmail={userEmail} />
