@@ -12,7 +12,8 @@ export default function Home() {
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
       <nav style={{ height: 64, background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid #E2EAE7', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 5vw', flexShrink: 0, position: 'relative', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <svg width="34" height="34" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div style={{ width: 34, height: 34, background: '#1D9E75', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="34" height="34" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="120" height="120" rx="26" fill="#1D9E75"/>
             <rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
             <rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
