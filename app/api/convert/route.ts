@@ -49,7 +49,14 @@ Step 3 - Everything else goes into CONDITION:
 - Each value on its own line separated by " | "
 
 BREVITY
-Keep descriptions concise. Copy only essential text. Do not pad or repeat information already in other columns.
+Keep descriptions concise. Copy only essential item text. Abbreviations are fine - do not expand them.
+STRIP the following completely from all output - do not include them:
+- Photo counts (e.g. "1 photo", "2 photos", "No photos")
+- Page numbers
+- Duplicate condition values (e.g. "Good Good" becomes "Good", "Fair Fair" becomes "Fair")
+- "No further comment provided by the inspector" - omit entirely
+- "Information provided by tenant" - omit entirely
+- Any reference to photos being available or unavailable
 
 COPY RULE
 Copy text EXACTLY. Do not correct spelling, improve grammar, reword, summarise, remove, add, merge or split rows.
