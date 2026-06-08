@@ -51,7 +51,7 @@ export async function extractTextFromDOCX(file: File): Promise<string> {
     }
   })
 }
-export async function convertPDF(base64: string, mediaType: string, originalFile?: File) {
+export async function convertPDF(base64: string, mediaType: string, originalFile?: File, userId?: string) {
   let body: any = { base64, mediaType }
   if (originalFile) {
     try {
@@ -67,7 +67,7 @@ export async function convertPDF(base64: string, mediaType: string, originalFile
   const response = await fetch('/api/convert', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+    body: JSON.stringify({ ...body, userId })
   })
   const data = await response.json()
   if (!response.ok) throw new Error(data.error || 'Conversion failed')
