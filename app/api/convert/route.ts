@@ -32,6 +32,7 @@ ROOM HEADINGS
 When a room heading appears in the PDF, create a new room entry.
 The room heading should have no number prefix.
 Example: "Entrance/Hallway", "Kitchen", "Bathroom" NOT "1 Entrance/Hallway"
+IMPORTANT: If a room heading appears at the bottom of a page with no items on that page, the items for that room will continue on the next page — group them all under the same room heading. Never create an empty room.
 
 COLUMN MAPPING LOGIC
 Inventory PDFs can have 2-6 columns with different labels. Use this logic to map them:
