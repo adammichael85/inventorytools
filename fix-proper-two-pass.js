@@ -1,11 +1,13 @@
-export const maxDuration = 300
+const fs = require('fs');
+
+const newContent = `export const maxDuration = 300
 
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const SYSTEM_PROMPT = `Convert inventory PDF to JSON. Extract room inventory data only.
+const SYSTEM_PROMPT = \`Convert inventory PDF to JSON. Extract room inventory data only.
 
 IGNORE: cover pages, abbreviations, contents, meter pages, key pages, photo pages.
 
@@ -20,15 +22,15 @@ RULES:
 - Extra columns (Comments, Tenant Comments) go into condition field
 
 OUTPUT: Raw JSON only. No markdown. No backticks.
-{"address":"...","rooms":[{"roomName":"...","rows":[{"item":"...","description":"...","condition":"..."}]}]}`
+{"address":"...","rooms":[{"roomName":"...","rows":[{"item":"...","description":"...","condition":"..."}]}]}\`
 
 function repairJSON(text: string): any {
   const first = text.indexOf('{')
   const last = text.lastIndexOf('}')
   if (first === -1 || last === -1) throw new Error('No JSON in response')
-  let s = text.slice(first, last + 1).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+  let s = text.slice(first, last + 1).replace(/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]/g, '')
   try { return JSON.parse(s) } catch(e1) {}
-  s = s.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']')
+  s = s.replace(/,\\s*}/g, '}').replace(/,\\s*]/g, ']')
   try { return JSON.parse(s) } catch(e2) {
     throw new Error('JSON parse failed: ' + (e2 as Error).message)
   }
@@ -66,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     // Second pass: get remaining rooms
     const pass2 = await extractRooms(base64, mediaType,
-      `Extract inventory rooms from the SECOND HALF of this PDF only. Start from the room AFTER "${lastRoomName}". Do not repeat any rooms from the first half. Return raw JSON only.`
+      \`Extract inventory rooms from the SECOND HALF of this PDF only. Start from the room AFTER "\${lastRoomName}". Do not repeat any rooms from the first half. Return raw JSON only.\`
     )
 
     const secondRooms = pass2.rooms || []
@@ -84,3 +86,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+`;
+
+fs.writeFileSync('app/api/convert/route.ts', newContent);
+console.log('done');
