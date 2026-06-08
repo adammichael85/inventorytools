@@ -785,7 +785,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0, display: isMobile ? 'none' : 'block' }}>Recent conversions</h2>
                     <button onClick={() => setPage('reports')} style={{ fontSize: 12, color: TEAL, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>View all →</button>
                   </div>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: isMobile ? 600 : 'auto', display: isMobile ? 'none' : 'table' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600, display: isMobile ? 'none' : 'table' }}>
                     <thead><tr style={{ background: BG }}>
                       {['Property','Rooms','Conv. Time','Cost','By','Status',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
                     </tr></thead>
