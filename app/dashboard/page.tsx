@@ -481,7 +481,7 @@ export default function Dashboard() {
         borders: cellBorders,
         width: { size: colWidth, type: WidthType.DXA },
         verticalAlign: VerticalAlign.TOP,
-        children: (text || '').split(' | ').map(function(line){return new Paragraph({children:[new TextRun({text:line.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,''),font:'Arial',size:20,color:'000000'})]})})
+        children: (text || '').split(' | ').map(function(line){return new Paragraph({children:[new TextRun({text:line.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,'').replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/[\u2013\u2014]/g,'-').replace(/[^\x09\x0A\x0D\x20-\xFF]/g,''),font:'Arial',size:20,color:'000000'})]})})
       })
 
       const children: any[] = []
