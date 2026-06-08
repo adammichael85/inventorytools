@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     const message = await stream.finalMessage()
     const rawText = message.content.map((c: any) => c.text || '').join('').trim()
     
-    const data = repairJSON(rawText)
+    console.log("RAW RESPONSE LENGTH:", rawText.length); console.log("FIRST 500:", rawText.slice(0,500)); console.log("LAST 500:", rawText.slice(-500)); const data = repairJSON(rawText)
     
     if (!data.rooms || data.rooms.length === 0) {
       throw new Error('No rooms found in response')
