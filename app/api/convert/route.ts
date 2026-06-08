@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-5',
-      max_tokens: 16000,
+      max_tokens: 8192,
       system: `TASK: Convert an Existing Inventory PDF into structured JSON data.
 You are NOT creating an inventory. You are NOT interpreting inventory data. You are NOT correcting inventory data. You are simply copying existing inventory table data from a PDF.
 
@@ -48,8 +48,12 @@ Step 3 - Everything else goes into CONDITION:
 - Any remaining columns regardless of their label (Condition, Cleanliness, Comments, Tenant Comments, Inspector Notes, Photos, Rating, State) all go into CONDITION
 - Each value on its own line separated by " | "
 
+BREVITY
+Keep descriptions concise. Copy only essential text. Do not pad or repeat information already in other columns.
+
 COPY RULE
 Copy text EXACTLY. Do not correct spelling, improve grammar, reword, summarise, remove, add, merge or split rows.
+IMPORTANT: If any text contains double quote characters (") replace them with single quotes (') to avoid breaking the JSON output.
 
 DESCRIPTION FORMATTING
 Place each sentence or feature on its own line inside the description field, separated by the pipe character " | ".
