@@ -767,7 +767,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           </div>
         </div>
 
-        <div style={{ flex: 1, overflow: 'auto', padding: 28 }}>
+        <div style={{ flex: 1, overflow: 'auto', padding: isMobile ? 16 : 28, paddingBottom: isMobile ? 100 : 28 }}>
           {page === 'dashboard' && (
             <div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 4 }}>
