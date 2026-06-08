@@ -1,11 +1,14 @@
-export const maxDuration = 300
+const fs = require('fs');
+let c = fs.readFileSync('app/api/convert/route.ts', 'utf8');
+
+const newContent = `export const maxDuration = 300
 
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const SYSTEM_PROMPT = `TASK: Convert an Existing Inventory PDF into structured JSON data.
+const SYSTEM_PROMPT = \`TASK: Convert an Existing Inventory PDF into structured JSON data.
 You are NOT creating an inventory. You are NOT interpreting inventory data. You are NOT correcting inventory data. You are simply copying existing inventory table data from a PDF.
 
 GOAL
@@ -76,7 +79,7 @@ Count how many pages the resulting Word document will have. Each room typically 
 OUTPUT FORMAT
 Return ONLY a raw JSON object. No markdown. No code fences. No backticks.
 First character must be { and last character must be }
-Format: {"address":"12 Milliners Court","pages":7,"rooms":[{"roomName":"Hallway","rows":[{"item":"Door","description":"White painted | Free of marks","condition":"Good"}]}]}`
+Format: {"address":"12 Milliners Court","pages":7,"rooms":[{"roomName":"Hallway","rows":[{"item":"Door","description":"White painted | Free of marks","condition":"Good"}]}]}\`
 
 async function convertChunk(base64: string, mediaType: string, instruction: string) {
   const message = await client.messages.create({
@@ -97,12 +100,12 @@ async function convertChunk(base64: string, mediaType: string, instruction: stri
   const last = rawText.lastIndexOf('}')
   if (first === -1 || last === -1) throw new Error('No JSON found in response')
   
-  let rawSlice = rawText.slice(first, last + 1).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+  let rawSlice = rawText.slice(first, last + 1).replace(/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]/g, '')
   
   try {
     return JSON.parse(rawSlice)
   } catch(e) {
-    let cleaned = rawSlice.replace(/,[\s\n]+}/g, '}').replace(/,[\s\n]+]/g, ']')
+    let cleaned = rawSlice.replace(/,[\\s\\n]+}/g, '}').replace(/,[\\s\\n]+]/g, ']')
     try {
       return JSON.parse(cleaned)
     } catch(e2) {
@@ -136,7 +139,7 @@ export async function POST(req: NextRequest) {
       const lastRoom = rooms[rooms.length - 1]?.roomName || ''
       try {
         const secondPass = await convertChunk(base64, mediaType,
-          `The previous extraction may have been cut off. Extract ONLY rooms that come AFTER "${lastRoom}" in the PDF. If there are no more rooms after "${lastRoom}", return {"address":"","pages":0,"rooms":[]}. Return raw JSON only.`
+          \`The previous extraction may have been cut off. Extract ONLY rooms that come AFTER "\${lastRoom}" in the PDF. If there are no more rooms after "\${lastRoom}", return {"address":"","pages":0,"rooms":[]}. Return raw JSON only.\`
         )
         if (secondPass.rooms && secondPass.rooms.length > 0) {
           allRooms = [...rooms, ...secondPass.rooms]
@@ -157,3 +160,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
+`;
+
+fs.writeFileSync('app/api/convert/route.ts', newContent);
+console.log('done');
