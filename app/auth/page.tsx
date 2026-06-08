@@ -75,6 +75,7 @@ export default function Auth() {
 
   return (
     <main style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <style>{`@media(max-width:768px){:root{--auth-cols:1fr}.auth-left{display:none!important}}`}</style>
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
       <nav style={{ background: 'rgba(247,249,248,0.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${B}`, padding: '0 5vw', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
@@ -88,7 +89,7 @@ export default function Auth() {
         </div>
       </nav>
 
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'var(--auth-cols, 1fr 1fr)' }}>
         <div style={{ background: T, padding: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>

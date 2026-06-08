@@ -478,6 +478,15 @@ function DeleteAccountButton({ supabase, profile, userEmail }: any) {
 }
 
 export default function Dashboard() {
+  const [isMobile, setIsMobile] = React.useState(false)
+  React.useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  const [showMobileNav, setShowMobileNav] = React.useState(false)
+
   const [page, setPage] = useState('dashboard')
   const [showConvert, setShowConvert] = useState(false)
   const [showTopup, setShowTopup] = useState(false)
@@ -746,7 +755,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       </aside>
 
       {/* MAIN */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
         <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 32px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
             <h1 style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3, margin: 0 }}>{page === 'dashboard' ? ((() => { const h = new Date().getHours(); return (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ' ' + (userName || userEmail).split(' ')[0] + ' 👋' })()) : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
@@ -761,7 +770,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ flex: 1, overflow: 'auto', padding: 28 }}>
           {page === 'dashboard' && (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 4 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 4 }}>
                 {[['Total reports', conversions.length.toString(), 'all time'],['Total spent', '£'+(conversions.length * 3.5).toFixed(2), '@ £3.50 per report'],['Avg. time', conversions.length > 0 ? ((()=>{ const avg=Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length); return avg>=60 ? Math.floor(avg/60)+'m '+(avg%60)+'s' : avg+'s' })()) : '—', 'per conversion'],['Total time', (()=>{ const tot=conversions.reduce((s,r)=>s+(r.duration_seconds||0),0); return tot>=60 ? Math.floor(tot/60)+'m '+(tot%60)+'s' : tot+'s' })(), 'all conversions'],['Est. saving', '£'+(conversions.length * 12).toFixed(2), 'vs. external typist*']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
@@ -776,7 +785,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Recent conversions</h2>
                     <button onClick={() => setPage('reports')} style={{ fontSize: 12, color: TEAL, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>View all →</button>
                   </div>
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: isMobile ? 600 : 'auto' }}>
                     <thead><tr style={{ background: BG }}>
                       {['Property','Rooms','Conv. Time','Cost','By','Status',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
                     </tr></thead>
@@ -883,7 +892,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           {page === 'billing' && (
             <div>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Billing</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20, marginBottom: 20 }}>
                 <div style={{ background: TEAL, borderRadius: 14, padding: 24, color: '#fff' }}>
                   <p style={{ fontSize: 12, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Current balance</p>
                   <p style={{ fontSize: 42, fontWeight: 700, letterSpacing: -1, lineHeight: 1, marginBottom: 6 }}>{credits}</p>
@@ -919,6 +928,17 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         </div>
       </main>
 
+      
+      {isMobile && (
+        <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: SURFACE, borderTop: `1px solid ${BORDER}`, display: 'flex', zIndex: 100 }}>
+          {navItems.slice(0, 5).map(item => (
+            <button key={item.id} onClick={() => setPage(item.id)} style={{ flex: 1, padding: '10px 4px 8px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={page === item.id ? TEAL : HINT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={item.icon}/></svg>
+              <span style={{ fontSize: 9, color: page === item.id ? TEAL : HINT, fontWeight: page === item.id ? 600 : 400 }}>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+      )}
       {/* CONVERT MODAL */}
       {showConvert && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
