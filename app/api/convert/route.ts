@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 const SYSTEM = `Convert inventory text to JSON. Extract room data only.
 IGNORE these sections entirely: abbreviations & meanings pages, list of contents pages, property summary pages, parking information, appliance lists, smoke detector pages, legionella pages, meter reading pages, key pages.
 PROCESS every room section from start to end of document - do not stop early.
-RULES: no number prefix on room names, strip photo counts and duplicate conditions (Good Good becomes Good), first row per room is Further views with empty desc and condition, separate descriptions with pipe, extra columns go to condition.
+RULES: no number prefix on room names, strip photo counts and duplicate conditions (Good Good becomes Good), first row per room is Further views with empty desc and condition, copy each column content EXACTLY into its field - never mix text between columns, separate descriptions with pipe, extra columns go to condition.
 OUTPUT raw JSON only: {"address":"","pages":1,"rooms":[{"roomName":"","rows":[{"item":"","description":"","condition":""}]}]}`
 
 export async function POST(req: NextRequest) {
