@@ -760,9 +760,15 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: isMobile ? '0 16px' : '0 32px', height: isMobile ? 56 : 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 0 }}>
             {isMobile && (
-              <div style={{ width: 30, height: 30, background: '#1D9E75', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h6M7 16h8"/></svg>
-              </div>
+              <svg width="30" height="30" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                <rect width="120" height="120" rx="26" fill="#1D9E75"/>
+                <rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
+                <rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
+                <rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
+                <rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/>
+                <rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/>
+                <path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             )}
             <div>
             <h1 style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3, margin: 0 }}>{page === 'dashboard' ? ((() => { const h = new Date().getHours(); return (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ' ' + (userName || userEmail).split(' ')[0] + (isMobile ? '' : ' 👋') })()) : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
