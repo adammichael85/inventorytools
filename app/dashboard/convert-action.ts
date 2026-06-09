@@ -52,12 +52,12 @@ export async function extractTextFromDOCX(file: File): Promise<string> {
   })
 }
 export async function convertPDF(base64: string, mediaType: string, originalFile?: File, userId?: string) {
-  let body: any = { base64, mediaType }
+  let body: any = { base64: base64.length < 5000000 ? base64 : "", mediaType }
   if (originalFile) {
     try {
       const extractedText = await extractTextFromPDF(originalFile)
       if (extractedText && extractedText.trim().length > 100) {
-        body = { extractedText }
+        body = { extractedText, base64: "", mediaType }
         console.log('Using PDF.js text extraction:', extractedText.length, 'chars')
       }
     } catch(e) {
