@@ -578,7 +578,14 @@ export default function Dashboard() {
       })
       // Load conversions
       supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => {
-        if (convs) setConversions(convs)
+        if (convs) {
+          setConversions(convs)
+          const unrated = convs.filter((x: any) => !x.rating)
+          if (unrated.length > 0) {
+            setPendingRatings(unrated)
+            setShowRatingPopup(true)
+          }
+        }
       })
     })
   }, [])
