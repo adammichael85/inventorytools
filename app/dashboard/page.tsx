@@ -477,7 +477,25 @@ function DeleteAccountButton({ supabase, profile, userEmail }: any) {
   return null
 }
 
-export default function Dashboard() {
+export default 
+function StarRating({ value, onChange, size = 20 }: { value: number, onChange?: (v: number) => void, size?: number }) {
+  const [hover, setHover] = React.useState(0)
+  return (
+    <div style={{ display: 'flex', gap: 2 }}>
+      {[1,2,3,4,5].map(star => (
+        <span
+          key={star}
+          onClick={() => onChange?.(star)}
+          onMouseEnter={() => onChange && setHover(star)}
+          onMouseLeave={() => onChange && setHover(0)}
+          style={{ cursor: onChange ? 'pointer' : 'default', fontSize: size, color: star <= (hover || value) ? '#F59E0B' : '#D1D5DB', lineHeight: 1 }}
+        >★</span>
+      ))}
+    </div>
+  )
+}
+
+function Dashboard() {
   const [isMobile, setIsMobile] = React.useState(false)
   React.useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
@@ -503,12 +521,26 @@ export default function Dashboard() {
   const elapsedRef = React.useRef(0)
   const [convertError, setConvertError] = useState('')
   const [conversions, setConversions] = useState<any[]>([])
+  const [showRatingPopup, setShowRatingPopup] = useState(false)
+  const [pendingRatings, setPendingRatings] = useState<any[]>([])
+  const [ratings, setRatings] = useState<{[key: string]: number}>({})
   const [searchQuery, setSearchQuery] = useState('')
   const [compressing, setCompressing] = useState(false)
   const [originalSize, setOriginalSize] = useState(0)
   const [compressedSize, setCompressedSize] = useState(0)
   const [docxUrl, setDocxUrl] = useState<string|null>(null)
   const [docxName, setDocxName] = useState('')
+
+  async function submitRatings() {
+    const updates = Object.entries(ratings)
+    for (const [id, rating] of updates) {
+      await supabase.from('conversions').update({ rating }).eq('id', id)
+    }
+    setConversions(prev => prev.map(c => ratings[c.id] ? { ...c, rating: ratings[c.id] } : c))
+    setShowRatingPopup(false)
+    setPendingRatings([])
+    setRatings({})
+  }
 
   async function deleteConversion(id: string, filePath: string) {
     if (!confirm('Delete this report? This cannot be undone.')) return
@@ -799,7 +831,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600, display: isMobile ? 'none' : 'table' }}>
                     <thead><tr style={{ background: BG }}>
-                      {['Property','Rooms','Conv. Time','Cost','By','Status',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
+                      {['Property','Rooms','Conv. Time','Cost','By','Rating','Status',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
                     </tr></thead>
                     <tbody>
                       {conversions.map(c => (
@@ -817,6 +849,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                           <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
                           <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
                           <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{(c.converted_by || '').split(' ').map((n: string, i: number) => i === 0 ? n : n[0]).join(' ')}</td>
+                          <td style={{ padding: '12px 20px' }}><StarRating value={c.rating || 0} size={14} /></td>
                           <td style={{ padding: '12px 20px' }}><span style={{ background: '#E6F9F2', color: '#0A6B48', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>Complete</span></td>
                           <td style={{ padding: '12px 20px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -932,13 +965,14 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </div>
                 )}
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead><tr style={{ background: BG }}>{['Property','Rooms','Conv. Time','Cost','By','Date',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}</tr></thead>
+                  <thead><tr style={{ background: BG }}>{['Property','Rooms','Conv. Time','Cost','By','Rating','Date',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}</tr></thead>
                   <tbody>{conversions.filter(c => !searchQuery || (c.address||'').toLowerCase().includes(searchQuery.toLowerCase())).map(c => (<tr key={c.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
                     <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 500 }}>{c.address}</td>
                     <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms</td>
                     <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
                     <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
                     <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{(c.converted_by || '').split(' ').map((n: string, i: number) => i === 0 ? n : n[0]).join(' ')}</td>
+                    <td style={{ padding: '12px 20px' }}><StarRating value={c.rating || 0} size={14} /></td>
                     <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{new Date(c.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}</td>
                     <td style={{ padding: '12px 20px' }}><div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{c.file_path ? (<button onClick={async () => { const { data } = await supabase.storage.from('documents').createSignedUrl(c.file_path, 60); if (data?.signedUrl) { const response = await fetch(data.signedUrl); const fileBlob = await response.blob(); const blobUrl = URL.createObjectURL(fileBlob); const a = document.createElement('a'); a.href = blobUrl; a.download = (c.address||'inventory').replace(/[^a-zA-Z0-9 _-]/g,'').trim()+'.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(blobUrl) } }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title='Download'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke={TEAL} strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/><polyline points='14,2 14,8 20,8'/><line x1='12' y1='18' x2='12' y2='12'/><polyline points='9,15 12,18 15,15'/></svg></button>) : <span style={{ fontSize: 11, color: HINT, padding: 4 }}>—</span>}<button onClick={() => deleteConversion(c.id, c.file_path)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title='Delete'><svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#DC2626' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><polyline points='3,6 5,6 21,6'/><path d='M19,6l-1,14a2 2 0 01-2 2H8a2 2 0 01-2-2L5,6'/><path d='M10,11v6M14,11v6'/><path d='M9,6V4a1 1 0 011-1h4a1 1 0 011 1v2'/></svg></button></div></td>
                   </tr>))}</tbody>
@@ -997,7 +1031,34 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           ))}
         </nav>
       )}
-      {/* CONVERT MODAL */}
+      
+      {showRatingPopup && pendingRatings.length > 0 && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: SURFACE, borderRadius: 16, padding: 28, width: '100%', maxWidth: 480, maxHeight: '80vh', overflowY: 'auto' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 6px', letterSpacing: -0.3 }}>Rate your conversions</h2>
+            <p style={{ fontSize: 13, color: MUTED, margin: '0 0 20px' }}>Please rate the following before continuing. Your feedback helps us improve.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
+              {pendingRatings.map((conv: any) => (
+                <div key={conv.id} style={{ background: BG, borderRadius: 10, padding: '12px 16px' }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: TEXT, margin: '0 0 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{conv.address}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <StarRating value={ratings[conv.id] || 0} onChange={(v) => setRatings(prev => ({ ...prev, [conv.id]: v }))} size={24} />
+                    {ratings[conv.id] && <span style={{ fontSize: 12, color: MUTED }}>{['','Poor','Fair','Good','Very good','Excellent'][ratings[conv.id]]}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              disabled={pendingRatings.some((c: any) => !ratings[c.id])}
+              onClick={submitRatings}
+              style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: pendingRatings.every((c: any) => ratings[c.id]) ? TEAL : BORDER, color: pendingRatings.every((c: any) => ratings[c.id]) ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: pendingRatings.every((c: any) => ratings[c.id]) ? 'pointer' : 'default' }}>
+              Continue to dashboard →
+            </button>
+          </div>
+        </div>
+      )}
+
+{/* CONVERT MODAL */}
       {showConvert && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 480, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
