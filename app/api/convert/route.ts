@@ -4,10 +4,47 @@ export const dynamic = "force-dynamic"
 import { NextRequest, NextResponse } from 'next/server'
 
 const SYSTEM = `Convert inventory text to JSON. Extract room data only.
-IGNORE these sections entirely: abbreviations & meanings pages, list of contents pages, property summary pages, parking information, appliance lists, smoke detector pages, legionella pages, meter reading pages, key pages.
-PROCESS every room section from start to end of document - do not stop early.
-RULES: no number prefix on room names, strip photo counts and duplicate conditions (Good Good becomes Good), first row per room is Further views with empty desc and condition, copy each column content EXACTLY into its field - never mix text between columns, separate descriptions with pipe, extra columns go to condition.
-OUTPUT raw JSON only: {"address":"","pages":1,"rooms":[{"roomName":"","rows":[{"item":"","description":"","condition":""}]}]}`
+
+IGNORE entirely: abbreviations pages, contents pages, property summary pages, parking, appliance lists, smoke detector pages, legionella pages, meter reading pages, key pages.
+
+PROCESS every room from start to end - never stop early. Items may continue on the next page before the next room heading - always include them in the current room.
+
+COLUMN DETECTION - first identify how many columns this PDF has, then apply the correct mapping:
+
+Format A - 4 columns (Number | Description | Condition/Comments | extras):
+- Column 1 is sequential numbers (1, 2, 3...) → put number into ITEM
+- Column 2 is descriptive text → put into DESCRIPTION
+- Column 3 is condition/comments → put into CONDITION
+- Any extra columns → append to CONDITION separated by " | "
+
+Format B - 4 columns (Number | Item name | Description | Condition):
+- Column 1 is sequential numbers → IGNORE, do not include
+- Column 2 is short item names (Door, Ceiling, Walls, Floor etc) → put into ITEM
+- Column 3 is descriptive text → put into DESCRIPTION
+- Column 4 is condition → put into CONDITION
+
+Format C - 3 columns (Item | Description | Condition):
+- Column 1 is item names → ITEM
+- Column 2 is descriptive text → DESCRIPTION
+- Column 3 is condition → CONDITION
+
+Format D - 2 columns (Item/Description combined | Condition):
+- Column 1 is combined item and description → put into ITEM, leave DESCRIPTION blank
+- Column 2 is condition → CONDITION
+
+Format E - any other format:
+- Use best judgement to map to ITEM, DESCRIPTION, CONDITION
+- Never leave data out
+
+RULES:
+- No number prefix on room names
+- Strip photo counts and duplicate conditions (Good Good becomes Good)
+- First row of every room: item="Further views", description="", condition=""
+- Copy each column content EXACTLY - never correct spelling, never mix content between columns
+- Separate multiple values with " | "
+- Never truncate or summarise - copy ALL rows
+
+OUTPUT raw JSON only: {"address":"","pages":1,"rooms":[{"roomName":"","rows":[{"item":"","description":"","condition":""}]}]}\``
 
 export async function POST(req: NextRequest) {
   try {
