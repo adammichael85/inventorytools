@@ -503,12 +503,25 @@ export default function Dashboard() {
   const elapsedRef = React.useRef(0)
   const [convertError, setConvertError] = useState('')
   const [conversions, setConversions] = useState<any[]>([])
+  const [showRatingPopup, setShowRatingPopup] = useState(false)
+  const [pendingRatings, setPendingRatings] = useState<any[]>([])
+  const [tempRatings, setTempRatings] = useState<{[key: string]: number}>({})
   const [searchQuery, setSearchQuery] = useState('')
   const [compressing, setCompressing] = useState(false)
   const [originalSize, setOriginalSize] = useState(0)
   const [compressedSize, setCompressedSize] = useState(0)
   const [docxUrl, setDocxUrl] = useState<string|null>(null)
   const [docxName, setDocxName] = useState('')
+
+  async function submitRatings() {
+    for (const [id, rating] of Object.entries(tempRatings)) {
+      await supabase.from('conversions').update({ rating }).eq('id', id)
+    }
+    setConversions(prev => prev.map(x => tempRatings[x.id] ? { ...x, rating: tempRatings[x.id] } : x))
+    setShowRatingPopup(false)
+    setPendingRatings([])
+    setTempRatings({})
+  }
 
   async function deleteConversion(id: string, filePath: string) {
     if (!confirm('Delete this report? This cannot be undone.')) return
@@ -520,7 +533,14 @@ export default function Dashboard() {
     const { data: { session } } = await supabase.auth.getSession()
     if (session) {
       const { data: convs } = await supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50)
-      if (convs) setConversions(convs)
+      if (convs) {
+        setConversions(convs)
+        const unrated = convs.filter((x: any) => !x.rating)
+        if (unrated.length > 0) {
+          setPendingRatings(unrated)
+          setShowRatingPopup(true)
+        }
+      }
     }
   }
 
@@ -997,6 +1017,37 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           ))}
         </nav>
       )}
+      {/* RATING POPUP */}
+      {showRatingPopup && pendingRatings.length > 0 && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#ffffff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 6px', letterSpacing: -0.3, color: '#1A2820' }}>Rate your conversions</h2>
+            <p style={{ fontSize: 13, color: '#5A7068', margin: '0 0 20px' }}>Please rate the following before continuing. Your feedback helps us improve.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+              {pendingRatings.map((conv: any) => (
+                <div key={conv.id} style={{ background: '#f7f9f8', borderRadius: 10, padding: '12px 16px' }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#1A2820', margin: '0 0 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{conv.address}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ display: 'flex', gap: 3 }}>
+                      {[1,2,3,4,5].map(star => (
+                        <span key={star} onClick={() => setTempRatings(prev => ({ ...prev, [conv.id]: star }))} style={{ fontSize: 28, cursor: 'pointer', color: star <= (tempRatings[conv.id] || 0) ? '#F59E0B' : '#D1D5DB', lineHeight: 1 }}>★</span>
+                      ))}
+                    </div>
+                    {tempRatings[conv.id] && <span style={{ fontSize: 12, color: '#5A7068' }}>{['','Poor','Fair','Good','Very good','Excellent'][tempRatings[conv.id]]}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              disabled={pendingRatings.some((x: any) => !tempRatings[x.id])}
+              onClick={submitRatings}
+              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: pendingRatings.every((x: any) => tempRatings[x.id]) ? '#1D9E75' : '#E2EAE7', color: pendingRatings.every((x: any) => tempRatings[x.id]) ? '#ffffff' : '#94AEA6', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: pendingRatings.every((x: any) => tempRatings[x.id]) ? 'pointer' : 'default', transition: 'all 0.15s' }}>
+              Continue to dashboard →
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* CONVERT MODAL */}
       {showConvert && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
