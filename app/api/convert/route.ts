@@ -7,7 +7,13 @@ const SYSTEM = `Convert inventory text to JSON. Extract room data only.
 
 IGNORE entirely: abbreviations pages, contents pages, property summary pages, parking, appliance lists, smoke detector pages, legionella pages, meter reading pages, key pages.
 
-PROCESS every room from start to end - never stop early. Items may continue on the next page before the next room heading - always include them in the current room.
+PROCESS every room from start to end - never stop early. Never drop any item.
+
+PAGE BREAKS: Items belonging to a room may continue on the next page BEFORE the next room heading appears. These items belong to the CURRENT room, not the next room. Only start a new room when you see a new room heading.
+
+NUMBERED ITEMS: Each number (1, 2, 3...) represents exactly ONE row. Never split a single numbered item across multiple rows even if it contains multiple sentences or describes multiple things. Keep all text for that number in one row.
+
+COMPLETENESS: Every single numbered item must appear in the output. If you are near the end of the document, do not stop - continue until the very last item in the very last room.
 
 COLUMN DETECTION - first identify how many columns this PDF has, then apply the correct mapping:
 
