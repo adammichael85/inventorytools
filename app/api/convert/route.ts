@@ -13,7 +13,7 @@ PAGE BREAKS: Items belonging to a room may continue on the next page BEFORE the 
 
 NUMBERED ITEMS: Each number (1, 2, 3...) represents exactly ONE row. Never split a single numbered item across multiple rows even if it contains multiple sentences or describes multiple things. Keep all text for that number in one row.
 
-BRACKETED CONDITIONS: Some PDFs include condition notes in brackets within the description column, e.g. "White brick wall (some bricks missing at top)". When you see text in brackets that describes a condition, defect, or state - extract it from the description and place it in the CONDITION column instead. Remove the brackets. Any text before OR after the brackets stays in the DESCRIPTION column - never drop any text. Example: "Wood door (stiff to close). 1 bolt key." → Description: "Wood door. 1 bolt key." Condition: "stiff to close". Example 2: "Mattress (worn). Fire resistant." → Description: "Mattress. Fire resistant." Condition: "worn".
+BRACKETED CONDITIONS: Some PDFs include condition notes in brackets within the description column, e.g. "White brick wall (some bricks missing at top)". When you see text in brackets that describes a condition, defect, or state - extract it from the description and place it in the CONDITION column instead. Remove the brackets. The description should contain only the physical description without the bracketed condition note.
 
 COMPLETENESS: Every single numbered item must appear in the output. If you are near the end of the document, do not stop - continue until the very last item in the very last room.
 
