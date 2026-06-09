@@ -1032,7 +1032,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       {/* RATING POPUP */}
       {showRatingPopup && pendingRatings.length > 0 && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: '#ffffff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: '#ffffff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 480, maxHeight: '80vh', overflowY: 'scroll', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', scrollbarWidth: 'thin', scrollbarColor: '#1D9E75 #E2EAE7' }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 6px', letterSpacing: -0.3, color: '#1A2820' }}>Rate your conversions</h2>
             <p style={{ fontSize: 13, color: '#5A7068', margin: '0 0 20px' }}>Please rate the following before continuing. Your feedback helps us improve.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
