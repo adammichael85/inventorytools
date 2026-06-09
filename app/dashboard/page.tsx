@@ -1039,11 +1039,11 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             <p style={{ fontSize: 13, color: MUTED, margin: '0 0 20px' }}>Please rate the following before continuing. Your feedback helps us improve.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
               {pendingRatings.map((conv: any) => (
-                <div key={conv.id} style={{ background: BG, borderRadius: 10, padding: '12px 16px' }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: TEXT, margin: '0 0 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{conv.address}</p>
+                <div key={conv.id} style={{ background: '#f7f9f8', borderRadius: 10, padding: '12px 16px' }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#1A2820', margin: '0 0 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{conv.address}</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <StarRating value={ratings[conv.id] || 0} onChange={(v) => setRatings(prev => ({ ...prev, [conv.id]: v }))} size={24} />
-                    {ratings[conv.id] && <span style={{ fontSize: 12, color: MUTED }}>{['','Poor','Fair','Good','Very good','Excellent'][ratings[conv.id]]}</span>}
+                    {ratings[conv.id] && <span style={{ fontSize: 12, color: '#5A7068' }}>{['','Poor','Fair','Good','Very good','Excellent'][ratings[conv.id]]}</span>}
                   </div>
                 </div>
               ))}
@@ -1051,7 +1051,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             <button
               disabled={pendingRatings.some((c: any) => !ratings[c.id])}
               onClick={submitRatings}
-              style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: pendingRatings.every((c: any) => ratings[c.id]) ? TEAL : BORDER, color: pendingRatings.every((c: any) => ratings[c.id]) ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: pendingRatings.every((c: any) => ratings[c.id]) ? 'pointer' : 'default' }}>
+              style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: pendingRatings.every((c: any) => ratings[c.id]) ? '#1D9E75' : '#E2EAE7', color: pendingRatings.every((c: any) => ratings[c.id]) ? '#fff' : '#5A7068', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: pendingRatings.every((c: any) => ratings[c.id]) ? 'pointer' : 'default' }}>
               Continue to dashboard →
             </button>
           </div>
