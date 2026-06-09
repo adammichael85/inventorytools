@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({ model: "gpt-4o", max_tokens: 16000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: extractedText + "\n\nExtract ALL rooms. Return raw JSON only." }] })
       })
       const d = await r.json()
-      responseText = d.choices?.[0]?.message?.content?.trim() || ""
+      responseText = d.choices?.[0]?.message?.content?.trim() || ""; console.log("GPT response length:", responseText.length); console.log("GPT first 500:", responseText.slice(0, 500)); console.log("GPT last 200:", responseText.slice(-200))
     } else {
       const r = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
