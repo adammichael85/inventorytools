@@ -718,7 +718,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         supabase.auth.getSession().then(({ data }) => {
           if (data.session) {
             supabase.from('profiles').select('credits').eq('id', data.session.user.id).single().then(({ data: p }) => { if (p) setCredits(p.credits || 0) })
-            supabase.from('conversions').select('*').eq('user_id', data.session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => { if (convs) setConversions(convs) })
+            supabase.from('conversions').select('*').eq('user_id', data.session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => { if (convs) { setConversions(convs); const unrated = convs.filter((x: any) => !x.rating); if (unrated.length > 0) { setPendingRatings(unrated); setShowRatingPopup(true) } } })
           }
         })
       })
