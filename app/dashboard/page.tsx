@@ -541,7 +541,7 @@ export default function Dashboard() {
         const unrated = convs.filter((x: any) => !x.rating)
         if (unrated.length > 0) {
           setPendingRatings(unrated)
-          if (!sessionStorage.getItem('justConverted')) if (convertState === 'idle') setShowRatingPopup(true); sessionStorage.removeItem('justConverted')
+          if (!sessionStorage.getItem('justConverted')) const lc = localStorage.getItem('lastConverted'); const minsAgo = lc ? (Date.now() - parseInt(lc)) / 60000 : 999; if (minsAgo > 5) setShowRatingPopup(true); sessionStorage.removeItem('justConverted')
         }
       }
     }
@@ -728,7 +728,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         supabase.auth.getSession().then(({ data }) => {
           if (data.session) {
             supabase.from('profiles').select('credits').eq('id', data.session.user.id).single().then(({ data: p }) => { if (p) setCredits(p.credits || 0) })
-            supabase.from('conversions').select('*').eq('user_id', data.session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => { if (convs) { setConversions(convs); const latest = convs[0]; if (latest && !latest.rating) { setQuickRateConvId(latest.id); setQuickRateConvAddress(latest.address || ''); setShowQuickRate(true); sessionStorage.setItem('justConverted', '1') } } })
+            supabase.from('conversions').select('*').eq('user_id', data.session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => { if (convs) { setConversions(convs); const latest = convs[0]; if (latest && !latest.rating) { setQuickRateConvId(latest.id); setQuickRateConvAddress(latest.address || ''); setShowQuickRate(true); localStorage.setItem('lastConverted', Date.now().toString()); sessionStorage.setItem('justConverted', '1') } } })
           }
         })
       })
