@@ -48,9 +48,10 @@ Format D - 2 columns (Item/Description combined | Condition):
 - Column 1 is combined item and description → put into ITEM, leave DESCRIPTION blank
 - Column 2 is condition → CONDITION
 
-Format E - any other format:
-- Use best judgement to map to ITEM, DESCRIPTION, CONDITION
-- Never leave data out
+Format E - 3 columns (Number | Description | Condition):
+- Column 1 is sequential numbers → put number ONLY into ITEM
+- Column 2 is descriptive text → DESCRIPTION
+- Column 3 is condition → CONDITION
 
 RULES:
 - No number prefix on room names
