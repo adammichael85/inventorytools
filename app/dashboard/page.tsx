@@ -971,7 +971,15 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{(c.converted_by || '').split(' ').map((n: string, i: number) => i === 0 ? n : n[0]).join(' ')}</td>
                     <td style={{ padding: '12px 20px' }}>
                       <div style={{ display: 'flex', gap: 1 }}>
-                        {[1,2,3,4,5].map(star => <span key={star} style={{ fontSize: 12, color: star <= (c.rating || 0) ? '#F59E0B' : '#D1D5DB' }}>★</span>)}
+                        {[1,2,3,4,5].map(star => (
+                          <span key={star}
+                            onClick={async () => {
+                              if (c.rating) return
+                              await supabase.from('conversions').update({ rating: star }).eq('id', c.id)
+                              setConversions(prev => prev.map(x => x.id === c.id ? { ...x, rating: star } : x))
+                            }}
+                            style={{ fontSize: 14, color: star <= (c.rating || 0) ? '#F59E0B' : '#D1D5DB', cursor: c.rating ? 'default' : 'pointer', lineHeight: 1 }}>★</span>
+                        ))}
                       </div>
                     </td>
                     <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{new Date(c.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}</td>
