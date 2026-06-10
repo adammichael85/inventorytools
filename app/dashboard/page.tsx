@@ -832,7 +832,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                       {['Property','Rooms','Conv. Time','Cost','By','Rating','Status',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
                     </tr></thead>
                     <tbody>
-                      {conversions.map(c => (
+                      {conversions.slice(0, 10).map(c => (
                         <tr key={c.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
                           <td style={{ padding: '12px 20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
