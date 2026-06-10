@@ -1173,7 +1173,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               </div>
             )}
 
-            {convertState === 'processing' && (<>
+            {convertState === 'processing' && (
               <div style={{ padding: 24 }}>
                 <div style={{ background: TEAL_LIGHT, borderRadius: 10, padding: '14px 16px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2.5px solid rgba(29,158,117,0.25)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
@@ -1186,7 +1186,6 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 <div style={{ height: 4, borderRadius: 20, background: 'rgba(29,158,117,0.2)', overflow: 'hidden', marginBottom: 14 }}>
                   <div style={{ height: '100%', borderRadius: 20, background: '#FD6A02', animation: 'progress 2s ease-in-out infinite' }} />
                 </div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: '#FD6A02', textAlign: 'center', margin: '0 0 16px', letterSpacing: 0.3 }}>PLEASE KEEP THIS TAB OPEN WHILE PROCESSING.<br/>YOU CAN USE OTHER TABS.</p>
                 {processingRooms.map((room, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: `1px solid ${BORDER}`, opacity: room.state === 'pending' ? 0.35 : 1 }}>
                     {room.state === 'done' && <div style={{ width: 18, height: 18, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg></div>}
@@ -1196,7 +1195,6 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </div>
                 ))}
               </div>
-            </>
             )}
 
             {convertState === 'done' && docxUrl && (
@@ -1206,8 +1204,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <p style={{ fontSize: 15, fontWeight: 700, color: TEAL_DARK, marginBottom: 4 }}>Conversion complete!</p>
                   <p style={{ fontSize: 13, color: MUTED }}>{processingRooms.length} rooms in {elapsed}s</p>
                   <div style={{ marginTop: 12 }}>
-                    {<p style={{ fontSize: 13, fontWeight: 700, color: '#FD6A02', textAlign: 'center', margin: '0 0 16px', letterSpacing: 0.3 }}>PLEASE KEEP THIS TAB OPEN WHILE PROCESSING.<br/>YOU CAN USE OTHER TABS.</p>
-              {processingRooms.map((room, i) => (
+                    {processingRooms.map((room, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', borderBottom: '1px solid rgba(29,158,117,0.15)' }}>
                         <div style={{ width: 16, height: 16, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg>
