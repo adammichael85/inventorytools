@@ -1175,14 +1175,15 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
             {convertState === 'processing' && (
               <div style={{ padding: 24 }}>
-                <div style={{ background: TEAL_LIGHT, borderRadius: 10, padding: '14px 16px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2.5px solid rgba(29,158,117,0.25)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: TEAL_DARK, margin: 0 }}>Processing...</p>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: '#FD6A02', textAlign: 'center', margin: '16px 0 4px', letterSpacing: 0.3 }}>PLEASE KEEP THIS TAB OPEN WHILE PROCESSING. YOU CAN USE OTHER TABS.</p><p style={{ fontSize: 12, fontWeight: 700, color: '#FD6A02', textAlign: 'center', margin: '0 0 16px', letterSpacing: 0.3 }}>CLOSING THIS TAB WILL CANCEL YOUR CONVERSION.</p>
-                    <p style={{ fontSize: 11, color: '#d45500', margin: 0 }}>{selectedFile?.name}</p>
+                <div style={{ background: TEAL_LIGHT, borderRadius: 10, padding: '16px', marginBottom: 18, textAlign: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 12 }}>
+                    <div style={{ width: 18, height: 18, borderRadius: '50%', border: `2.5px solid rgba(253,106,2,0.25)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                    <p style={{ fontSize: 14, fontWeight: 600, color: TEAL_DARK, margin: 0 }}>Processing...</p>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#d45500' }}>⏱ {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</span>
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#d45500' }}>⏱ {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</span>
+                  <p style={{ fontSize: 11, color: '#d45500', margin: '0 0 12px' }}>{selectedFile?.name}</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', margin: '0 0 4px', letterSpacing: 0.3 }}>PLEASE KEEP THIS TAB OPEN WHILE PROCESSING. YOU CAN USE OTHER TABS.</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', margin: 0, letterSpacing: 0.3 }}>CLOSING THIS TAB WILL CANCEL YOUR CONVERSION.</p>
                 </div>
                 <div style={{ height: 4, borderRadius: 20, background: 'rgba(29,158,117,0.2)', overflow: 'hidden', marginBottom: 14 }}>
                   <div style={{ height: '100%', borderRadius: 20, background: '#FD6A02', animation: 'progress 2s ease-in-out infinite' }} />
