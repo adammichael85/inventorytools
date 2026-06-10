@@ -590,11 +590,11 @@ export default function Dashboard() {
               setShowRatingPopup(true)
               sessionStorage.removeItem('freshLogin')
             }
-              setShowRatingPopup(true)
-              sessionStorage.setItem('ratingShown', '1')
-            }
           }
         }
+      })
+    })
+  }, [])
       })
     })
   }, [])
