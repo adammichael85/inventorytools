@@ -829,7 +829,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600, display: isMobile ? 'none' : 'table' }}>
                     <thead><tr style={{ background: BG }}>
-                      {['Property','Rooms','Conv. Time','Cost','By','Status',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
+                      {['Property','Rooms','Conv. Time','Cost','By','Rating','Status',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
                     </tr></thead>
                     <tbody>
                       {conversions.map(c => (
@@ -847,6 +847,17 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                           <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
                           <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
                           <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{(c.converted_by || '').split(' ').map((n: string, i: number) => i === 0 ? n : n[0]).join(' ')}</td>
+                          <td style={{ padding: '12px 20px' }}>
+                            <div style={{ display: 'flex', gap: 1 }}>
+                              {[1,2,3,4,5].map(star => (
+                                <span key={star} onClick={async () => {
+                                  if (c.rating) return
+                                  await supabase.from('conversions').update({ rating: star }).eq('id', c.id)
+                                  setConversions(prev => prev.map(x => x.id === c.id ? { ...x, rating: star } : x))
+                                }} style={{ fontSize: 14, color: star <= (c.rating || 0) ? '#F59E0B' : '#D1D5DB', cursor: c.rating ? 'default' : 'pointer', lineHeight: 1 }}>★</span>
+                              ))}
+                            </div>
+                          </td>
                           <td style={{ padding: '12px 20px' }}><span style={{ background: '#E6F9F2', color: '#0A6B48', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>Complete</span></td>
                           <td style={{ padding: '12px 20px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
