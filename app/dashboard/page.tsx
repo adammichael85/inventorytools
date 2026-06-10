@@ -1187,7 +1187,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ height: '100%', borderRadius: 20, background: '#FD6A02', animation: 'progress 2s ease-in-out infinite' }} />
                 </div>
                 <p style={{ fontSize: 13, fontWeight: 700, color: '#FD6A02', textAlign: 'center', margin: '0 0 16px', letterSpacing: 0.3 }}>PLEASE KEEP THIS TAB OPEN WHILE PROCESSING.<br/>YOU CAN USE OTHER TABS.</p>
-                            {processingRooms.map((room, i) => (
+                {processingRooms.map((room, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: `1px solid ${BORDER}`, opacity: room.state === 'pending' ? 0.35 : 1 }}>
                     {room.state === 'done' && <div style={{ width: 18, height: 18, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg></div>}
                     {room.state === 'active' && <div style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid rgba(29,158,117,0.2)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />}
@@ -1196,6 +1196,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </div>
                 ))}
               </div>
+            </>
             )}
 
             {convertState === 'done' && docxUrl && (
