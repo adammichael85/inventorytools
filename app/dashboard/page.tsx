@@ -1205,14 +1205,25 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <p style={{ fontSize: 15, fontWeight: 700, color: TEAL_DARK, marginBottom: 4 }}>Conversion complete!</p>
                   <p style={{ fontSize: 13, color: MUTED }}>{processingRooms.length} rooms in {elapsed}s</p>
                   <div style={{ marginTop: 12 }}>
-                    {processingRooms.map((room, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', borderBottom: '1px solid rgba(29,158,117,0.15)' }}>
-                        <div style={{ width: 16, height: 16, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg>
-                        </div>
-                        <span style={{ fontSize: 12, color: TEAL_DARK }}>{room.name}</span>
-                      </div>
-                    ))}
+                    {(() => {
+                      const names = processingRooms.map(r => r.name)
+                      const dupes = names.filter((n, i) => names.indexOf(n) !== i)
+                      const hasDupes = dupes.length > 0
+                      return <>
+                        {hasDupes && <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '8px 12px', marginBottom: 10, fontSize: 12, color: '#DC2626', fontWeight: 600 }}>⚠️ Duplicate room names found. Information has been copied exactly as per the PDF but highlighted for your attention in case you wish to manually rename.</div>}
+                        {processingRooms.map((room, i) => {
+                          const isDupe = dupes.includes(room.name)
+                          return (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', borderBottom: '1px solid rgba(29,158,117,0.15)' }}>
+                              <div style={{ width: 16, height: 16, borderRadius: '50%', background: isDupe ? '#DC2626' : TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg>
+                              </div>
+                              <span style={{ fontSize: 12, color: isDupe ? '#DC2626' : TEAL_DARK, fontWeight: isDupe ? 700 : 400 }}>{room.name}{isDupe ? ' ⚠️' : ''}</span>
+                            </div>
+                          )
+                        })}
+                      </>
+                    })()}
                   </div>
                 </div>
                 <a href={docxUrl} download={docxName} onClick={() => setTimeout(() => window.location.reload(), 2000)} style={{ display: 'block', width: '100%', padding: 13, borderRadius: 10, background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, textAlign: 'center', textDecoration: 'none', marginBottom: 10, boxSizing: 'border-box' }}>↓ Download {docxName}</a>
