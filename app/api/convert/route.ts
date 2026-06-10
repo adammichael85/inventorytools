@@ -19,6 +19,8 @@ BRACKETED CONDITIONS: Some PDFs include condition notes in brackets within the d
 
 COMPLETENESS: Every single numbered item must appear in the output. If you are near the end of the document, do not stop - continue until the very last item in the very last room.
 
+ROOM HEADINGS IN NUMBERED FORMAT: If a numbered item contains only a location or area name (e.g. '1 Outside Front' or '8 Hall' or '15 Sitting Room'), treat it as a room heading not an inventory row.
+
 COLUMN DETECTION - first identify how many columns this PDF has, then apply the correct mapping:
 
 Format A - 4 columns (Number | Description | Condition/Comments | extras):
