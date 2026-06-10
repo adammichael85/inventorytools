@@ -586,7 +586,7 @@ export default function Dashboard() {
           const unrated = convs.filter((x: any) => !x.rating)
           if (unrated.length > 0) {
             setPendingRatings(unrated)
-            setShowRatingPopup(true)
+            if (!showQuickRate) setShowRatingPopup(true)
           }
         }
       })
