@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       const r = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
-        body: JSON.stringify({ model: "gpt-4.1", max_tokens: 16000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: extractedText + "\n\nExtract ALL rooms. Return raw JSON only." }] })
+        body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 16000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: extractedText + "\n\nExtract ALL rooms. Return raw JSON only." }] })
       })
       const d = await r.json()
       responseText = d.choices?.[0]?.message?.content?.trim() || ""; console.log("GPT response length:", responseText.length); console.log("GPT first 500:", responseText.slice(0, 500)); console.log("GPT last 200:", responseText.slice(-200))
