@@ -541,7 +541,7 @@ export default function Dashboard() {
         const unrated = convs.filter((x: any) => !x.rating)
         if (unrated.length > 0) {
           setPendingRatings(unrated)
-          const _lc = localStorage.getItem('lastConverted'); const _ma = _lc ? (Date.now() - parseInt(_lc)) / 60000 : 999; if (_ma > 5) setShowRatingPopup(true)
+
         }
       }
     }
@@ -586,7 +586,7 @@ export default function Dashboard() {
           const unrated = convs.filter((x: any) => !x.rating)
           if (unrated.length > 0) {
             setPendingRatings(unrated)
-            const _lc2 = localStorage.getItem('lastConverted'); const _ma2 = _lc2 ? (Date.now() - parseInt(_lc2)) / 60000 : 999; if (_ma2 > 5) setShowRatingPopup(true)
+
           }
         }
       })
