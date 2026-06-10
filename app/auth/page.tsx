@@ -62,9 +62,9 @@ export default function Auth() {
     setLoading(false)
   }
 
-  const T = '#1D9E75'
-  const TL = '#E1F5EE'
-  const TD = '#085041'
+  const T = '#FD6A02'
+  const TL = '#fff0e6'
+  const TD = '#c24a00'
   const B = '#E2EAE7'
   const BG = '#F7F9F8'
   const TX = '#1A2820'
@@ -81,7 +81,7 @@ export default function Auth() {
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{ width: 34, height: 34, background: T, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="34" height="34" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="120" height="120" rx="26" fill="#1D9E75"/>
+            <rect width="120" height="120" rx="26" fill="#FD6A02"/>
             <rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
             <rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
             <rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/>

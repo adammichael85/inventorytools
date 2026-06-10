@@ -6,15 +6,15 @@ import { convertPDF } from './convert-action'
 import { PDFDocument } from 'pdf-lib'
 import { supabase } from '@/lib/supabase'
 
-const TEAL = '#1D9E75'
-const TEAL_LIGHT = '#E1F5EE'
-const TEAL_DARK = '#085041'
-const BORDER = '#E2EAE7'
-const BG = '#F7F9F8'
-const SURFACE = '#FFFFFF'
-const TEXT = '#1A2820'
-const MUTED = '#5A7068'
-const HINT = '#94AEA6'
+const TEAL = '#FD6A02'
+const TEAL_LIGHT = '#fff0e6'
+const TEAL_DARK = '#c24a00'
+const BORDER = '#e8e8e8'
+const BG = '#f5f5f5'
+const SURFACE = '#ffffff'
+const TEXT = '#1a1a2e'
+const MUTED = '#888888'
+const HINT = '#888888'
 
 
 
@@ -94,7 +94,7 @@ function StatsPage({ conversions, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, 
       type: 'bar',
       data: {
         labels: last30.map(d => d.label),
-        datasets: [{ label: 'Conversions', data: last30.map(d => d.count), backgroundColor: '#1D9E75', borderRadius: 3, borderSkipped: false }]
+        datasets: [{ label: 'Conversions', data: last30.map(d => d.count), backgroundColor: '#FD6A02', borderRadius: 3, borderSkipped: false }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
@@ -388,7 +388,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>Profile</p>
-          <span style={{ fontSize: 11, background: profile.role === 'admin' ? '#E1F5EE' : '#F7F9F8', color: profile.role === 'admin' ? '#085041' : MUTED, padding: '3px 10px', borderRadius: 20, fontWeight: 500, textTransform: 'uppercase' as const }}>{profile.role || 'user'}</span>
+          <span style={{ fontSize: 11, background: profile.role === 'admin' ? '#fff0e6' : '#F7F9F8', color: profile.role === 'admin' ? '#c24a00' : MUTED, padding: '3px 10px', borderRadius: 20, fontWeight: 500, textTransform: 'uppercase' as const }}>{profile.role || 'user'}</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
           <div>
@@ -759,7 +759,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       <aside style={{ width: isMobile ? 0 : 220, background: SURFACE, borderRight: isMobile ? 'none' : `1px solid ${BORDER}`, display: isMobile ? 'none' : 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0 }}>
         <div style={{ height: 64, padding: '0 18px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-            <svg width="32" height="32" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}><rect width="120" height="120" rx="26" fill="#1D9E75"/><rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <svg width="32" height="32" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}><rect width="120" height="120" rx="26" fill="#FD6A02"/><rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
             <span style={{ fontSize: 13, fontWeight: 700, color: TEXT }}>inventory<span style={{ color: TEAL }}>tools</span></span>
           </Link>
         </div>
@@ -789,7 +789,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 0 }}>
             {isMobile && (
               <svg width="30" height="30" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                <rect width="120" height="120" rx="26" fill="#1D9E75"/>
+                <rect width="120" height="120" rx="26" fill="#FD6A02"/>
                 <rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
                 <rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
                 <rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
@@ -858,7 +858,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                               ))}
                             </div>
                           </td>
-                          <td style={{ padding: '12px 20px' }}><span style={{ background: '#E6F9F2', color: '#0A6B48', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>Complete</span></td>
+                          <td style={{ padding: '12px 20px' }}><span style={{ background: '#E6F9F2', color: '#d45500', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>Complete</span></td>
                           <td style={{ padding: '12px 20px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             {c.file_path ? (
@@ -922,8 +922,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
           {page === 'convert' && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
-              <div style={{ width: 64, height: 64, borderRadius: 16, background: '#E1F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              <div style={{ width: 64, height: 64, borderRadius: 16, background: '#fff0e6', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FD6A02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
               </div>
               <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 8px' }}>Convert PDF to Word</h2>
               <p style={{ fontSize: 14, color: '#5A7068', margin: '0 0 24px', textAlign: 'center' }}>Upload any inventory PDF or Word doc and get a perfectly formatted Word document.</p>
@@ -933,7 +933,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Purchase credits to continue.</p>
                 </div>
               ) : (
-                <button onClick={() => setShowConvert(true)} style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: '#1D9E75', color: '#fff', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>+ Convert now — 1 credit (£3.50)</button>
+                <button onClick={() => setShowConvert(true)} style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: '#FD6A02', color: '#fff', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>+ Convert now — 1 credit (£3.50)</button>
               )}
               <p style={{ fontSize: 12, color: '#94AEA6', marginTop: 16 }}>{credits} credit{credits !== 1 ? 's' : ''} remaining</p>
             </div>
@@ -1075,7 +1075,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             <button
               disabled={pendingRatings.some((x: any) => !tempRatings[x.id])}
               onClick={submitRatings}
-              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: pendingRatings.every((x: any) => tempRatings[x.id]) ? '#1D9E75' : '#E2EAE7', color: pendingRatings.every((x: any) => tempRatings[x.id]) ? '#ffffff' : '#94AEA6', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: pendingRatings.every((x: any) => tempRatings[x.id]) ? 'pointer' : 'default', transition: 'all 0.15s' }}>
+              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: pendingRatings.every((x: any) => tempRatings[x.id]) ? '#FD6A02' : '#E2EAE7', color: pendingRatings.every((x: any) => tempRatings[x.id]) ? '#ffffff' : '#94AEA6', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: pendingRatings.every((x: any) => tempRatings[x.id]) ? 'pointer' : 'default', transition: 'all 0.15s' }}>
               Continue to dashboard →
             </button>
           </div>
@@ -1179,12 +1179,12 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2.5px solid rgba(29,158,117,0.25)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: 13, fontWeight: 600, color: TEAL_DARK, margin: 0 }}>Processing...</p>
-                    <p style={{ fontSize: 11, color: '#0F6E56', margin: 0 }}>{selectedFile?.name}</p>
+                    <p style={{ fontSize: 11, color: '#d45500', margin: 0 }}>{selectedFile?.name}</p>
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0F6E56' }}>⏱ {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#d45500' }}>⏱ {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</span>
                 </div>
                 <div style={{ height: 4, borderRadius: 20, background: 'rgba(29,158,117,0.2)', overflow: 'hidden', marginBottom: 14 }}>
-                  <div style={{ height: '100%', borderRadius: 20, background: '#1D9E75', animation: 'progress 2s ease-in-out infinite' }} />
+                  <div style={{ height: '100%', borderRadius: 20, background: '#FD6A02', animation: 'progress 2s ease-in-out infinite' }} />
                 </div>
                 {processingRooms.map((room, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: `1px solid ${BORDER}`, opacity: room.state === 'pending' ? 0.35 : 1 }}>
