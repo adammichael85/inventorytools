@@ -49,7 +49,7 @@ Format D - 2 columns (Item/Description combined | Condition):
 - Column 2 is condition → CONDITION
 
 Format E - 3 columns (Number | Description | Condition):
-- Column 1 is sequential numbers → put number ONLY into ITEM
+- Column 1 is number → put number ONLY into ITEM, numbers must match exactly as they appear in the original PDF - do not reset or renumber
 - Column 2 is descriptive text → DESCRIPTION
 - Column 3 is condition → CONDITION
 
