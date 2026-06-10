@@ -1179,6 +1179,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2.5px solid rgba(29,158,117,0.25)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: 13, fontWeight: 600, color: TEAL_DARK, margin: 0 }}>Processing...</p>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: '#FD6A02', textAlign: 'center', margin: '8px 0 0', letterSpacing: 0.3 }}>PLEASE KEEP THIS TAB OPEN WHILE PROCESSING. YOU CAN USE OTHER TABS.</p>
                     <p style={{ fontSize: 11, color: '#d45500', margin: 0 }}>{selectedFile?.name}</p>
                   </div>
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#d45500' }}>⏱ {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</span>
