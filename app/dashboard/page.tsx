@@ -541,7 +541,7 @@ export default function Dashboard() {
         const unrated = convs.filter((x: any) => !x.rating)
         if (unrated.length > 0) {
           setPendingRatings(unrated)
-          if (!sessionStorage.getItem('justConverted')) setShowRatingPopup(true); sessionStorage.removeItem('justConverted')
+          if (!sessionStorage.getItem('justConverted')) if (convertState === 'idle') setShowRatingPopup(true); sessionStorage.removeItem('justConverted')
         }
       }
     }
