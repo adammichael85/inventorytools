@@ -504,6 +504,9 @@ export default function Dashboard() {
   const [convertError, setConvertError] = useState('')
   const [conversions, setConversions] = useState<any[]>([])
   const [showRatingPopup, setShowRatingPopup] = useState(false)
+  const [showQuickRate, setShowQuickRate] = useState(false)
+  const [quickRateConvId, setQuickRateConvId] = useState('')
+  const [quickRateConvAddress, setQuickRateConvAddress] = useState('')
   const [pendingRatings, setPendingRatings] = useState<any[]>([])
   const [tempRatings, setTempRatings] = useState<{[key: string]: number}>({})
   const [searchQuery, setSearchQuery] = useState('')
@@ -725,7 +728,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         supabase.auth.getSession().then(({ data }) => {
           if (data.session) {
             supabase.from('profiles').select('credits').eq('id', data.session.user.id).single().then(({ data: p }) => { if (p) setCredits(p.credits || 0) })
-            supabase.from('conversions').select('*').eq('user_id', data.session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => { if (convs) { setConversions(convs); const unrated = convs.filter((x: any) => !x.rating); if (unrated.length > 0) { setPendingRatings(unrated); setShowRatingPopup(true) } } })
+            supabase.from('conversions').select('*').eq('user_id', data.session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => { if (convs) { setConversions(convs); const latest = convs[0]; if (latest && !latest.rating) { setQuickRateConvId(latest.id); setQuickRateConvAddress(latest.address || ''); setShowQuickRate(true) } } })
           }
         })
       })
@@ -1057,6 +1060,26 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               Continue to dashboard →
             </button>
           </div>
+        </div>
+      )}
+
+      {/* QUICK RATE TOAST */}
+      {showQuickRate && quickRateConvId && (
+        <div style={{ position: 'fixed', bottom: 90, right: 20, background: '#ffffff', borderRadius: 14, padding: '16px 20px', boxShadow: '0 8px 30px rgba(0,0,0,0.15)', zIndex: 200, maxWidth: 320, border: '1px solid #E2EAE7' }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#1A2820', margin: '0 0 4px' }}>How was this conversion?</p>
+          <p style={{ fontSize: 11, color: '#5A7068', margin: '0 0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{quickRateConvAddress}</p>
+          <div style={{ display: 'flex', gap: 3, marginBottom: 12 }}>
+            {[1,2,3,4,5].map(star => (
+              <span key={star} onClick={async () => {
+                await supabase.from('conversions').update({ rating: star }).eq('id', quickRateConvId)
+                setConversions(prev => prev.map(x => x.id === quickRateConvId ? { ...x, rating: star } : x))
+                setShowQuickRate(false)
+              }} style={{ fontSize: 28, cursor: 'pointer', color: '#D1D5DB', lineHeight: 1 }}
+              onMouseEnter={e => { const el = e.currentTarget; const stars = el.parentElement?.children; if (stars) Array.from(stars).forEach((s, i) => { (s as HTMLElement).style.color = i < star ? '#F59E0B' : '#D1D5DB' }) }}
+              onMouseLeave={e => { const el = e.currentTarget; const stars = el.parentElement?.children; if (stars) Array.from(stars).forEach(s => { (s as HTMLElement).style.color = '#D1D5DB' }) }}>★</span>
+            ))}
+          </div>
+          <button onClick={() => setShowQuickRate(false)} style={{ fontSize: 12, color: '#94AEA6', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Rate later</button>
         </div>
       )}
 
