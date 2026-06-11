@@ -602,6 +602,23 @@ export default function Dashboard() {
     setTempRatings({})
   }
 
+  const [showDeleteAll, setShowDeleteAll] = React.useState(false)
+
+  async function deleteAllConversions() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    // Delete all files from storage
+    for (const conv of conversions) {
+      if (conv.file_path) {
+        await supabase.storage.from('documents').remove([conv.file_path])
+      }
+    }
+    // Delete all conversion records
+    await supabase.from('conversions').delete().eq('user_id', session.user.id)
+    setConversions([])
+    setShowDeleteAll(false)
+  }
+
   async function deleteConversion(id: string, filePath: string) {
     if (!confirm('Delete this report? This cannot be undone.')) return
     // Delete file from storage
@@ -1028,6 +1045,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                 <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', gap: 12 }}>
                   <input placeholder="Search by address..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none' }} />
+                  <button onClick={() => setShowDeleteAll(true)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #FECACA', background: '#FEF2F2', color: '#DC2626', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>Delete all</button>
                 </div>
                 {isMobile && (
                   <div>
@@ -1183,6 +1201,24 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             ))}
           </div>
           <button onClick={() => setShowQuickRate(false)} style={{ fontSize: 12, color: '#94AEA6', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Rate later</button>
+        </div>
+      )}
+
+      {/* DELETE ALL POPUP */}
+      {showDeleteAll && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#ffffff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px', color: '#1A2820' }}>Delete all reports?</h2>
+            <p style={{ fontSize: 13, color: '#5A7068', margin: '0 0 12px' }}>This will permanently delete all {conversions.length} conversion reports and Word documents from your account.</p>
+            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '12px 16px', marginBottom: 20 }}>
+              <p style={{ fontSize: 13, color: '#DC2626', fontWeight: 600, margin: '0 0 4px' }}>⚠️ This cannot be undone</p>
+              <p style={{ fontSize: 12, color: '#DC2626', margin: 0 }}>Your lifetime statistics will not be affected — total reports, time saved and spend data are stored permanently.</p>
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setShowDeleteAll(false)} style={{ flex: 1, padding: 11, borderRadius: 10, border: '1px solid #E2EAE7', background: 'transparent', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={deleteAllConversions} style={{ flex: 1, padding: 11, borderRadius: 10, border: 'none', background: '#DC2626', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Delete all reports</button>
+            </div>
+          </div>
         </div>
       )}
 
