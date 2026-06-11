@@ -604,6 +604,29 @@ export default function Dashboard() {
   }
 
   const [showDeleteAll, setShowDeleteAll] = React.useState(false)
+  const [showAccuracyConfirm, setShowAccuracyConfirm] = React.useState<any>(null)
+  const [viewingReport, setViewingReport] = React.useState<any>(null)
+  const [generatingReport, setGeneratingReport] = React.useState(false)
+
+  async function generateAccuracyReport(conv: any) {
+    setGeneratingReport(true)
+    setShowAccuracyConfirm(null)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    try {
+      const res = await fetch('/api/accuracy-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversion_id: conv.id, user_id: session.user.id })
+      })
+      const d = await res.json()
+      if (d.error) { alert(d.error); return }
+      setConversions(prev => prev.map(x => x.id === conv.id ? { ...x, accuracy_report: d.report } : x))
+      setCredits(d.balance)
+      setViewingReport({ ...conv, accuracy_report: d.report })
+    } catch(e) { alert('Failed to generate report') }
+    finally { setGeneratingReport(false) }
+  }
 
   async function deleteAllConversions() {
     const { data: { session } } = await supabase.auth.getSession()
@@ -1220,6 +1243,35 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               <button onClick={() => setShowDeleteAll(false)} style={{ flex: 1, padding: 11, borderRadius: 10, border: '1px solid #E2EAE7', background: 'transparent', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
               <button onClick={deleteAllConversions} style={{ flex: 1, padding: 11, borderRadius: 10, border: 'none', background: '#DC2626', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Delete all reports</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ACCURACY REPORT CONFIRM */}
+      {showAccuracyConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <h2 style={{ fontSize: 17, fontWeight: 700, margin: '0 0 8px' }}>Generate accuracy report?</h2>
+            <p style={{ fontSize: 13, color: '#888', margin: '0 0 8px' }}>{showAccuracyConfirm.address}</p>
+            <p style={{ fontSize: 13, color: '#444', margin: '0 0 20px' }}>This will compare the original PDF against the converted Word document and generate a room-by-room accuracy report. <strong>£1.50 will be deducted from your balance.</strong></p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setShowAccuracyConfirm(null)} style={{ flex: 1, padding: 11, borderRadius: 10, border: '1px solid #e8e8e8', background: 'transparent', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => generateAccuracyReport(showAccuracyConfirm)} style={{ flex: 1, padding: 11, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{generatingReport ? 'Generating...' : 'Generate — £1.50'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ACCURACY REPORT VIEWER */}
+      {viewingReport && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 640, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>Accuracy Report</h2>
+              <button onClick={() => setViewingReport(null)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888' }}>×</button>
+            </div>
+            <p style={{ fontSize: 12, color: '#888', margin: '0 0 16px' }}>{viewingReport.address}</p>
+            <pre style={{ fontSize: 12, lineHeight: 1.6, whiteSpace: 'pre-wrap', fontFamily: 'inherit', color: '#1a1a2e', background: '#f5f5f5', padding: 16, borderRadius: 10 }}>{viewingReport.accuracy_report}</pre>
           </div>
         </div>
       )}
