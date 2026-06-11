@@ -348,12 +348,14 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
   const [profile, setProfile] = React.useState<any>(null)
   const [saving, setSaving] = React.useState(false)
   const [saved, setSaved] = React.useState(false)
+  const [autoDelete, setAutoDelete] = React.useState<number | null>(null)
+  const [savingAutoDelete, setSavingAutoDelete] = React.useState(false)
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data }: any) => {
       if (data.session) {
         supabase.from('profiles').select('*').eq('id', data.session.user.id).single().then(({ data: p }: any) => {
-          if (p) setProfile(p)
+          if (p) { setProfile(p); setAutoDelete(p.auto_delete_days || null) }
         })
       }
     })
@@ -424,6 +426,26 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
           </button>
           {saved && <span style={{ fontSize: 13, color: TEAL }}>✓ Saved!</span>}
         </div>
+      </div>
+
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
+        <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Auto-delete reports</p>
+        <p style={{ fontSize: 13, color: MUTED, marginBottom: 16 }}>Automatically delete conversion reports after a set period. <strong style={{ color: '#DC2626' }}>Deleted files cannot be recovered.</strong></p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+          {[null, 7, 14, 30, 90].map(days => (
+            <button key={String(days)} onClick={() => setAutoDelete(days)} style={{ padding: '7px 16px', borderRadius: 8, border: `1px solid ${autoDelete === days ? TEAL : BORDER}`, background: autoDelete === days ? TEAL : 'transparent', color: autoDelete === days ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+              {days === null ? 'Never' : `${days} days`}
+            </button>
+          ))}
+        </div>
+        <button onClick={async () => {
+          setSavingAutoDelete(true)
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session) await supabase.from('profiles').update({ auto_delete_days: autoDelete }).eq('id', session.user.id)
+          setSavingAutoDelete(false)
+        }} style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+          {savingAutoDelete ? 'Saving...' : 'Save preference'}
+        </button>
       </div>
 
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
