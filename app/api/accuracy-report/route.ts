@@ -61,7 +61,7 @@ Be thorough — check every single row in every room. Do not summarise or skip a
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY },
-      body: JSON.stringify({ model: 'gpt-4.1-2025-04-14', max_tokens: 4000, temperature: 0, messages: [{ role: 'user', content: prompt }] })
+      body: JSON.stringify({ model: 'gpt-4.1-2025-04-14', max_tokens: 8000, temperature: 0, messages: [{ role: 'user', content: prompt }] })
     })
     const d = await r.json()
     const report = d.choices?.[0]?.message?.content?.trim() || 'Report generation failed'
