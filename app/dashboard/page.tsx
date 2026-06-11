@@ -350,7 +350,6 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
   const [saved, setSaved] = React.useState(false)
   const [autoDelete, setAutoDelete] = React.useState<number | null>(null)
   const [savingAutoDelete, setSavingAutoDelete] = React.useState(false)
-  const [autoDelete, setAutoDelete] = React.useState<number | null>(null)
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data }: any) => {
