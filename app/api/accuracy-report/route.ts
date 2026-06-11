@@ -60,7 +60,7 @@ Total missing
 Total in wrong column
 Overall accuracy %
 
-Be thorough — check every single row in every room. Do not summarise or skip any room.`
+Be thorough - check every single row in every room. Do not include any intro or preamble - start directly with the first room. Do not mention JSON or technical terms - call it the Word document.`
 
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
