@@ -450,28 +450,6 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
         </button>
       </div>
 
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginTop: 8 }}>
-        <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 8px' }}>Auto-delete reports</p>
-        <p style={{ fontSize: 13, color: MUTED, marginBottom: 8 }}>Automatically delete conversion reports and Word documents after a set period.</p>
-        <p style={{ fontSize: 13, color: MUTED, marginBottom: 8 }}>Your lifetime statistics (total conversions, time saved, total spend) are stored permanently and will <strong style={{ color: TEXT }}>never be affected</strong> by auto-deletion.</p>
-        <p style={{ fontSize: 13, color: '#DC2626', fontWeight: 600, marginBottom: 16 }}>⚠️ Deleted Word documents and reports cannot be recovered.</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-          {[null, 7, 14, 30, 90].map(days => (
-            <button key={String(days)} onClick={() => setAutoDelete(days)} style={{ padding: '7px 16px', borderRadius: 8, border: `1px solid ${autoDelete === days ? TEAL : BORDER}`, background: autoDelete === days ? TEAL : 'transparent', color: autoDelete === days ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
-              {days === null ? 'Never' : `${days} days`}
-            </button>
-          ))}
-        </div>
-        <button onClick={async () => {
-          setSavingAutoDelete(true)
-          const { data: { session } } = await supabase.auth.getSession()
-          if (session) await supabase.from('profiles').update({ auto_delete_days: autoDelete }).eq('id', session.user.id)
-          setSavingAutoDelete(false)
-        }} style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-          {savingAutoDelete ? 'Saving...' : 'Save preference'}
-        </button>
-      </div>
-
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
         <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px' }}>Account</p>
         <p style={{ fontSize: 13, color: MUTED, marginBottom: 16 }}>Signed in as <strong style={{ color: TEXT }}>{userEmail}</strong></p>
