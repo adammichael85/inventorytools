@@ -113,7 +113,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, letterSpacing: -0.3 }}>Statistics</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, letterSpacing: -0.3 }}>Statistics <span style={{ fontSize: 13, fontWeight: 400, color: HINT }}>— reports showing in your dashboard</span></h2>
         <div style={{ display: 'flex', background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 10, padding: 3, gap: 2 }}>
           {[['today','Today'],['week','Week'],['month','Month'],['all','All Time']].map(([v,l]) => (
             <button key={v} onClick={() => setPeriod(v)} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: period === v ? TEAL : 'transparent', color: period === v ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 12, fontWeight: 500, cursor: 'pointer' }}>{l}</button>
