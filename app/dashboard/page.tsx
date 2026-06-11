@@ -986,9 +986,9 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Credits</h3></div>
                     <div style={{ padding: 18 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span style={{ fontWeight: 600 }}>{credits} remaining</span><span style={{ color: HINT }}>credits</span></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span style={{ fontWeight: 600 }}>£{typeof credits === 'number' ? credits.toFixed(2) : credits}</span><span style={{ color: HINT }}>remaining</span></div>
                       <div style={{ height: 8, borderRadius: 20, background: BORDER, overflow: 'hidden', marginBottom: 14 }}><div style={{ width: Math.min(100, (credits / 50) * 100) + '%', height: '100%', background: TEAL, borderRadius: 20 }} /></div>
-                      <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>Each conversion costs <strong style={{ color: TEXT }}>1 credit (£3.50)</strong>. Credits never expire.</p>
+                      <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>Each conversion costs <strong style={{ color: TEXT }}>£3.50</strong>. Balance never expires.</p>
                       <button onClick={() => setShowTopup(true)} style={{ width: '100%', padding: 10, borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Buy more credits</button>
                     </div>
                   </div>
@@ -1028,7 +1028,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               </div>
               <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 8px' }}>Convert PDF to Word</h2>
               <p style={{ fontSize: 14, color: '#5A7068', margin: '0 0 24px', textAlign: 'center' }}>Upload any inventory PDF or Word doc and get a perfectly formatted Word document.</p>
-              {credits <= 0 ? (
+              {credits < 3.50 ? (
                 <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 10, padding: 14, textAlign: 'center', maxWidth: 300 }}>
                   <p style={{ fontSize: 14, fontWeight: 600, color: '#DC2626', margin: '0 0 6px' }}>No credits remaining</p>
                   <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Purchase credits to continue.</p>
@@ -1227,7 +1227,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 480, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
             <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>1 credit (£3.50) · {credits} remaining</p></div>
+              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£3.50 · £{typeof credits === 'number' ? credits.toFixed(2) : credits} remaining</p></div>
               <button onClick={closeConvert} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
             </div>
 
@@ -1281,7 +1281,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{(selectedFile.size / 1024 / 1024).toFixed(1)} MB</p>
                   </div>
                 </div>
-                {credits <= 0 ? (
+                {credits < 3.50 ? (
                   <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 10, padding: 14, textAlign: 'center', marginBottom: 10 }}>
                     <p style={{ fontSize: 14, fontWeight: 600, color: '#DC2626', margin: '0 0 6px' }}>No credits remaining</p>
                     <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Purchase credits to continue converting.</p>

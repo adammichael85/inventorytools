@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       .single()
     if (profileError) throw new Error(profileError.message)
 
-    const newCredits = Math.max(0, (profile.credits || 0) - 1)
+    const newCredits = Math.max(0, (Number(profile.credits) || 0) - 3.50)
     await supabase.from('profiles').update({ credits: newCredits }).eq('id', body.user_id)
 
     // Update persistent stats
