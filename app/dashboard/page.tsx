@@ -182,6 +182,55 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
 
       <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>*£12 manual typist average used</p>
 
+      {userStats && (() => {
+        const ltTotal = userStats.total_conversions
+        const ltCost = Number(userStats.total_spend)
+        const ltDuration = userStats.total_duration_seconds
+        const ltRooms = userStats.total_rooms
+        const ltAvg = ltTotal > 0 ? Math.round(ltDuration / ltTotal) : 0
+        const ltSaving = ltTotal * 12
+        const ltSavingPct = ltCost + ltSaving > 0 ? Math.round((ltSaving / (ltCost + ltSaving)) * 100) : 0
+        return (
+          <div style={{ marginTop: 32 }}>
+            <div style={{ marginBottom: 16 }}>
+              <p style={{ fontSize: 16, fontWeight: 700, margin: '0 0 2px', letterSpacing: -0.3 }}>Lifetime statistics</p>
+              <p style={{ fontSize: 12, color: HINT, margin: 0 }}>Permanent record — includes deleted reports</p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
+              <div style={{ background: TEAL, borderRadius: 14, padding: '20px 24px', color: '#fff' }}>
+                <p style={{ fontSize: 11, opacity: 0.75, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Total conversions</p>
+                <p style={{ fontSize: 40, fontWeight: 700, lineHeight: 1, marginBottom: 4 }}>{ltTotal}</p>
+                <p style={{ fontSize: 12, opacity: 0.7 }}>all time</p>
+              </div>
+              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
+                <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Total spent</p>
+                <p style={{ fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{ltCost.toFixed(2)}</p>
+                <p style={{ fontSize: 12, color: HINT }}>@ £3.50 per report</p>
+              </div>
+              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
+                <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Est. saving*</p>
+                <p style={{ fontSize: 28, fontWeight: 700, color: TEAL, marginBottom: 4 }}>£{ltSaving.toFixed(2)}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
+                  <div style={{ flex: 1, height: 3, background: BORDER, borderRadius: 2 }}>
+                    <div style={{ height: '100%', width: ltSavingPct + '%', background: TEAL, borderRadius: 2 }} />
+                  </div>
+                  <span style={{ fontSize: 11, color: TEAL_DARK, fontWeight: 600 }}>{ltSavingPct}% saved</span>
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 8 }}>
+              {[['Rooms processed', ltRooms.toString()],['Avg conv. time', fmtTime(ltAvg)],['Total conv. time', fmtTime(ltDuration)],['Credits used', ltTotal.toString()]].map(([lbl, val]) => (
+                <div key={lbl} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
+                  <p style={{ fontSize: 11, color: HINT, marginBottom: 8 }}>{lbl}</p>
+                  <p style={{ fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: -0.5 }}>{val}</p>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>*£12 manual typist average used</p>
+          </div>
+        )
+      })()}
+
     </div>
   )
 }
