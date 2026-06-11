@@ -31,6 +31,28 @@ export async function POST(req: NextRequest) {
     const newCredits = Math.max(0, (profile.credits || 0) - 1)
     await supabase.from('profiles').update({ credits: newCredits }).eq('id', body.user_id)
 
+    // Update persistent stats
+    try {
+      const { data: existing } = await supabase.from('user_stats').select('*').eq('user_id', body.user_id).single()
+      if (existing) {
+        await supabase.from('user_stats').update({
+          total_conversions: (existing.total_conversions || 0) + 1,
+          total_rooms: (existing.total_rooms || 0) + (body.rooms || 0),
+          total_duration_seconds: (existing.total_duration_seconds || 0) + (body.duration_seconds || 0),
+          total_spend: (existing.total_spend || 0) + 3.5,
+          updated_at: new Date().toISOString()
+        }).eq('user_id', body.user_id)
+      } else {
+        await supabase.from('user_stats').insert({
+          user_id: body.user_id,
+          total_conversions: 1,
+          total_rooms: body.rooms || 0,
+          total_duration_seconds: body.duration_seconds || 0,
+          total_spend: 3.5
+        })
+      }
+    } catch(e) { console.log('Stats update failed:', e) }
+
     return NextResponse.json({ ok: true, credits: newCredits })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
