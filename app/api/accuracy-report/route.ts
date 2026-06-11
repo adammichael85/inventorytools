@@ -38,7 +38,7 @@ ${convertedText.slice(0, 60000)}
 
 Compare them carefully room by room, item by item. For each room, check that every item from the PDF appears in the Word document with the correct content in the correct column (Item, Description, Condition).
 
-Ignore everything except the inventory room data — ignore cover pages, abbreviations pages, contents pages, property summaries, meter readings, key pages and photo references.
+Ignore everything except the inventory room data — ignore cover pages, abbreviations pages, contents pages, property summaries, meter readings, key pages and photo references. Also ignore: numbered room heading rows (e.g. '10 Hall.' or '23 Sitting room.' — these are section headers not inventory items), blank rows, photo-only rows, and 'Further views' rows. Do not count these as missing items.
 
 For each discrepancy found, list it in this format:
 
