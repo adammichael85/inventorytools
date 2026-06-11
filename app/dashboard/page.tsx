@@ -1258,7 +1258,9 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           <div style={{ background: '#fff', borderRadius: 16, padding: 32, textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', maxWidth: 320, width: '100%' }}>
             <div style={{ width: 40, height: 40, borderRadius: '50%', border: `3px solid ${TEAL_LIGHT}`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
             <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px' }}>Generating accuracy report...</p>
-            <p style={{ fontSize: 13, color: MUTED, margin: 0 }}>This may take 30-60 seconds. Please wait.</p>
+            <p style={{ fontSize: 13, color: MUTED, margin: '0 0 10px' }}>This may take 30-90 seconds. Please wait.</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', letterSpacing: 0.3 }}>PLEASE KEEP THIS TAB OPEN WHILE GENERATING.</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', letterSpacing: 0.3 }}>CLOSING THIS TAB WILL CANCEL YOUR REPORT.</p>
           </div>
         </div>
       )}
