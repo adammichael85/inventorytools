@@ -1291,7 +1291,18 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               </div>
               <button onClick={() => setViewingReport(null)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', flexShrink: 0, marginLeft: 12 }}>×</button>
             </div>
-            <pre style={{ fontSize: 12, lineHeight: 1.6, whiteSpace: 'pre-wrap', fontFamily: 'inherit', color: '#1a1a2e', background: '#f5f5f5', padding: 16, borderRadius: 10, marginTop: 12 }}>{viewingReport.accuracy_report}</pre>
+            <div style={{ fontSize: 12, lineHeight: 1.7, color: '#1a1a2e', marginTop: 12 }}>
+              {viewingReport.accuracy_report.split('\n').map((line: string, i: number) => {
+                if (line.startsWith('### ')) return <h3 key={i} style={{ fontSize: 13, fontWeight: 700, margin: '16px 0 4px', color: '#1a1a2e' }}>{line.replace('### ', '')}</h3>
+                if (line.startsWith('## ')) return <h2 key={i} style={{ fontSize: 14, fontWeight: 700, margin: '20px 0 6px', color: '#1a1a2e', borderBottom: '1px solid #e8e8e8', paddingBottom: 4 }}>{line.replace('## ', '')}</h2>
+                if (line.startsWith('**') && line.endsWith('**')) return <p key={i} style={{ fontWeight: 700, margin: '8px 0 2px' }}>{line.replace(/\*\*/g, '')}</p>
+                if (line.startsWith('- ')) return <p key={i} style={{ margin: '2px 0', paddingLeft: 12 }}>• {line.replace('- ', '')}</p>
+                if (line.startsWith('| ')) return <p key={i} style={{ margin: '2px 0', fontFamily: 'monospace', fontSize: 11, background: '#f5f5f5', padding: '2px 6px' }}>{line}</p>
+                if (line === '---') return <hr key={i} style={{ border: 'none', borderTop: '1px solid #e8e8e8', margin: '12px 0' }} />
+                if (line === '') return <br key={i} />
+                return <p key={i} style={{ margin: '2px 0' }}>{line}</p>
+              })}
+            </div>
           </div>
         </div>
       )}
