@@ -40,22 +40,35 @@ Compare them carefully room by room, item by item. For each room, check that eve
 
 Ignore everything except the inventory room data — ignore cover pages, abbreviations pages, contents pages, property summaries, meter readings, key pages and photo references. Also ignore: numbered room heading rows (e.g. '10 Hall.' or '23 Sitting room.' — these are section headers not inventory items), blank rows, photo-only rows, and 'Further views' rows. Do not count these as missing items.
 
-For each discrepancy found, list it in this format:
+For each room use exactly this format:
 
-Room name
-Missing item: [item name]
-Wrong column: [what was in PDF] -> [what appeared in Word doc]
-Truncated: [what was cut off]
-Extra item not in PDF: [item name]
+## [Room Name]
+
+**Missing items:** [list each missing inventory item, or write "None"]
+**Wrong column:** [list each column error, or write "None"]
+**Truncated content:** [list anything cut off, or write "None"]
+**Extra items not in PDF:** [list extras, or write "None"]
+
+At the start of the report, before the room breakdown, add these two checks:
+
+## Rooms Check
+**Rooms in PDF:** [list all room names]
+**Rooms in Word document:** [list all room names]
+**Missing rooms:** [any rooms in PDF not in Word document, or write "None"]
+**Duplicate room names:** [any room names that appear more than once in the Word document, or write "None"]
 
 At the end give a summary:
-Total items in PDF
-Total items in Word doc
-Total missing
-Total in wrong column
-Overall accuracy %
 
-Be thorough — check every single row in every room. Do not summarise or skip any room. Do not include any introduction or preamble — start directly with the first room.`
+## Summary
+| Check | Result |
+|-------|--------|
+| Total items in PDF | [number] |
+| Total items in Word document | [number] |
+| Total missing | [number] |
+| Total in wrong column | [number] |
+| Overall accuracy % | [percentage] |
+
+Be thorough — check every single row in every room. Do not summarise or skip any room. Do not include any introduction or preamble — start directly with the Rooms Check section.`
 
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
