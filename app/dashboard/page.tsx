@@ -815,6 +815,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         duration_seconds: elapsedRef.current,
         file_path: storagePath,
         converted_by: userName || session.user.email,
+        extracted_text: data._extractedText || '',
       })
     })
   }

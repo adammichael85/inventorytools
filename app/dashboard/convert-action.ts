@@ -73,5 +73,5 @@ export async function convertPDF(base64: string, mediaType: string, originalFile
   if (!response.ok) throw new Error(data.error || 'Conversion failed')
   if (data.error) throw new Error(data.error)
   if (!data.rooms) throw new Error('No rooms found: ' + JSON.stringify(data).slice(0, 200))
-  return data
+  return { ...data, _extractedText: body.extractedText || '' }
 }

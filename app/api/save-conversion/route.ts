@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
       duration_seconds: body.duration_seconds,
       file_path: body.file_path || null,
       converted_by: body.converted_by || null,
+      extracted_text: body.extracted_text ? body.extracted_text.slice(0, 100000) : null,
     })
     if (convError) throw new Error(convError.message)
 
