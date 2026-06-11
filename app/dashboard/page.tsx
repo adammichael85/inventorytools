@@ -839,6 +839,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         file_path: storagePath,
         converted_by: userName || session.user.email,
         extracted_text: data._extractedText || '',
+        converted_json: { rooms: data.rooms, address: data.address },
       })
     })
   }

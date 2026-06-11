@@ -23,21 +23,18 @@ export async function POST(req: NextRequest) {
     const { data: profile } = await supabase.from('profiles').select('balance').eq('id', user_id).single()
     if (!profile || Number(profile.balance) < 1.50) return NextResponse.json({ error: 'Insufficient balance. Accuracy reports cost £1.50.' }, { status: 400 })
 
-    // Get Word doc content from storage
-    const { data: fileData } = await supabase.storage.from('documents').download(conv.file_path)
-    let wordText = ''
-    if (fileData) {
-      wordText = await fileData.text()
-    }
+    if (!conv.converted_json) return NextResponse.json({ error: 'No conversion data available for this report. Please reconvert the document.' }, { status: 400 })
+
+    const convertedText = JSON.stringify(conv.converted_json, null, 2)
 
     // Generate accuracy report with GPT-4.1
-    const prompt = `You are an inventory document accuracy checker. Compare the original PDF text against the converted Word document and produce a concise room-by-room accuracy report.
+    const prompt = `You are an inventory document accuracy checker. Compare the original PDF text against the converted JSON output and produce a concise room-by-room accuracy report.
 
 ORIGINAL PDF TEXT:
 ${conv.extracted_text.slice(0, 40000)}
 
-CONVERTED WORD DOCUMENT:
-${wordText.slice(0, 20000)}
+CONVERTED OUTPUT (JSON):
+${convertedText.slice(0, 20000)}
 
 Produce a report with:
 1. A summary table: Total items in PDF, Total items in Word, Missing, Extra, Wrong column, Overall accuracy %
