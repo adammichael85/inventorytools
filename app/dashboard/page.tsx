@@ -989,7 +989,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <div style={{ padding: 18 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span style={{ fontWeight: 600 }}>£{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits}</span><span style={{ color: HINT }}>remaining</span></div>
                       <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>Approx. <strong style={{ color: TEXT }}>{Math.floor(Number(credits) / 3.5)}</strong> conversions or <strong style={{ color: TEXT }}>{Math.floor(Number(credits) / 5)}</strong> conversions + accuracy reports</p>
-                      <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>Each conversion costs <strong style={{ color: TEXT }}>£3.50</strong>. Balance never expires.</p>
+                      <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>£3.50 per conversion · £1.50 per accuracy report · Balance never expires.</p>
                       <button onClick={() => setShowTopup(true)} style={{ width: '100%', padding: 10, borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Top up balance</button>
                     </div>
                   </div>
