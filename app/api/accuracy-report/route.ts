@@ -28,20 +28,35 @@ export async function POST(req: NextRequest) {
     const convertedText = JSON.stringify(conv.converted_json, null, 2)
 
     // Generate accuracy report with GPT-4.1
-    const prompt = `You are an inventory document accuracy checker. Compare the original PDF text against the converted JSON output and produce a concise room-by-room accuracy report.
+    const prompt = `You are comparing an original property inventory PDF against a converted Word document output.
 
-ORIGINAL PDF TEXT:
+ORIGINAL PDF TEXT (source):
 ${conv.extracted_text.slice(0, 40000)}
 
-CONVERTED OUTPUT (JSON):
+CONVERTED OUTPUT - rooms and rows in JSON format (output):
 ${convertedText.slice(0, 20000)}
 
-Produce a report with:
-1. A summary table: Total items in PDF, Total items in Word, Missing, Extra, Wrong column, Overall accuracy %
-2. Room-by-room breakdown listing only issues found (missing items, wrong columns, truncated text)
-3. If a room has no issues write "✅ No issues found"
+Compare them carefully room by room, item by item. For each room, check that every item from the PDF appears in the converted output with the correct content in the correct column (Item, Description, Condition).
 
-Be concise and factual. Format clearly with room headings.`
+Ignore everything except the inventory room data — ignore cover pages, abbreviations pages, contents pages, property summaries, meter readings, key pages and photo references.
+
+For each discrepancy found, list it in this format:
+Room name
+Missing item: [item name]
+Wrong column: [what was in PDF] -> [what appeared in output]
+Truncated: [what was cut off]
+Extra item not in PDF: [item name]
+
+If a room has no issues write: No issues found
+
+At the end give a summary:
+Total items in PDF
+Total items in Word doc
+Total missing
+Total in wrong column
+Overall accuracy %
+
+Be thorough — check every single row in every room. Do not summarise or skip any room.`
 
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
