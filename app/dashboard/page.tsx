@@ -228,8 +228,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
             </div>
             <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>*£12 manual typist average used</p>
           </div>
-        )
-      })()}
+        ) })()}
 
     </div>
   )
@@ -566,6 +565,8 @@ export default function Dashboard() {
   function setPage(p: string) { setPageState(p); setTimeout(() => { const main = document.querySelector('main div[style*="overflow"]') as HTMLElement; if (main) main.scrollTop = 0 }, 0) }
   const [showConvert, setShowConvert] = useState(false)
   const [showTopup, setShowTopup] = useState(false)
+  const [topupAmount, setTopupAmount] = useState<number | null>(null)
+  const [customAmount, setCustomAmount] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [accessToken, setAccessToken] = useState('')
   const [credits, setCredits] = useState(0)
@@ -1366,34 +1367,39 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       )}
 
       {/* TOPUP MODAL */}
-      {showTopup && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 420, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
-            <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Top up credits</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£3.50 per conversion · Balance never expires</p></div>
-              <button onClick={() => setShowTopup(false)} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
-            </div>
-            <div style={{ padding: '18px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[[10,35],[20,70],[30,105],[40,140],[50,175]].map(([credits,price]) => (
-                <div key={credits} onClick={() => setSelectedCredits({credits,price})} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderRadius: 10, border: `1.5px solid ${selectedCredits?.credits === credits ? TEAL : BORDER}`, background: selectedCredits?.credits === credits ? TEAL_LIGHT : 'transparent', cursor: 'pointer', position: 'relative' }}>
-                  {credits === 50 && <div style={{ position: 'absolute', top: -10, right: 12, background: TEAL, color: '#fff', fontSize: 10, fontWeight: 600, padding: '2px 10px', borderRadius: 20 }}>Most popular</div>}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 8, background: selectedCredits?.credits === credits ? TEAL : TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: selectedCredits?.credits === credits ? '#fff' : TEAL_DARK }}>{credits}</div>
-                    <div><p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>{credits} reports</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£3.50 each</p></div>
-                  </div>
-                  <p style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>£{price}</p>
+      {showTopup && (() => { const finalAmount = topupAmount || (customAmount ? parseFloat(customAmount) : null); return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 440, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+              <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>Top up balance</p>
+                  <p style={{ fontSize: 12, color: HINT, margin: 0 }}>Balance never expires · Non-refundable</p>
                 </div>
-              ))}
-            </div>
-            <div style={{ padding: '0 24px 20px' }}>
-              <button style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
-                {selectedCredits ? `Pay £${selectedCredits.price} — add ${selectedCredits.credits} credits` : 'Select a package above'}
-              </button>
-              <p style={{ fontSize: 11, color: HINT, textAlign: 'center', marginTop: 10 }}>Secured by Stripe · Credits added instantly after payment</p>
+                <button onClick={() => setShowTopup(false)} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
+              </div>
+              <div style={{ padding: '16px 24px', borderBottom: `1px solid ${BORDER}` }}>
+                <p style={{ fontSize: 12, color: HINT, margin: '0 0 4px' }}>£3.50 per conversion · £1.50 per accuracy report</p>
+              </div>
+              <div style={{ padding: '18px 24px' }}>
+                <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 10 }}>Quick select:</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+                  {[20,30,40,50,100,150,200].map(amt => (
+                    <button key={amt} onClick={() => { setTopupAmount(amt); setCustomAmount('') }} style={{ padding: '8px 16px', borderRadius: 8, border: `1.5px solid ${topupAmount === amt ? TEAL : BORDER}`, background: topupAmount === amt ? TEAL : 'transparent', color: topupAmount === amt ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>£{amt}</button>
+                  ))}
+                </div>
+                <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 8 }}>Or enter custom amount (minimum £20):</p>
+                <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${BORDER}`, borderRadius: 8, overflow: 'hidden', marginBottom: 20 }}>
+                  <span style={{ padding: '10px 12px', background: BG, color: MUTED, fontSize: 14, fontWeight: 600, borderRight: `1px solid ${BORDER}` }}>£</span>
+                  <input type="number" min="20" placeholder="20.00" value={customAmount} onChange={e => { setCustomAmount(e.target.value); setTopupAmount(null) }} style={{ flex: 1, padding: '10px 12px', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 14 }} />
+                </div>
+                <button disabled={!finalAmount || finalAmount < 20} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: finalAmount && finalAmount >= 20 ? TEAL : BORDER, color: finalAmount && finalAmount >= 20 ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: finalAmount && finalAmount >= 20 ? 'pointer' : 'default' }}>
+                  {finalAmount && finalAmount >= 20 ? `Top up £${finalAmount.toFixed(2)} →` : 'Select or enter an amount'}
+                </button>
+                <p style={{ fontSize: 11, color: HINT, textAlign: 'center', marginTop: 10 }}>Secured by Stripe · Funds added instantly after payment</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        ) })()}
 
       <style>{`@keyframes spin { to { transform: rotate(360deg) } } @keyframes progress { 0% { width: 5%; margin-left: 0 } 50% { width: 60%; margin-left: 20% } 100% { width: 5%; margin-left: 100% } }`}</style>
     </div>
