@@ -30,7 +30,6 @@ export default function Home() {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <Link href="/auth" style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #E2EAE7', fontSize: 14, fontWeight: 500, color: '#1A2820', textDecoration: 'none' }}>Log in</Link>
-          <Link href="/auth" style={{ padding: '8px 18px', borderRadius: 8, background: '#FD6A02', fontSize: 14, fontWeight: 500, color: '#fff', textDecoration: 'none' }}></Link>
         </div>
       </nav>
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
