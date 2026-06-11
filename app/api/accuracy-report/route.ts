@@ -44,14 +44,23 @@ For each room use exactly this format:
 
 ## [Room Name]
 
-**Extra items in the Word DOC that do not appear in the original PDF:**
+**How many Items / Descriptions / Conditions for the room in the original PDF:**
+[count of rows with item, description, condition data]
+
+**How many Items / Descriptions / Conditions for the room in the Word document:**
+[count of rows with item, description, condition data]
+
+**Extra items in the Word document that do not appear in the original PDF:**
 [list each one, or write "None"]
 
-**Wording/details in the original PDF that are missing from the Word DOC:**
+**Wording/details in the original PDF that are missing from the Word document:**
 [list each one, or write "None"]
 
-**Wording/details in the original PDF that are not in the same column or row in the Word DOC:**
+**Wording/details in the original PDF that are not in the same column or row in the Word document:**
 [list each one, or write "None"]
+
+**Total number of formatting discrepancies from the original PDF to the Word document:**
+[number]
 
 At the end give a summary:
 Total items in PDF
