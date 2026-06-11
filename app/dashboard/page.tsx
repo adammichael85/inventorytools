@@ -35,7 +35,7 @@ function timeAgo(dateStr: string): string {
   return then.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
-function StatsPage({ conversions, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
+function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
   const [period, setPeriod] = React.useState('month')
   const chartRef = React.useRef<any>(null)
   const chartInstanceRef = React.useRef<any>(null)
@@ -59,11 +59,12 @@ function StatsPage({ conversions, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, 
     return secs >= 60 ? Math.floor(secs/60) + 'm ' + (secs%60) + 's' : secs + 's'
   }
 
-  const total = filtered.length
-  const rooms = filtered.reduce((s: number, r: any) => s + (r.rooms || 0), 0)
-  const duration = filtered.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
+  const isAllTime = period === 'all'
+  const total = isAllTime && userStats ? userStats.total_conversions : filtered.length
+  const rooms = isAllTime && userStats ? userStats.total_rooms : filtered.reduce((s: number, r: any) => s + (r.rooms || 0), 0)
+  const duration = isAllTime && userStats ? userStats.total_duration_seconds : filtered.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
   const avg = total > 0 ? Math.round(duration / total) : 0
-  const cost = total * 3.5
+  const cost = isAllTime && userStats ? Number(userStats.total_spend) : filtered.length * 3.5
   const saving = total * 12
   const savingPct = cost + saving > 0 ? Math.round((saving / (cost + saving)) * 100) : 0
 
@@ -527,6 +528,7 @@ export default function Dashboard() {
   const elapsedRef = React.useRef(0)
   const [convertError, setConvertError] = useState('')
   const [conversions, setConversions] = useState<any[]>([])
+  const [userStats, setUserStats] = useState<any>(null)
   const [showRatingPopup, setShowRatingPopup] = useState(false)
   const [showQuickRate, setShowQuickRate] = useState(false)
   const [quickRateConvId, setQuickRateConvId] = useState('')
@@ -603,6 +605,7 @@ export default function Dashboard() {
           setUserName(profile.full_name || session.user.email || '')
         }
       })
+      supabase.from('user_stats').select('*').eq('user_id', session.user.id).single().then(({ data: stats }) => { if (stats) setUserStats(stats) })
       // Load conversions
       supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => {
         if (convs) {
@@ -1051,7 +1054,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           )}
 
           {page === 'stats' && (
-            <StatsPage conversions={conversions} TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} TEAL_DARK={TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} />
+            <StatsPage conversions={conversions} userStats={userStats} TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} TEAL_DARK={TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} />
           )}
 
           {page === 'legal' && (
