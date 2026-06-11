@@ -1252,6 +1252,17 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         </div>
       )}
 
+      {/* ACCURACY REPORT LOADING */}
+      {generatingReport && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 32, textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', maxWidth: 320, width: '100%' }}>
+            <div style={{ width: 40, height: 40, borderRadius: '50%', border: `3px solid ${TEAL_LIGHT}`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+            <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px' }}>Generating accuracy report...</p>
+            <p style={{ fontSize: 13, color: MUTED, margin: 0 }}>This may take 30-60 seconds. Please wait.</p>
+          </div>
+        </div>
+      )}
+
       {/* ACCURACY REPORT CONFIRM */}
       {showAccuracyConfirm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
@@ -1261,7 +1272,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             <p style={{ fontSize: 13, color: '#444', margin: '0 0 20px' }}>This will compare the original PDF against the converted Word document and generate a room-by-room accuracy report. <strong>£1.50 will be deducted from your balance.</strong></p>
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setShowAccuracyConfirm(null)} style={{ flex: 1, padding: 11, borderRadius: 10, border: '1px solid #e8e8e8', background: 'transparent', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
-              <button onClick={() => generateAccuracyReport(showAccuracyConfirm)} style={{ flex: 1, padding: 11, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{generatingReport ? 'Generating...' : 'Generate — £1.50'}</button>
+              <button onClick={() => generateAccuracyReport(showAccuracyConfirm)} disabled={generatingReport} style={{ flex: 1, padding: 11, borderRadius: 10, border: 'none', background: generatingReport ? BORDER : TEAL, color: generatingReport ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: generatingReport ? 'default' : 'pointer' }}>{generatingReport ? 'Generating...' : 'Generate — £1.50'}</button>
             </div>
           </div>
         </div>
