@@ -34,7 +34,7 @@ ORIGINAL PDF TEXT (source):
 ${conv.extracted_text.slice(0, 40000)}
 
 CONVERTED OUTPUT - rooms and rows in JSON format (output):
-${convertedText.slice(0, 20000)}
+${convertedText.slice(0, 60000)}
 
 Compare them carefully room by room, item by item. For each room, check that every item from the PDF appears in the converted output with the correct content in the correct column (Item, Description, Condition).
 
