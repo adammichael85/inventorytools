@@ -1283,7 +1283,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 640, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
           <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 700, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-              <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>Accuracy Report</h2>
+              <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Accuracy Report</p>
               <button onClick={() => setViewingReport(null)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888' }}>×</button>
             </div>
             <p style={{ fontSize: 12, color: '#888', margin: '0 0 16px' }}>{viewingReport.address}</p>
