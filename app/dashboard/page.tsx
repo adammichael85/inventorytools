@@ -1290,6 +1290,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               </div>
               <button onClick={() => setViewingReport(null)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', flexShrink: 0, marginLeft: 12 }}>×</button>
             </div>
+            <pre style={{ fontSize: 12, lineHeight: 1.6, whiteSpace: 'pre-wrap', fontFamily: 'inherit', color: '#1a1a2e', background: '#f5f5f5', padding: 16, borderRadius: 10, marginTop: 12 }}>{viewingReport.accuracy_report}</pre>
           </div>
         </div>
       )}
