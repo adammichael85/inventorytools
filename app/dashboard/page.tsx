@@ -400,12 +400,14 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
   const [saved, setSaved] = React.useState(false)
   const [autoDelete, setAutoDelete] = React.useState<number | null>(null)
   const [savingAutoDelete, setSavingAutoDelete] = React.useState(false)
+  const [autoAccuracyReport, setAutoAccuracyReport] = React.useState(false)
+  const [savingAutoAccuracy, setSavingAutoAccuracy] = React.useState(false)
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data }: any) => {
       if (data.session) {
         supabase.from('profiles').select('*').eq('id', data.session.user.id).single().then(({ data: p }: any) => {
-          if (p) { setProfile(p); setAutoDelete(p.auto_delete_days || null) }
+          if (p) { setProfile(p); setAutoDelete(p.auto_delete_days || null); setAutoAccuracyReport(p.auto_accuracy_report || false) }
         })
       }
     })
@@ -498,6 +500,26 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
         }} style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
           {savingAutoDelete ? 'Saving...' : 'Save preference'}
         </button>
+      </div>
+
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Auto accuracy report</p>
+            <p style={{ fontSize: 12, color: MUTED, margin: '0 0 8px' }}>When enabled, an accuracy report will automatically generate each time you download a converted Word document. <strong style={{ color: '#DC2626' }}>This costs £1.50 per report</strong> and will be deducted from your balance. You can turn this on or off at any time.</p>
+          </div>
+          <div onClick={async () => {
+            const newVal = !autoAccuracyReport
+            setAutoAccuracyReport(newVal)
+            setSavingAutoAccuracy(true)
+            const { data: { session } } = await supabase.auth.getSession()
+            if (session) await supabase.from('profiles').update({ auto_accuracy_report: newVal }).eq('id', session.user.id)
+            setSavingAutoAccuracy(false)
+          }} style={{ width: 44, height: 24, borderRadius: 12, background: autoAccuracyReport ? TEAL : BORDER, cursor: 'pointer', position: 'relative', flexShrink: 0, marginLeft: 16, marginTop: 2, transition: 'background 0.2s' }}>
+            <div style={{ position: 'absolute', top: 2, left: autoAccuracyReport ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
+          </div>
+        </div>
+        {savingAutoAccuracy && <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>Saving...</p>}
       </div>
 
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
