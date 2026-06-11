@@ -36,31 +36,17 @@ ${conv.extracted_text.slice(0, 40000)}
 CONVERTED OUTPUT - rooms and rows in JSON format (output):
 ${convertedText.slice(0, 60000)}
 
-Compare them carefully room by room, item by item. For each room, check that every item from the PDF appears in the converted output with the correct content in the correct column (Item, Description, Condition).
+Compare them carefully room by room, item by item. For each room, check that every item from the PDF appears in the Word document with the correct content in the correct column (Item, Description, Condition).
 
 Ignore everything except the inventory room data — ignore cover pages, abbreviations pages, contents pages, property summaries, meter readings, key pages and photo references.
 
-For each room use exactly this format:
+For each discrepancy found, list it in this format:
 
-## [Room Name]
-
-**How many Items / Descriptions / Conditions for the room in the original PDF:**
-[count of rows with item, description, condition data]
-
-**How many Items / Descriptions / Conditions for the room in the Word document:**
-[count of rows with item, description, condition data]
-
-**Extra items in the Word document that do not appear in the original PDF:**
-[list each one, or write "None"]
-
-**Wording/details in the original PDF that are missing from the Word document:**
-[list each one, or write "None"]
-
-**Wording/details in the original PDF that are not in the same column or row in the Word document:**
-[list each one, or write "None"]
-
-**Total number of formatting discrepancies from the original PDF to the Word document:**
-[number]
+Room name
+Missing item: [item name]
+Wrong column: [what was in PDF] -> [what appeared in Word doc]
+Truncated: [what was cut off]
+Extra item not in PDF: [item name]
 
 At the end give a summary:
 Total items in PDF
@@ -69,7 +55,7 @@ Total missing
 Total in wrong column
 Overall accuracy %
 
-Be thorough - check every single row in every room. Do not include any intro or preamble - start directly with the first room. Do not mention JSON or technical terms - call it the Word document.`
+Be thorough — check every single row in every room. Do not summarise or skip any room. Do not include any introduction or preamble — start directly with the first room.
 
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
