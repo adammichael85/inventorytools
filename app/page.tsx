@@ -30,7 +30,7 @@ export default function Home() {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <Link href="/auth" style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #E2EAE7', fontSize: 14, fontWeight: 500, color: '#1A2820', textDecoration: 'none' }}>Log in</Link>
-          <Link href="/auth" style={{ padding: '8px 18px', borderRadius: 8, background: '#FD6A02', fontSize: 14, fontWeight: 500, color: '#fff', textDecoration: 'none' }}>Get started</Link>
+          <Link href="/auth" style={{ padding: '8px 18px', borderRadius: 8, background: '#FD6A02', fontSize: 14, fontWeight: 500, color: '#fff', textDecoration: 'none' }}></Link>
         </div>
       </nav>
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -48,7 +48,7 @@ export default function Home() {
               ))}
             </div>
             <p style={{ fontSize: 13, color: '#5A7068', marginBottom: 24 }}><strong style={{ color: '#1A2820' }}>£3.50</strong> flat rate · any size property</p>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 10, background: '#FD6A02', color: '#fff', fontSize: 15, fontWeight: 600, transition: 'transform 0.2s', transform: 'translateY(0)' }}>Get started →</div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 10, background: '#FD6A02', color: '#fff', fontSize: 15, fontWeight: 600, transition: 'transform 0.2s', transform: 'translateY(0)' }}> →</div>
           </div>
         </Link>
         <div style={{ width: 1, background: '#E2EAE7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1 }}>
