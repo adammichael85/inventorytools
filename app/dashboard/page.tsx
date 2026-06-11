@@ -841,7 +841,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             <div>
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden', marginBottom: 16 }}>
                 <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}` }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, margin: 0, color: TEXT }}>Lifetime Statistics <span style={{ fontSize: 11, fontWeight: 400, color: HINT }}>— includes deleted reports</span></p>
+                  <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Lifetime statistics <span style={{ fontSize: 12, fontWeight: 400, color: HINT }}>— includes deleted reports</span></p>
                 </div>
                 <div style={{ padding: '16px 20px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 0 }}>
