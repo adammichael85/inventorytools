@@ -29,7 +29,7 @@ export default function Home() {
           <span style={{ fontSize: 15, fontWeight: 700, color: '#1A2820' }}>inventory<span style={{ color: '#FD6A02' }}>tools</span>.co.uk</span>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <Link href="/auth" style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #E2EAE7', fontSize: 14, fontWeight: 500, color: '#1A2820', textDecoration: 'none' }}>Log in</Link>
+          <Link href="/auth" style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #E2EAE7', fontSize: 14, fontWeight: 500, color: '#1A2820', textDecoration: 'none' }}>Log in</Link>
         </div>
       </nav>
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
