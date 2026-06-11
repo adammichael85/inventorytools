@@ -1283,11 +1283,13 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 640, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
           <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 700, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-              <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Accuracy Report</p>
-              <button onClick={() => setViewingReport(null)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888' }}>×</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px' }}>Accuracy Report</p>
+                <p style={{ fontSize: 12, color: '#888', margin: 0 }}>{viewingReport.address}</p>
+              </div>
+              <button onClick={() => setViewingReport(null)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', flexShrink: 0, marginLeft: 12 }}>×</button>
             </div>
-            <p style={{ fontSize: 12, color: '#888', margin: '0 0 16px' }}>{viewingReport.address}</p>
-            <pre style={{ fontSize: 12, lineHeight: 1.6, whiteSpace: 'pre-wrap', fontFamily: 'inherit', color: '#1a1a2e', background: '#f5f5f5', padding: 16, borderRadius: 10 }}>{viewingReport.accuracy_report}</pre>
           </div>
         </div>
       )}
