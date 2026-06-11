@@ -23,13 +23,13 @@ export async function POST(req: NextRequest) {
     // Deduct 1 credit
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('credits')
+      .select('balance')
       .eq('id', body.user_id)
       .single()
     if (profileError) throw new Error(profileError.message)
 
-    const newCredits = Math.max(0, (Number(profile.credits) || 0) - 3.50)
-    await supabase.from('profiles').update({ credits: newCredits }).eq('id', body.user_id)
+    const newCredits = Math.max(0, (Number(profile.balance) || 0) - 3.50)
+    await supabase.from('profiles').update({ balance: newCredits }).eq('id', body.user_id)
 
     // Update persistent stats
     try {
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       }
     } catch(e) { console.log('Stats update failed:', e) }
 
-    return NextResponse.json({ ok: true, credits: newCredits })
+    return NextResponse.json({ ok: true, balance: newCredits })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
