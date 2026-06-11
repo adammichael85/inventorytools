@@ -46,7 +46,7 @@ For each room use exactly this format:
 
 **Missing items:** [list each missing inventory item, or write "None"]
 **Wrong column:** [list each column error, or write "None"]
-**Truncated content:** [list anything cut off, or write "None"]
+**Incomplete content:** [list any text that appears cut short or partially missing, or write "None"]
 **Extra items not in PDF:** [list extras, or write "None"]
 
 At the start of the report, before the room breakdown, add these two checks:
