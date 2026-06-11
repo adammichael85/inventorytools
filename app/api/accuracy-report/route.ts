@@ -40,14 +40,18 @@ Compare them carefully room by room, item by item. For each room, check that eve
 
 Ignore everything except the inventory room data — ignore cover pages, abbreviations pages, contents pages, property summaries, meter readings, key pages and photo references.
 
-For each discrepancy found, list it in this format:
-Room name
-Missing item: [item name]
-Wrong column: [what was in PDF] -> [what appeared in output]
-Truncated: [what was cut off]
-Extra item not in PDF: [item name]
+For each room use exactly this format:
 
-If a room has no issues write: No issues found
+## [Room Name]
+
+**Extra items in the Word DOC that do not appear in the original PDF:**
+[list each one, or write "None"]
+
+**Wording/details in the original PDF that are missing from the Word DOC:**
+[list each one, or write "None"]
+
+**Wording/details in the original PDF that are not in the same column or row in the Word DOC:**
+[list each one, or write "None"]
 
 At the end give a summary:
 Total items in PDF
