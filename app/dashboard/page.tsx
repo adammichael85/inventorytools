@@ -1154,7 +1154,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                       <button onClick={() => deleteConversion(c.id, c.file_path)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title='Delete'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='#DC2626' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><polyline points='3,6 5,6 21,6'/><path d='M19,6l-1,14a2 2 0 01-2 2H8a2 2 0 01-2-2L5,6'/><path d='M10,11v6M14,11v6'/><path d='M9,6V4a1 1 0 011-1h4a1 1 0 011 1v2'/></svg></button></div></td>
                   </tr>))}</tbody>
                 </table></div>
-                <div id="scroll-fade" style={{ position: 'absolute', top: 0, right: 0, width: 40, height: '100%', background: 'linear-gradient(to right, transparent, white)', pointerEvents: 'none', borderRadius: '0 14px 14px 0' }} />
+                <div id="scroll-fade" style={{ position: 'absolute', top: 0, right: 0, width: 60, height: '100%', background: 'linear-gradient(to right, transparent, white)', pointerEvents: 'none', borderRadius: '0 14px 14px 0' }} />
                 </div>
               </div>
             </div>
