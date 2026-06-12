@@ -67,14 +67,69 @@ export async function POST(req: NextRequest) {
   try {
     const { extractedText, base64, mediaType } = await req.json()
     let responseText = ""
-    console.log('EXTRACTED TEXT LENGTH:', extractedText?.length || 0); if (extractedText && extractedText.length > 100) {
-      const r = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
-        body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 64000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: extractedText + "\n\nExtract ALL rooms. Return raw JSON only." }] })
-      })
-      const d = await r.json()
-      responseText = d.choices?.[0]?.message?.content?.trim() || ""; console.log("GPT response length:", responseText.length); console.log("GPT first 500:", responseText.slice(0, 500)); console.log("GPT last 200:", responseText.slice(-200))
+    console.log('EXTRACTED TEXT LENGTH:', extractedText?.length || 0)
+    if (extractedText && extractedText.length > 100) {
+      const CHUNK_SIZE = 90000
+      if (extractedText.length <= CHUNK_SIZE) {
+        const r = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
+          body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 32000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: extractedText + "\n\nExtract ALL rooms. Return raw JSON only." }] })
+        })
+        const d = await r.json()
+        responseText = d.choices?.[0]?.message?.content?.trim() || ""
+        console.log("GPT response length:", responseText.length)
+      } else {
+        console.log('Large document - processing in chunks')
+        const chunks: string[] = []
+        let pos = 0
+        while (pos < extractedText.length) {
+          const end = Math.min(pos + CHUNK_SIZE, extractedText.length)
+          if (end === extractedText.length) {
+            chunks.push(extractedText.slice(pos))
+            break
+          }
+          let splitAt = end
+          const searchSection = extractedText.slice(Math.max(0, end - 5000), end)
+          const lines = searchSection.split('\n')
+          for (let li = lines.length - 1; li >= 0; li--) {
+            const line = lines[li].trim()
+            if (line.length > 0 && line.length < 60 && !/^\d+$/.test(line) && !/^\d+\./.test(line)) {
+              const beforeLines = lines.slice(0, li).join('\n')
+              splitAt = Math.max(0, end - 5000) + beforeLines.length
+              break
+            }
+          }
+          chunks.push(extractedText.slice(pos, splitAt))
+          pos = splitAt
+        }
+        console.log('Total chunks:', chunks.length)
+        const allRooms: any[] = []
+        let docAddress = ''
+        for (let i = 0; i < chunks.length; i++) {
+          console.log('Processing chunk', i + 1, 'of', chunks.length)
+          const r = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
+            body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 32000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: chunks[i] + "\n\nExtract ALL rooms from this section. Return raw JSON only." }] })
+          })
+          const d = await r.json()
+          const chunkText = d.choices?.[0]?.message?.content?.trim() || ""
+          console.log('Chunk', i + 1, 'response length:', chunkText.length)
+          if (chunkText) {
+            const f = chunkText.indexOf("{")
+            const l = chunkText.lastIndexOf("}")
+            if (f !== -1) {
+              try {
+                const chunkData = JSON.parse(chunkText.slice(f, l + 1))
+                if (chunkData.rooms) allRooms.push(...chunkData.rooms)
+                if (!docAddress && chunkData.address) docAddress = chunkData.address
+              } catch(e) { console.log('Chunk parse error:', e) }
+            }
+          }
+        }
+        responseText = JSON.stringify({ address: docAddress, rooms: allRooms })
+      }
     } else {
       const r = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
