@@ -919,7 +919,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         </nav>
         <div style={{ padding: '14px 10px', borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 8 }}>
-            <div style={{ width: 30, height: 30, borderRadius: '50%', background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: TEAL_DARK }}>{userEmail.slice(0,2).toUpperCase() || 'U'}</div>
+            <div style={{ width: 30, height: 30, borderRadius: '50%', background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: TEAL_DARK }}>{userName ? userName.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase() : userEmail.slice(0,2).toUpperCase()}</div>
             <div>
               <p style={{ fontSize: 11, color: MUTED, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userEmail}</p>
             </div>
