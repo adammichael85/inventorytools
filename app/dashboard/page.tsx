@@ -1067,7 +1067,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                         <div key={conv.id || i} style={{ display: 'flex', gap: 10 }}>
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: TEAL, flexShrink: 0, marginTop: 4 }} />
                           <div>
-                            <p style={{ fontSize: 12, color: TEXT, margin: 0 }}>{conv.address} — ready</p>
+                            <p style={{ fontSize: 12, color: TEXT, margin: 0 }}>{fmtAddr(conv.address)} — ready</p>
                             <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{timeAgo(conv.created_at)}</p>
                           </div>
                         </div>
