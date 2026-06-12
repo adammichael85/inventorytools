@@ -1370,8 +1370,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     </div>
                     <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your PDF here</p>
                     <p style={{ fontSize: 13, color: HINT }}>or click to browse</p>
-<p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>Accepts PDF and Word (.docx) files · For large PDFs, compress first at ilovepdf.com</p>
-<p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>Use the EXTREME compression to reduce the file size dramatically to save conversion time.</p>
+<p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>Accepts PDF and Word (.docx) files up to any size</p>
                   </div>
                 </label>
                 <input id="pdf-upload" type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display: 'none' }} onChange={async e => { 

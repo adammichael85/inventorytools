@@ -27,7 +27,7 @@ export default function PDFToWord() {
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FD6A02', display: 'inline-block' }} /> AI-powered · Built for inventory clerks
           </div>
           <h1 style={{ fontSize: 48, fontWeight: 700, lineHeight: 1.15, marginBottom: 20, letterSpacing: -1 }}>Stop typing. Start <span style={{ color: '#FD6A02' }}>converting.</span></h1>
-          <p style={{ fontSize: 17, color: '#5A7068', lineHeight: 1.7, marginBottom: 36, maxWidth: 460 }}>Upload any inventory PDF and get a perfectly formatted Word document in 1–4 minutes depending on file size. What used to take a typist 90 minutes now costs £3.50.</p>
+          <p style={{ fontSize: 17, color: '#5A7068', lineHeight: 1.7, marginBottom: 36, maxWidth: 460 }}>Upload any inventory PDF and get a perfectly formatted Word document in 1–4 minutes depending on document length. What used to take a typist 90 minutes now costs £3.50.</p>
           <Link href="/auth" style={{ display: 'inline-block', padding: '13px 28px', borderRadius: 10, background: '#FD6A02', color: '#fff', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Log in to convert</Link>
         </div>
         <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2EAE7', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
@@ -94,7 +94,7 @@ export default function PDFToWord() {
           <h2 style={{ fontSize: 36, fontWeight: 700, marginBottom: 14, letterSpacing: -0.5 }}>Everything your team needs. Nothing they don&apos;t.</h2>
           <p style={{ fontSize: 16, color: '#5A7068', maxWidth: 520, lineHeight: 1.7, marginBottom: 40 }}>No training. No formatting. No chasing typists. Just upload, wait 1–4 minutes, and download.</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-            {[['⚡','Done in 1–4 minutes depending on file size','What used to take a typist 45–90 minutes is processed instantly. Your clerks move on to the next job while the doc builds itself.'],
+            {[['⚡','Done in 1–4 minutes depending on document length','What used to take a typist 45–90 minutes is processed instantly. Your clerks move on to the next job while the doc builds itself.'],
               ['💷','£3.50 flat — any property size','A studio flat costs the same as an 8-bedroom house. No surprises, no tiers, no monthly fees. Pay only when you convert.'],
               ['📋','Verbatim extraction','Every word copied exactly as it appears in the PDF. Zero edits, zero assumptions — your report, word for word.'],
               ['📝','Tenant disputes captured','Any "disagreed by tenant" or additional notes are captured and appended to the relevant item — nothing dropped.'],
@@ -135,7 +135,7 @@ export default function PDFToWord() {
                 <p style={{ fontSize: 13, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, color: '#94AEA6', marginBottom: 18 }}>How it compares</p>
                 {[['External typist','Average market rate per report','£12–£25','#E24B4A'],
                   ['In-house typing time','45–90 mins of staff time per report','~£18','#E24B4A'],
-                  ['InventoryTools','Any property · ready in 1–4 minutes depending on file size*','£3.50','#FD6A02']
+                  ['InventoryTools','Any property · ready in 1–4 minutes depending on document length*','£3.50','#FD6A02']
                 ].map(([title,sub,price,color]) => (
                   <div key={title} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: title !== 'InventoryTools' ? '1px solid #E2EAE7' : 'none' }}>
                     <div>
