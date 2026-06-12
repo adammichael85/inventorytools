@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
   try {
     const { extractedText, base64, mediaType } = await req.json()
     let responseText = ""
-    if (extractedText && extractedText.length > 100) {
+    console.log('EXTRACTED TEXT LENGTH:', extractedText?.length || 0); if (extractedText && extractedText.length > 100) {
       const r = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
