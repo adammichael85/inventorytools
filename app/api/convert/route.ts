@@ -122,7 +122,16 @@ export async function POST(req: NextRequest) {
             if (f !== -1) {
               try {
                 const chunkData = JSON.parse(chunkText.slice(f, l + 1))
-                if (chunkData.rooms) allRooms.push(...chunkData.rooms)
+                if (chunkData.rooms) {
+                  for (const room of chunkData.rooms) {
+                    const last = allRooms[allRooms.length - 1]
+                    if (last && last.roomName === room.roomName) {
+                      last.rows.push(...room.rows)
+                    } else {
+                      allRooms.push(room)
+                    }
+                  }
+                }
                 if (!docAddress && chunkData.address) docAddress = chunkData.address
               } catch(e) { console.log('Chunk parse error:', e) }
             }
