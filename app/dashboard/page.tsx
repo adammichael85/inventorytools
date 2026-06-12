@@ -604,7 +604,8 @@ export default function Dashboard() {
   const [userStats, setUserStats] = useState<any>(null)
   function fmtAddr(addr: string) {
     if (!addr) return addr
-    return addr.toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())
+    const titled = addr.toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())
+    return titled.replace(/\b([A-Za-z]{1,2}\d{1,2}[A-Za-z]?\s*\d[A-Za-z]{2})\b/gi, (m: string) => m.toUpperCase())
   }
   const [showRatingPopup, setShowRatingPopup] = useState(false)
   const [showQuickRate, setShowQuickRate] = useState(false)
