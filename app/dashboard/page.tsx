@@ -993,7 +993,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                               
                               <div>
-                                <p style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: 0 }}>{c.address}</p>
+                                <p style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: 0 }}>{fmtAddr(c.address)}</p>
                                 <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{new Date(c.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}</p>
                               </div>
                             </div>
