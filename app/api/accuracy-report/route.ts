@@ -52,8 +52,8 @@ For each room use exactly this format:
 At the start of the report, before the room breakdown, add these two checks:
 
 ## Rooms Check
-**Rooms in PDF:** [list all room names]
-**Rooms in Word document:** [list all room names]
+**Rooms in PDF:** [list all room names on a single line, comma separated]
+**Rooms in Word document:** [list all room names on a single line, comma separated]
 **Missing rooms:** [any rooms in PDF not in Word document, or write "None"]
 **Duplicate room names:** [any room names that appear more than once in the Word document, or write "None"]
 
