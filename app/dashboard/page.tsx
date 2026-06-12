@@ -121,7 +121,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 12 }}>
         <div style={{ background: TEAL, borderRadius: 14, padding: '20px 24px', color: '#fff' }}>
           <p style={{ fontSize: 11, opacity: 0.75, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Conversions</p>
           <p style={{ fontSize: 40, fontWeight: 700, lineHeight: 1, marginBottom: 4 }}>{total}</p>
@@ -156,7 +156,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 12 }}>
         {[
           ['Rooms processed', rooms.toString()],
           ['Avg conv. time', fmtTime(avg)],
@@ -196,7 +196,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
               <p style={{ fontSize: 16, fontWeight: 700, margin: '0 0 2px', letterSpacing: -0.3 }}>Lifetime statistics</p>
               <p style={{ fontSize: 12, color: HINT, margin: 0 }}>Permanent record — includes deleted reports</p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 12 }}>
               <div style={{ background: TEAL, borderRadius: 14, padding: '20px 24px', color: '#fff' }}>
                 <p style={{ fontSize: 11, opacity: 0.75, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Total conversions</p>
                 <p style={{ fontSize: 40, fontWeight: 700, lineHeight: 1, marginBottom: 4 }}>{ltTotal}</p>
@@ -218,7 +218,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
                 </div>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 8 }}>
               {[['Rooms processed', ltRooms.toString()],['Avg conv. time', fmtTime(ltAvg)],['Total conv. time', fmtTime(ltDuration)],['Credits used', ltTotal.toString()]].map(([lbl, val]) => (
                 <div key={lbl} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
                   <p style={{ fontSize: 11, color: HINT, marginBottom: 8 }}>{lbl}</p>
