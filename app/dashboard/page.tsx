@@ -602,6 +602,10 @@ export default function Dashboard() {
   const [convertError, setConvertError] = useState('')
   const [conversions, setConversions] = useState<any[]>([])
   const [userStats, setUserStats] = useState<any>(null)
+  function fmtAddr(addr: string) {
+    if (!addr) return addr
+    return addr.toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())
+  }
   const [showRatingPopup, setShowRatingPopup] = useState(false)
   const [showQuickRate, setShowQuickRate] = useState(false)
   const [quickRateConvId, setQuickRateConvId] = useState('')
@@ -1105,7 +1109,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     {conversions.filter(c => !searchQuery || (c.address||'').toLowerCase().includes(searchQuery.toLowerCase())).map(conv => (
                       <div key={conv.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: `1px solid ${BORDER}` }}>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: TEXT, margin: '0 0 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{conv.address}</p>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: TEXT, margin: '0 0 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmtAddr(conv.address)}</p>
                           <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{new Date(conv.created_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})} · {conv.rooms} rooms · {conv.converted_by ? conv.converted_by.split(' ').map((n: string, i: number) => i === 0 ? n : n[0]).join(' ') : ''}</p>
                         </div>
                         <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
@@ -1133,7 +1137,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 <div style={{ position: 'relative' }}><div onScroll={(e) => { const el = e.currentTarget; const fade = el.nextElementSibling as HTMLElement; if (fade) fade.style.opacity = el.scrollLeft + el.clientWidth >= el.scrollWidth - 5 ? '0' : '1' }} style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}><table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
                   <thead><tr style={{ background: BG }}>{['Property','Rooms','Conv. Time','Cost','By','Rating','Date',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}</tr></thead>
                   <tbody>{conversions.filter(c => !searchQuery || (c.address||'').toLowerCase().includes(searchQuery.toLowerCase())).map(c => (<tr key={c.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
-                    <td style={{ padding: '12px 20px', fontSize: 11, fontWeight: 500, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.address}</td>
+                    <td style={{ padding: '12px 20px', fontSize: 11, fontWeight: 500, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmtAddr(c.address)}</td>
                     <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{c.rooms} rooms</td>
                     <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
                     <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
