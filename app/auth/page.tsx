@@ -145,7 +145,11 @@ export default function Auth() {
                   <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" style={input} />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 22 }}>
-                  <a href="#" style={{ fontSize: 13, color: T, textDecoration: 'none', fontWeight: 500 }}>Forgot password?</a>
+                  <button onClick={async () => {
+                    if (!email) { setMessage('Enter your email address first'); return }
+                    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: 'https://inventorytools.co.uk/auth/reset' })
+                    if (error) { setMessage(error.message) } else { setMessage('Password reset email sent! Check your inbox.') }
+                  }} style={{ fontSize: 13, color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>Forgot password?</button>
                 </div>
                 <button onClick={handleSignIn} disabled={loading} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: loading ? H : T, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', marginBottom: 16 }}>
                   {loading ? 'Signing in...' : 'Sign in'}
