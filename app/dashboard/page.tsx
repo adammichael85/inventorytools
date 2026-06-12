@@ -970,10 +970,10 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               </div>
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20, marginTop: 16 }}>
-                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden', display: isMobile ? 'none' : 'block' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 20, marginTop: 16 }}>
+                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden', display: 'block' }}>
                   <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0, display: isMobile ? 'none' : 'block' }}>Recent conversions</h2>
+                    <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Recent conversions</h2>
                     <button onClick={() => setPage('reports')} style={{ fontSize: 12, color: TEAL, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>View all →</button>
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600, display: isMobile ? 'none' : 'table' }}>
@@ -1161,7 +1161,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20, marginBottom: 20 }}>
                 <div style={{ background: TEAL, borderRadius: 14, padding: 24, color: '#fff' }}>
                   <p style={{ fontSize: 12, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Current balance</p>
-                  <p style={{ fontSize: 42, fontWeight: 700, letterSpacing: -1, lineHeight: 1, marginBottom: 6 }}>{credits}</p>
+                  <p style={{ fontSize: 42, fontWeight: 700, letterSpacing: -1, lineHeight: 1, marginBottom: 6 }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                   <p style={{ fontSize: 14, opacity: 0.8, marginBottom: 20 }}>balance remaining</p>
                   <button onClick={() => setShowTopup(true)} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#fff', color: TEAL, fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Top up balance</button>
                 </div>
