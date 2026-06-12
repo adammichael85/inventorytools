@@ -111,12 +111,7 @@ export async function POST(req: NextRequest) {
           const r = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
-            body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 32000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: (() => {
-              if (allRooms.length === 0) return chunks[i] + "\n\nExtract ALL rooms from this section. Return raw JSON only."
-              const lastRoom = allRooms[allRooms.length - 1]
-              const sampleRows = lastRoom.rows.slice(-3).map((r: any) => `Item: "${r.item}" | Description: "${r.description}" | Condition: "${r.condition}"`).join('\n')
-              return `CRITICAL CONTEXT: You are processing section ${i+1} of a multi-part document. The previous section used this EXACT column mapping and you MUST continue with identical mapping - do NOT re-detect or change the format:\n${sampleRows}\n\nPrevious section ended in room: "${lastRoom.roomName}". If this section starts with items with no new room heading, they belong to that room.\n\n` + chunks[i] + "\n\nExtract ALL rooms from this section using IDENTICAL column mapping as shown in the examples above. Return raw JSON only."
-            })() }] })
+            body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 32000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: chunks[i] + "\n\nExtract ALL rooms from this section. Return raw JSON only." }] })
           })
           const d = await r.json()
           const chunkText = d.choices?.[0]?.message?.content?.trim() || ""
