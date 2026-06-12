@@ -560,9 +560,20 @@ function DeleteAccountButton({ supabase, profile, userEmail }: any) {
         <button onClick={() => { setStep(0); setConfirm('') }} style={{ padding: '9px 20px', borderRadius: 9, border: '1px solid #E2EAE7', background: 'transparent', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
         <button disabled={confirm !== 'DELETE' || deleting} onClick={async () => {
           setDeleting(true)
-          // Sign out and redirect - actual deletion would need a server-side admin route
-          await supabase.auth.signOut()
-          window.location.href = '/?deleted=true'
+          const { data: { session } } = await supabase.auth.getSession()
+          if (!session) return
+          const res = await fetch('/api/delete-account', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: session.user.id })
+          })
+          if (res.ok) {
+            await supabase.auth.signOut()
+            window.location.href = '/?deleted=true'
+          } else {
+            setDeleting(false)
+            alert('Failed to delete account. Please try again.')
+          }
         }} style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: confirm === 'DELETE' ? '#DC2626' : '#ccc', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: confirm === 'DELETE' ? 'pointer' : 'default' }}>
           {deleting ? 'Deleting...' : 'Permanently delete'}
         </button>
