@@ -67,79 +67,47 @@ export async function POST(req: NextRequest) {
   try {
     const { extractedText, base64, mediaType } = await req.json()
     let responseText = ""
-    // Clean extracted text: remove duplicates, photo refs, timestamps, page numbers, footers
-    const allTextLines = extractedText ? extractedText.split('\n') : []
-    const dedupedLines: string[] = []
-    for (let i = 0; i < allTextLines.length; i++) {
-      const t = allTextLines[i].trim().replace(/\x0c/g, '').trim()
-      if (!t) continue
-      // Skip consecutive duplicates
-      if (dedupedLines.length > 0 && dedupedLines[dedupedLines.length-1] === t) continue
-      // Skip lines that are ONLY photo refs and/or dates (remove them, check if anything left)
-      const noRefsOrDates = t.replace(/Ref #[\d.]+/g, '').replace(/\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}/g, '').replace(/\s+/g, '').trim()
-      if (!noRefsOrDates) continue
-      // Skip standalone page numbers
-      if (/^\d+$/.test(t)) continue
-      // Skip footer lines with date format DD.MM.YY
-      if (/\d{2}\.\d{2}\.\d{2}$/.test(t) && t.length > 20) continue
-      // Skip column header rows
-      if (/^Ref\s+Name\s+Description/i.test(t)) continue
-      dedupedLines.push(t)
-    }
-    const processText = dedupedLines.join('\n')
-    console.log('Original length:', extractedText?.length || 0, 'Cleaned length:', processText.length, 'Lines:', dedupedLines.length)
-    console.log('EXTRACTED TEXT LENGTH:', processText?.length || 0)
-    if (processText && processText.length > 100) {
-      const CHUNK_SIZE = 60000
-      if (processText.length <= CHUNK_SIZE) {
+    console.log('EXTRACTED TEXT LENGTH:', extractedText?.length || 0)
+    if (extractedText && extractedText.length > 100) {
+      const CHUNK_SIZE = 90000
+      if (extractedText.length <= CHUNK_SIZE) {
         const r = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
-          body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 32000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: processText + "\n\nExtract ALL rooms. Return raw JSON only." }] })
+          body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 32000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: extractedText + "\n\nExtract ALL rooms. Return raw JSON only." }] })
         })
         const d = await r.json()
         responseText = d.choices?.[0]?.message?.content?.trim() || ""
         console.log("GPT response length:", responseText.length)
       } else {
         console.log('Large document - processing in chunks')
-        // Split on primary room headings at character boundaries
-        const docLines = processText.split('\n')
-        const primaryHeadingIndices: number[] = []
-        for (let li = 0; li < docLines.length; li++) {
-          const t = docLines[li].trim()
-          if (/^\d+\.\s+[A-Z][A-Z\s\/.-]+$/.test(t) && t.length < 80 && !t.includes('(CONT.)') && !t.includes('INFORMATION') && !t.includes('METERS') && !t.includes('KEYS') && !t.includes('ALARMS') && !t.includes('INVOICES')) {
-            primaryHeadingIndices.push(li)
-          }
-        }
-        console.log('Found primary room headings:', primaryHeadingIndices.length)
         const chunks: string[] = []
-        if (primaryHeadingIndices.length < 2) {
-          for (let i = 0; i < processText.length; i += CHUNK_SIZE) {
-            chunks.push(processText.slice(i, i + CHUNK_SIZE))
+        let pos = 0
+        while (pos < extractedText.length) {
+          const end = Math.min(pos + CHUNK_SIZE, extractedText.length)
+          if (end === extractedText.length) {
+            chunks.push(extractedText.slice(pos))
+            break
           }
-        } else {
-          let chunkStartLine = 0
-          let currentChars = 0
-          for (let i = 0; i < primaryHeadingIndices.length; i++) {
-            const headingLine = primaryHeadingIndices[i]
-            const nextHeadingLine = primaryHeadingIndices[i + 1] || docLines.length
-            const roomText = docLines.slice(headingLine, nextHeadingLine).join('\n')
-            if (currentChars + roomText.length > CHUNK_SIZE && currentChars > 0) {
-              chunks.push(docLines.slice(chunkStartLine, headingLine).join('\n'))
-              chunkStartLine = headingLine
-              currentChars = roomText.length
-            } else {
-              currentChars += roomText.length
+          let splitAt = end
+          const searchSection = extractedText.slice(Math.max(0, end - 5000), end)
+          const lines = searchSection.split('\n')
+          for (let li = lines.length - 1; li >= 0; li--) {
+            const line = lines[li].trim()
+            if (line.length > 0 && line.length < 60 && !/^\d+$/.test(line) && !/^\d+\./.test(line)) {
+              const beforeLines = lines.slice(0, li).join('\n')
+              splitAt = Math.max(0, end - 5000) + beforeLines.length
+              break
             }
           }
-          chunks.push(docLines.slice(chunkStartLine).join('\n'))
+          chunks.push(extractedText.slice(pos, splitAt))
+          pos = splitAt
         }
         console.log('Total chunks:', chunks.length)
         const allRooms: any[] = []
         let docAddress = ''
         for (let i = 0; i < chunks.length; i++) {
-          if (i > 0) await new Promise(r => setTimeout(r, 2000))
-          console.log('Processing chunk', i + 1, 'of', chunks.length, '| first 200 chars:', chunks[i].slice(0, 200))
+          console.log('Processing chunk', i + 1, 'of', chunks.length)
           const r = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
@@ -157,12 +125,9 @@ export async function POST(req: NextRequest) {
                 if (chunkData.rooms) {
                   for (const room of chunkData.rooms) {
                     const last = allRooms[allRooms.length - 1]
-                    const baseName = room.roomName.replace(/ \(CONT\.?\)$/i, '').trim()
-                    const lastBaseName = last ? last.roomName.replace(/ \(CONT\.?\)$/i, '').trim() : ''
-                    if (last && (last.roomName === room.roomName || lastBaseName === baseName)) {
+                    if (last && last.roomName === room.roomName) {
                       last.rows.push(...room.rows)
                     } else {
-                      room.roomName = baseName
                       allRooms.push(room)
                     }
                   }
