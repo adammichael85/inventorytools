@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     // Strip photo reference lines (e.g. "Ref #26.1  28 Apr 2026 11:40")
     const cleanedText = extractedText ? extractedText.split('\n').filter((line: string) => {
       const t = line.trim()
-      return !(/^Ref #\d+/.test(t)) && !(t.match(/^\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}$/) )
+      return !(/Ref #\d+/.test(t)) && !(t.match(/\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}/) )
     }).join('\n') : extractedText
     const processText = cleanedText || extractedText
     console.log('EXTRACTED TEXT LENGTH:', processText?.length || 0)
@@ -90,8 +90,8 @@ export async function POST(req: NextRequest) {
         const chunks: string[] = []
         let pos = 0
         while (pos < processText.length) {
-          const end = Math.min(pos + CHUNK_SIZE, extractedText.length)
-          if (end === extractedText.length) {
+          const end = Math.min(pos + CHUNK_SIZE, processText.length)
+          if (end === processText.length) {
             chunks.push(processText.slice(pos))
             break
           }
