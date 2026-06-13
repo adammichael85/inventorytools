@@ -102,29 +102,37 @@ export async function POST(req: NextRequest) {
         console.log("GPT response length:", responseText.length)
       } else {
         console.log('Large document - processing in chunks')
-        // Split by room headings - find lines matching "NUMBER.   ROOM NAME"
+        // Split on primary room headings at character boundaries
         const docLines = processText.split('\n')
-        const roomHeadingIndices: number[] = []
+        const primaryHeadingIndices: number[] = []
         for (let li = 0; li < docLines.length; li++) {
           const t = docLines[li].trim()
-          if (/^\d+\.\s{2,}[A-Z][A-Z\s\/]+$/.test(t) && t.length < 60) {
-            roomHeadingIndices.push(li)
+          if (/^\d+\.\s+[A-Z][A-Z\s\/.-]+$/.test(t) && t.length < 80 && !t.includes('(CONT.)') && !t.includes('INFORMATION') && !t.includes('METERS') && !t.includes('KEYS') && !t.includes('ALARMS') && !t.includes('INVOICES')) {
+            primaryHeadingIndices.push(li)
           }
         }
-        console.log('Found room headings:', roomHeadingIndices.length, docLines.filter((_:string,li:number) => roomHeadingIndices.includes(li)).map((l:string)=>l.trim()).join(' | '))
-        const ROOMS_PER_CHUNK = 8
+        console.log('Found primary room headings:', primaryHeadingIndices.length)
         const chunks: string[] = []
-        if (roomHeadingIndices.length < 2) {
-          // Fallback to character chunking
+        if (primaryHeadingIndices.length < 2) {
           for (let i = 0; i < processText.length; i += CHUNK_SIZE) {
             chunks.push(processText.slice(i, i + CHUNK_SIZE))
           }
         } else {
-          for (let i = 0; i < roomHeadingIndices.length; i += ROOMS_PER_CHUNK) {
-            const startLine = i === 0 ? 0 : roomHeadingIndices[i]
-            const endLine = roomHeadingIndices[i + ROOMS_PER_CHUNK] !== undefined ? roomHeadingIndices[i + ROOMS_PER_CHUNK] : docLines.length
-            chunks.push(docLines.slice(startLine, endLine).join('\n'))
+          let chunkStartLine = 0
+          let currentChars = 0
+          for (let i = 0; i < primaryHeadingIndices.length; i++) {
+            const headingLine = primaryHeadingIndices[i]
+            const nextHeadingLine = primaryHeadingIndices[i + 1] || docLines.length
+            const roomText = docLines.slice(headingLine, nextHeadingLine).join('\n')
+            if (currentChars + roomText.length > CHUNK_SIZE && currentChars > 0) {
+              chunks.push(docLines.slice(chunkStartLine, headingLine).join('\n'))
+              chunkStartLine = headingLine
+              currentChars = roomText.length
+            } else {
+              currentChars += roomText.length
+            }
           }
+          chunks.push(docLines.slice(chunkStartLine).join('\n'))
         }
         console.log('Total chunks:', chunks.length)
         const allRooms: any[] = []
