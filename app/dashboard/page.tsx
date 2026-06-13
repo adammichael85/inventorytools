@@ -619,9 +619,6 @@ export default function Dashboard() {
     return titled.replace(/\b([A-Za-z]{1,2}\d{1,2}[A-Za-z]?\s*\d[A-Za-z]{2})\b/gi, (m: string) => m.toUpperCase())
   }
   const [showRatingPopup, setShowRatingPopup] = useState(false)
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const [onboardingChecked, setOnboardingChecked] = useState(false)
-  const [savingOnboarding, setSavingOnboarding] = useState(false)
   const [showQuickRate, setShowQuickRate] = useState(false)
   const [quickRateConvId, setQuickRateConvId] = useState('')
   const [quickRateConvAddress, setQuickRateConvAddress] = useState('')
@@ -864,7 +861,7 @@ export default function Dashboard() {
       const b64 = await Packer.toBase64String(doc)
       const byteArray = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
       const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-      if (docxUrl) URL.revokeObjectURL(docxUrl); const url = URL.createObjectURL(blob); let storagePath = ""; let pdfStoragePath = ""; try { const sess = await supabase.auth.getSession(); if (sess.data.session) { const ts = Date.now(); const addrClean = (data.address||"").replace(/[^a-zA-Z0-9 _-]/g,"").trim(); const fn = sess.data.session.user.id + "/" + ts + "_" + addrClean + ".docx"; const up = await supabase.storage.from("documents").upload(fn, blob, {contentType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}); if (up.data) storagePath = up.data.path; if (selectedFile && selectedFile.name.toLowerCase().endsWith('.pdf')) { const pfn = sess.data.session.user.id + "/" + ts + "_" + addrClean + ".pdf"; const pup = await supabase.storage.from("documents").upload(pfn, selectedFile, {contentType:"application/pdf"}); if (pup.data) pdfStoragePath = pup.data.path } } } catch(e) { console.log("upload failed",e) }
+      if (docxUrl) URL.revokeObjectURL(docxUrl); const url = URL.createObjectURL(blob); let storagePath = ""; try { const sess = await supabase.auth.getSession(); if (sess.data.session) { const fn = sess.data.session.user.id + "/" + Date.now() + "_" + (data.address||"").replace(/[^a-zA-Z0-9 _-]/g,"").trim() + ".docx"; const up = await supabase.storage.from("documents").upload(fn, blob, {contentType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}); if (up.data) storagePath = up.data.path } } catch(e) { console.log("upload failed",e) }
       const name = (data.address || 'inventory').replace(/[^a-zA-Z0-9 _-]/g, '').trim() + '.docx'
       setDocxUrl(url)
       setDocxName(name)
@@ -884,7 +881,6 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         converted_by: userName || session.user.email,
         extracted_text: data._extractedText || '',
         converted_json: { rooms: data.rooms, address: data.address },
-        pdf_path: pdfStoragePath || null,
       })
     })
   }
@@ -1305,58 +1301,6 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               <button onClick={() => setShowDeleteAll(false)} style={{ flex: 1, padding: 11, borderRadius: 10, border: '1px solid #E2EAE7', background: 'transparent', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
               <button onClick={deleteAllConversions} style={{ flex: 1, padding: 11, borderRadius: 10, border: 'none', background: '#DC2626', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Delete all reports</button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* ONBOARDING WELCOME POPUP */}
-      {showOnboarding && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: '#fff', borderRadius: 20, padding: 36, width: '100%', maxWidth: 520, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-            <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <div style={{ width: 56, height: 56, background: TEAL, borderRadius: 14, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="32" height="32" viewBox="0 0 120 120" fill="none"><rect width="120" height="120" rx="26" fill="rgba(255,255,255,0.2)"/><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 8px', color: TEXT }}>Welcome to InventoryTools</h2>
-              <p style={{ fontSize: 14, color: MUTED, margin: 0 }}>Before you get started, here's a quick overview</p>
-            </div>
-            <div style={{ background: BG, borderRadius: 12, padding: 20, marginBottom: 20 }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color: TEXT, margin: '0 0 12px' }}>How it works:</p>
-              {[
-                ['📄', 'Upload any inventory PDF', 'Our AI converts it into a perfectly formatted Word document in 1–4 minutes'],
-                ['⚙️', 'Check your Settings', 'Customise your auto-delete period. By default, your uploaded PDFs and reports are automatically deleted after 14 days for GDPR compliance'],
-                ['📊', 'Accuracy reports', 'After conversion, you can run an accuracy report (£1.50) to check the quality of the conversion'],
-                ['💷', 'Balance', 'Each conversion costs £3.50. Top up your balance in the Billing section anytime'],
-              ].map(([icon, title, desc]) => (
-                <div key={title} style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-                  <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
-                  <div>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: TEXT, margin: '0 0 2px' }}>{title}</p>
-                    <p style={{ fontSize: 12, color: MUTED, margin: 0, lineHeight: 1.5 }}>{desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div style={{ background: '#fff0e6', borderRadius: 10, padding: 14, marginBottom: 20, border: '1px solid #fdd5b0' }}>
-              <p style={{ fontSize: 12, color: '#c24a00', margin: 0, lineHeight: 1.6 }}>
-                <strong>Data & GDPR:</strong> Your uploaded PDFs and converted Word documents are stored securely and automatically deleted after your chosen period (default 14 days). This helps keep your data minimal and GDPR-compliant.
-              </p>
-            </div>
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginBottom: 20 }}>
-              <input type="checkbox" checked={onboardingChecked} onChange={e => setOnboardingChecked(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: TEAL, flexShrink: 0 }} />
-              <span style={{ fontSize: 13, color: TEXT, lineHeight: 1.5 }}>I have read and understood how InventoryTools stores and manages my data, including the auto-delete policy.</span>
-            </label>
-            <button disabled={!onboardingChecked || savingOnboarding} onClick={async () => {
-              setSavingOnboarding(true)
-              const { data: { session } } = await supabase.auth.getSession()
-              if (session) {
-                await supabase.from('profiles').update({ onboarding_confirmed: true, onboarding_confirmed_at: new Date().toISOString() }).eq('id', session.user.id)
-              }
-              setShowOnboarding(false)
-              setSavingOnboarding(false)
-            }} style={{ width: '100%', padding: 14, borderRadius: 10, border: 'none', background: onboardingChecked ? TEAL : BORDER, color: onboardingChecked ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: onboardingChecked ? 'pointer' : 'default', transition: 'background 0.2s' }}>
-              {savingOnboarding ? 'Saving...' : 'Get started →'}
-            </button>
           </div>
         </div>
       )}
