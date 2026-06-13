@@ -525,7 +525,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
         <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px' }}>Account</p>
         <p style={{ fontSize: 13, color: MUTED, marginBottom: 16 }}>Signed in as <strong style={{ color: TEXT }}>{userEmail}</strong></p>
-        <button onClick={() => supabase.auth.signOut().then(() => window.location.href = '/')} style={{ padding: '9px 20px', borderRadius: 9, border: `1px solid ${BORDER}`, background: 'transparent', color: TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Sign out</button>
+        <button onClick={() => { if (window.confirm('Are you sure you want to sign out?')) { supabase.auth.signOut().then(() => { window.location.href = '/' }) } }} style={{ padding: '9px 20px', borderRadius: 9, border: `1px solid ${BORDER}`, background: 'transparent', color: TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Sign out</button>
       </div>
 
       {profile?.role === 'admin' && (
