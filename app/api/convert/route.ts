@@ -67,18 +67,27 @@ export async function POST(req: NextRequest) {
   try {
     const { extractedText, base64, mediaType } = await req.json()
     let responseText = ""
-    // Strip ONLY pure photo timestamp lines e.g. "Ref #6.1  28 Apr 2026 08:50" or "28 Apr 2026 08:50"
+    // Clean extracted text: remove duplicates, photo refs, timestamps, page numbers, footers
     const allTextLines = extractedText ? extractedText.split('\n') : []
-    const keptLines = allTextLines.filter((line: string) => {
-      const t = line.trim()
-      if (!t) return true // keep blank lines
-      const isPureTimestamp = /^Ref #[\d.]+ \d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}$/.test(t)
-      const isPureDate = /^\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}$/.test(t)
-      const isPureRef = /^Ref #[\d.]+$/.test(t)
-      return !isPureTimestamp && !isPureDate && !isPureRef
-    })
-    const processText = keptLines.join('\n')
-    console.log('Original length:', extractedText?.length || 0, 'Cleaned length:', processText.length)
+    const dedupedLines: string[] = []
+    for (let i = 0; i < allTextLines.length; i++) {
+      const t = allTextLines[i].trim().replace(/\x0c/g, '').trim()
+      if (!t) continue
+      // Skip consecutive duplicates
+      if (dedupedLines.length > 0 && dedupedLines[dedupedLines.length-1] === t) continue
+      // Skip lines that are ONLY photo refs and/or dates (remove them, check if anything left)
+      const noRefsOrDates = t.replace(/Ref #[\d.]+/g, '').replace(/\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}/g, '').replace(/\s+/g, '').trim()
+      if (!noRefsOrDates) continue
+      // Skip standalone page numbers
+      if (/^\d+$/.test(t)) continue
+      // Skip footer lines with date format DD.MM.YY
+      if (/\d{2}\.\d{2}\.\d{2}$/.test(t) && t.length > 20) continue
+      // Skip column header rows
+      if (/^Ref\s+Name\s+Description/i.test(t)) continue
+      dedupedLines.push(t)
+    }
+    const processText = dedupedLines.join('\n')
+    console.log('Original length:', extractedText?.length || 0, 'Cleaned length:', processText.length, 'Lines:', dedupedLines.length)
     console.log('EXTRACTED TEXT LENGTH:', processText?.length || 0)
     if (processText && processText.length > 100) {
       const CHUNK_SIZE = 60000
