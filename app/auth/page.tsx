@@ -153,7 +153,7 @@ export default function Auth() {
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ email })
                     })
-                    setMessage('If an account exists, a password reset email has been sent.')
+                    setMessage('If an account exists, a password reset email has been sent. Please check your junk/spam folder if you do not see it in your inbox.')
 
                   }} style={{ fontSize: 13, color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>Forgot password?</button>
                 </div>
