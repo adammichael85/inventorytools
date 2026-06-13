@@ -67,6 +67,12 @@ export async function POST(req: NextRequest) {
   try {
     const { extractedText, base64, mediaType } = await req.json()
     let responseText = ""
+    // Strip photo reference lines (e.g. "Ref #26.1  28 Apr 2026 11:40")
+    const cleanedText = extractedText ? extractedText.split('\n').filter((line: string) => {
+      const t = line.trim()
+      return !(/^Ref #\d+/.test(t)) && !(t.match(/^\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}$/) )
+    }).join('\n') : extractedText
+    extractedText = cleanedText
     console.log('EXTRACTED TEXT LENGTH:', extractedText?.length || 0)
     if (extractedText && extractedText.length > 100) {
       const CHUNK_SIZE = 60000
