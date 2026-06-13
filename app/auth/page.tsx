@@ -155,7 +155,6 @@ export default function Auth() {
                     })
                     setMessage('If an account exists, a password reset email has been sent.')
 
-                    if (error) { setMessage(error.message) } else { setMessage('Password reset email sent! Check your inbox.') }
                   }} style={{ fontSize: 13, color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>Forgot password?</button>
                 </div>
                 <button onClick={handleSignIn} disabled={loading} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: loading ? H : T, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', marginBottom: 16 }}>
