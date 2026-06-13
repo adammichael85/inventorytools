@@ -147,7 +147,14 @@ export default function Auth() {
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 22 }}>
                   <button onClick={async () => {
                     if (!email) { setMessage('Enter your email address first'); return }
-                    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: 'https://inventorytools.co.uk/auth/reset' })
+                    if (!email) { setMessage('Enter your email address first'); return }
+                    const res = await fetch('/api/forgot-password', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email })
+                    })
+                    setMessage('If an account exists, a password reset email has been sent.')
+
                     if (error) { setMessage(error.message) } else { setMessage('Password reset email sent! Check your inbox.') }
                   }} style={{ fontSize: 13, color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>Forgot password?</button>
                 </div>
