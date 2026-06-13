@@ -737,14 +737,15 @@ export default function Dashboard() {
       })
       supabase.from('user_stats').select('*').eq('user_id', session.user.id).single().then(({ data: stats }) => { if (stats) setUserStats(stats) })
       // Load conversions
+      const isFreshLogin = !!sessionStorage.getItem('freshLogin')
+      sessionStorage.removeItem('freshLogin')
       supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => {
         if (convs) {
           setConversions(convs)
           const unrated = convs.filter((x: any) => !x.rating)
           if (unrated.length > 0) {
             setPendingRatings(unrated)
-            if (sessionStorage.getItem('freshLogin')) { sessionStorage.removeItem('freshLogin'); setShowRatingPopup(true) }
-
+            if (isFreshLogin) { setShowRatingPopup(true) }
           }
         }
       })
