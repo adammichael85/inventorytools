@@ -1,16 +1,16 @@
 'use client'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function Home() {
   const [hovered, setHovered] = useState<'pdf' | 'audio' | null>(null)
   const [isMobile, setIsMobile] = useState(false)
-  useState(() => { 
+  useEffect(() => { 
     const check = () => setIsMobile(window.innerWidth < 768)
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
-  })
+  }, [])
   const leftFlex = hovered === 'pdf' ? 1.3 : hovered === 'audio' ? 0.7 : 1
   const rightFlex = hovered === 'audio' ? 1.3 : hovered === 'pdf' ? 0.7 : 1
 
