@@ -72,15 +72,15 @@ export async function POST(req: NextRequest) {
       const t = line.trim()
       return !(/^Ref #\d+/.test(t)) && !(t.match(/^\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}$/) )
     }).join('\n') : extractedText
-    extractedText = cleanedText
-    console.log('EXTRACTED TEXT LENGTH:', extractedText?.length || 0)
-    if (extractedText && extractedText.length > 100) {
+    const processText = cleanedText || extractedText
+    console.log('EXTRACTED TEXT LENGTH:', processText?.length || 0)
+    if (processText && processText.length > 100) {
       const CHUNK_SIZE = 60000
-      if (extractedText.length <= CHUNK_SIZE) {
+      if (processText.length <= CHUNK_SIZE) {
         const r = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
-          body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 32000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: extractedText + "\n\nExtract ALL rooms. Return raw JSON only." }] })
+          body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 32000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: processText + "\n\nExtract ALL rooms. Return raw JSON only." }] })
         })
         const d = await r.json()
         responseText = d.choices?.[0]?.message?.content?.trim() || ""
@@ -89,14 +89,14 @@ export async function POST(req: NextRequest) {
         console.log('Large document - processing in chunks')
         const chunks: string[] = []
         let pos = 0
-        while (pos < extractedText.length) {
+        while (pos < processText.length) {
           const end = Math.min(pos + CHUNK_SIZE, extractedText.length)
           if (end === extractedText.length) {
-            chunks.push(extractedText.slice(pos))
+            chunks.push(processText.slice(pos))
             break
           }
           let splitAt = end
-          const searchSection = extractedText.slice(Math.max(0, end - 5000), end)
+          const searchSection = processText.slice(Math.max(0, end - 5000), end)
           const lines = searchSection.split('\n')
           for (let li = lines.length - 1; li >= 0; li--) {
             const line = lines[li].trim()
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
               break
             }
           }
-          chunks.push(extractedText.slice(pos, splitAt))
+          chunks.push(processText.slice(pos, splitAt))
           pos = splitAt
         }
         console.log('Total chunks:', chunks.length)
