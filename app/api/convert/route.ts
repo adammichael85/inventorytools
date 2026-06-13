@@ -139,9 +139,12 @@ export async function POST(req: NextRequest) {
                 if (chunkData.rooms) {
                   for (const room of chunkData.rooms) {
                     const last = allRooms[allRooms.length - 1]
-                    if (last && last.roomName === room.roomName) {
+                    const baseName = room.roomName.replace(/ \(CONT\.?\)$/i, '').trim()
+                    const lastBaseName = last ? last.roomName.replace(/ \(CONT\.?\)$/i, '').trim() : ''
+                    if (last && (last.roomName === room.roomName || lastBaseName === baseName)) {
                       last.rows.push(...room.rows)
                     } else {
+                      room.roomName = baseName
                       allRooms.push(room)
                     }
                   }
