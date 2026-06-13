@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     let responseText = ""
     console.log('EXTRACTED TEXT LENGTH:', extractedText?.length || 0)
     if (extractedText && extractedText.length > 100) {
-      const CHUNK_SIZE = 90000
+      const CHUNK_SIZE = 60000
       if (extractedText.length <= CHUNK_SIZE) {
         const r = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
