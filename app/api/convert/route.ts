@@ -68,10 +68,17 @@ export async function POST(req: NextRequest) {
     const { extractedText, base64, mediaType } = await req.json()
     let responseText = ""
     // Strip photo reference lines (e.g. "Ref #26.1  28 Apr 2026 11:40")
-    const cleanedText = extractedText ? extractedText.split('\n').filter((line: string) => {
+    const lines = extractedText ? extractedText.split('\n') : []
+    const removedLines: string[] = []
+    const keptLines = lines.filter((line: string) => {
       const t = line.trim()
-      return !(/Ref #\d+/.test(t)) && !(t.match(/\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}/) )
-    }).join('\n') : extractedText
+      const isRef = /Ref #\d+/.test(t)
+      const isDate = !!(t.match(/\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}/))
+      if (isRef || isDate) { removedLines.push(t); return false }
+      return true
+    })
+    console.log('Removed', removedLines.length, 'lines. Sample:', removedLines.slice(0,5).join(' | '))
+    const cleanedText = keptLines.join('\n')
     const processText = cleanedText || extractedText
     console.log('EXTRACTED TEXT LENGTH:', processText?.length || 0)
     if (processText && processText.length > 100) {
