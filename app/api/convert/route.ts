@@ -107,6 +107,7 @@ export async function POST(req: NextRequest) {
         const allRooms: any[] = []
         let docAddress = ''
         for (let i = 0; i < chunks.length; i++) {
+          if (i > 0) await new Promise(r => setTimeout(r, 2000))
           console.log('Processing chunk', i + 1, 'of', chunks.length)
           const r = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
