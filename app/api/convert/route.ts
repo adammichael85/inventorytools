@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
         let docAddress = ''
         for (let i = 0; i < chunks.length; i++) {
           if (i > 0) await new Promise(r => setTimeout(r, 2000))
-          console.log('Processing chunk', i + 1, 'of', chunks.length)
+          console.log('Processing chunk', i + 1, 'of', chunks.length, '| first 200 chars:', chunks[i].slice(0, 200))
           const r = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
