@@ -1,7 +1,15 @@
 'use client'
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 
 export default function PDFToWord() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
   return (
     <main style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: '#F7F9F8', color: '#1A2820' }}>
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -12,21 +20,21 @@ export default function PDFToWord() {
           <svg width="34" height="34" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" rx="26" fill="#FD6A02"/><rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
           <span style={{ fontSize: 15, fontWeight: 700, color: '#1A2820' }}>inventory<span style={{ color: '#FD6A02' }}>tools</span>.co.uk</span>
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-          <a href="#how" style={{ fontSize: 14, color: '#5A7068', textDecoration: 'none' }}>How it works</a>
-          <a href="#features" style={{ fontSize: 14, color: '#5A7068', textDecoration: 'none' }}>Features</a>
-          <a href="#pricing" style={{ fontSize: 14, color: '#5A7068', textDecoration: 'none' }}>Pricing</a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 28 }}>
+          <a href="#how" style={{ fontSize: 14, color: '#5A7068', textDecoration: 'none', display: isMobile ? 'none' : 'block' }}>How it works</a>
+          <a href="#features" style={{ fontSize: 14, color: '#5A7068', textDecoration: 'none', display: isMobile ? 'none' : 'block' }}>Features</a>
+          <a href="#pricing" style={{ fontSize: 14, color: '#5A7068', textDecoration: 'none', display: isMobile ? 'none' : 'block' }}>Pricing</a>
           <Link href="/auth" style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #E2EAE7', fontSize: 14, fontWeight: 500, color: '#1A2820', textDecoration: 'none' }}>Log in</Link>
         </div>
       </nav>
 
       {/* HERO */}
-      <section style={{ maxWidth: 1100, margin: '0 auto', padding: '80px 5vw 60px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
+      <section style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? '40px 5vw' : '80px 5vw 60px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 32 : 60, alignItems: 'center' }}>
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff0e6', color: '#c24a00', fontSize: 12, fontWeight: 500, padding: '5px 12px', borderRadius: 20, marginBottom: 22 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FD6A02', display: 'inline-block' }} /> AI-powered · Built for inventory clerks
           </div>
-          <h1 style={{ fontSize: 48, fontWeight: 700, lineHeight: 1.15, marginBottom: 20, letterSpacing: -1 }}>Stop typing. Start <span style={{ color: '#FD6A02' }}>converting.</span></h1>
+          <h1 style={{ fontSize: isMobile ? 32 : 48, fontWeight: 700, lineHeight: 1.15, marginBottom: 20, letterSpacing: -1 }}>Stop typing. Start <span style={{ color: '#FD6A02' }}>converting.</span></h1>
           <p style={{ fontSize: 17, color: '#5A7068', lineHeight: 1.7, marginBottom: 36, maxWidth: 460 }}>Upload any inventory PDF and get a perfectly formatted Word document in 1–4 minutes depending on document length. What used to take a typist 90 minutes now costs £3.50.</p>
           <Link href="/auth" style={{ display: 'inline-block', padding: '13px 28px', borderRadius: 10, background: '#FD6A02', color: '#fff', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Log in to convert</Link>
         </div>
@@ -70,9 +78,9 @@ export default function PDFToWord() {
       <div id="how" style={{ background: '#fff', borderTop: '1px solid #E2EAE7', borderBottom: '1px solid #E2EAE7' }}>
         <section style={{ maxWidth: 1100, margin: '0 auto', padding: '60px 5vw' }}>
           <p style={{ fontSize: 12, fontWeight: 500, color: '#FD6A02', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>How it works</p>
-          <h2 style={{ fontSize: 36, fontWeight: 700, marginBottom: 14, letterSpacing: -0.5 }}>Three steps. Done.</h2>
+          <h2 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 700, marginBottom: 14, letterSpacing: -0.5 }}>Three steps. Done.</h2>
           <p style={{ fontSize: 16, color: '#5A7068', maxWidth: 520, lineHeight: 1.7 }}>No training needed. No formatting. No copy-pasting. Upload a PDF, get a Word doc.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 24, marginTop: 40 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: 24, marginTop: 40 }}>
             {[['1','Upload the PDF','Drag and drop any inventory inspection PDF. Our AI handles all formats.'],
               ['2','AI reads every room','Every item, description, condition note, and tenant dispute extracted verbatim.'],
               ['3','Download the Word doc','A perfectly formatted three-column Word document downloads automatically.']
@@ -91,9 +99,9 @@ export default function PDFToWord() {
       <div id="features" style={{ background: '#F7F9F8', borderBottom: '1px solid #E2EAE7' }}>
         <section style={{ maxWidth: 1100, margin: '0 auto', padding: '60px 5vw' }}>
           <p style={{ fontSize: 12, fontWeight: 500, color: '#FD6A02', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Features</p>
-          <h2 style={{ fontSize: 36, fontWeight: 700, marginBottom: 14, letterSpacing: -0.5 }}>Everything your team needs. Nothing they don&apos;t.</h2>
+          <h2 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 700, marginBottom: 14, letterSpacing: -0.5 }}>Everything your team needs. Nothing they don&apos;t.</h2>
           <p style={{ fontSize: 16, color: '#5A7068', maxWidth: 520, lineHeight: 1.7, marginBottom: 40 }}>No training. No formatting. No chasing typists. Just upload, wait 1–4 minutes, and download.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20 }}>
             {[['⚡','Done in 1–4 minutes depending on document length','What used to take a typist 45–90 minutes is processed instantly. Your clerks move on to the next job while the doc builds itself.'],
               ['💷','£3.50 flat — any property size','A studio flat costs the same as an 8-bedroom house. No surprises, no tiers, no monthly fees. Pay only when you convert.'],
               ['📋','Verbatim extraction','Every word copied exactly as it appears in the PDF. Zero edits, zero assumptions — your report, word for word.'],
@@ -115,9 +123,9 @@ export default function PDFToWord() {
       <div id="pricing" style={{ background: '#fff', borderBottom: '1px solid #E2EAE7' }}>
         <section style={{ maxWidth: 1100, margin: '0 auto', padding: '60px 5vw' }}>
           <p style={{ fontSize: 12, fontWeight: 500, color: '#FD6A02', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Pricing</p>
-          <h2 style={{ fontSize: 36, fontWeight: 700, marginBottom: 14, letterSpacing: -0.5 }}>One flat rate. No surprises.</h2>
+          <h2 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 700, marginBottom: 14, letterSpacing: -0.5 }}>One flat rate. No surprises.</h2>
           <p style={{ fontSize: 16, color: '#5A7068', maxWidth: 520, lineHeight: 1.7, marginBottom: 40 }}>Studio flat or 8-bedroom house — it&apos;s the same price.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 24, alignItems: 'start' }}>
             <div style={{ background: '#FD6A02', borderRadius: 20, padding: 40, color: '#fff', textAlign: 'center' }}>
               <p style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 2, opacity: 0.75, marginBottom: 16 }}>Flat rate per conversion</p>
               <p style={{ fontSize: 72, fontWeight: 700, lineHeight: 1, letterSpacing: -2, marginBottom: 4 }}>£3.50</p>
@@ -157,7 +165,7 @@ export default function PDFToWord() {
 
       {/* CTA */}
       <div style={{ background: '#FD6A02', padding: '60px 5vw', textAlign: 'center' }}>
-        <h2 style={{ fontSize: 36, fontWeight: 700, color: '#fff', marginBottom: 14, letterSpacing: -0.5 }}>Your next report done in 1–4 minutes*</h2>
+        <h2 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 700, color: '#fff', marginBottom: 14, letterSpacing: -0.5 }}>Your next report done in 1–4 minutes*</h2>
         <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', marginBottom: 8 }}>£3.50 flat rate. Any property. Any size.</p>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 30 }}>*Depending on size of property</p>
         <Link href="/auth" style={{ display: 'inline-block', padding: '13px 32px', borderRadius: 10, background: '#fff', color: '#FD6A02', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Log in to get started</Link>
@@ -165,7 +173,7 @@ export default function PDFToWord() {
 
       {/* FOOTER */}
       <footer style={{ borderTop: '1px solid #E2EAE7', padding: '32px 5vw', background: '#fff' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: 'center', gap: isMobile ? 16 : 0 }}>
           <span style={{ fontSize: 14, fontWeight: 700 }}>inventory<span style={{ color: '#FD6A02' }}>tools</span>.co.uk</span>
           <div style={{ display: 'flex', gap: 24 }}>
             <a href="#" style={{ fontSize: 13, color: '#94AEA6', textDecoration: 'none' }}>Privacy</a>
