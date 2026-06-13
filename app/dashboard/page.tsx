@@ -864,7 +864,7 @@ export default function Dashboard() {
       const b64 = await Packer.toBase64String(doc)
       const byteArray = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
       const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-      if (docxUrl) URL.revokeObjectURL(docxUrl); const url = URL.createObjectURL(blob); let storagePath = ""; try { const sess = await supabase.auth.getSession(); if (sess.data.session) { const fn = sess.data.session.user.id + "/" + Date.now() + "_" + (data.address||"").replace(/[^a-zA-Z0-9 _-]/g,"").trim() + ".docx"; const up = await supabase.storage.from("documents").upload(fn, blob, {contentType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}); if (up.data) storagePath = up.data.path } } catch(e) { console.log("upload failed",e) }
+      if (docxUrl) URL.revokeObjectURL(docxUrl); const url = URL.createObjectURL(blob); let storagePath = ""; let pdfStoragePath = ""; try { const sess = await supabase.auth.getSession(); if (sess.data.session) { const ts = Date.now(); const addrClean = (data.address||"").replace(/[^a-zA-Z0-9 _-]/g,"").trim(); const fn = sess.data.session.user.id + "/" + ts + "_" + addrClean + ".docx"; const up = await supabase.storage.from("documents").upload(fn, blob, {contentType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}); if (up.data) storagePath = up.data.path; if (selectedFile && selectedFile.name.toLowerCase().endsWith('.pdf')) { const pfn = sess.data.session.user.id + "/" + ts + "_" + addrClean + ".pdf"; const pup = await supabase.storage.from("documents").upload(pfn, selectedFile, {contentType:"application/pdf"}); if (pup.data) pdfStoragePath = pup.data.path } } } catch(e) { console.log("upload failed",e) }
       const name = (data.address || 'inventory').replace(/[^a-zA-Z0-9 _-]/g, '').trim() + '.docx'
       setDocxUrl(url)
       setDocxName(name)
@@ -884,6 +884,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         converted_by: userName || session.user.email,
         extracted_text: data._extractedText || '',
         converted_json: { rooms: data.rooms, address: data.address },
+        pdf_path: pdfStoragePath || null,
       })
     })
   }
