@@ -67,19 +67,18 @@ export async function POST(req: NextRequest) {
   try {
     const { extractedText, base64, mediaType } = await req.json()
     let responseText = ""
-    // Strip photo reference lines (e.g. "Ref #26.1  28 Apr 2026 11:40")
-    const lines = extractedText ? extractedText.split('\n') : []
-    const removedLines: string[] = []
-    const keptLines = lines.filter((line: string) => {
+    // Strip ONLY pure photo timestamp lines e.g. "Ref #6.1  28 Apr 2026 08:50" or "28 Apr 2026 08:50"
+    const allTextLines = extractedText ? extractedText.split('\n') : []
+    const keptLines = allTextLines.filter((line: string) => {
       const t = line.trim()
-      const isRef = /Ref #\d+/.test(t)
-      const isDate = !!(t.match(/\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}/))
-      if (isRef || isDate) { removedLines.push(t); return false }
-      return true
+      if (!t) return true // keep blank lines
+      const isPureTimestamp = /^Ref #[\d.]+ \d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}$/.test(t)
+      const isPureDate = /^\d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}$/.test(t)
+      const isPureRef = /^Ref #[\d.]+$/.test(t)
+      return !isPureTimestamp && !isPureDate && !isPureRef
     })
-    console.log('Removed', removedLines.length, 'lines. Sample:', removedLines.slice(0,5).join(' | '))
-    const cleanedText = keptLines.join('\n')
-    const processText = cleanedText || extractedText
+    const processText = keptLines.join('\n')
+    console.log('Original length:', extractedText?.length || 0, 'Cleaned length:', processText.length)
     console.log('EXTRACTED TEXT LENGTH:', processText?.length || 0)
     if (processText && processText.length > 100) {
       const CHUNK_SIZE = 60000
@@ -94,27 +93,29 @@ export async function POST(req: NextRequest) {
         console.log("GPT response length:", responseText.length)
       } else {
         console.log('Large document - processing in chunks')
+        // Split by room headings - find lines matching "NUMBER.   ROOM NAME"
+        const docLines = processText.split('\n')
+        const roomHeadingIndices: number[] = []
+        for (let li = 0; li < docLines.length; li++) {
+          const t = docLines[li].trim()
+          if (/^\d+\.\s{2,}[A-Z][A-Z\s\/]+$/.test(t) && t.length < 60) {
+            roomHeadingIndices.push(li)
+          }
+        }
+        console.log('Found room headings:', roomHeadingIndices.length, docLines.filter((_:string,li:number) => roomHeadingIndices.includes(li)).map((l:string)=>l.trim()).join(' | '))
+        const ROOMS_PER_CHUNK = 8
         const chunks: string[] = []
-        let pos = 0
-        while (pos < processText.length) {
-          const end = Math.min(pos + CHUNK_SIZE, processText.length)
-          if (end === processText.length) {
-            chunks.push(processText.slice(pos))
-            break
+        if (roomHeadingIndices.length < 2) {
+          // Fallback to character chunking
+          for (let i = 0; i < processText.length; i += CHUNK_SIZE) {
+            chunks.push(processText.slice(i, i + CHUNK_SIZE))
           }
-          let splitAt = end
-          const searchSection = processText.slice(Math.max(0, end - 5000), end)
-          const lines = searchSection.split('\n')
-          for (let li = lines.length - 1; li >= 0; li--) {
-            const line = lines[li].trim()
-            if (line.length > 0 && line.length < 60 && !/^\d+$/.test(line) && !/^\d+\./.test(line)) {
-              const beforeLines = lines.slice(0, li).join('\n')
-              splitAt = Math.max(0, end - 5000) + beforeLines.length
-              break
-            }
+        } else {
+          for (let i = 0; i < roomHeadingIndices.length; i += ROOMS_PER_CHUNK) {
+            const startLine = i === 0 ? 0 : roomHeadingIndices[i]
+            const endLine = roomHeadingIndices[i + ROOMS_PER_CHUNK] !== undefined ? roomHeadingIndices[i + ROOMS_PER_CHUNK] : docLines.length
+            chunks.push(docLines.slice(startLine, endLine).join('\n'))
           }
-          chunks.push(processText.slice(pos, splitAt))
-          pos = splitAt
         }
         console.log('Total chunks:', chunks.length)
         const allRooms: any[] = []
