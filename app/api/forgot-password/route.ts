@@ -32,8 +32,17 @@ export async function POST(req: NextRequest) {
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:'Helvetica Neue',Arial,sans-serif;">
   <div style="max-width:560px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
     <div style="background:#FD6A02;padding:32px 40px;text-align:center;">
-      <p style="color:#ffffff;margin:0;font-size:22px;font-weight:700;letter-spacing:-0.5px;">inventorytools</p>
-      <p style="color:rgba(255,255,255,0.8);margin:8px 0 0;font-size:13px;">PDF to Word Converter</p>
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
+        <tr>
+          <td style="vertical-align:middle;padding-right:10px;">
+            <svg width="36" height="36" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" rx="26" fill="rgba(255,255,255,0.25)"/><rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.6"/><rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.6"/><rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.6"/><rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.4"/><rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.4"/><rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.4"/><rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.4"/><rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.3"/><path d="M30 62 L50 84 L90 40" stroke="white" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </td>
+          <td style="vertical-align:middle;">
+            <span style="color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.5px;">inventory<span style="color:rgba(255,255,255,0.7);">tools</span></span>
+          </td>
+        </tr>
+      </table>
+      <p style="color:rgba(255,255,255,0.8);margin:10px 0 0;font-size:13px;">PDF to Word Converter</p>
     </div>
     <div style="padding:40px;">
       <h2 style="color:#1a1a2e;font-size:20px;font-weight:700;margin:0 0 12px;">Reset your password</h2>
@@ -42,7 +51,7 @@ export async function POST(req: NextRequest) {
       <p style="color:#aaa;font-size:12px;margin:0;">If you did not request a password reset, you can ignore this email. This link expires in 1 hour.</p>
     </div>
     <div style="background:#f5f5f5;padding:20px 40px;text-align:center;">
-      <p style="color:#aaa;font-size:11px;margin:0;">2025 InventoryTools - inventorytools.co.uk</p>
+      <p style="color:#aaa;font-size:11px;margin:0;">2026 InventoryTools · inventorytools.co.uk</p>
     </div>
   </div>
 </body>
