@@ -407,7 +407,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
     supabase.auth.getSession().then(({ data }: any) => {
       if (data.session) {
         supabase.from('profiles').select('*').eq('id', data.session.user.id).single().then(({ data: p }: any) => {
-          if (p) { setProfile(p); setAutoDelete(p.auto_delete_days || null); setAutoAccuracyReport(p.auto_accuracy_report || false) }
+          if (p) { setProfile(p); setAutoDelete(p.auto_delete_days || 14); setAutoAccuracyReport(p.auto_accuracy_report || false) }
         })
       }
     })
@@ -481,7 +481,8 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
       </div>
 
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
-        <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 8px' }}>Auto-delete reports</p>
+        <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Auto-delete reports</p>
+        <p style={{ fontSize: 12, color: MUTED, margin: '0 0 12px' }}>Automatically delete uploaded PDFs and conversion reports after the selected period. Default is 14 days for GDPR compliance.</p>
         <p style={{ fontSize: 13, color: MUTED, marginBottom: 8 }}>Automatically delete conversion reports and Word documents after a set period.</p>
         <p style={{ fontSize: 13, color: MUTED, marginBottom: 8 }}>Your lifetime statistics (total conversions, time saved, total spend) are stored permanently and will <strong style={{ color: TEXT }}>never be affected</strong> by auto-deletion.</p>
         <p style={{ fontSize: 13, color: '#DC2626', fontWeight: 600, marginBottom: 16 }}>⚠️ Deleted Word documents and reports cannot be recovered.</p>
