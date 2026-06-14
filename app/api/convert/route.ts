@@ -15,6 +15,8 @@ APPLIANCE INTERNALS: Internal parts/lists such as shelves, drawers, bottle compa
 
 CONDITION TRIGGERS: Defect/status words like Dropped, chipped, marked, scratched, stained, loose, cracked, broken, grubby, PM, RC, ODU should normally start/continue the Condition column.
 
+WORKTOP WARNINGS: If a row contains a work surface item (Work top, Worktop, Work surface, Kitchen surface etc.) and includes a warning phrase such as "Please do not cut directly on these work tops" or similar advisory wording, that warning phrase belongs in the Description column, not the Condition column.
+
 SEPARATE LINE FORMAT: Some PDFs have numbers and text on separate lines due to text extraction (e.g. '1' on one line then 'Outside Front.' on the next line, then '2' then 'White brick wall...'). When you see this pattern, treat each number+text pair as one item. If a standalone word or phrase after a number looks like a room/area name (Outside Front, Hall, Kitchen etc), treat it as a ROOM HEADING and start a new room.
 
 EMPTY COLUMNS: If a column is blank in the PDF, leave it blank in the output. Never move content from one column to fill an empty column. A blank Description must stay blank even if Condition has text.
