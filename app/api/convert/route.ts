@@ -155,6 +155,6 @@ export async function POST(req: NextRequest) {
     let data: any
     try { data = JSON.parse(s) } catch(e) { data = JSON.parse(s.replace(/,\s*}/g,"}").replace(/,\s*]/g,"]")) }
     if (!data.rooms || data.rooms.length === 0) throw new Error("No rooms found")
-    return NextResponse.json({ address: data.address || "", pages: data.rooms.length, rooms: data.rooms })
+    return NextResponse.json({ address: data.address || "", pages: data.rooms.length, rooms: data.rooms, _extractedText: extractedText ? extractedText.slice(0, 100000) : "" })
   } catch(err: any) { return NextResponse.json({ error: err.message }, { status: 500 }) }
 }
