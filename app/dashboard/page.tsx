@@ -732,7 +732,7 @@ export default function Dashboard() {
       setUserEmail(session.user.email || '')
       setAccessToken(session.access_token)
       // Load profile (credits + name)
-      supabase.from('profiles').select('balance, full_name').eq('id', session.user.id).single().then(({ data: profile }) => {
+      supabase.from('profiles').select('balance, full_name, onboarding_confirmed').eq('id', session.user.id).single().then(({ data: profile }) => {
         if (profile) {
           setCredits(profile.balance || 0)
           setUserName(profile.full_name || session.user.email || '')
