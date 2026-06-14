@@ -17,6 +17,8 @@ APPLIANCE INTERNALS: When an appliance row includes the appliance name followed 
 
 CONDITION TRIGGERS: Defect/status words like Dropped, chipped, marked, scratched, stained, loose, cracked, broken, grubby, PM, RC, ODU should normally start/continue the Condition column.
 
+EXTERNAL SECTIONS: The PDF may contain sections that are not standard rooms but must still be treated as room-level headers and converted into their own table sections. These include: External Surfaces, External Features, and Boundaries. Do not skip these sections. Each must appear as a bold room heading followed by a three-column table (ITEM | DESCRIPTION | CONDITION), with data extracted from whatever columns are present in the source (e.g. Surface Type, Location, Details, Qty, Colour, Condition, Comments). If no condition is stated, leave the Condition cell blank. Treat these sections identically to rooms like Living Room or Kitchen.
+
 SEPARATE LINE FORMAT: Some PDFs have numbers and text on separate lines due to text extraction (e.g. '1' on one line then 'Outside Front.' on the next line, then '2' then 'White brick wall...'). When you see this pattern, treat each number+text pair as one item. If a standalone word or phrase after a number looks like a room/area name (Outside Front, Hall, Kitchen etc), treat it as a ROOM HEADING and start a new room.
 
 EMPTY COLUMNS: If a column is blank in the PDF, leave it blank in the output. Never move content from one column to fill an empty column. A blank Description must stay blank even if Condition has text.
