@@ -1242,7 +1242,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       )}
       {/* RATING POPUP */}
       {showRatingPopup && pendingRatings.length > 0 && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: '#ffffff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 480, maxHeight: '80vh', overflowY: 'scroll', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', scrollbarWidth: 'thin', scrollbarColor: '#1D9E75 #E2EAE7' }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 6px', letterSpacing: -0.3, color: '#1A2820' }}>Rate your conversions</h2>
             <p style={{ fontSize: 13, color: '#5A7068', margin: '0 0 20px' }}>Please rate the following before continuing. Your feedback helps us improve.</p>
@@ -1311,11 +1311,12 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
       {/* ONBOARDING WELCOME POPUP */}
       {showOnboarding && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: '#fff', borderRadius: 20, padding: 36, width: '100%', maxWidth: 520, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <div style={{ width: 56, height: 56, background: TEAL, borderRadius: 14, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="32" height="32" viewBox="0 0 120 120" fill="none"><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <div style={{ margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                <svg width="44" height="44" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" rx="26" fill="#FD6A02"/><rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <span style={{ fontSize: 22, fontWeight: 700, color: TEXT }}>inventory<span style={{ color: TEAL }}>tools</span></span>
               </div>
               <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 8px', color: TEXT }}>Welcome to InventoryTools</h2>
               <p style={{ fontSize: 14, color: MUTED, margin: 0 }}>Before you get started, here's a quick overview</p>
@@ -1324,8 +1325,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               <p style={{ fontSize: 13, fontWeight: 600, color: TEXT, margin: '0 0 12px' }}>How it works:</p>
               {[
                 ['📄', 'Upload any inventory PDF', 'Our AI converts it into a perfectly formatted Word document in 1–4 minutes'],
-                ['⚙️', 'Check your Settings', 'Your uploaded PDFs and reports are automatically deleted after 14 days by default for GDPR compliance — you can change this in Settings'],
-                ['📊', 'Accuracy reports', 'After conversion, run an accuracy report (£1.50) to check the quality of your conversion'],
+                ['⚙️', 'Check your Settings', 'Your uploaded PDFs and reports are automatically deleted after 14 days by default for GDPR compliance. You can change this period in Settings at any time.'],
+                ['📊', 'Accuracy reports', 'After conversion, run an accuracy report (£1.50) to check the quality of your conversion — or cross reference it yourself against your original PDF once the Word document is downloaded.'],
                 ['💷', 'Balance', 'Each conversion costs £3.50. Top up your balance in the Billing section anytime'],
               ].map(([icon, title, desc]) => (
                 <div key={title as string} style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
