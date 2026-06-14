@@ -58,7 +58,7 @@ export default function Auth() {
       const profileData = await profileRes.json()
       console.log('Profile save result:', profileData)
     }
-    setMessage('Check your email to confirm your account!')
+    setMessage('Check your email to confirm your account!\n\nPlease check your junk/spam folder if you do not see it in your inbox.')
     setLoading(false)
   }
 
