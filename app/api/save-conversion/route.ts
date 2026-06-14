@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
       converted_by: body.converted_by || null,
       extracted_text: body.extracted_text ? body.extracted_text.slice(0, 100000) : null,
       converted_json: body.converted_json || null,
+      pdf_path: body.pdf_path || null,
     })
     if (convError) throw new Error(convError.message)
 
