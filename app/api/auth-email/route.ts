@@ -16,7 +16,7 @@ function logoHeader() {
         </td>
       </tr>
     </table>
-    <p style="color:rgba(255,255,255,0.8);margin:10px 0 0;font-size:13px;">PDF to Word Converter</p>
+
   </div>`
 }
 
