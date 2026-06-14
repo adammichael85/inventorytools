@@ -9,13 +9,7 @@ IGNORE entirely: abbreviations pages, contents pages, property summary pages, pa
 
 PROCESS every room from start to end - never stop early. Never drop any item.
 
-COPY EXACTLY: Copy the ITEM column content exactly as it appears in the PDF. Do NOT invent, interpret or rename items. If the item column contains a number (1, 2, 3), copy the number. If it contains a name (Door, Ceiling), copy the name. Never replace numbers with guessed item names. Do not improve, reinterpret, or tidy column placement. Match the PDF table structure exactly, even if the PDF wording looks odd.
-
-WALL LABELS: Keep - as Item when followed by Back wall;, LHS wall;, RHS wall;, Facing wall;, Continuation of wall. Put the wall label in Description.
-
-APPLIANCE INTERNALS: Internal parts/lists such as shelves, drawers, bottle compartments, racks, cutlery holders usually belong in Description, not Item.
-
-CONDITION TRIGGERS: Defect/status words like Dropped, chipped, marked, scratched, stained, loose, cracked, broken, grubby, PM, RC, ODU should normally start/continue the Condition column.
+COPY EXACTLY: Copy the ITEM column content exactly as it appears in the PDF. Do NOT invent, interpret or rename items. If the item column contains a number (1, 2, 3), copy the number. If it contains a name (Door, Ceiling), copy the name. Never replace numbers with guessed item names.
 
 SEPARATE LINE FORMAT: Some PDFs have numbers and text on separate lines due to text extraction (e.g. '1' on one line then 'Outside Front.' on the next line, then '2' then 'White brick wall...'). When you see this pattern, treat each number+text pair as one item. If a standalone word or phrase after a number looks like a room/area name (Outside Front, Hall, Kitchen etc), treat it as a ROOM HEADING and start a new room.
 
