@@ -28,94 +28,47 @@ export async function POST(req: NextRequest) {
     const convertedText = JSON.stringify(conv.converted_json, null, 2)
 
     // Generate accuracy report with GPT-4.1
-    const prompt = `You are an expert inventory report QA checker.
+    const prompt = `You are comparing an original property inventory PDF against a converted Word document output.
 
-You will receive:
-1. EXTRACTED TEXT from the original PDF inventory report
-2. CONVERTED OUTPUT - the converted Word document data in JSON format
-
-Your job is to compare the original PDF against the converted Word document.
-The aim is to check whether the Word document has placed the PDF room/area data into the correct columns: Item, Description, Condition.
-
-Only check the actual inventory room/area sections.
-
-Ignore the following PDF sections unless they form part of the inventory area schedule:
-Cover page, Important information, Notes, Abbreviations, Contents, General information, Utility meters, Keys, Smoke alarms, Carbon monoxide alarms, Cleaning invoices, Appliance serial number lists, Photos, Tenant signatures, Page footers, Page numbers.
-
-However, do include all inventory areas/sections, including:
-Internal rooms, External Surfaces, External Features, Boundaries, Gardens, Patios, Balconies, Garages, Sheds, Outbuildings, Parking areas, Communal areas, and any other section that contains item/description/condition style inventory data.
-
-Do not treat "Further view" or "Further views" rows as errors. Ignore those rows completely when calculating row counts and accuracy.
-
-Your checking rules:
-1. First identify every inventory room/area section in the PDF.
-2. Identify every matching room/area section in the Word document.
-3. Confirm the number of rooms/areas in the PDF matches the Word document.
-4. For each room/area, compare every row line by line.
-5. Check that the Item text in the PDF is in the Item column in the Word document.
-6. Check that the Description text in the PDF is in the Description column in the Word document.
-7. Check that the Condition text in the PDF is in the Condition column in the Word document.
-8. Check for missing rows, extra rows, duplicated rows.
-9. Check for text moved into the wrong column.
-10. Check for condition text wrongly merged into description.
-11. Check for description text wrongly moved into condition.
-12. Check for item text wrongly moved into description or condition.
-13. Check for external sections missing from the Word document.
-14. Do not mark spelling differences, line wrapping differences, punctuation spacing, or visual layout differences as errors unless they change the column placement or missing/extra content.
-15. If the PDF table uses many fields, collapse them into the three-column Word format by treating all descriptive/detail/colour/type/finish values as Description, and condition/comment/status values as Condition, unless the PDF clearly places them differently.
-16. Accuracy = ((Total checked rows - Issues found) / Total checked rows) x 100
-
-EXTRACTED TEXT (source):
+ORIGINAL PDF TEXT (source):
 ${conv.extracted_text.slice(0, 40000)}
 
-CONVERTED OUTPUT in JSON format:
+CONVERTED OUTPUT - rooms and rows in JSON format (output):
 ${convertedText.slice(0, 60000)}
 
-Use this exact report layout:
+Compare them carefully room by room, item by item. For each room, check that every item from the PDF appears in the Word document. Compare only what is literally written in the PDF against what is literally written in the Word document — do not make any judgement about whether content is in the correct column or whether the column placement makes semantic sense. Only flag something as wrong if text that exists in the PDF is completely absent from the Word document, or if text has been moved to a completely different row.
 
-I checked rooms only: room headings, item rows, descriptions, and conditions.
+Ignore everything except the inventory room data — ignore cover pages, abbreviations pages, contents pages, property summaries, meter readings, key pages and photo references. Also ignore: numbered room heading rows (e.g. '10 Hall.' or '23 Sitting room.' — these are section headers not inventory items), blank rows, photo-only rows, and 'Further views' rows. Do not count these as missing items.
 
-Overall result: the conversion is [brief result].
+For each room use exactly this format:
 
+## [Room Name]
+
+**Missing items:** [list each missing inventory item, or write "None"]
+**Wrong column:** [list each column error, or write "None"]
+**Incomplete content:** [list any text that appears cut short or partially missing, or write "None"]
+**Extra items not in PDF:** [list extras, or write "None"]
+
+At the start of the report, before the room breakdown, add these two checks:
+
+## Rooms Check
+**Rooms in PDF:** [list all room names on a single line, comma separated]
+**Rooms in Word document:** [list all room names on a single line, comma separated]
+**Missing rooms:** [any rooms in PDF not in Word document, or write "None"]
+**Duplicate room names:** [any room names that appear more than once in the Word document, or write "None"]
+
+At the end give a summary:
+
+## Summary
 | Check | Result |
-|---|---:|
-| Rooms/areas in PDF | X |
-| Rooms/areas in Word doc | X |
-| Room/area count match | Yes/No |
-| Total room/area rows in PDF | X |
-| Total room/area rows in Word doc | X |
-| Row count match | Yes/No |
-| Row/column placement issues found | X |
-| Overall accuracy | Approx. X% |
+|-------|--------|
+| Total items in PDF | [number] |
+| Total items in Word document | [number] |
+| Total missing | [number] |
+| Total in wrong column | [number] |
+| Overall accuracy % | [percentage] |
 
-## Specific column errors found
-
-List every individual issue under the correct room/area heading:
-
-### ROOM / AREA NAME
-**Wrong column** / **Missing row** / **Extra item not in PDF** / **Duplicated row**
-**PDF:**
-**Item:** ...
-**Description:** ...
-**Condition:** ...
-**Word doc:**
-**Item:** ...
-**Description:** ...
-**Condition:** ...
-
-If no issues found write: No column-placement issues found.
-
-## Room-by-room result
-
-| Room / Area | Result |
-|---|---|
-| Room/Area Name | Row count matches. No issues found. |
-| Room/Area Name | Row count matches. X column issues found. |
-| Room/Area Name | Row count does not match. X missing/extra rows found. |
-
-So the extraction/formatting has captured the room/area data [very well / extremely well / with issues]. There are X remaining issues across X checked room/area rows, giving an estimated accuracy of X%.
-
-Do not include any introduction or preamble — start directly with "I checked rooms only".\`
+Be thorough — check every single row in every room. Do not summarise or skip any room. Do not include any introduction or preamble — start directly with the Rooms Check section.`
 
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
