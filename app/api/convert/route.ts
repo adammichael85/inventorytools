@@ -13,7 +13,7 @@ COPY EXACTLY: Copy the ITEM column content exactly as it appears in the PDF. Do 
 
 DASH ITEMS: In some PDFs, the Item column contains only a dash (-). This means the row has no specific item name. When you see - in the Item column, always keep it as - in the Item column. Never replace the dash with the Description text.
 
-APPLIANCE INTERNALS: Internal parts/lists such as shelves, drawers, bottle compartments, racks, cutlery holders usually belong in Description, not Item.
+APPLIANCE INTERNALS: When an appliance row includes the appliance name followed by a specific appliance part, keep both the appliance name and the part name together in the Item column. Do not move appliance parts such as Fridge door interior, Freezer door interior, Oven interior, Dishwasher interior, Washing machine drawer, Microwave interior, or similar into the Description column. The Description column should only contain the contents, fittings, shelves, drawers, racks, compartments, trays, or accessories inside that appliance section. Example: Correct: Item: Russell Hobbs fridge/freezer Fridge door interior Description: 1 x Bottle compartment, 2 x Dairy shelves, 1 x Salad crisper, 3 x Shelves, 3 x Drawers Condition: Marked Top 2 drawers cracked. Wrong: Item: Russell Hobbs fridge/freezer Description: Fridge door interior 1 x Bottle compartment, 2 x Dairy shelves Condition: Marked.
 
 CONDITION TRIGGERS: Defect/status words like Dropped, chipped, marked, scratched, stained, loose, cracked, broken, grubby, PM, RC, ODU should normally start/continue the Condition column.
 
