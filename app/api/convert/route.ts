@@ -161,65 +161,6 @@ export async function POST(req: NextRequest) {
     let data: any
     try { data = JSON.parse(s) } catch(e) { data = JSON.parse(s.replace(/,\s*}/g,"}").replace(/,\s*]/g,"]")) }
     if (!data.rooms || data.rooms.length === 0) throw new Error("No rooms found")
-
-    // PASS 2: Self-correction — check and fix column placement errors
-    try {
-      const pass1Json = JSON.stringify(data, null, 2)
-      const sourceText = extractedText ? extractedText.slice(0, 60000) : ''
-      if (sourceText && pass1Json.length < 80000) {
-        const correctionPrompt = `You are an expert inventory report QA checker and corrector.
-
-You will receive:
-1. EXTRACTED TEXT - the original source text from the PDF
-2. CONVERTED JSON - the first-pass conversion output
-
-Your job is to check the converted JSON against the extracted text and fix any column placement errors.
-
-Check every row for:
-- Item text wrongly moved into Description column
-- Description text wrongly moved into Item column  
-- Description text wrongly moved into Condition column
-- Condition text wrongly moved into Description column
-- Rows where Item is "-" but the description has been placed in Item instead
-
-Key rules:
-- If Item is "-" in the source, keep it as "-" in Item. Never replace "-" with the description text.
-- Wall labels (Back wall, LHS wall, RHS wall, Facing wall, Continuation of wall) belong in Description when Item is "-"
-- Internal appliance parts and components belong in Description
-- Defect/condition words (PM, RC, ODU, T&W, marked, scratched, chipped, broken, grubby) belong in Condition
-
-EXTRACTED TEXT (source):
-${sourceText}
-
-CONVERTED JSON (to check and correct):
-${pass1Json.slice(0, 60000)}
-
-Return ONLY the corrected JSON in exactly the same format. No explanation, no markdown, just raw JSON.`
-
-        const r2 = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
-          body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 32000, temperature: 0, messages: [{ role: "user", content: correctionPrompt }] })
-        })
-        const d2 = await r2.json()
-        const correctedText = d2.choices?.[0]?.message?.content?.trim() || ""
-        console.log("Pass 2 response length:", correctedText.length)
-        if (correctedText.length > 100) {
-          const f2 = correctedText.indexOf("{")
-          const l2 = correctedText.lastIndexOf("}")
-          if (f2 !== -1) {
-            try {
-              const correctedData = JSON.parse(correctedText.slice(f2, l2+1).replace(/[ --]/g,""))
-              if (correctedData.rooms && correctedData.rooms.length > 0) {
-                data = correctedData
-                console.log("Pass 2 correction applied successfully")
-              }
-            } catch(e) { console.log("Pass 2 parse failed, using Pass 1") }
-          }
-        }
-      }
-    } catch(e) { console.log("Pass 2 failed, using Pass 1:", e) }
-
     return NextResponse.json({ address: data.address || "", pages: data.rooms.length, rooms: data.rooms, _extractedText: extractedText ? extractedText.slice(0, 100000) : "" })
   } catch(err: any) { return NextResponse.json({ error: err.message }, { status: 500 }) }
 }
