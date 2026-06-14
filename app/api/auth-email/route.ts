@@ -74,8 +74,9 @@ export async function POST(req: NextRequest) {
     const { user, email_data } = body
     const email = user?.email
     const emailType = email_data?.email_action_type
+    const redirectTo = emailType === 'recovery' ? `${APP_URL}/auth/reset` : APP_URL
     const confirmUrl = email_data?.token_hash 
-      ? `https://auth.inventorytools.co.uk/auth/v1/verify?token=${email_data.token_hash}&type=${emailType}&redirect_to=${APP_URL}/auth/reset`
+      ? `https://auth.inventorytools.co.uk/auth/v1/verify?token=${email_data.token_hash}&type=${emailType}&redirect_to=${redirectTo}`
       : email_data?.confirmation_url
 
     if (!email || !confirmUrl) {
