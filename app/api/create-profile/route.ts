@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       company_position: body.company_position,
       company_address: body.company_address,
       company_phone: body.company_phone,
-      credits: 0,
+      balance: 0,
     })
     if (error) throw new Error(error.message)
     return NextResponse.json({ ok: true, role })
