@@ -161,43 +161,6 @@ export async function POST(req: NextRequest) {
     let data: any
     try { data = JSON.parse(s) } catch(e) { data = JSON.parse(s.replace(/,\s*}/g,"}").replace(/,\s*]/g,"]")) }
     if (!data.rooms || data.rooms.length === 0) throw new Error("No rooms found")
-
-    // PASS 2: Targeted QA and correction
-    try {
-      const srcText = extractedText ? extractedText.slice(0, 40000) : ""
-      const p1Json = JSON.stringify(data.rooms).slice(0, 30000)
-      if (srcText) {
-        const qaPrompt = "You are an inventory QA checker. Compare the EXTRACTED TEXT against the CONVERTED ROOMS JSON and find column placement errors only.\n\nRules:\n- If Item is dash(-) in source, it must stay as dash(-) in JSON. Never replace dash with description text.\n- Wall labels (Back wall, LHS wall, RHS wall, Facing wall, Continuation of wall) belong in Description when Item is dash(-)\n- Defect words (PM, RC, ODU, T&W, marked, scratched, chipped, broken, grubby) belong in Condition\n\nEXTRACTED TEXT:\n" + srcText + "\n\nCONVERTED ROOMS JSON:\n" + p1Json + "\n\nReturn ONLY a JSON array of corrections like this:\n[{\"roomName\":\"KITCHEN\",\"rowIndex\":5,\"field\":\"item\",\"correctValue\":\"-\",\"field2\":\"description\",\"correctValue2\":\"RHS wall;\"}]\nIf no errors found return: []"
-        const r2 = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
-          body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 4000, temperature: 0, messages: [{ role: "user", content: qaPrompt }] })
-        })
-        const d2 = await r2.json()
-        const qaText = d2.choices?.[0]?.message?.content?.trim() || ""
-        console.log("Pass 2 QA:", qaText.slice(0, 300))
-        if (qaText && qaText !== "[]") {
-          const fa = qaText.indexOf("[")
-          const la = qaText.lastIndexOf("]")
-          if (fa !== -1) {
-            try {
-              const corrections = JSON.parse(qaText.slice(fa, la+1))
-              if (corrections.length > 0) {
-                console.log("Pass 2 applying", corrections.length, "corrections")
-                for (const fix of corrections) {
-                  const room = data.rooms.find((r: any) => r.roomName === fix.roomName)
-                  if (room && room.rows[fix.rowIndex]) {
-                    if (fix.field) room.rows[fix.rowIndex][fix.field] = fix.correctValue
-                    if (fix.field2) room.rows[fix.rowIndex][fix.field2] = fix.correctValue2 || ""
-                  }
-                }
-              }
-            } catch(e) { console.log("Pass 2 parse failed") }
-          }
-        }
-      }
-    } catch(e) { console.log("Pass 2 error:", e) }
-
     return NextResponse.json({ address: data.address || "", pages: data.rooms.length, rooms: data.rooms, _extractedText: extractedText ? extractedText.slice(0, 100000) : "" })
   } catch(err: any) { return NextResponse.json({ error: err.message }, { status: 500 }) }
 }
