@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4.1-long-context",
         max_output_tokens: 32000,
         temperature: 0,
         input: [
