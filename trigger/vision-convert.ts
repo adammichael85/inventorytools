@@ -12,6 +12,8 @@ INCLUDE: All room and area headings such as Kitchen, Living Room, Bedroom 1, Bat
 
 EXCLUDE: Cover page, contents page, notes, disclaimers, checklists, keys and utilities, meter readings, declaration, terms and conditions, abbreviations pages.
 
+IMPORTANT: Be generous with page ranges. If unsure where a room ends, extend the endPage by 2-3 extra pages. It is better to include too many pages than too few. Small transitional areas like Porch, Stairs, Hallways must be included even if they only span 1-2 pages.
+
 Return ONLY raw JSON, no markdown, no explanation:
 {"rooms":[{"room":"Kitchen","startPage":5,"endPage":12},{"room":"Living Room","startPage":13,"endPage":18}]}`;
 
@@ -38,6 +40,8 @@ REF NUMBER RULE:
 CORD KEEP RULE: "Cord keep attached." is always a condition note. Put it in condition, never in description.
 
 CONDITION TRIGGERS: Short phrases like "In use.", "Rust spots.", "Sound emitted: Yes.", "Cord keep attached.", "Replacement date: none visible." are condition notes — put them in condition, not description.
+
+ABBREVIATION TRIGGERS: The following abbreviations are ALWAYS condition codes, never descriptions. Put them in condition: IUIW (In use in working), T&W (Tried and working), NT (Not tested), PM (Previously mentioned), RC (Reasonable condition), ODU (Of decorative use), Cap and valve present, Good, Fair, Poor, New.
 
 COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, or summarise.
 
