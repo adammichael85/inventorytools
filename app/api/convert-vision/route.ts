@@ -30,6 +30,10 @@ BRACKETED CONDITIONS: Some PDFs include condition notes in brackets within the d
 
 COMPLETENESS: Every single numbered item must appear in the output. Never truncate or summarise.
 
+REF NUMBER RULE: Some PDFs have a reference/ref number column (e.g. 2.1, 3.4) alongside an item name column.
+- If BOTH a ref number AND an item name are present in the same row: put the ITEM NAME in the Item column. IGNORE the ref number entirely.
+- If ONLY a ref number is present and there is NO item name: put the ref number in the Item column.
+
 COLUMN DETECTION - first identify how many columns this PDF has, then apply the correct mapping:
 
 Format A - 4 columns (Number | Description | Condition/Comments | extras):
