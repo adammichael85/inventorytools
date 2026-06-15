@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
         for (let p = startPage - 1; p < endPage; p++) {
           pageIndices.push(p)
         }
-        const copiedPages = await roomPdf.copyPagesFrom(pdfDoc, pageIndices)
+        const copiedPages = await roomPdf.copyPages(pdfDoc, pageIndices)
         copiedPages.forEach(page => roomPdf.addPage(page))
 
         const roomPdfBytes = await roomPdf.save()
