@@ -179,7 +179,7 @@ export const visionConvertTask = task({
             roomBase64,
             PASS2_SYSTEM,
             `This section is: ${roomInfo.room}\n\nExtract ALL inventory rows. Return raw JSON only.`,
-            8000
+            16000
           );
 
           if (!pass2Text) {
