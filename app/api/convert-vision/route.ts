@@ -65,7 +65,7 @@ RULES:
 - Separate multiple values with " | "
 - Never truncate or summarise - copy ALL rows
 
-OUTPUT raw JSON only: {"address":"","pages":1,"rooms":[{"roomName":"","rows":[{"item":"","description":"","condition":""}]}]}\`
+OUTPUT raw JSON only: {"address":"","pages":1,"rooms":[{"roomName":"","rows":[{"item":"","description":"","condition":""}]}]}`
 
 export async function POST(req: NextRequest) {
   try {

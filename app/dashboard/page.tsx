@@ -1483,9 +1483,11 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Purchase credits to continue converting.</p>
                   </div>
                 ) : (
-                  <button onClick={() => startConvert('text')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Text) — 1 credit (£3.50)</button>
-                  <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Vision) — 1 credit (£3.50)</button>
-                  <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Text: fast extraction · Vision: reads PDF visually (better for complex layouts)</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <button onClick={() => startConvert('text')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Text) — 1 credit (£3.50)</button>
+                    <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Vision) — 1 credit (£3.50)</button>
+                    <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Text: fast extraction · Vision: reads PDF visually (better for complex layouts)</p>
+                  </div>
                 )}
                 <button onClick={() => setConvertState('idle')} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Choose different file</button>
               </div>
