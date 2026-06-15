@@ -1569,7 +1569,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
                   <p style={{ fontSize: 15, fontWeight: 700, color: TEAL_DARK, marginBottom: 4 }}>Conversion complete!</p>
                   <p style={{ fontSize: 13, color: MUTED }}>{processingRooms.length} rooms in {elapsed}s</p>
-                  <div style={{ marginTop: 12 }}>
+                  <div style={{ marginTop: 12, maxHeight: 300, overflowY: "auto" }}>
                     {(() => {
                       const names = processingRooms.map(r => r.name)
                       const dupes = names.filter((n, i) => names.indexOf(n) !== i)

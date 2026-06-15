@@ -1,6 +1,7 @@
 import { task, logger } from "@trigger.dev/sdk/v3";
 import { PDFDocument } from "pdf-lib";
 import { createClient } from "@supabase/supabase-js";
+import ws from "ws";
 
 const PASS1_SYSTEM = `You are reading a UK property inventory PDF.
 
@@ -87,7 +88,8 @@ export const visionConvertTask = task({
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { global: { fetch: fetch }, realtime: { transport: ws } }
     );
 
     async function updateJob(status: string, progress: number, message: string, rooms?: any[]) {
