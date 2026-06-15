@@ -810,7 +810,51 @@ export default function Dashboard() {
       currentStage = 'Reading PDF'
       const base64 = await fileToBase64(selectedFile)
       currentStage = 'Calling AI API'
-      const { data: { session: sess } } = await supabase.auth.getSession(); const data = method === 'vision' ? await convertPDFVision(selectedFile, sess?.user?.id) : await convertPDF(base64, selectedFile?.name.toLowerCase().endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf', selectedFile, sess?.user?.id)
+      const { data: { session: sess } } = await supabase.auth.getSession()
+      let data: any
+      if (method === 'vision') {
+        // Upload PDF to Supabase first so Trigger.dev can fetch it
+        const ts2 = Date.now()
+        const tempPath2 = sess?.user?.id + '/vision_temp_' + ts2 + '_' + (selectedFile?.name || 'upload.pdf')
+        const { data: upData, error: upErr } = await supabase.storage.from('documents').upload(tempPath2, selectedFile!, { contentType: 'application/pdf', upsert: true })
+        if (upErr) throw new Error('Upload failed: ' + upErr.message)
+        const pdfPath = upData.path
+
+        // Start background job
+        setProcessingRooms([{ name: 'Starting background conversion...', state: 'active' }])
+        const startRes = await fetch('/api/convert-vision-start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pdfPath, userId: sess?.user?.id })
+        })
+        const startData = await startRes.json()
+        if (!startRes.ok) throw new Error(startData.error || 'Failed to start vision job')
+        const jobId = startData.jobId
+
+        // Poll for progress
+        let jobDone = false
+        let jobResult: any = null
+        while (!jobDone) {
+          await new Promise(res => setTimeout(res, 3000))
+          const pollRes = await fetch('/api/convert-vision-status?jobId=' + jobId)
+          const pollData = await pollRes.json()
+          if (pollData.status === 'complete') {
+            jobDone = true
+            jobResult = pollData
+          } else if (pollData.status === 'error') {
+            throw new Error(pollData.message || 'Vision job failed')
+          } else {
+            setProcessingRooms([{ name: pollData.message || 'Processing...', state: 'active' }])
+          }
+        }
+
+        // Clean up temp file
+        try { await supabase.storage.from('documents').remove([pdfPath]) } catch(e) {}
+
+        data = { address: '', pages: jobResult.rooms?.length || 0, rooms: jobResult.rooms, _extractedText: '' }
+      } else {
+        data = await convertPDF(base64, selectedFile?.name.toLowerCase().endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf', selectedFile, sess?.user?.id)
+      }
 
       const rooms = (data.rooms || []).filter((r: any) => (r.rows || []).length > 0)
       setProcessingRooms(rooms.map((r: any) => ({ name: r.roomName, state: 'pending' })))
