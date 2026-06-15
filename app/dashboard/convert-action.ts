@@ -75,3 +75,42 @@ export async function convertPDF(base64: string, mediaType: string, originalFile
   if (!data.rooms) throw new Error('No rooms found: ' + JSON.stringify(data).slice(0, 200))
   return { ...data, _extractedText: body.extractedText || '' }
 }
+
+export async function convertPDFVision(file: File, userId?: string) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  const { createClient } = await import('@supabase/supabase-js')
+  const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+  const ts = Date.now()
+  const tempPath = `${userId || 'anon'}/vision_temp_${ts}_${file.name}`
+
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from('documents')
+    .upload(tempPath, file, { contentType: 'application/pdf', upsert: true })
+
+  if (uploadError) throw new Error('Failed to upload PDF for vision: ' + uploadError.message)
+
+  const pdfPath = uploadData.path
+
+  try {
+    const response = await fetch('/api/convert-vision', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pdfPath, userId })
+    })
+
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Vision conversion failed')
+    if (data.error) throw new Error(data.error)
+    if (!data.rooms) throw new Error('No rooms found: ' + JSON.stringify(data).slice(0, 200))
+
+    return data
+  } finally {
+    try {
+      await supabase.storage.from('documents').remove([pdfPath])
+    } catch (e) {
+      console.log('Temp file cleanup failed (non-fatal):', e)
+    }
+  }
+}

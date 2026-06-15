@@ -2,7 +2,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { convertPDF } from './convert-action'
+import { convertPDF, convertPDFVision } from './convert-action'
 import { PDFDocument } from 'pdf-lib'
 import { supabase } from '@/lib/supabase'
 
@@ -795,7 +795,7 @@ export default function Dashboard() {
     }
   }
 
-  async function startConvert() {
+  async function startConvert(method: 'text' | 'vision' = 'text') {
     if (!selectedFile) return
     setConvertState('processing')
     setConvertError('')
@@ -810,7 +810,7 @@ export default function Dashboard() {
       currentStage = 'Reading PDF'
       const base64 = await fileToBase64(selectedFile)
       currentStage = 'Calling AI API'
-      const { data: { session: sess } } = await supabase.auth.getSession(); const data = await convertPDF(base64, selectedFile?.name.toLowerCase().endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf', selectedFile, sess?.user?.id)
+      const { data: { session: sess } } = await supabase.auth.getSession(); const data = method === 'vision' ? await convertPDFVision(selectedFile, sess?.user?.id) : await convertPDF(base64, selectedFile?.name.toLowerCase().endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf', selectedFile, sess?.user?.id)
 
       const rooms = (data.rooms || []).filter((r: any) => (r.rows || []).length > 0)
       setProcessingRooms(rooms.map((r: any) => ({ name: r.roomName, state: 'pending' })))
@@ -1483,7 +1483,9 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Purchase credits to continue converting.</p>
                   </div>
                 ) : (
-                  <button onClick={startConvert} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer', marginBottom: 10 }}>Convert now — 1 credit (£3.50)</button>
+                  <button onClick={() => startConvert('text')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Text) — 1 credit (£3.50)</button>
+                  <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Vision) — 1 credit (£3.50)</button>
+                  <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Text: fast extraction · Vision: reads PDF visually (better for complex layouts)</p>
                 )}
                 <button onClick={() => setConvertState('idle')} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Choose different file</button>
               </div>
