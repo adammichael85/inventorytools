@@ -1046,7 +1046,6 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </div>
                 ))}
               </div>
-                <p style={{ fontSize: 11, color: HINT, marginTop: 8, fontStyle: 'italic', paddingLeft: 4 }}>*£12 avg. typist cost − £5 conversion = £7 net saving per report</p>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 20, marginTop: 16 }}>
