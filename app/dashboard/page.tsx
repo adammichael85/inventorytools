@@ -65,7 +65,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
   const duration = isAllTime && userStats ? userStats.total_duration_seconds : filtered.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
   const avg = total > 0 ? Math.round(duration / total) : 0
   const cost = isAllTime && userStats ? Number(userStats.total_spend) : filtered.length * 3.5
-  const saving = total * 12
+  const saving = total * 7
   const savingPct = cost + saving > 0 ? Math.round((saving / (cost + saving)) * 100) : 0
 
   const last30 = Array.from({ length: 30 }, (_, i) => {
@@ -180,7 +180,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
         </div>
       </div>
 
-      <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>*£12 manual typist average used</p>
+      <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>*£12 avg. typist cost − £5 conversion = £7 net saving per report</p>
 
       {userStats && (() => {
         const ltTotal = userStats.total_conversions
@@ -188,7 +188,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
         const ltDuration = userStats.total_duration_seconds
         const ltRooms = userStats.total_rooms
         const ltAvg = ltTotal > 0 ? Math.round(ltDuration / ltTotal) : 0
-        const ltSaving = ltTotal * 12
+        const ltSaving = ltTotal * 7
         const ltSavingPct = ltCost + ltSaving > 0 ? Math.round((ltSaving / (ltCost + ltSaving)) * 100) : 0
         return (
           <div style={{ marginTop: 32 }}>
@@ -226,7 +226,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
                 </div>
               ))}
             </div>
-            <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>*£12 manual typist average used</p>
+            <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>*£12 avg. typist cost − £5 conversion = £7 net saving per report</p>
           </div>
         ) })()}
 
@@ -1038,7 +1038,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 </div>
                 <div style={{ padding: '16px 20px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 0 }}>
-                {[['Total reports', (userStats ? userStats.total_conversions : conversions.length).toString(), 'all time'],['Total spent', '£'+((userStats ? Number(userStats.total_spend) : conversions.length * 5)).toFixed(2), '@ £5.00 per report'],['Avg. time', (userStats && userStats.total_conversions > 0) ? (()=>{ const avg=Math.round(userStats.total_duration_seconds/userStats.total_conversions); return avg>=60 ? Math.floor(avg/60)+'m '+(avg%60)+'s' : avg+'s' })() : '—', 'per conversion'],['Total time', (()=>{ const tot=userStats ? userStats.total_duration_seconds : conversions.reduce((s,r)=>s+(r.duration_seconds||0),0); return tot>=60 ? Math.floor(tot/60)+'m '+(tot%60)+'s' : tot+'s' })(), 'all conversions'],['Est. saving', '£'+((userStats ? userStats.total_conversions : conversions.length) * 12).toFixed(2), 'vs. external typist*']].map(([label,val,sub]) => (
+                {[['Total reports', (userStats ? userStats.total_conversions : conversions.length).toString(), 'all time'],['Total spent', '£'+((userStats ? Number(userStats.total_spend) : conversions.length * 5)).toFixed(2), '@ £5.00 per report'],['Avg. time', (userStats && userStats.total_conversions > 0) ? (()=>{ const avg=Math.round(userStats.total_duration_seconds/userStats.total_conversions); return avg>=60 ? Math.floor(avg/60)+'m '+(avg%60)+'s' : avg+'s' })() : '—', 'per conversion'],['Total time', (()=>{ const tot=userStats ? userStats.total_duration_seconds : conversions.reduce((s,r)=>s+(r.duration_seconds||0),0); return tot>=60 ? Math.floor(tot/60)+'m '+(tot%60)+'s' : tot+'s' })(), 'all conversions'],['Est. saving', '£'+((userStats ? userStats.total_conversions : conversions.length) * 7).toFixed(2), 'vs. external typist*']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
@@ -1046,7 +1046,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </div>
                 ))}
               </div>
-                <p style={{ fontSize: 11, color: HINT, marginTop: 8, fontStyle: 'italic', paddingLeft: 4 }}>*£12 manual typist average used</p>
+                <p style={{ fontSize: 11, color: HINT, marginTop: 8, fontStyle: 'italic', paddingLeft: 4 }}>*£12 avg. typist cost − £5 conversion = £7 net saving per report</p>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 20, marginTop: 16 }}>
@@ -1125,7 +1125,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>This month</h3></div>
                     <div style={{ padding: 18 }}>
-                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*5).toFixed(2)],['Avg. per report','£5.00'],['Est. saving vs. typist','£'+(conversions.length*12).toFixed(2)]].map(([l,v],i) => (
+                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*5).toFixed(2)],['Avg. per report','£5.00'],['Est. saving vs. typist','£'+(conversions.length*7).toFixed(2)]].map(([l,v],i) => (
                         <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                           <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
                         </div>
@@ -1250,7 +1250,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <button onClick={() => setShowTopup(true)} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#fff', color: TEAL, fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Top up balance</button>
                 </div>
                 <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
-                  {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*5).toFixed(2)],['Avg. conv. time',conversions.length>0?(()=>{const avg=Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length);return avg>=60?Math.floor(avg/60)+'m '+(avg%60)+'s':avg+'s'})():'—'],['Est. saving vs. typist','£'+(conversions.length*12).toFixed(2)]].map(([l,v],i) => (
+                  {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*5).toFixed(2)],['Avg. conv. time',conversions.length>0?(()=>{const avg=Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length);return avg>=60?Math.floor(avg/60)+'m '+(avg%60)+'s':avg+'s'})():'—'],['Est. saving vs. typist','£'+(conversions.length*7).toFixed(2)]].map(([l,v],i) => (
                     <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                       <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600 }}>{v}</span>
                     </div>
