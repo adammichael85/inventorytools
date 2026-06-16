@@ -1462,6 +1462,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 if (line.startsWith('*Issue:') || line.startsWith('*Issue ')) return <p key={i} style={{ margin: '8px 0 4px', paddingLeft: 12, fontStyle: 'italic', color: '#666', fontSize: 12 }}>{line.replace(/\*/g, '')}</p>
                 if (line.startsWith('**') && line.endsWith('**')) return <p key={i} style={{ fontWeight: 700, margin: '6px 0 2px' }}>{line.replace(/\*\*/g, '')}</p>
                 if (line.startsWith('- ')) return <p key={i} style={{ margin: '2px 0', paddingLeft: 12 }}>• {line.replace('- ', '')}</p>
+                if (line.match(/^\|[-\s|:]+\|$/)) return null
                 if (line.startsWith('| ')) {
                   const cells = line.split('|').filter((c: string) => c.trim())
                   const isHeader = cells.every((c: string) => c.trim())
@@ -1471,7 +1472,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 }
                 if (line === '---') return <hr key={i} style={{ border: 'none', borderTop: '1px solid #e8e8e8', margin: '16px 0' }} />
                 if (line === '') return <div key={i} style={{ height: 6 }} />
-                return <p key={i} style={{ margin: '2px 0' }}>{line}</p>
+                return <p key={i} style={{ margin: '2px 0' }}>{line.replace(/\\n/g, ' ')}</p>
               })}
             </div>
           </div>
