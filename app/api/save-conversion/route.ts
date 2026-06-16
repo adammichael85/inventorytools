@@ -20,6 +20,10 @@ export async function POST(req: NextRequest) {
       extracted_text: body.extracted_text ? body.extracted_text.slice(0, 100000) : null,
       converted_json: body.converted_json || null,
       pdf_path: body.pdf_path || null,
+      type: body.type || 'pdf',
+      property_size: body.property_size || null,
+      furnished: body.furnished || null,
+      audio_length_seconds: body.audio_length_seconds || null,
     })
     if (convError) throw new Error(convError.message)
 
