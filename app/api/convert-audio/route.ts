@@ -42,6 +42,14 @@ FORMATTING RULES:
 - Correct obvious dictation errors (e.g. "pool cords" = "pull cords", "helmet" = "pelmet")
 - If a room has no content, still include it with an empty rows array`
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+}
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
