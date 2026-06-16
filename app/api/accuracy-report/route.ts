@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       .eq('user_id', user_id)
       .single()
     if (error || !conv) return NextResponse.json({ error: 'Conversion not found' }, { status: 404 })
-    if (!conv.extracted_text) return NextResponse.json({ error: 'No source text available for this conversion. Only new conversions support accuracy reports.' }, { status: 400 })
+    if (!conv.extracted_text && !conv.pdf_path) return NextResponse.json({ error: 'No source data available for this conversion.' }, { status: 400 })
 
     // Check balance
     const { data: profile } = await supabase.from('profiles').select('balance').eq('id', user_id).single()
@@ -126,10 +126,7 @@ Do not include any introduction or preamble — start directly with "I checked r
 
     // Save report (included free with conversion)
     await supabase.from('conversions').update({ accuracy_report: report }).eq('id', conversion_id)
-    const newBalance = Number(profile?.balance || 0)
-    await supabase.from('profiles').update({ balance: newBalance }).eq('id', user_id)
-
-    return NextResponse.json({ ok: true, report, balance: newBalance })
+    return NextResponse.json({ ok: true, report, balance: Number(profile?.balance || 0) })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
