@@ -1852,7 +1852,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
                 {/* Room order */}
                 <div>
-                  <label style={labelStyle}>Room order <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(one room per line, in the order you recorded them)</span></label>
+                  <label style={labelStyle}>Room order <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(one room per line — audio file names must match these room names exactly. The order here is the order rooms will appear in the Word document.)</span></label>
                   <textarea
                     value={audioRoomOrder}
                     onChange={e => setAudioRoomOrder(e.target.value)}
