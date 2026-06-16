@@ -1854,7 +1854,17 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <label style={labelStyle}>Room order <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(one room per line — audio file names must match these room names exactly. The order here is the order rooms will appear in the Word document.)</span></label>
                   <textarea
                     value={audioRoomOrder}
-                    onChange={e => setAudioRoomOrder(e.target.value)}
+                    onChange={e => {
+                      const lines = e.target.value.split('\n')
+                      const cased = lines.map((line, idx) => {
+                        // Only auto-capitalise completed lines (not the one being typed)
+                        if (idx < lines.length - 1) {
+                          return line.replace(/\b\w/g, (c: string) => c.toUpperCase())
+                        }
+                        return line
+                      })
+                      setAudioRoomOrder(cased.join('\n'))
+                    }}
                     placeholder={"Hall\nLiving Room\nKitchen\nBedroom 1\nBedroom 2\nBathroom"}
                     rows={6}
                     style={{ ...inputStyle, resize: 'vertical' as const, lineHeight: 1.6 }}
