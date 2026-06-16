@@ -156,12 +156,11 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 12 }}>
         {[
           ['Rooms processed', rooms.toString()],
           ['Avg conv. time', fmtTime(avg)],
           ['Total conv. time', fmtTime(duration)],
-          ['Credits used', total.toString()],
         ].map(([lbl, val]) => (
           <div key={lbl} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
             <p style={{ fontSize: 11, color: HINT, marginBottom: 8 }}>{lbl}</p>
@@ -218,8 +217,8 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
                 </div>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 8 }}>
-              {[['Rooms processed', ltRooms.toString()],['Avg conv. time', fmtTime(ltAvg)],['Total conv. time', fmtTime(ltDuration)],['Credits used', ltTotal.toString()]].map(([lbl, val]) => (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 8 }}>
+              {[['Rooms processed', ltRooms.toString()],['Avg conv. time', fmtTime(ltAvg)],['Total conv. time', fmtTime(ltDuration)]].map(([lbl, val]) => (
                 <div key={lbl} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
                   <p style={{ fontSize: 11, color: HINT, marginBottom: 8 }}>{lbl}</p>
                   <p style={{ fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: -0.5 }}>{val}</p>
