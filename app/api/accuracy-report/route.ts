@@ -59,6 +59,7 @@ Your checking rules:
 12. Check for item text wrongly moved into description or condition.
 13. Check for external sections missing from the Word document.
 14. Do not mark spelling differences, line wrapping differences, punctuation spacing, or visual layout differences as errors unless they change the column placement or missing/extra content.
+15. When writing issue comments, always state clearly: what text is wrong, which column it should be in, and which column it ended up in. Example: "'Paint chip to the door.' should be in the Condition column but is missing from the converted Word doc." Never reference column names from the original file format (e.g. 'Comments') — always refer to the three output columns: Item, Description, Condition.
 15. If the PDF table uses many fields, collapse them into the three-column Word format by treating all descriptive/detail/colour/type/finish values as Description, and condition/comment/status values as Condition, unless the PDF clearly places them differently.
 16. Accuracy = ((Total checked rows - Issues found) / Total checked rows) x 100
 
