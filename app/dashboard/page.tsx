@@ -595,6 +595,18 @@ export default function Dashboard() {
   }, [])
   const [showMobileNav, setShowMobileNav] = React.useState(false)
   const [toolTab, setToolTab] = React.useState<'pdf' | 'audio'>('pdf')
+  const [showAudioConvert, setShowAudioConvert] = React.useState(false)
+  const [audioFile, setAudioFile] = React.useState<File|null>(null)
+  const [audioAddress, setAudioAddress] = React.useState('')
+  const [audioPropertySize, setAudioPropertySize] = React.useState('')
+  const [audioFurnished, setAudioFurnished] = React.useState('')
+  const [audioRoomOrder, setAudioRoomOrder] = React.useState('')
+  const [audioConvertState, setAudioConvertState] = React.useState<'idle'|'selected'|'processing'|'done'|'error'>('idle')
+  const [audioElapsed, setAudioElapsed] = React.useState(0)
+  const audioElapsedRef = React.useRef(0)
+  const [audioError, setAudioError] = React.useState('')
+  const [audioDocxUrl, setAudioDocxUrl] = React.useState<string|null>(null)
+  const [audioDocxName, setAudioDocxName] = React.useState('')
 
   const [page, setPageState] = useState('dashboard')
   function setPage(p: string) { setPageState(p); setTimeout(() => { const main = document.querySelector('main div[style*="overflow"]') as HTMLElement; if (main) main.scrollTop = 0 }, 0) }
@@ -1043,7 +1055,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})} remaining</div>
-            <button onClick={() => setShowConvert(true)} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer' }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF'}</button>
+            <button onClick={() => toolTab === 'audio' ? setShowAudioConvert(true) : setShowConvert(true)} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer' }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF'}</button>
           </div>
         </div>
 
@@ -1738,6 +1750,177 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             </div>
           </div>
         ) })()}
+
+      {/* AUDIO CONVERT MODAL */}
+      {showAudioConvert && (() => {
+        const AUDIO_BLUE = '#2563EB'
+        const AUDIO_BLUE_LIGHT = '#EFF6FF'
+        const AUDIO_BLUE_DARK = '#1D4ED8'
+
+        const PROPERTY_SIZES = [
+          { value: 'room_only', label: 'Room only', beds: 0 },
+          { value: 'studio', label: 'Studio flat', beds: 0 },
+          { value: '1bed', label: '1 bedroom', beds: 1 },
+          { value: '2bed', label: '2 bedrooms', beds: 2 },
+          { value: '3bed', label: '3 bedrooms', beds: 3 },
+          { value: '4bed', label: '4 bedrooms', beds: 4 },
+          { value: '5bed', label: '5 bedrooms', beds: 5 },
+          { value: '6bed', label: '6 bedrooms', beds: 6 },
+          { value: '7bed', label: '7 bedrooms', beds: 7 },
+          { value: '8bed', label: '8 bedrooms', beds: 8 },
+          { value: '9bed', label: '9 bedrooms', beds: 9 },
+          { value: '10bed', label: '10 bedrooms', beds: 10 },
+          { value: '11bed', label: '11 bedrooms', beds: 11 },
+          { value: '12bed', label: '12 bedrooms', beds: 12 },
+        ]
+
+        const AUDIO_PRICES: Record<string, number> = {
+          room_only: 2.50, studio: 3.00, '1bed': 3.50, '2bed': 4.00, '3bed': 4.50,
+          '4bed': 5.00, '5bed': 5.50, '6bed': 6.00, '7bed': 6.50, '8bed': 7.00,
+          '9bed': 7.50, '10bed': 8.00, '11bed': 8.50, '12bed': 9.00,
+        }
+
+        const price = audioPropertySize ? AUDIO_PRICES[audioPropertySize] : null
+        const canConvert = audioFile && audioAddress.trim() && audioPropertySize && audioFurnished
+
+        function closeAudioModal() {
+          setShowAudioConvert(false)
+          setAudioFile(null)
+          setAudioAddress('')
+          setAudioPropertySize('')
+          setAudioFurnished('')
+          setAudioRoomOrder('')
+          setAudioConvertState('idle')
+          setAudioError('')
+          setAudioDocxUrl(null)
+        }
+
+        const inputStyle = { width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none', background: '#fff', boxSizing: 'border-box' as const }
+        const labelStyle = { display: 'block' as const, fontSize: 12, fontWeight: 600 as const, color: MUTED, marginBottom: 5, textTransform: 'uppercase' as const, letterSpacing: 0.5 }
+
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 520, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+
+              {/* Header */}
+              <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: SURFACE, zIndex: 1 }}>
+                <div>
+                  <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>🎙️ Convert Audio to Word</p>
+                  <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>{price ? `£${price.toFixed(2)} · £${Number(credits).toFixed(2)} remaining` : 'Select property size to see price'}</p>
+                </div>
+                <button onClick={closeAudioModal} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
+              </div>
+
+              <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 18 }}>
+
+                {/* Property address */}
+                <div>
+                  <label style={labelStyle}>Property address</label>
+                  <input value={audioAddress} onChange={e => setAudioAddress(e.target.value)} placeholder="e.g. 12 High Street, London, SW1A 1AA" style={inputStyle} />
+                </div>
+
+                {/* Property size + Furnished row */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={labelStyle}>Property size</label>
+                    <select value={audioPropertySize} onChange={e => setAudioPropertySize(e.target.value)} style={{ ...inputStyle, appearance: 'none' as const }}>
+                      <option value="">Select size...</option>
+                      {PROPERTY_SIZES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Furnished?</label>
+                    <select value={audioFurnished} onChange={e => setAudioFurnished(e.target.value)} style={{ ...inputStyle, appearance: 'none' as const }}>
+                      <option value="">Select...</option>
+                      <option value="furnished">Furnished</option>
+                      <option value="unfurnished">Unfurnished</option>
+                      <option value="part_furnished">Part furnished</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Price display */}
+                {price && (
+                  <div style={{ background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 10, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <p style={{ fontSize: 12, color: AUDIO_BLUE_DARK, fontWeight: 600, margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: 0.5 }}>Conversion price</p>
+                      <p style={{ fontSize: 11, color: AUDIO_BLUE, margin: 0 }}>Based on selected property size</p>
+                    </div>
+                    <p style={{ fontSize: 28, fontWeight: 700, color: AUDIO_BLUE, margin: 0 }}>£{price.toFixed(2)}</p>
+                  </div>
+                )}
+
+                {/* Room order */}
+                <div>
+                  <label style={labelStyle}>Room order <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(one room per line, in the order you recorded them)</span></label>
+                  <textarea
+                    value={audioRoomOrder}
+                    onChange={e => setAudioRoomOrder(e.target.value)}
+                    placeholder={"Hall
+Living Room
+Kitchen
+Bedroom 1
+Bedroom 2
+Bathroom"}
+                    rows={6}
+                    style={{ ...inputStyle, resize: 'vertical' as const, lineHeight: 1.6 }}
+                  />
+                </div>
+
+                {/* Audio file upload */}
+                <div>
+                  <label style={labelStyle}>Audio file</label>
+                  {!audioFile ? (
+                    <label htmlFor="audio-upload">
+                      <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: 28, textAlign: 'center', cursor: 'pointer', background: BG }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 10, background: AUDIO_BLUE_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={AUDIO_BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        </div>
+                        <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Drop your audio file here</p>
+                        <p style={{ fontSize: 12, color: MUTED }}>or click to browse</p>
+                        <p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>Supports .mp3 .wav .m4a .ogg .webm</p>
+                      </div>
+                    </label>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 10, padding: '12px 16px' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: AUDIO_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 13, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{audioFile.name}</p>
+                        <p style={{ fontSize: 11, color: AUDIO_BLUE, margin: 0 }}>{(audioFile.size / 1024 / 1024).toFixed(1)} MB</p>
+                      </div>
+                      <button onClick={() => setAudioFile(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: MUTED, fontSize: 18, padding: 4 }}>×</button>
+                    </div>
+                  )}
+                  <input id="audio-upload" type="file" accept=".mp3,.wav,.m4a,.ogg,.webm,audio/*" style={{ display: 'none' }} onChange={e => { if (e.target.files?.[0]) setAudioFile(e.target.files[0]) }} />
+                </div>
+
+                {/* Convert button */}
+                {canConvert && credits >= (price || 0) ? (
+                  <button
+                    style={{ width: '100%', padding: 14, borderRadius: 10, border: 'none', background: AUDIO_BLUE, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
+                    onClick={() => alert('Audio conversion coming in next step!')}
+                  >
+                    Convert Audio — £{price?.toFixed(2)}
+                  </button>
+                ) : canConvert && credits < (price || 0) ? (
+                  <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 10, padding: 14, textAlign: 'center' }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#DC2626', margin: '0 0 4px' }}>Insufficient balance</p>
+                    <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Top up your balance to continue.</p>
+                  </div>
+                ) : (
+                  <button disabled style={{ width: '100%', padding: 14, borderRadius: 10, border: 'none', background: BORDER, color: MUTED, fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'default' }}>
+                    Fill in all fields to continue
+                  </button>
+                )}
+
+                <button onClick={closeAudioModal} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       <style>{`@keyframes spin { to { transform: rotate(360deg) } } @keyframes progress { 0% { width: 5%; margin-left: 0 } 50% { width: 60%; margin-left: 20% } 100% { width: 5%; margin-left: 100% } }`}</style>
     </div>
