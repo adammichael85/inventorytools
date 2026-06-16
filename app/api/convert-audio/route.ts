@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import OpenAI, { toFile } from 'openai'
 import { createClient } from '@supabase/supabase-js'
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
-
 const SYSTEM_PROMPT = `You are an expert UK property inventory formatter.
 You will receive a transcription of an inventory inspection dictated by a clerk, along with a room order list.
 
@@ -45,6 +43,7 @@ FORMATTING RULES:
 
 export async function POST(req: NextRequest) {
   try {
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
