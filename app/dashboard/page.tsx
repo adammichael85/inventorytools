@@ -801,7 +801,7 @@ export default function Dashboard() {
     setConvertError('')
     setElapsed(0)
     elapsedRef.current = 0
-    setProcessingRooms([{ name: 'Reading PDF...', state: 'active' }])
+    setProcessingRooms([{ name: selectedFile?.name.toLowerCase().endsWith('.docx') ? 'Reading Word document...' : 'Reading PDF...', state: 'active' }])
     let currentStage = 'Reading PDF'
 
     const timer = setInterval(() => { elapsedRef.current += 1; setElapsed(elapsedRef.current) }, 1000)
