@@ -106,7 +106,7 @@ export default function Auth() {
           <div style={{ position: 'relative', zIndex: 1 }}>
             <h2 style={{ fontSize: 36, fontWeight: 700, color: '#fff', lineHeight: 1.2, letterSpacing: -0.5, marginBottom: 16 }}>Your reports. Done in minutes.</h2>
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 40 }}>Upload any inventory PDF and get a perfectly formatted Word document. What used to take a typist 90 minutes now takes 1-4 minutes.</p>
-            {[['⏱', '1–4 minutes', 'vs. 45–90 mins with a typist'], ['💷', '£3.50 flat rate', 'Any size property. No monthly fees.'], ['✓', '100% verbatim', 'Every word copied exactly as-is']].map(([icon, title, sub]) => (
+            {[['⏱', '1–4 minutes', 'vs. 45–90 mins with a typist'], ['💷', '£5.00 flat rate', 'Any size property. No monthly fees.'], ['✓', '100% verbatim', 'Every word copied exactly as-is']].map(([icon, title, sub]) => (
               <div key={title} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{icon}</div>
                 <div>

@@ -136,7 +136,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
           <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Total spent</p>
           <p style={{ fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{cost.toFixed(2)}</p>
-          <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>@ £3.50 per report</p>
+          <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>@ £5.00 per report</p>
           <div style={{ height: 3, background: BORDER, borderRadius: 2 }}>
             <div style={{ height: '100%', width: Math.min(100, total * 5) + '%', background: TEAL, borderRadius: 2 }} />
           </div>
@@ -205,7 +205,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
                 <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Total spent</p>
                 <p style={{ fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{ltCost.toFixed(2)}</p>
-                <p style={{ fontSize: 12, color: HINT }}>@ £3.50 per report</p>
+                <p style={{ fontSize: 12, color: HINT }}>@ £5.00 per report</p>
               </div>
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
                 <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Est. saving*</p>
@@ -507,7 +507,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Auto accuracy report</p>
-            <p style={{ fontSize: 12, color: MUTED, margin: '0 0 8px' }}>When enabled, an accuracy report will automatically generate each time you download a converted Word document. <strong style={{ color: '#DC2626' }}>This costs £1.50 per report</strong> and will be deducted from your balance. You can turn this on or off at any time.</p>
+            <p style={{ fontSize: 12, color: MUTED, margin: '0 0 8px' }}>When enabled, an accuracy report will automatically generate each time you download a converted Word document. <strong style={{ color: '#DC2626' }}>This is included free with every conversion.</p>
           </div>
           <div onClick={async () => {
             const newVal = !autoAccuracyReport
@@ -1038,7 +1038,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 </div>
                 <div style={{ padding: '16px 20px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 0 }}>
-                {[['Total reports', (userStats ? userStats.total_conversions : conversions.length).toString(), 'all time'],['Total spent', '£'+((userStats ? Number(userStats.total_spend) : conversions.length * 3.5)).toFixed(2), '@ £3.50 per report'],['Avg. time', (userStats && userStats.total_conversions > 0) ? (()=>{ const avg=Math.round(userStats.total_duration_seconds/userStats.total_conversions); return avg>=60 ? Math.floor(avg/60)+'m '+(avg%60)+'s' : avg+'s' })() : '—', 'per conversion'],['Total time', (()=>{ const tot=userStats ? userStats.total_duration_seconds : conversions.reduce((s,r)=>s+(r.duration_seconds||0),0); return tot>=60 ? Math.floor(tot/60)+'m '+(tot%60)+'s' : tot+'s' })(), 'all conversions'],['Est. saving', '£'+((userStats ? userStats.total_conversions : conversions.length) * 12).toFixed(2), 'vs. external typist*']].map(([label,val,sub]) => (
+                {[['Total reports', (userStats ? userStats.total_conversions : conversions.length).toString(), 'all time'],['Total spent', '£'+((userStats ? Number(userStats.total_spend) : conversions.length * 5)).toFixed(2), '@ £5.00 per report'],['Avg. time', (userStats && userStats.total_conversions > 0) ? (()=>{ const avg=Math.round(userStats.total_duration_seconds/userStats.total_conversions); return avg>=60 ? Math.floor(avg/60)+'m '+(avg%60)+'s' : avg+'s' })() : '—', 'per conversion'],['Total time', (()=>{ const tot=userStats ? userStats.total_duration_seconds : conversions.reduce((s,r)=>s+(r.duration_seconds||0),0); return tot>=60 ? Math.floor(tot/60)+'m '+(tot%60)+'s' : tot+'s' })(), 'all conversions'],['Est. saving', '£'+((userStats ? userStats.total_conversions : conversions.length) * 12).toFixed(2), 'vs. external typist*']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
@@ -1072,7 +1072,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                           </td>
                           <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms</td>
                           <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
-                          <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
+                          <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£5.00</td>
                           <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{(c.converted_by || '').split(' ').map((n: string, i: number) => i === 0 ? n : n[0]).join(' ')}</td>
                           <td style={{ padding: '12px 20px' }}>
                             <div style={{ display: 'flex', gap: 1 }}>
@@ -1098,7 +1098,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                             ) : (
                               <span style={{ fontSize: 11, color: HINT, padding: 4 }}>—</span>
                             )}
-                            <button title={c.accuracy_report ? 'View accuracy report' : (c.extracted_text ? 'Generate accuracy report — £1.50' : 'No source data')} onClick={() => c.accuracy_report ? setViewingReport(c) : c.extracted_text ? setShowAccuracyConfirm(c) : null} style={{ background: 'none', border: 'none', cursor: c.extracted_text || c.accuracy_report ? 'pointer' : 'default', padding: 4, opacity: c.extracted_text || c.accuracy_report ? 1 : 0.3 }}>
+                            <button title={c.accuracy_report ? 'View accuracy report' : (c.extracted_text ? 'Generate accuracy report' : 'No source data')} onClick={() => c.accuracy_report ? setViewingReport(c) : c.extracted_text ? setShowAccuracyConfirm(c) : null} style={{ background: 'none', border: 'none', cursor: c.extracted_text || c.accuracy_report ? 'pointer' : 'default', padding: 4, opacity: c.extracted_text || c.accuracy_report ? 1 : 0.3 }}>
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c.accuracy_report ? TEAL : MUTED} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="12" x2="8" y2="17"/><line x1="12" y1="8" x2="12" y2="17"/><line x1="16" y1="15" x2="16" y2="17"/></svg>
                             </button>
                             <button onClick={() => deleteConversion(c.id, c.file_path)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title="Delete">
@@ -1116,15 +1116,15 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Credits</h3></div>
                     <div style={{ padding: 18 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span style={{ fontWeight: 600 }}>£{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining.</span></div>
-                      <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>Approx. <strong style={{ color: TEXT }}>{Math.floor(Number(credits) / 3.5)}</strong> conversions or <strong style={{ color: TEXT }}>{Math.floor(Number(credits) / 5)}</strong> conversions + accuracy reports</p>
-                      <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>£3.50 per conversion · £1.50 per accuracy report · Balance never expires.</p>
+                      <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>Approx. <strong style={{ color: TEXT }}>{Math.floor(Number(credits) / 5)}</strong> conversions or <strong style={{ color: TEXT }}>{Math.floor(Number(credits) / 5)}</strong> conversions + accuracy reports</p>
+                      <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>£5.00 per conversion · Accuracy report included · Balance never expires.</p>
                       <button onClick={() => setShowTopup(true)} style={{ width: '100%', padding: 10, borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Top up balance</button>
                     </div>
                   </div>
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>This month</h3></div>
                     <div style={{ padding: 18 }}>
-                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*3.5).toFixed(2)],['Avg. per report','£3.50'],['Est. saving vs. typist','£'+(conversions.length*12).toFixed(2)]].map(([l,v],i) => (
+                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*5).toFixed(2)],['Avg. per report','£5.00'],['Est. saving vs. typist','£'+(conversions.length*12).toFixed(2)]].map(([l,v],i) => (
                         <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                           <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
                         </div>
@@ -1157,13 +1157,13 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               </div>
               <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 8px' }}>Convert PDF to Word</h2>
               <p style={{ fontSize: 14, color: '#5A7068', margin: '0 0 24px', textAlign: 'center' }}>Upload any inventory PDF or Word doc and get a perfectly formatted Word document.</p>
-              {credits < 3.50 ? (
+              {credits < 5.00 ? (
                 <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 10, padding: 14, textAlign: 'center', maxWidth: 300 }}>
                   <p style={{ fontSize: 14, fontWeight: 600, color: '#DC2626', margin: '0 0 6px' }}>No balance remaining</p>
                   <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Purchase credits to continue.</p>
                 </div>
               ) : (
-                <button onClick={() => setShowConvert(true)} style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: '#FD6A02', color: '#fff', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>+ Convert now — 1 credit (£3.50)</button>
+                <button onClick={() => setShowConvert(true)} style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: '#FD6A02', color: '#fff', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>+ Convert now — £5.00</button>
               )}
               <p style={{ fontSize: 12, color: '#94AEA6', marginTop: 16 }}>{credits} credit{credits !== 1 ? 's' : ''} remaining</p>
             </div>
@@ -1212,7 +1212,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <td style={{ padding: '12px 20px', fontSize: 11, fontWeight: 500, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmtAddr(c.address)}</td>
                     <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{c.rooms} rooms</td>
                     <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
-                    <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£3.50</td>
+                    <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£5.00</td>
                     <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{(c.converted_by || '').split(' ').map((n: string, i: number) => i === 0 ? n : n[0]).join(' ')}</td>
                     <td style={{ padding: '12px 20px' }}>
                       <div style={{ display: 'flex', gap: 1 }}>
@@ -1228,7 +1228,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                       </div>
                     </td>
                     <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{new Date(c.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}</td>
-                    <td style={{ padding: '12px 20px' }}><div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{c.file_path ? (<button onClick={async () => { const { data } = await supabase.storage.from('documents').createSignedUrl(c.file_path, 60); if (data?.signedUrl) { const response = await fetch(data.signedUrl); const fileBlob = await response.blob(); const blobUrl = URL.createObjectURL(fileBlob); const a = document.createElement('a'); a.href = blobUrl; a.download = (c.address||'inventory').replace(/[^a-zA-Z0-9 _-]/g,'').trim()+'.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(blobUrl) } }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title='Download'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke={TEAL} strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/><polyline points='14,2 14,8 20,8'/><line x1='12' y1='18' x2='12' y2='12'/><polyline points='9,15 12,18 15,15'/></svg></button>) : <span style={{ fontSize: 11, color: HINT, padding: 4 }}>—</span>}<button title={c.accuracy_report ? 'View accuracy report' : (c.extracted_text ? 'Generate accuracy report — £1.50' : 'No source data')} onClick={() => c.accuracy_report ? setViewingReport(c) : c.extracted_text ? setShowAccuracyConfirm(c) : null} style={{ background: 'none', border: 'none', cursor: c.extracted_text || c.accuracy_report ? 'pointer' : 'default', padding: 4, opacity: c.extracted_text || c.accuracy_report ? 1 : 0.3 }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c.accuracy_report ? TEAL : MUTED} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="12" x2="8" y2="17"/><line x1="12" y1="8" x2="12" y2="17"/><line x1="16" y1="15" x2="16" y2="17"/></svg></button>
+                    <td style={{ padding: '12px 20px' }}><div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{c.file_path ? (<button onClick={async () => { const { data } = await supabase.storage.from('documents').createSignedUrl(c.file_path, 60); if (data?.signedUrl) { const response = await fetch(data.signedUrl); const fileBlob = await response.blob(); const blobUrl = URL.createObjectURL(fileBlob); const a = document.createElement('a'); a.href = blobUrl; a.download = (c.address||'inventory').replace(/[^a-zA-Z0-9 _-]/g,'').trim()+'.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(blobUrl) } }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title='Download'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke={TEAL} strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/><polyline points='14,2 14,8 20,8'/><line x1='12' y1='18' x2='12' y2='12'/><polyline points='9,15 12,18 15,15'/></svg></button>) : <span style={{ fontSize: 11, color: HINT, padding: 4 }}>—</span>}<button title={c.accuracy_report ? 'View accuracy report' : (c.extracted_text ? 'Generate accuracy report' : 'No source data')} onClick={() => c.accuracy_report ? setViewingReport(c) : c.extracted_text ? setShowAccuracyConfirm(c) : null} style={{ background: 'none', border: 'none', cursor: c.extracted_text || c.accuracy_report ? 'pointer' : 'default', padding: 4, opacity: c.extracted_text || c.accuracy_report ? 1 : 0.3 }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c.accuracy_report ? TEAL : MUTED} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="12" x2="8" y2="17"/><line x1="12" y1="8" x2="12" y2="17"/><line x1="16" y1="15" x2="16" y2="17"/></svg></button>
                       <button onClick={() => deleteConversion(c.id, c.file_path)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title='Delete'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='#DC2626' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><polyline points='3,6 5,6 21,6'/><path d='M19,6l-1,14a2 2 0 01-2 2H8a2 2 0 01-2-2L5,6'/><path d='M10,11v6M14,11v6'/><path d='M9,6V4a1 1 0 011-1h4a1 1 0 011 1v2'/></svg></button></div></td>
                   </tr>))}</tbody>
                 </table></div>
@@ -1249,7 +1249,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <button onClick={() => setShowTopup(true)} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#fff', color: TEAL, fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Top up balance</button>
                 </div>
                 <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
-                  {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*3.5).toFixed(2)],['Avg. conv. time',conversions.length>0?(()=>{const avg=Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length);return avg>=60?Math.floor(avg/60)+'m '+(avg%60)+'s':avg+'s'})():'—'],['Est. saving vs. typist','£'+(conversions.length*12).toFixed(2)]].map(([l,v],i) => (
+                  {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*5).toFixed(2)],['Avg. conv. time',conversions.length>0?(()=>{const avg=Math.round(conversions.reduce((s,r)=>s+(r.duration_seconds||0),0)/conversions.length);return avg>=60?Math.floor(avg/60)+'m '+(avg%60)+'s':avg+'s'})():'—'],['Est. saving vs. typist','£'+(conversions.length*12).toFixed(2)]].map(([l,v],i) => (
                     <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                       <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600 }}>{v}</span>
                     </div>
@@ -1374,8 +1374,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               {[
                 ['📄', 'Upload any inventory PDF', 'Our AI converts it into a perfectly formatted Word document in 1–4 minutes'],
                 ['⚙️', 'Check your Settings', 'Your uploaded PDFs and reports are automatically deleted after 14 days by default for GDPR compliance. You can change this period in Settings at any time.'],
-                ['📊', 'Accuracy reports', 'After conversion, run an accuracy report (£1.50) to check the quality of your conversion — or cross reference it yourself against your original PDF once the Word document is downloaded.'],
-                ['💷', 'Balance', 'Each conversion costs £3.50. Top up your balance in the Billing section anytime'],
+                ['📊', 'Accuracy reports', 'After conversion, run an accuracy report to check the quality of your conversion — or cross reference it yourself against your original PDF once the Word document is downloaded.'],
+                ['💷', 'Balance', 'Each conversion costs £5.00 and includes a free accuracy report. Top up your balance in the Billing section anytime'],
               ].map(([icon, title, desc]) => (
                 <div key={title as string} style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
                   <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
@@ -1429,10 +1429,10 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
             <h2 style={{ fontSize: 17, fontWeight: 700, margin: '0 0 8px' }}>Generate accuracy report?</h2>
             <p style={{ fontSize: 13, color: '#888', margin: '0 0 8px' }}>{showAccuracyConfirm.address}</p>
-            <p style={{ fontSize: 13, color: '#444', margin: '0 0 20px' }}>This will compare the original PDF against the converted Word document and generate a room-by-room accuracy report. <strong>£1.50 will be deducted from your balance.</strong></p>
+            <p style={{ fontSize: 13, color: '#444', margin: '0 0 20px' }}>This will compare the original PDF against the converted Word document and generate a room-by-room accuracy report. This is included free with every conversion.</p>
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setShowAccuracyConfirm(null)} style={{ flex: 1, padding: 11, borderRadius: 10, border: '1px solid #e8e8e8', background: 'transparent', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
-              <button onClick={() => generateAccuracyReport(showAccuracyConfirm)} disabled={generatingReport} style={{ flex: 1, padding: 11, borderRadius: 10, border: 'none', background: generatingReport ? BORDER : TEAL, color: generatingReport ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: generatingReport ? 'default' : 'pointer' }}>{generatingReport ? 'Generating...' : 'Generate — £1.50'}</button>
+              <button onClick={() => generateAccuracyReport(showAccuracyConfirm)} disabled={generatingReport} style={{ flex: 1, padding: 11, borderRadius: 10, border: 'none', background: generatingReport ? BORDER : TEAL, color: generatingReport ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: generatingReport ? 'default' : 'pointer' }}>{generatingReport ? 'Generating...' : 'Generate'}</button>
             </div>
           </div>
         </div>
@@ -1470,7 +1470,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 480, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
             <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£3.50 · £{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining</p></div>
+              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£5.00 · £{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining</p></div>
               <button onClick={closeConvert} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
             </div>
 
@@ -1547,7 +1547,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{(selectedFile.size / 1024 / 1024).toFixed(1)} MB</p>
                   </div>
                 </div>
-                {credits < 3.50 ? (
+                {credits < 5.00 ? (
                   <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 10, padding: 14, textAlign: 'center', marginBottom: 10 }}>
                     <p style={{ fontSize: 14, fontWeight: 600, color: '#DC2626', margin: '0 0 6px' }}>No balance remaining</p>
                     <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Purchase credits to continue converting.</p>
@@ -1556,13 +1556,13 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {selectedFile?.name.toLowerCase().endsWith('.docx') ? (
                       <>
-                        <button onClick={() => startConvert('worddoc')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Word Doc) — 1 credit (£3.50)</button>
+                        <button onClick={() => startConvert('worddoc')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Word Doc) — £5.00</button>
                         <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Reads Word document table structure directly</p>
                       </>
                     ) : (
                       <>
-                        <button onClick={() => startConvert('text')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Text) — 1 credit (£3.50)</button>
-                        <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Vision) — 1 credit (£3.50)</button>
+                        <button onClick={() => startConvert('text')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Text) — £5.00</button>
+                        <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Vision) — £5.00</button>
                         <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Text: fast extraction · Vision: reads PDF visually (better for complex layouts)</p>
                       </>
                     )}
@@ -1656,7 +1656,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 <button onClick={() => setShowTopup(false)} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
               </div>
               <div style={{ padding: '16px 24px', borderBottom: `1px solid ${BORDER}` }}>
-                <p style={{ fontSize: 12, color: HINT, margin: '0 0 4px' }}>£3.50 per conversion · £1.50 per accuracy report</p>
+                <p style={{ fontSize: 12, color: HINT, margin: '0 0 4px' }}>£5.00 per conversion · Accuracy report included</p>
               </div>
               <div style={{ padding: '18px 24px' }}>
                 <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 10 }}>Quick select:</p>

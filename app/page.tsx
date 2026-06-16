@@ -53,7 +53,7 @@ export default function Home() {
                 <span key={t} style={{ fontSize: 12, fontWeight: 500, padding: '5px 12px', borderRadius: 20, background: '#fff0e6', color: '#c24a00' }}>{t}</span>
               ))}
             </div>
-            <p style={{ fontSize: 13, color: '#5A7068', marginBottom: 24 }}><strong style={{ color: '#1A2820' }}>£3.50</strong> flat rate · any size property</p>
+            <p style={{ fontSize: 13, color: '#5A7068', marginBottom: 24 }}><strong style={{ color: '#1A2820' }}>£5.00</strong> flat rate · any size property</p>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 10, background: '#FD6A02', color: '#fff', fontSize: 15, fontWeight: 600, transition: 'transform 0.2s', transform: 'translateY(0)' }}> →</div>
           </div>
         </Link>
@@ -73,13 +73,13 @@ export default function Home() {
                 <span key={t} style={{ fontSize: 12, fontWeight: 500, padding: '5px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.2)', color: '#fff' }}>{t}</span>
               ))}
             </div>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}><strong style={{ color: '#fff' }}>£3.50</strong> flat rate · any length recording</p>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}><strong style={{ color: '#fff' }}>£5.00</strong> flat rate · any length recording</p>
             <div style={{ display: 'inline-flex', padding: '13px 28px', borderRadius: 10, background: 'rgba(255,255,255,0.25)', color: '#fff', fontSize: 15, fontWeight: 600 }}>Coming soon</div>
           </div>
         </div>
       </div>
       <div style={{ height: 40, background: 'rgba(247,249,248,0.95)', borderTop: '1px solid #E2EAE7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#94AEA6', flexShrink: 0 }}>
-        <strong style={{ color: '#1A2820', marginRight: 4 }}>£3.50</strong> per conversion · Any tool · Credits never expire 
+        <strong style={{ color: '#1A2820', marginRight: 4 }}>£5.00</strong> per conversion · Any tool · Credits never expire 
       </div>
     </main>
   )

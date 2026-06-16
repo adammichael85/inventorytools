@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     // Check balance
     const { data: profile } = await supabase.from('profiles').select('balance').eq('id', user_id).single()
-    if (!profile || Number(profile.balance) < 1.50) return NextResponse.json({ error: 'Insufficient balance. Accuracy reports cost £1.50.' }, { status: 400 })
+    // Accuracy report now included free
 
     if (!conv.converted_json) return NextResponse.json({ error: 'No conversion data available for this report. Please reconvert the document.' }, { status: 400 })
 
@@ -124,9 +124,9 @@ Do not include any introduction or preamble — start directly with "I checked r
     const d = await r.json()
     const report = d.choices?.[0]?.message?.content?.trim() || 'Report generation failed'
 
-    // Save report and deduct £1.50
+    // Save report (included free with conversion)
     await supabase.from('conversions').update({ accuracy_report: report }).eq('id', conversion_id)
-    const newBalance = Math.max(0, Number(profile.balance) - 1.50)
+    const newBalance = Number(profile.balance)
     await supabase.from('profiles').update({ balance: newBalance }).eq('id', user_id)
 
     return NextResponse.json({ ok: true, report, balance: newBalance })
