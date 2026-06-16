@@ -1856,12 +1856,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <textarea
                     value={audioRoomOrder}
                     onChange={e => setAudioRoomOrder(e.target.value)}
-                    placeholder={"Hall
-Living Room
-Kitchen
-Bedroom 1
-Bedroom 2
-Bathroom"}
+                    placeholder={"Hall\nLiving Room\nKitchen\nBedroom 1\nBedroom 2\nBathroom"}
                     rows={6}
                     style={{ ...inputStyle, resize: 'vertical' as const, lineHeight: 1.6 }}
                   />
