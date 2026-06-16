@@ -594,6 +594,7 @@ export default function Dashboard() {
     return () => window.removeEventListener('resize', check)
   }, [])
   const [showMobileNav, setShowMobileNav] = React.useState(false)
+  const [toolTab, setToolTab] = React.useState<'pdf' | 'audio'>('pdf')
 
   const [page, setPageState] = useState('dashboard')
   function setPage(p: string) { setPageState(p); setTimeout(() => { const main = document.querySelector('main div[style*="overflow"]') as HTMLElement; if (main) main.scrollTop = 0 }, 0) }
@@ -1042,8 +1043,36 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})} remaining</div>
-            <button onClick={() => setShowConvert(true)} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer' }}>+ Convert PDF</button>
+            <button onClick={() => setShowConvert(true)} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer' }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF'}</button>
           </div>
+        </div>
+
+        {/* TOOL TAB BAR */}
+        <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 32px', display: 'flex', gap: 0, flexShrink: 0 }}>
+          {[
+            { id: 'pdf', label: '📄 PDF to Word', color: TEAL },
+            { id: 'audio', label: '🎙️ Audio to Word', color: '#2563EB' },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setToolTab(tab.id as 'pdf' | 'audio')}
+              style={{
+                padding: '10px 20px',
+                border: 'none',
+                borderBottom: toolTab === tab.id ? `2px solid ${tab.color}` : '2px solid transparent',
+                background: 'transparent',
+                color: toolTab === tab.id ? tab.color : MUTED,
+                fontFamily: 'inherit',
+                fontSize: 13,
+                fontWeight: toolTab === tab.id ? 600 : 400,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                marginBottom: -1,
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         <div style={{ flex: 1, overflow: 'auto', padding: isMobile ? 16 : 28, paddingBottom: isMobile ? 100 : 28 }}>
