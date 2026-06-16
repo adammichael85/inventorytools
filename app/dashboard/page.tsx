@@ -507,7 +507,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Auto accuracy report</p>
-            <p style={{ fontSize: 12, color: MUTED, margin: '0 0 8px' }}>When enabled, an accuracy report will automatically generate each time you download a converted Word document. <strong style={{ color: '#DC2626' }}>This is included free with every conversion.</p>
+            <p style={{ fontSize: 12, color: MUTED, margin: '0 0 8px' }}>When enabled, an accuracy report will automatically generate each time you download a converted Word document. <strong style={{ color: '#DC2626' }}>This is included free with every conversion.</strong></p>
           </div>
           <div onClick={async () => {
             const newVal = !autoAccuracyReport
