@@ -97,7 +97,7 @@ export const visionConvertTask = task({
       { global: { fetch: fetch }, realtime: { transport: ws as any } }
     );
 
-    async function updateJob(status: string, progress: number, message: string, rooms?: any[], address?: string) {
+    async function updateJob(status: string, progress: number, message: string, rooms?: any[], address?: string, roomNames?: string[]) {
       await supabase.from("vision_jobs").upsert({
         id: jobId,
         user_id: userId,
@@ -106,6 +106,7 @@ export const visionConvertTask = task({
         message,
         rooms: rooms ? JSON.stringify(rooms) : null,
         address: address || null,
+        room_names: roomNames ? JSON.stringify(roomNames) : undefined,
         updated_at: new Date().toISOString()
       });
     }
@@ -148,7 +149,7 @@ export const visionConvertTask = task({
       const address = p1data.address || "";
       logger.log("Pass 1 complete", { rooms: roomList.length });
 
-      await updateJob("running", 10, `Found ${roomList.length} rooms. Starting conversion... ROOMS:${roomList.map(r => r.room).join('|')}`);
+      await updateJob("running", 10, `Found ${roomList.length} rooms. Starting conversion...`, undefined, undefined, roomList.map(r => r.room));
 
       // Load PDF for page extraction
       const pdfDoc = await PDFDocument.load(pdfBuffer);
