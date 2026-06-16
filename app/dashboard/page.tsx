@@ -1449,15 +1449,28 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               </div>
               <button onClick={() => setViewingReport(null)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', flexShrink: 0, marginLeft: 12 }}>×</button>
             </div>
-            <div style={{ fontSize: 12, lineHeight: 1.7, color: '#1a1a2e', marginTop: 12 }}>
+            <div style={{ fontSize: 13, lineHeight: 1.8, color: '#1a1a2e', marginTop: 12 }}>
               {viewingReport.accuracy_report.split('\n').map((line: string, i: number) => {
-                if (line.startsWith('### ')) return <h3 key={i} style={{ fontSize: 13, fontWeight: 700, margin: '16px 0 4px', color: '#1a1a2e' }}>{line.replace('### ', '')}</h3>
-                if (line.startsWith('## ')) return <h2 key={i} style={{ fontSize: 14, fontWeight: 700, margin: '20px 0 6px', color: '#1a1a2e', borderBottom: '1px solid #e8e8e8', paddingBottom: 4 }}>{line.replace('## ', '')}</h2>
-                if (line.startsWith('**') && line.endsWith('**')) return <p key={i} style={{ fontWeight: 700, margin: '8px 0 2px' }}>{line.replace(/\*\*/g, '')}</p>
+                if (line.startsWith('### ')) return <h3 key={i} style={{ fontSize: 14, fontWeight: 700, margin: '20px 0 4px', color: '#1a1a2e', borderTop: '2px solid #e8e8e8', paddingTop: 12 }}>{line.replace('### ', '')}</h3>
+                if (line.startsWith('## ')) return <h2 key={i} style={{ fontSize: 15, fontWeight: 700, margin: '24px 0 8px', color: '#1a1a2e', borderBottom: '2px solid #FD6A02', paddingBottom: 6 }}>{line.replace('## ', '')}</h2>
+                if (line.startsWith('**Wrong column**') || line.startsWith('**Missing row**') || line.startsWith('**Extra item**') || line.startsWith('**Duplicated row**')) return <p key={i} style={{ fontWeight: 700, margin: '10px 0 6px', color: '#DC2626', fontSize: 13 }}>{line.replace(/\*\*/g, '')}</p>
+                if (line.startsWith('**Original File:**') || line.startsWith('**PDF:**')) return <p key={i} style={{ fontWeight: 700, margin: '10px 0 2px', color: '#1a1a2e', borderTop: '1px solid #e8e8e8', paddingTop: 8 }}>Original File:</p>
+                if (line.startsWith('**Converted Word.doc:**') || line.startsWith('**Word doc:**')) return <p key={i} style={{ fontWeight: 700, margin: '10px 0 2px', color: '#1a1a2e', borderTop: '1px solid #e8e8e8', paddingTop: 8 }}>Converted Word.doc:</p>
+                if (line.startsWith('**Item:**')) return <p key={i} style={{ margin: '2px 0 0', paddingLeft: 12 }}><strong>Item:</strong> {line.replace('**Item:**', '').trim()}</p>
+                if (line.startsWith('**Description:**')) return <p key={i} style={{ margin: '2px 0 0', paddingLeft: 12 }}><strong>Description:</strong> {line.replace('**Description:**', '').trim()}</p>
+                if (line.startsWith('**Condition:**')) return <p key={i} style={{ margin: '2px 0 0', paddingLeft: 12 }}><strong>Condition:</strong> {line.replace('**Condition:**', '').trim() || '(empty)'}</p>
+                if (line.startsWith('*Issue:') || line.startsWith('*Issue ')) return <p key={i} style={{ margin: '8px 0 4px', paddingLeft: 12, fontStyle: 'italic', color: '#666', fontSize: 12 }}>{line.replace(/\*/g, '')}</p>
+                if (line.startsWith('**') && line.endsWith('**')) return <p key={i} style={{ fontWeight: 700, margin: '6px 0 2px' }}>{line.replace(/\*\*/g, '')}</p>
                 if (line.startsWith('- ')) return <p key={i} style={{ margin: '2px 0', paddingLeft: 12 }}>• {line.replace('- ', '')}</p>
-                if (line.startsWith('| ')) return <p key={i} style={{ margin: '2px 0', fontFamily: 'monospace', fontSize: 11, background: '#f5f5f5', padding: '2px 6px' }}>{line}</p>
-                if (line === '---') return <hr key={i} style={{ border: 'none', borderTop: '1px solid #e8e8e8', margin: '12px 0' }} />
-                if (line === '') return <br key={i} />
+                if (line.startsWith('| ')) {
+                  const cells = line.split('|').filter((c: string) => c.trim())
+                  const isHeader = cells.every((c: string) => c.trim())
+                  return <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, margin: '1px 0', background: '#e8e8e8' }}>
+                    {cells.map((cell: string, ci: number) => <div key={ci} style={{ background: isHeader && i < 3 ? '#f0f0f0' : '#fff', padding: '4px 8px', fontSize: 12, fontWeight: cell.includes('---') ? 400 : isHeader && i < 3 ? 600 : 400 }}>{cell.trim().replace(/^-+$/, '')}</div>)}
+                  </div>
+                }
+                if (line === '---') return <hr key={i} style={{ border: 'none', borderTop: '1px solid #e8e8e8', margin: '16px 0' }} />
+                if (line === '') return <div key={i} style={{ height: 6 }} />
                 return <p key={i} style={{ margin: '2px 0' }}>{line}</p>
               })}
             </div>
