@@ -126,7 +126,7 @@ Do not include any introduction or preamble — start directly with "I checked r
 
     // Save report (included free with conversion)
     await supabase.from('conversions').update({ accuracy_report: report }).eq('id', conversion_id)
-    const newBalance = Number(profile.balance)
+    const newBalance = Number(profile?.balance || 0)
     await supabase.from('profiles').update({ balance: newBalance }).eq('id', user_id)
 
     return NextResponse.json({ ok: true, report, balance: newBalance })
