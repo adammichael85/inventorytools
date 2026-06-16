@@ -1048,7 +1048,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         </div>
 
         {/* TOOL TAB BAR */}
-        <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 32px', display: 'flex', gap: 0, flexShrink: 0 }}>
+        <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 32px', display: 'flex', gap: 0, flexShrink: 0, justifyContent: 'center' }}>
           {[
             { id: 'pdf', label: '📄 PDF to Word', color: TEAL },
             { id: 'audio', label: '🎙️ Audio to Word', color: '#2563EB' },
