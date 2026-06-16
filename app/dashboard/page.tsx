@@ -1152,7 +1152,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                               }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title="Download">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9,15 12,18 15,15"/></svg>
                               </button>
-                            ) : audioConvertState === 'idle' ? (
+                            ) : (
                               <span style={{ fontSize: 11, color: HINT, padding: 4 }}>—</span>
                             )}
                             <button title={c.accuracy_report ? 'View accuracy report' : (c.extracted_text || c.converted_json ? 'Generate accuracy report' : 'No source data')} onClick={() => c.accuracy_report ? setViewingReport(c) : c.extracted_text || c.converted_json ? setShowAccuracyConfirm(c) : null} style={{ background: 'none', border: 'none', cursor: c.extracted_text || c.converted_json || c.accuracy_report ? 'pointer' : 'default', padding: 4, opacity: c.extracted_text || c.accuracy_report ? 1 : 0.3 }}>
