@@ -1152,7 +1152,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                               }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title="Download">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9,15 12,18 15,15"/></svg>
                               </button>
-                            ) : (
+                            ) : audioConvertState === 'idle' ? (
                               <span style={{ fontSize: 11, color: HINT, padding: 4 }}>—</span>
                             )}
                             <button title={c.accuracy_report ? 'View accuracy report' : (c.extracted_text || c.converted_json ? 'Generate accuracy report' : 'No source data')} onClick={() => c.accuracy_report ? setViewingReport(c) : c.extracted_text || c.converted_json ? setShowAccuracyConfirm(c) : null} style={{ background: 'none', border: 'none', cursor: c.extracted_text || c.converted_json || c.accuracy_report ? 'pointer' : 'default', padding: 4, opacity: c.extracted_text || c.accuracy_report ? 1 : 0.3 }}>
@@ -1902,15 +1902,152 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   )}
                 </div>
 
+                {/* Processing state */}
+                {audioConvertState === 'processing' && (
+                  <div style={{ background: AUDIO_BLUE_LIGHT, borderRadius: 10, padding: 16, textAlign: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
+                      <div style={{ width: 18, height: 18, borderRadius: '50%', border: '2.5px solid #BFDBFE', borderTopColor: AUDIO_BLUE, animation: 'spin 0.8s linear infinite' }} />
+                      <p style={{ fontSize: 14, fontWeight: 600, color: AUDIO_BLUE_DARK, margin: 0 }}>Converting... {audioElapsed >= 60 ? Math.floor(audioElapsed/60) + 'm ' + (audioElapsed%60) + 's' : audioElapsed + 's'}</p>
+                    </div>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: AUDIO_BLUE, margin: 0 }}>DO NOT CLOSE THIS TAB UNTIL COMPLETE</p>
+                  </div>
+                )}
+
+                {/* Done state */}
+                {audioConvertState === 'done' && audioDocxUrl && (
+                  <div>
+                    <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 10, padding: 16, textAlign: 'center', marginBottom: 10 }}>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: '#166534', margin: '0 0 4px' }}>✅ Conversion complete!</p>
+                      <p style={{ fontSize: 13, color: '#166534', margin: 0 }}>{audioElapsed >= 60 ? Math.floor(audioElapsed/60) + 'm ' + (audioElapsed%60) + 's' : audioElapsed + 's'}</p>
+                    </div>
+                    <a href={audioDocxUrl} download={audioDocxName} style={{ display: 'block', width: '100%', padding: 13, borderRadius: 10, background: AUDIO_BLUE, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, textAlign: 'center', textDecoration: 'none', marginBottom: 10, boxSizing: 'border-box' as const }}>↓ Download {audioDocxName}</a>
+                    <button onClick={closeAudioModal} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Close</button>
+                  </div>
+                )}
+
+                {/* Error state */}
+                {audioConvertState === 'error' && (
+                  <div>
+                    <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: 14, marginBottom: 10 }}>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: '#DC2626', margin: '0 0 4px' }}>Conversion failed</p>
+                      <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>{audioError}</p>
+                    </div>
+                    <button onClick={() => setAudioConvertState('idle')} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Try again</button>
+                  </div>
+                )}
+
                 {/* Convert button */}
-                {canConvert && credits >= (price || 0) ? (
+                {audioConvertState === 'idle' && canConvert && credits >= (price || 0) ? (
                   <button
                     style={{ width: '100%', padding: 14, borderRadius: 10, border: 'none', background: AUDIO_BLUE, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
-                    onClick={() => alert('Audio conversion coming in next step!')}
+                    onClick={async () => {
+                    if (audioFiles.length === 0) return
+                    setAudioConvertState('processing')
+                    setAudioError('')
+                    setAudioElapsed(0)
+                    audioElapsedRef.current = 0
+                    const timer = setInterval(() => { audioElapsedRef.current += 1; setAudioElapsed(audioElapsedRef.current) }, 1000)
+                    try {
+                      const formData = new FormData()
+                      audioFiles.forEach(f => formData.append('files', f))
+                      formData.append('roomOrder', audioRoomOrder)
+                      formData.append('propertySize', audioPropertySize)
+                      formData.append('furnished', audioFurnished)
+                      formData.append('address', audioAddress)
+
+                      const res = await fetch('/api/convert-audio', { method: 'POST', body: formData })
+                      const data = await res.json()
+                      if (!res.ok || data.error) throw new Error(data.error || 'Conversion failed')
+
+                      const rooms = (data.rooms || []).filter((r: any) => (r.rows || []).length > 0)
+
+                      // Build Word doc
+                      if (!(window as any).docx) {
+                        await new Promise<void>((resolve, reject) => {
+                          const s = document.createElement('script')
+                          s.src = 'https://cdn.jsdelivr.net/npm/docx@9.0.0/build/index.umd.js'
+                          s.onload = () => resolve(); s.onerror = reject
+                          document.head.appendChild(s)
+                        })
+                      }
+                      const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, VerticalAlign } = (window as any).docx
+                      const border = { style: BorderStyle.SINGLE, size: 4, color: '000000' }
+                      const cellBorders = { top: border, bottom: border, left: border, right: border }
+                      const COL_ITEM = 2499, COL_DESC = 3972, COL_COND = 3115
+                      const makeCell = (text: string, colWidth: number) => new TableCell({
+                        borders: cellBorders,
+                        width: { size: colWidth, type: WidthType.DXA },
+                        verticalAlign: VerticalAlign.TOP,
+                        children: (text || '').split(' / ').map((line: string) => new Paragraph({ children: [new TextRun({ text: line.trim().replace(/[ --]/g,''), font: 'Arial', size: 20, color: '000000' })] }))
+                      })
+                      const children: any[] = []
+                      for (let i = 0; i < rooms.length; i++) {
+                        const room = rooms[i]
+                        if (i > 0) children.push(new Paragraph({ children: [new TextRun({ text: '', font: 'Arial', size: 20 })], spacing: { after: 120 } }))
+                        children.push(new Paragraph({ children: [new TextRun({ text: room.roomName, font: 'Arial', size: 28, bold: true })] }))
+                        children.push(new Table({
+                          width: { size: COL_ITEM + COL_DESC + COL_COND, type: WidthType.DXA },
+                          rows: [
+                            new TableRow({ children: [makeCell('ITEM', COL_ITEM), makeCell('DESCRIPTION', COL_DESC), makeCell('CONDITION', COL_COND)] }),
+                            ...room.rows.map((row: any) => new TableRow({ children: [makeCell(row.item, COL_ITEM), makeCell(row.description, COL_DESC), makeCell(row.condition, COL_COND)] }))
+                          ]
+                        }))
+                      }
+                      const doc = new Document({ sections: [{ properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } }, children }] })
+                      const b64 = await Packer.toBase64String(doc)
+                      const byteArray = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
+                      const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+                      const url = URL.createObjectURL(blob)
+                      const name = (audioAddress || 'inventory').replace(/[^a-zA-Z0-9 _-]/g, '').trim() + '.docx'
+                      setAudioDocxUrl(url)
+                      setAudioDocxName(name)
+
+                      // Upload Word doc to Supabase
+                      let storagePath = ''
+                      const { data: { session } } = await supabase.auth.getSession()
+                      if (session) {
+                        const ts = Date.now()
+                        const addrClean = audioAddress.replace(/[^a-zA-Z0-9 _-]/g, '').trim()
+                        const fn = session.user.id + '/' + ts + '_' + addrClean + '.docx'
+                        const up = await supabase.storage.from('documents').upload(fn, blob, { contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+                        if (up.data) storagePath = up.data.path
+
+                        // Save conversion record
+                        await fetch('/api/save-conversion', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            user_id: session.user.id,
+                            address: audioAddress,
+                            rooms: rooms.length,
+                            duration_seconds: audioElapsedRef.current,
+                            file_path: storagePath,
+                            converted_by: userName || session.user.email,
+                            type: 'audio',
+                            property_size: audioPropertySize,
+                            furnished: audioFurnished,
+                            audio_length_seconds: data.audio_length_seconds || 0,
+                            converted_json: { rooms: data.rooms, address: audioAddress },
+                          })
+                        })
+
+                        // Refresh balance + conversions
+                        supabase.from('profiles').select('balance').eq('id', session.user.id).single().then(({ data: p }: any) => { if (p) setCredits(p.balance || 0) })
+                        supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }: any) => { if (convs) setConversions(convs) })
+                      }
+
+                      clearInterval(timer)
+                      setAudioConvertState('done')
+                    } catch (err: any) {
+                      clearInterval(timer)
+                      setAudioError(err.message || 'Conversion failed')
+                      setAudioConvertState('error')
+                    }
+                  }}
                   >
                     Convert Audio — £{price?.toFixed(2)}
                   </button>
-                ) : canConvert && credits < (price || 0) ? (
+                ) : audioConvertState === 'idle' && canConvert && credits < (price || 0) ? (
                   <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 10, padding: 14, textAlign: 'center' }}>
                     <p style={{ fontSize: 14, fontWeight: 600, color: '#DC2626', margin: '0 0 4px' }}>Insufficient balance</p>
                     <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Top up your balance to continue.</p>
@@ -1921,7 +2058,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </button>
                 )}
 
-                <button onClick={closeAudioModal} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+                {audioConvertState === 'idle' && <button onClick={closeAudioModal} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>}
               </div>
             </div>
           </div>
