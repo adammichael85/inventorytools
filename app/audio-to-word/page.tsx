@@ -1,116 +1,188 @@
-import Link from "next/link";
+'use client'
+import Link from 'next/link'
+import { useState, useEffect } from 'react'
 
-export default function AudioToWordPage() {
+export default function AudioToWord() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans">
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-        <Link href="/" className="text-sm font-medium text-gray-900">inventorytools.co.uk</Link>
-        <div className="flex items-center gap-6 text-sm text-gray-500">
-          <a href="#how">How it works</a>
-          <a href="#features">Features</a>
-          <a href="#pricing">Pricing</a>
-          <Link href="/auth" className="text-gray-900 font-medium">Log in</Link>
+    <main style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: '#F7F9F8', color: '#1A2820' }}>
+      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+      {/* NAV */}
+      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(247,249,248,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid #E2EAE7', padding: '0 5vw', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+          <svg width="34" height="34" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" rx="26" fill="#FD6A02"/><rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <span style={{ fontSize: 15, fontWeight: 700, color: '#1A2820' }}>inventory<span style={{ color: '#FD6A02' }}>tools</span>.co.uk</span>
+        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 28 }}>
+          <a href="#how" style={{ fontSize: 14, color: '#5A7068', textDecoration: 'none', display: isMobile ? 'none' : 'block' }}>How it works</a>
+          <a href="#features" style={{ fontSize: 14, color: '#5A7068', textDecoration: 'none', display: isMobile ? 'none' : 'block' }}>Features</a>
+          <a href="#pricing" style={{ fontSize: 14, color: '#5A7068', textDecoration: 'none', display: isMobile ? 'none' : 'block' }}>Pricing</a>
+          <Link href="/auth" style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #E2EAE7', fontSize: 14, fontWeight: 500, color: '#1A2820', textDecoration: 'none' }}>Log in</Link>
         </div>
       </nav>
-      <section className="max-w-4xl mx-auto px-6 pt-20 pb-16 text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-orange-500 mb-4">AI-powered · Built for inventory clerks</p>
-        <h1 className="text-5xl font-bold leading-tight tracking-tight mb-6">Stop dictating.<br />Start downloading.</h1>
-        <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10">Upload a voice recording of a clerk dictating an inventory. Our AI transcribes every word and structures it into a professional Word document automatically. What used to take a typist 90 minutes costs £5.00.</p>
-        <Link href="/auth" className="inline-block bg-gray-900 text-white text-sm font-semibold px-8 py-3 rounded-lg hover:bg-gray-700 transition">Log in to convert</Link>
-      </section>
-      <section className="max-w-xl mx-auto px-6 pb-20">
-        <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-          <div className="bg-gray-50 border-b border-gray-200 px-5 py-3 flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-400" /><div className="w-3 h-3 rounded-full bg-yellow-400" /><div className="w-3 h-3 rounded-full bg-green-400" />
-            <span className="ml-3 text-xs text-gray-400">inventorytools.co.uk</span>
+
+      {/* HERO */}
+      <section style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? '40px 5vw' : '80px 5vw 60px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 32 : 60, alignItems: 'center' }}>
+        <div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff0e6', color: '#c24a00', fontSize: 12, fontWeight: 500, padding: '5px 12px', borderRadius: 20, marginBottom: 22 }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FD6A02', display: 'inline-block' }} /> AI-powered · Built for inventory clerks
           </div>
-          <div className="px-5 py-4 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🎙️</span>
-              <div>
-                <p className="text-sm font-semibold text-gray-800">12 Milliners Court — Clerks Audio.mp3</p>
-                <p className="text-xs text-gray-400">Uploaded · 9 rooms · 47 mins</p>
+          <h1 style={{ fontSize: isMobile ? 32 : 48, fontWeight: 700, lineHeight: 1.15, marginBottom: 20, letterSpacing: -1 }}>Stop dictating. Start <span style={{ color: '#FD6A02' }}>converting.</span></h1>
+          <p style={{ fontSize: 17, color: '#5A7068', lineHeight: 1.7, marginBottom: 36, maxWidth: 460 }}>Upload a voice recording of an inventory inspection and get a perfectly formatted Word document in minutes. What used to take hours of typing now costs £3.50.</p>
+          <Link href="/auth" style={{ display: 'inline-block', padding: '13px 28px', borderRadius: 10, background: '#FD6A02', color: '#fff', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Log in to convert</Link>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2EAE7', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+          <div style={{ background: '#F2F5F4', borderBottom: '1px solid #E2EAE7', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF6058' }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FFBD2E' }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
+            <span style={{ flex: 1, textAlign: 'center', fontSize: 12, color: '#94AEA6' }}>inventorytools.co.uk</span>
+          </div>
+          <div style={{ padding: 22 }}>
+            <div style={{ border: '2px dashed #E2EAE7', borderRadius: 10, padding: 22, textAlign: 'center', marginBottom: 16, background: '#F7F9F8' }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>🎙️</div>
+              <p style={{ fontSize: 13, color: '#5A7068', margin: 0 }}>12 Milliners Court — Inventory.mp3</p>
+              <span style={{ fontSize: 11, color: '#94AEA6' }}>Uploaded · 18.4 MB · 32:15</span>
+            </div>
+            <div style={{ background: '#F2F5F4', borderRadius: 10, padding: 14, marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                <span style={{ fontSize: 12, fontWeight: 500 }}>Transcribing & structuring...</span>
+                <span style={{ fontSize: 11, color: '#94AEA6' }}>⏱ 1m 24s</span>
+              </div>
+              {[['Entrance / Hallway', true], ['Living Room', true], ['Kitchen', true], ['Bedroom 1', 'active'], ['Bedroom 2', false], ['Bathroom', false]].map(([name, done]) => (
+                <div key={name as string} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', borderBottom: '1px solid #E2EAE7', opacity: done === false ? 0.35 : 1 }}>
+                  {done === true && <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#FD6A02', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3" /></svg></div>}
+                  {done === 'active' && <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid #FD6A02', borderTopColor: 'transparent', flexShrink: 0 }} />}
+                  {done === false && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#E2EAE7', margin: '0 5px', flexShrink: 0 }} />}
+                  <span style={{ fontSize: 12, fontWeight: done === 'active' ? 600 : 400 }}>{name as string}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff0e6', borderRadius: 8, padding: '10px 14px' }}>
+              <span style={{ color: '#FD6A02' }}>✓</span>
+              <span style={{ fontSize: 12, color: '#c24a00', fontWeight: 500, flex: 1 }}>12 Milliners Court.docx ready</span>
+              <button style={{ fontSize: 11, background: '#FD6A02', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', cursor: 'pointer' }}>Download</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <div id="how" style={{ background: '#fff', borderTop: '1px solid #E2EAE7', borderBottom: '1px solid #E2EAE7' }}>
+        <section style={{ maxWidth: 1100, margin: '0 auto', padding: '60px 5vw' }}>
+          <p style={{ fontSize: 12, fontWeight: 500, color: '#FD6A02', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>How it works</p>
+          <h2 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 700, marginBottom: 14, letterSpacing: -0.5 }}>Three steps. Done.</h2>
+          <p style={{ fontSize: 16, color: '#5A7068', maxWidth: 520, lineHeight: 1.7 }}>No typing needed. No formatting. No copy-pasting. Upload a recording, get a Word doc.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: 24, marginTop: 40 }}>
+            {[['1','Upload the recording','Drag and drop any audio file — MP3, WAV, M4A or similar. Record on your phone during the inspection and upload when you\'re back.'],
+              ['2','AI transcribes & structures','Every room, item, description and condition is transcribed, corrected and structured into a professional format automatically.'],
+              ['3','Download the Word doc','A perfectly formatted three-column Word document downloads automatically. Ready to send to your agent or landlord.']
+            ].map(([n,title,desc]) => (
+              <div key={n} style={{ background: '#F7F9F8', border: '1px solid #E2EAE7', borderRadius: 14, padding: 28 }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#fff0e6', color: '#c24a00', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>{n}</div>
+                <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>{title}</h3>
+                <p style={{ fontSize: 14, color: '#5A7068', lineHeight: 1.65 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* FEATURES */}
+      <div id="features" style={{ background: '#F7F9F8', borderBottom: '1px solid #E2EAE7' }}>
+        <section style={{ maxWidth: 1100, margin: '0 auto', padding: '60px 5vw' }}>
+          <p style={{ fontSize: 12, fontWeight: 500, color: '#FD6A02', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Features</p>
+          <h2 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 700, marginBottom: 14, letterSpacing: -0.5 }}>Everything your team needs. Nothing they don&apos;t.</h2>
+          <p style={{ fontSize: 16, color: '#5A7068', maxWidth: 520, lineHeight: 1.7, marginBottom: 40 }}>No typing. No formatting. No chasing typists. Just upload, wait a few minutes, and download.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20 }}>
+            {[['🎙️','Record on any device','Use your phone, tablet or voice recorder during the inspection. Upload the file when you\'re ready — MP3, WAV, M4A and more.'],
+              ['💷','£3.50 flat — any property size','A studio flat costs the same as an 8-bedroom house. No surprises, no tiers, no monthly fees. Pay only when you convert.'],
+              ['🧠','AI dictation correction','Our AI understands inventory language — it corrects mumbled words, fills in abbreviations, and structures everything room by room.'],
+              ['📋','Room-by-room structure','Every room is identified from your narration and formatted with items, descriptions and conditions in the correct columns.'],
+              ['🔒','Staff logins included','Every team member gets their own secure login. No extra cost per seat — add as many staff as you need.'],
+              ['📄','Industry-standard Word format','Three-column layout (Item / Description / Condition) matching InventoryBase templates. Ready to import and submit immediately.']
+            ].map(([icon,title,desc]) => (
+              <div key={title} style={{ background: '#fff', border: '1px solid #E2EAE7', borderRadius: 14, padding: 24 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 9, background: '#fff0e6', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14, fontSize: 18 }}>{icon}</div>
+                <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>{title}</h3>
+                <p style={{ fontSize: 13, color: '#5A7068', lineHeight: 1.65 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* PRICING */}
+      <div id="pricing" style={{ background: '#fff', borderBottom: '1px solid #E2EAE7' }}>
+        <section style={{ maxWidth: 1100, margin: '0 auto', padding: '60px 5vw' }}>
+          <p style={{ fontSize: 12, fontWeight: 500, color: '#FD6A02', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Pricing</p>
+          <h2 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 700, marginBottom: 14, letterSpacing: -0.5 }}>One flat rate. No surprises.</h2>
+          <p style={{ fontSize: 16, color: '#5A7068', maxWidth: 520, lineHeight: 1.7, marginBottom: 40 }}>Studio flat or 8-bedroom house — it&apos;s the same price.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 24, alignItems: 'start' }}>
+            <div style={{ background: '#FD6A02', borderRadius: 20, padding: 40, color: '#fff', textAlign: 'center' }}>
+              <p style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 2, opacity: 0.75, marginBottom: 16 }}>Flat rate per conversion</p>
+              <p style={{ fontSize: 72, fontWeight: 700, lineHeight: 1, letterSpacing: -2, marginBottom: 4 }}>£3.50</p>
+              <p style={{ fontSize: 15, opacity: 0.8, marginBottom: 28 }}>per report · any size property</p>
+              {['1-bed flat or 10-bed house — same price','Pay as you go — no monthly commitment','Unlimited staff logins included','Credits never expire'].map(f => (
+                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, textAlign: 'left' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="2.5"><polyline points="3,8 6,11 13,5" /></svg>
+                  <span style={{ fontSize: 14 }}>{f}</span>
+                </div>
+              ))}
+              <Link href="/auth" style={{ display: 'block', marginTop: 28, padding: 14, borderRadius: 10, background: '#fff', color: '#FD6A02', fontSize: 15, fontWeight: 600, textDecoration: 'none', textAlign: 'center' }}>Log in to get started</Link>
+            </div>
+            <div>
+              <div style={{ background: '#F7F9F8', border: '1px solid #E2EAE7', borderRadius: 20, padding: 28, marginBottom: 16 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, color: '#94AEA6', marginBottom: 18 }}>How it compares</p>
+                {[['External typist','Average market rate per report','£12–£25','#E24B4A'],
+                  ['In-house typing time','45–90 mins of staff time per report','~£18','#E24B4A'],
+                  ['InventoryTools','Any property · ready in minutes*','£3.50','#FD6A02']
+                ].map(([title,sub,price,color]) => (
+                  <div key={title} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: title !== 'InventoryTools' ? '1px solid #E2EAE7' : 'none' }}>
+                    <div>
+                      <p style={{ fontSize: 14, fontWeight: title === 'InventoryTools' ? 600 : 500, color: title === 'InventoryTools' ? '#FD6A02' : '#1A2820' }}>{title}</p>
+                      <p style={{ fontSize: 12, color: '#94AEA6', marginTop: 2 }}>{sub}</p>
+                    </div>
+                    <p style={{ fontSize: 20, fontWeight: 700, color }}>{price}</p>
+                  </div>
+                ))}
+              </div>
+              <div style={{ background: '#fff0e6', borderRadius: 14, padding: 20 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: '#c24a00', marginBottom: 6 }}>💡 Do the numbers</p>
+                <p style={{ fontSize: 13, color: '#c24a00', lineHeight: 1.6 }}>If you process just <strong>20 reports a month</strong>, you&apos;re saving up to <strong>£430</strong> compared to an external typist.</p>
               </div>
             </div>
           </div>
-          <div className="px-5 py-4 space-y-2">
-            <p className="text-xs text-gray-400 mb-3">Building Word document... ⏱ 2m 14s</p>
-            <div className="flex items-center gap-2 text-sm"><span className="text-green-500 font-bold">✓</span><span className="text-gray-700">Outside Front</span></div>
-            <div className="flex items-center gap-2 text-sm"><span className="text-green-500 font-bold">✓</span><span className="text-gray-700">Entrance Hall</span></div>
-            <div className="flex items-center gap-2 text-sm"><span className="text-green-500 font-bold">✓</span><span className="text-gray-700">Kitchen</span></div>
-            <div className="flex items-center gap-2 text-sm"><span className="text-green-500 font-bold">✓</span><span className="text-gray-700">Reception Room</span></div>
-            <div className="flex items-center gap-2 text-sm"><span className="w-3 h-3 rounded-full border-2 border-orange-400 border-t-transparent animate-spin inline-block" /><span className="text-gray-400">Bathroom</span></div>
+        </section>
+      </div>
+
+      {/* CTA */}
+      <div style={{ background: '#FD6A02', padding: '60px 5vw', textAlign: 'center' }}>
+        <h2 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 700, color: '#fff', marginBottom: 14, letterSpacing: -0.5 }}>Your next report done in minutes*</h2>
+        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', marginBottom: 8 }}>£3.50 flat rate. Any property. Any size.</p>
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 30 }}>*Depending on length of recording</p>
+        <Link href="/auth" style={{ display: 'inline-block', padding: '13px 32px', borderRadius: 10, background: '#fff', color: '#FD6A02', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Log in to get started</Link>
+      </div>
+
+      {/* FOOTER */}
+      <footer style={{ borderTop: '1px solid #E2EAE7', padding: '32px 5vw', background: '#fff' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: 'center', gap: isMobile ? 16 : 0 }}>
+          <span style={{ fontSize: 14, fontWeight: 700 }}>inventory<span style={{ color: '#FD6A02' }}>tools</span>.co.uk</span>
+          <div style={{ display: 'flex', gap: 24 }}>
+            <a href="#" style={{ fontSize: 13, color: '#94AEA6', textDecoration: 'none' }}>Privacy</a>
+            <a href="#" style={{ fontSize: 13, color: '#94AEA6', textDecoration: 'none' }}>Terms</a>
+            <a href="#" style={{ fontSize: 13, color: '#94AEA6', textDecoration: 'none' }}>Contact</a>
           </div>
-          <div className="bg-green-50 border-t border-green-100 px-5 py-3 flex items-center justify-between">
-            <span className="text-sm font-semibold text-green-700">✓ 12 Milliners Court.docx ready</span>
-            <span className="text-xs bg-green-600 text-white px-3 py-1 rounded-full font-medium">Download</span>
-          </div>
+          <span style={{ fontSize: 13, color: '#94AEA6' }}>© 2026 InventoryTools Ltd</span>
         </div>
-      </section>
-      <section id="how" className="bg-gray-50 py-20">
-        <div className="max-w-4xl mx-auto px-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">How it works</p>
-          <h2 className="text-3xl font-bold mb-12">Three steps. Done.</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div><div className="w-8 h-8 rounded-full bg-gray-900 text-white text-sm font-bold flex items-center justify-center mb-4">1</div><h3 className="font-semibold text-lg mb-2">Upload the audio</h3><p className="text-gray-500 text-sm leading-relaxed">Upload your MP3, WAV or M4A recordings — one file per room. Enter the room names in the order you want them to appear.</p></div>
-            <div><div className="w-8 h-8 rounded-full bg-gray-900 text-white text-sm font-bold flex items-center justify-center mb-4">2</div><h3 className="font-semibold text-lg mb-2">AI transcribes every room</h3><p className="text-gray-500 text-sm leading-relaxed">Our AI listens to the clerk&apos;s dictation, corrects transcription errors, and structures every item, description, and condition note automatically.</p></div>
-            <div><div className="w-8 h-8 rounded-full bg-gray-900 text-white text-sm font-bold flex items-center justify-center mb-4">3</div><h3 className="font-semibold text-lg mb-2">Download the Word doc</h3><p className="text-gray-500 text-sm leading-relaxed">A perfectly formatted three-column Word document downloads automatically. Item / Description / Condition — ready to submit.</p></div>
-          </div>
-        </div>
-      </section>
-      <section id="features" className="py-20">
-        <div className="max-w-4xl mx-auto px-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Features</p>
-          <h2 className="text-3xl font-bold mb-12">Everything your team needs. Nothing they don&apos;t.</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="flex gap-4"><span className="text-2xl flex-shrink-0">⚡</span><div><h3 className="font-semibold mb-1">Done in 2–5 minutes depending on recording length</h3><p className="text-gray-500 text-sm leading-relaxed">What used to take a typist 45–90 minutes is processed automatically. Your clerks move on to the next job while the doc builds itself.</p></div></div>
-            <div className="flex gap-4"><span className="text-2xl flex-shrink-0">💷</span><div><h3 className="font-semibold mb-1">£5.00 flat — any property size</h3><p className="text-gray-500 text-sm leading-relaxed">A studio flat costs the same as an 8-bedroom house. No surprises, no tiers, no monthly fees. Pay only when you convert.</p></div></div>
-            <div className="flex gap-4"><span className="text-2xl flex-shrink-0">🎙️</span><div><h3 className="font-semibold mb-1">Clerk dictation understood</h3><p className="text-gray-500 text-sm leading-relaxed">Our AI is trained on real inventory clerk speech patterns — continuous dictation, self-corrections, go-back instructions and all.</p></div></div>
-            <div className="flex gap-4"><span className="text-2xl flex-shrink-0">✏️</span><div><h3 className="font-semibold mb-1">Transcription errors corrected</h3><p className="text-gray-500 text-sm leading-relaxed">Common speech-to-text errors are automatically fixed. UPVC, Formica, kickplates, Artex — all corrected to professional inventory wording.</p></div></div>
-            <div className="flex gap-4"><span className="text-2xl flex-shrink-0">🔒</span><div><h3 className="font-semibold mb-1">Staff logins included</h3><p className="text-gray-500 text-sm leading-relaxed">Every team member gets their own secure login. No extra cost per seat — add as many clerks as you need.</p></div></div>
-            <div className="flex gap-4"><span className="text-2xl flex-shrink-0">📄</span><div><h3 className="font-semibold mb-1">Industry-standard Word format</h3><p className="text-gray-500 text-sm leading-relaxed">Three-column layout (Item / Description / Condition) matching InventoryBase templates. Ready to import and submit immediately.</p></div></div>
-          </div>
-        </div>
-      </section>
-      <section id="pricing" className="bg-gray-50 py-20">
-        <div className="max-w-4xl mx-auto px-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Pricing</p>
-          <h2 className="text-3xl font-bold mb-12">One flat rate. No surprises.</h2>
-          <div className="bg-white border border-gray-200 rounded-xl p-8 max-w-sm mb-12">
-            <p className="text-sm text-gray-400 mb-1">Flat rate per conversion</p>
-            <p className="text-5xl font-bold mb-1">£5.00</p>
-            <p className="text-sm text-gray-400 mb-6">per report · any size property</p>
-            <ul className="space-y-2 text-sm text-gray-600 mb-8">
-              <li className="flex items-center gap-2"><span className="text-green-500">✓</span> 1-bed flat or 10-bed house — same price</li>
-              <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Pay as you go — no monthly commitment</li>
-              <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Unlimited staff logins included</li>
-              <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Credits never expire</li>
-            </ul>
-            <Link href="/auth" className="block text-center bg-gray-900 text-white text-sm font-semibold px-6 py-3 rounded-lg hover:bg-gray-700 transition">Log in to get started</Link>
-          </div>
-          <h3 className="font-semibold text-lg mb-4">How it compares</h3>
-          <div className="space-y-3 max-w-lg">
-            <div className="flex items-center justify-between px-5 py-4 rounded-lg border border-gray-200"><div><p className="font-semibold text-sm text-gray-800">External typist</p><p className="text-xs text-gray-400">Average market rate per report</p></div><p className="font-bold text-lg text-gray-800">£12–£25</p></div>
-            <div className="flex items-center justify-between px-5 py-4 rounded-lg border border-gray-200"><div><p className="font-semibold text-sm text-gray-800">In-house typing time</p><p className="text-xs text-gray-400">45–90 mins of staff time per report</p></div><p className="font-bold text-lg text-gray-800">~£18</p></div>
-            <div className="flex items-center justify-between px-5 py-4 rounded-lg border bg-gray-900 border-gray-900"><div><p className="font-semibold text-sm text-white">InventoryTools</p><p className="text-xs text-gray-400">Any property · ready in 2–5 minutes</p></div><p className="font-bold text-lg text-white">£5.00</p></div>
-          </div>
-          <div className="mt-8 bg-orange-50 border border-orange-100 rounded-lg p-5 max-w-lg">
-            <p className="text-sm text-orange-800">💡 If you process just <strong>20 reports a month</strong>, you&apos;re saving up to <strong>£430</strong> compared to an external typist.</p>
-          </div>
-        </div>
-      </section>
-      <section className="py-20 text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl font-bold mb-4">Your next report done in 2–5 minutes</h2>
-          <p className="text-gray-400 mb-8">£5.00 flat rate. Any property. Any recording length.</p>
-          <Link href="/auth" className="inline-block bg-gray-900 text-white text-sm font-semibold px-8 py-3 rounded-lg hover:bg-gray-700 transition">Log in to get started</Link>
-        </div>
-      </section>
-      <footer className="border-t border-gray-100 py-8 px-6 flex items-center justify-between text-xs text-gray-400">
-        <span>inventorytools.co.uk</span>
-        <div className="flex gap-4"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a></div>
-        <span>© 2026 InventoryTools Ltd</span>
       </footer>
-    </div>
-  );
+    </main>
+  )
 }
