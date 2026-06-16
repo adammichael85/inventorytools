@@ -64,7 +64,7 @@ function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER
   const rooms = isAllTime && userStats ? userStats.total_rooms : filtered.reduce((s: number, r: any) => s + (r.rooms || 0), 0)
   const duration = isAllTime && userStats ? userStats.total_duration_seconds : filtered.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
   const avg = total > 0 ? Math.round(duration / total) : 0
-  const cost = isAllTime && userStats ? Number(userStats.total_spend) : filtered.length * 3.5
+  const cost = isAllTime && userStats ? Number(userStats.total_spend) : filtered.length * 5
   const saving = total * 7
   const savingPct = cost + saving > 0 ? Math.round((saving / (cost + saving)) * 100) : 0
 
@@ -1038,7 +1038,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 </div>
                 <div style={{ padding: '16px 20px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 0 }}>
-                {[['Total reports', (userStats ? userStats.total_conversions : conversions.length).toString(), 'all time'],['Total spent', '£'+((userStats ? Number(userStats.total_spend) : conversions.length * 5)).toFixed(2), '@ £5.00 per report'],['Avg. time', (userStats && userStats.total_conversions > 0) ? (()=>{ const avg=Math.round(userStats.total_duration_seconds/userStats.total_conversions); return avg>=60 ? Math.floor(avg/60)+'m '+(avg%60)+'s' : avg+'s' })() : '—', 'per conversion'],['Total time', (()=>{ const tot=userStats ? userStats.total_duration_seconds : conversions.reduce((s,r)=>s+(r.duration_seconds||0),0); return tot>=60 ? Math.floor(tot/60)+'m '+(tot%60)+'s' : tot+'s' })(), 'all conversions'],['Est. saving', '£'+((userStats ? userStats.total_conversions : conversions.length) * 7).toFixed(2), 'vs. external typist*']].map(([label,val,sub]) => (
+                {[['Total reports', (userStats ? userStats.total_conversions : conversions.length).toString(), 'all time'],['Total spent', '£'+((userStats ? Number(userStats.total_spend) : conversions.length * 5)).toFixed(2), '@ £5.00 per report'],['Avg. time', (userStats && userStats.total_conversions > 0) ? (()=>{ const avg=Math.round(userStats.total_duration_seconds/userStats.total_conversions); return avg>=60 ? Math.floor(avg/60)+'m '+(avg%60)+'s' : avg+'s' })() : '—', 'per conversion'],['Total time', (()=>{ const tot=userStats ? userStats.total_duration_seconds : conversions.reduce((s,r)=>s+(r.duration_seconds||0),0); return tot>=60 ? Math.floor(tot/60)+'m '+(tot%60)+'s' : tot+'s' })(), 'all conversions'],['Est. saving', '£'+((userStats ? userStats.total_conversions : conversions.length) * 7).toFixed(2), 'vs. typist avg. £12/report']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
