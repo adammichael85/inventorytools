@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
           total_conversions: (existing.total_conversions || 0) + 1,
           total_rooms: (existing.total_rooms || 0) + (body.rooms || 0),
           total_duration_seconds: (existing.total_duration_seconds || 0) + (body.duration_seconds || 0),
-          total_spend: (existing.total_spend || 0) + 3.5,
+          total_spend: (existing.total_spend || 0) + 5.0,
           updated_at: new Date().toISOString()
         }).eq('user_id', body.user_id)
       } else {
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
           total_conversions: 1,
           total_rooms: body.rooms || 0,
           total_duration_seconds: body.duration_seconds || 0,
-          total_spend: 3.5
+          total_spend: 5.0
         })
       }
     } catch(e) { console.log('Stats update failed:', e) }
