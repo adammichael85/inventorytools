@@ -1948,14 +1948,26 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     audioElapsedRef.current = 0
                     const timer = setInterval(() => { audioElapsedRef.current += 1; setAudioElapsed(audioElapsedRef.current) }, 1000)
                     try {
-                      const formData = new FormData()
-                      audioFiles.forEach(f => formData.append('files', f))
-                      formData.append('roomOrder', audioRoomOrder)
-                      formData.append('propertySize', audioPropertySize)
-                      formData.append('furnished', audioFurnished)
-                      formData.append('address', audioAddress)
+                      // Upload audio files to Supabase Storage first (bypass Vercel 4.5MB limit)
+                      const { data: { session: uploadSession } } = await supabase.auth.getSession()
+                      if (!uploadSession) throw new Error('Not authenticated')
+                      const ts = Date.now()
+                      const filePaths: string[] = []
+                      const fileNames: string[] = []
+                      for (let fi = 0; fi < audioFiles.length; fi++) {
+                        const af = audioFiles[fi]
+                        const tempPath = uploadSession.user.id + '/audio_temp_' + ts + '_' + fi + '_' + af.name
+                        const { data: upData, error: upErr } = await supabase.storage.from('documents').upload(tempPath, af, { contentType: af.type || 'audio/mpeg', upsert: true })
+                        if (upErr) throw new Error('Upload failed: ' + upErr.message)
+                        filePaths.push(upData.path)
+                        fileNames.push(af.name)
+                      }
 
-                      const res = await fetch('/api/convert-audio', { method: 'POST', body: formData })
+                      const res = await fetch('/api/convert-audio', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filePaths, fileNames, roomOrder: audioRoomOrder, propertySize: audioPropertySize, furnished: audioFurnished, address: audioAddress })
+                      })
                       const data = await res.json()
                       if (!res.ok || data.error) throw new Error(data.error || 'Conversion failed')
 
