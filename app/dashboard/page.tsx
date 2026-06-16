@@ -595,7 +595,7 @@ export default function Dashboard() {
   const [showMobileNav, setShowMobileNav] = React.useState(false)
   const [toolTab, setToolTab] = React.useState<'pdf' | 'audio'>('pdf')
   const [showAudioConvert, setShowAudioConvert] = React.useState(false)
-  const [audioFile, setAudioFile] = React.useState<File|null>(null)
+  const [audioFiles, setAudioFiles] = React.useState<File[]>([])
   const [audioAddress, setAudioAddress] = React.useState('')
   const [audioPropertySize, setAudioPropertySize] = React.useState('')
   const [audioFurnished, setAudioFurnished] = React.useState('')
@@ -1780,11 +1780,11 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         }
 
         const price = audioPropertySize ? AUDIO_PRICES[audioPropertySize] : null
-        const canConvert = audioFile && audioAddress.trim() && audioPropertySize && audioFurnished
+        const canConvert = audioFiles.length > 0 && audioAddress.trim() && audioPropertySize && audioFurnished
 
         function closeAudioModal() {
           setShowAudioConvert(false)
-          setAudioFile(null)
+          setAudioFiles([])
           setAudioAddress('')
           setAudioPropertySize('')
           setAudioFurnished('')
@@ -1863,31 +1863,43 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
                 {/* Audio file upload */}
                 <div>
-                  <label style={labelStyle}>Audio file</label>
-                  {!audioFile ? (
-                    <label htmlFor="audio-upload">
-                      <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: 28, textAlign: 'center', cursor: 'pointer', background: BG }}>
-                        <div style={{ width: 44, height: 44, borderRadius: 10, background: AUDIO_BLUE_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={AUDIO_BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                  <label style={labelStyle}>Audio files <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(upload one or more — any combination of files)</span></label>
+                  <label htmlFor="audio-upload">
+                    <div
+                      style={{ border: `2px dashed ${audioFiles.length > 0 ? AUDIO_BLUE : BORDER}`, borderRadius: 12, padding: 20, textAlign: 'center', cursor: 'pointer', background: audioFiles.length > 0 ? AUDIO_BLUE_LIGHT : BG, transition: 'all 0.15s' }}
+                      onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
+                      onDrop={e => {
+                        e.preventDefault(); e.stopPropagation()
+                        const dropped = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|webm)$/i.test(f.name))
+                        if (dropped.length > 0) setAudioFiles(prev => [...prev, ...dropped])
+                      }}
+                    >
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: AUDIO_BLUE_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={AUDIO_BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      </div>
+                      <p style={{ fontSize: 13, fontWeight: 600, margin: '0 0 3px', color: AUDIO_BLUE }}>Drop audio files here or click to browse</p>
+                      <p style={{ fontSize: 11, color: HINT }}>Supports .mp3 .wav .m4a .ogg .webm · Multiple files allowed</p>
+                    </div>
+                  </label>
+                  <input id="audio-upload" type="file" accept=".mp3,.wav,.m4a,.ogg,.webm,audio/*" multiple style={{ display: 'none' }} onChange={e => { if (e.target.files) setAudioFiles(prev => [...prev, ...Array.from(e.target.files!)]) }} />
+
+                  {audioFiles.length > 0 && (
+                    <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {audioFiles.map((f, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 8, padding: '8px 12px' }}>
+                          <div style={{ width: 28, height: 28, borderRadius: 6, background: AUDIO_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg>
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: 12, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</p>
+                            <p style={{ fontSize: 11, color: AUDIO_BLUE, margin: 0 }}>{(f.size / 1024 / 1024).toFixed(1)} MB</p>
+                          </div>
+                          <button onClick={e => { e.preventDefault(); setAudioFiles(prev => prev.filter((_, idx) => idx !== i)) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: MUTED, fontSize: 16, padding: 2, flexShrink: 0 }}>×</button>
                         </div>
-                        <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Drop your audio file here</p>
-                        <p style={{ fontSize: 12, color: MUTED }}>or click to browse</p>
-                        <p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>Supports .mp3 .wav .m4a .ogg .webm</p>
-                      </div>
-                    </label>
-                  ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 10, padding: '12px 16px' }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 8, background: AUDIO_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg>
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 13, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{audioFile.name}</p>
-                        <p style={{ fontSize: 11, color: AUDIO_BLUE, margin: 0 }}>{(audioFile.size / 1024 / 1024).toFixed(1)} MB</p>
-                      </div>
-                      <button onClick={() => setAudioFile(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: MUTED, fontSize: 18, padding: 4 }}>×</button>
+                      ))}
+                      <button onClick={e => { e.preventDefault(); setAudioFiles([]) }} style={{ fontSize: 11, color: MUTED, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '2px 0', fontFamily: 'inherit' }}>Clear all files</button>
                     </div>
                   )}
-                  <input id="audio-upload" type="file" accept=".mp3,.wav,.m4a,.ogg,.webm,audio/*" style={{ display: 'none' }} onChange={e => { if (e.target.files?.[0]) setAudioFile(e.target.files[0]) }} />
                 </div>
 
                 {/* Convert button */}
