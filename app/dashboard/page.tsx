@@ -1124,7 +1124,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>This month</h3></div>
                     <div style={{ padding: 18 }}>
-                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*5).toFixed(2)],['Avg. per report','£5.00'],['Est. saving vs. typist','£'+(conversions.length*7).toFixed(2)]].map(([l,v],i) => (
+                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*5).toFixed(2)],['Conversion cost','£5.00'],['Est. saving vs. typist','£'+(conversions.length*7).toFixed(2)]].map(([l,v],i) => (
                         <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                           <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
                         </div>
