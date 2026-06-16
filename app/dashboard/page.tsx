@@ -1477,13 +1477,37 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             {convertState === 'idle' && (
               <div style={{ padding: 24 }}>
                 <label htmlFor="pdf-upload">
-                  <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: 36, textAlign: 'center', cursor: 'pointer', background: BG }}>
+                  <div
+                    style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: 36, textAlign: 'center', cursor: 'pointer', background: BG }}
+                    onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
+                    onDrop={async e => {
+                      e.preventDefault(); e.stopPropagation()
+                      const file = e.dataTransfer.files?.[0]
+                      if (!file) return
+                      setSelectedFile(file)
+                      setConvertState('selected')
+                      setCompressing(true)
+                      setOriginalSize(file.size)
+                      try {
+                        const { PDFDocument } = await import('pdf-lib')
+                        const arrayBuffer = await file.arrayBuffer()
+                        const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true })
+                        const compressed = await pdfDoc.save({ useObjectStreams: true })
+                        const blob = new Blob([new Uint8Array(compressed as unknown as ArrayBuffer)], { type: 'application/pdf' })
+                        const compressedFile = new File([blob], file.name, { type: 'application/pdf' })
+                        setCompressedSize(compressedFile.size)
+                        setSelectedFile(compressedFile)
+                      } catch(e) {}
+                      setCompressing(false)
+                    }}
+                  >
                     <div style={{ width: 52, height: 52, borderRadius: 12, background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     </div>
-                    <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your PDF here</p>
+                    <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your PDF or Word doc here</p>
                     <p style={{ fontSize: 13, color: HINT }}>or click to browse</p>
-<p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>Accepts PDF and Word (.docx) files up to any size</p>
+                    <p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>If file size is over 30mb, please compress with a tool like ilovepdf.com before uploading.</p>
+                    <p style={{ fontSize: 11, color: HINT, marginTop: 4 }}>We only support .docx files. If your Word doc won't upload, open it in MS Word and save as .docx first.</p>
                   </div>
                 </label>
                 <input id="pdf-upload" type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display: 'none' }} onChange={async e => { 
