@@ -1507,7 +1507,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your PDF or Word doc here</p>
                     <p style={{ fontSize: 13, color: HINT }}>or click to browse</p>
                     <p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>If file size is over 30mb, please compress with a tool like ilovepdf.com before uploading.</p>
-                    <p style={{ fontSize: 11, color: HINT, marginTop: 4 }}>We only support .docx files. If your Word doc won't upload, open it in MS Word and save as .docx first.</p>
+                    <p style={{ fontSize: 11, color: HINT, marginTop: 4 }}>We only support .docx files. If your Word doc won't upload, this is due to the file being an old MS Word format. Open it in MS Word, then save as .docx first.</p>
                   </div>
                 </label>
                 <input id="pdf-upload" type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display: 'none' }} onChange={async e => { 
