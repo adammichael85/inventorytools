@@ -834,6 +834,7 @@ export default function Dashboard() {
         // Poll for progress
         let jobDone = false
         let jobResult: any = null
+        let visionRoomList: string[] = []
         while (!jobDone) {
           await new Promise(res => setTimeout(res, 3000))
           const pollRes = await fetch('/api/convert-vision-status?jobId=' + jobId)
@@ -844,7 +845,28 @@ export default function Dashboard() {
           } else if (pollData.status === 'error') {
             throw new Error(pollData.message || 'Vision job failed')
           } else {
-            setProcessingRooms([{ name: pollData.message || 'Processing...', state: 'active' }])
+            const msg = pollData.message || ''
+            // Parse "Found X rooms. Starting conversion..." to build room list
+            const foundMatch = msg.match(/Found (\d+) rooms/)
+            // Parse "Converting room N/Total: Room Name"
+            const roomMatch = msg.match(/Converting room (\d+)\/(\d+): (.+)/)
+            if (roomMatch) {
+              const current = parseInt(roomMatch[1])
+              const total = parseInt(roomMatch[2])
+              const roomName = roomMatch[3]
+              // Build room list if we don't have it yet
+              if (visionRoomList.length === 0) {
+                visionRoomList = Array(total).fill('').map((_, i) => i === current - 1 ? roomName : `Room ${i + 1}`)
+              } else {
+                visionRoomList[current - 1] = roomName
+              }
+              setProcessingRooms(visionRoomList.map((name, idx) => ({
+                name: name || `Room ${idx + 1}`,
+                state: idx < current - 1 ? 'done' : idx === current - 1 ? 'active' : 'pending'
+              })))
+            } else {
+              setProcessingRooms([{ name: msg || 'Processing...', state: 'active' }])
+            }
           }
         }
 
@@ -1595,8 +1617,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#d45500' }}>⏱ {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</span>
                   </div>
                   <p style={{ fontSize: 11, color: '#d45500', margin: '0 0 12px' }}>{selectedFile?.name}</p>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', margin: '0 0 4px', letterSpacing: 0.3 }}>PLEASE KEEP THIS TAB OPEN WHILE PROCESSING. YOU CAN USE OTHER TABS.</p>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', margin: 0, letterSpacing: 0.3 }}>CLOSING THIS TAB WILL CANCEL YOUR CONVERSION.</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', margin: '0 0 4px', letterSpacing: 0.3 }}>THIS IS RUNNING IN THE BACKGROUND — YOU CAN USE OTHER TABS FREELY.</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', margin: 0, letterSpacing: 0.3 }}>DO NOT CLOSE THIS TAB UNTIL THE CONVERSION IS COMPLETE.</p>
                 </div>
                 <div style={{ height: 4, borderRadius: 20, background: 'rgba(29,158,117,0.2)', overflow: 'hidden', marginBottom: 14 }}>
                   <div style={{ height: '100%', borderRadius: 20, background: '#FD6A02', animation: 'progress 2s ease-in-out infinite' }} />
