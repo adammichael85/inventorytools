@@ -27,11 +27,24 @@ export async function POST(req: NextRequest) {
 
     const convertedText = JSON.stringify(conv.converted_json, null, 2)
 
+    // Fetch original PDF from Supabase for vision-based comparison
+    let pdfBase64 = ''
+    if (conv.pdf_path) {
+      const { data: signed } = await supabase.storage.from('documents').createSignedUrl(conv.pdf_path, 120)
+      if (signed?.signedUrl) {
+        const pdfRes = await fetch(signed.signedUrl)
+        if (pdfRes.ok) {
+          const pdfBuffer = await pdfRes.arrayBuffer()
+          pdfBase64 = Buffer.from(pdfBuffer).toString('base64')
+        }
+      }
+    }
+
     // Generate accuracy report with GPT-4.1
     const prompt = `You are an expert inventory report QA checker.
 
 You will receive:
-1. EXTRACTED TEXT from the original PDF inventory report
+1. The ORIGINAL FILE - either a PDF or Word document (attached) read visually
 2. CONVERTED OUTPUT - the converted Word document data in JSON format
 
 Your job is to compare the original PDF against the converted Word document. The aim is to check whether the Word document has placed the PDF room/area data into the correct columns: Item, Description, Condition.
@@ -63,9 +76,6 @@ Your checking rules:
 15. When writing issue comments, always state clearly: what text is wrong, which column it should be in, and which column it ended up in. Example: "'Paint chip to the door.' should be in the Condition column but is missing from the converted Word doc." Never reference column names from the original file format (e.g. 'Comments') — always refer to the three output columns: Item, Description, Condition.
 15. If the PDF table uses many fields, collapse them into the three-column Word format by treating all descriptive/detail/colour/type/finish values as Description, and condition/comment/status values as Condition, unless the PDF clearly places them differently.
 16. Accuracy = ((Total checked rows - Issues found) / Total checked rows) x 100
-
-EXTRACTED TEXT (source):
-${(conv.extracted_text || '').slice(0, 40000)}
 
 CONVERTED OUTPUT in JSON format:
 ${convertedText.slice(0, 60000)}
@@ -120,13 +130,47 @@ So the extraction/formatting has captured the room/area data [very well / extrem
 
 Do not include any introduction or preamble — start directly with "I checked rooms only".`
 
-    const r = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY },
-      body: JSON.stringify({ model: 'gpt-4.1-2025-04-14', max_tokens: 20000, temperature: 0, messages: [{ role: 'user', content: prompt }] })
-    })
-    const d = await r.json()
-    const report = d.choices?.[0]?.message?.content?.trim() || 'Report generation failed'
+    let report = ''
+    if (pdfBase64) {
+      // Use vision API to read original PDF
+      const r = await fetch('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY },
+        body: JSON.stringify({
+          model: 'gpt-4.1',
+          max_output_tokens: 20000,
+          temperature: 0,
+          input: [{
+            role: 'user',
+            content: [
+              { type: 'input_text', text: prompt },
+              { type: 'input_file', filename: 'original.pdf', file_data: 'data:application/pdf;base64,' + pdfBase64 }
+            ]
+          }]
+        })
+      })
+      const d = await r.json()
+      if (d.output_text) report = d.output_text
+      else if (d.output && Array.isArray(d.output)) {
+        for (const item of d.output) {
+          if (item.content && Array.isArray(item.content)) {
+            for (const c of item.content) {
+              if (c.type === 'output_text' && c.text) report += c.text
+            }
+          }
+        }
+      }
+    } else {
+      // Fallback to text-based comparison
+      const r = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY },
+        body: JSON.stringify({ model: 'gpt-4.1-2025-04-14', max_tokens: 20000, temperature: 0, messages: [{ role: 'user', content: prompt + '\n\nSOURCE TEXT:\n' + (conv.extracted_text || '').slice(0, 40000) }] })
+      })
+      const d = await r.json()
+      report = d.choices?.[0]?.message?.content?.trim() || 'Report generation failed'
+    }
+    if (!report) report = 'Report generation failed'
 
     // Save report (included free with conversion)
     await supabase.from('conversions').update({ accuracy_report: report }).eq('id', conversion_id)
