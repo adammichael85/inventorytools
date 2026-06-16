@@ -846,25 +846,23 @@ export default function Dashboard() {
             throw new Error(pollData.message || 'Vision job failed')
           } else {
             const msg = pollData.message || ''
-            // Parse "Found X rooms. Starting conversion..." to build room list
-            const foundMatch = msg.match(/Found (\d+) rooms/)
+            // Parse "Found X rooms... ROOMS:name1|name2|..." to build full room list
+            const roomsListMatch = msg.match(/ROOMS:(.+)/)
+            if (roomsListMatch && visionRoomList.length === 0) {
+              visionRoomList = roomsListMatch[1].split('|')
+              setProcessingRooms(visionRoomList.map(name => ({ name, state: 'pending' as const })))
+            }
             // Parse "Converting room N/Total: Room Name"
             const roomMatch = msg.match(/Converting room (\d+)\/(\d+): (.+)/)
             if (roomMatch) {
               const current = parseInt(roomMatch[1])
-              const total = parseInt(roomMatch[2])
               const roomName = roomMatch[3]
-              // Build room list if we don't have it yet
-              if (visionRoomList.length === 0) {
-                visionRoomList = Array(total).fill('').map((_, i) => i === current - 1 ? roomName : `Room ${i + 1}`)
-              } else {
-                visionRoomList[current - 1] = roomName
-              }
+              if (visionRoomList.length > 0) visionRoomList[current - 1] = roomName
               setProcessingRooms(visionRoomList.map((name, idx) => ({
                 name: name || `Room ${idx + 1}`,
                 state: idx < current - 1 ? 'done' : idx === current - 1 ? 'active' : 'pending'
               })))
-            } else {
+            } else if (!roomsListMatch) {
               setProcessingRooms([{ name: msg || 'Processing...', state: 'active' }])
             }
           }

@@ -148,7 +148,7 @@ export const visionConvertTask = task({
       const address = p1data.address || "";
       logger.log("Pass 1 complete", { rooms: roomList.length });
 
-      await updateJob("running", 10, `Found ${roomList.length} rooms. Starting conversion...`);
+      await updateJob("running", 10, `Found ${roomList.length} rooms. Starting conversion... ROOMS:${roomList.map(r => r.room).join('|')}`);
 
       // Load PDF for page extraction
       const pdfDoc = await PDFDocument.load(pdfBuffer);
