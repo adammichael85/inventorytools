@@ -25,7 +25,8 @@ export async function GET(req: NextRequest) {
       status: data.status,
       progress: data.progress,
       message: data.message,
-      rooms: data.rooms ? JSON.parse(data.rooms) : null
+      rooms: data.rooms ? JSON.parse(data.rooms) : null,
+      address: data.address || ""
     })
 
   } catch (err: any) {

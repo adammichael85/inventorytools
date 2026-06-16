@@ -851,7 +851,7 @@ export default function Dashboard() {
         // Clean up temp file
         try { await supabase.storage.from('documents').remove([pdfPath]) } catch(e) {}
 
-        data = { address: '', pages: jobResult.rooms?.length || 0, rooms: jobResult.rooms, _extractedText: '' }
+        data = { address: jobResult.address || '', pages: jobResult.rooms?.length || 0, rooms: jobResult.rooms, _extractedText: '' }
       } else {
         data = await convertPDF(base64, selectedFile?.name.toLowerCase().endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf', selectedFile, sess?.user?.id)
       }

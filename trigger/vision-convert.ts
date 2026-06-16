@@ -6,7 +6,7 @@ import type { WebSocket as WSType } from "ws";
 
 const PASS1_SYSTEM = `You are reading a UK property inventory PDF.
 
-Your ONLY job is to identify every room/area section in this PDF and return their page ranges.
+Your job is to identify every room/area section in this PDF and return their page ranges. Also extract the property address from the cover page or header.
 
 INCLUDE: All room and area headings such as Kitchen, Living Room, Bedroom 1, Bathroom, Entrance Hall, Property Exterior, Boot Room, Stairwell, Landing, WC, Garage, Garden, External Surfaces, Boundaries, Courtyard, Carport, etc.
 
@@ -15,7 +15,7 @@ EXCLUDE: Cover page, contents page, notes, disclaimers, checklists, keys and uti
 IMPORTANT: Be generous with page ranges. If unsure where a room ends, extend the endPage by 2-3 extra pages. It is better to include too many pages than too few. Small transitional areas like Porch, Stairs, Hallways must be included even if they only span 1-2 pages.
 
 Return ONLY raw JSON, no markdown, no explanation:
-{"rooms":[{"room":"Kitchen","startPage":5,"endPage":12},{"room":"Living Room","startPage":13,"endPage":18}]}`;
+{"address":"6 Broughton Close, Marston, Oxford, OX3 0RQ","rooms":[{"room":"Kitchen","startPage":5,"endPage":12},{"room":"Living Room","startPage":13,"endPage":18}]}`;
 
 const PASS2_SYSTEM = `You are converting a section of a UK property inventory PDF into structured JSON.
 
@@ -97,7 +97,7 @@ export const visionConvertTask = task({
       { global: { fetch: fetch }, realtime: { transport: ws as any } }
     );
 
-    async function updateJob(status: string, progress: number, message: string, rooms?: any[]) {
+    async function updateJob(status: string, progress: number, message: string, rooms?: any[], address?: string) {
       await supabase.from("vision_jobs").upsert({
         id: jobId,
         user_id: userId,
@@ -105,6 +105,7 @@ export const visionConvertTask = task({
         progress,
         message,
         rooms: rooms ? JSON.stringify(rooms) : null,
+        address: address || null,
         updated_at: new Date().toISOString()
       });
     }
@@ -144,6 +145,7 @@ export const visionConvertTask = task({
       const roomList: { room: string; startPage: number; endPage: number }[] = p1data.rooms || [];
 
       if (roomList.length === 0) throw new Error("No rooms found in PDF");
+      const address = p1data.address || "";
       logger.log("Pass 1 complete", { rooms: roomList.length });
 
       await updateJob("running", 10, `Found ${roomList.length} rooms. Starting conversion...`);
@@ -225,7 +227,7 @@ export const visionConvertTask = task({
 
       if (allRooms.length === 0) throw new Error("No rooms extracted");
 
-      await updateJob("complete", 100, `Complete — ${allRooms.length} rooms converted`, allRooms);
+      await updateJob("complete", 100, `Complete — ${allRooms.length} rooms converted`, allRooms, address);
       logger.log("Vision conversion complete", { rooms: allRooms.length });
 
       return { success: true, rooms: allRooms.length };
