@@ -114,3 +114,96 @@ export async function convertPDFVision(file: File, userId?: string) {
     }
   }
 }
+
+export async function extractStructuredFromDOCX(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const run = async () => {
+      try {
+        const JSZip = (window as any).JSZip
+        const arrayBuffer = await file.arrayBuffer()
+        const zip = await JSZip.loadAsync(arrayBuffer)
+        const xml = await zip.file('word/document.xml')?.async('string')
+        if (!xml) { reject(new Error('No document.xml found')); return }
+
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(xml, 'application/xml')
+
+        const ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+        const body = doc.getElementsByTagNameNS(ns, 'body')[0]
+        if (!body) { reject(new Error('No body found')); return }
+
+        const lines: string[] = []
+        const children = body.childNodes
+
+        for (let i = 0; i < children.length; i++) {
+          const node = children[i] as Element
+          const localName = node.localName
+
+          if (localName === 'p') {
+            // Paragraph - extract text
+            const texts = node.getElementsByTagNameNS(ns, 't')
+            let text = ''
+            for (let j = 0; j < texts.length; j++) {
+              text += texts[j].textContent || ''
+            }
+            text = text.trim()
+            if (text) lines.push('[PARAGRAPH]: ' + text)
+
+          } else if (localName === 'tbl') {
+            // Table - extract rows and cells
+            const rows = node.getElementsByTagNameNS(ns, 'tr')
+            for (let r = 0; r < rows.length; r++) {
+              const cells = rows[r].getElementsByTagNameNS(ns, 'tc')
+              const cellTexts: string[] = []
+              for (let c = 0; c < cells.length; c++) {
+                const paras = cells[c].getElementsByTagNameNS(ns, 'p')
+                let cellText = ''
+                for (let p = 0; p < paras.length; p++) {
+                  const ts = paras[p].getElementsByTagNameNS(ns, 't')
+                  let paraText = ''
+                  for (let t = 0; t < ts.length; t++) {
+                    paraText += ts[t].textContent || ''
+                  }
+                  if (paraText.trim()) cellText += (cellText ? ' | ' : '') + paraText.trim()
+                }
+                cellTexts.push(cellText)
+              }
+              const rowText = cellTexts.join('\t')
+              if (rowText.trim()) lines.push('[TABLE ROW]: ' + rowText)
+            }
+          }
+        }
+
+        resolve(lines.join('\n'))
+      } catch (e) {
+        reject(e)
+      }
+    }
+
+    if ((window as any).JSZip) {
+      run()
+    } else {
+      const s = document.createElement('script')
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'
+      s.onload = run
+      s.onerror = () => reject(new Error('JSZip load failed'))
+      document.head.appendChild(s)
+    }
+  })
+}
+
+export async function convertWordDoc(file: File, userId?: string) {
+  const structuredText = await extractStructuredFromDOCX(file)
+  if (!structuredText || structuredText.length < 50) throw new Error('Could not extract content from Word document')
+
+  const response = await fetch('/api/convert', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ extractedText: structuredText, base64: '', mediaType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', userId })
+  })
+  const data = await response.json()
+  if (!response.ok) throw new Error(data.error || 'Conversion failed')
+  if (data.error) throw new Error(data.error)
+  if (!data.rooms) throw new Error('No rooms found')
+  return { ...data, _extractedText: structuredText }
+}

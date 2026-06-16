@@ -2,7 +2,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { convertPDF, convertPDFVision } from './convert-action'
+import { convertPDF, convertPDFVision, convertWordDoc } from './convert-action'
 import { PDFDocument } from 'pdf-lib'
 import { supabase } from '@/lib/supabase'
 
@@ -795,7 +795,7 @@ export default function Dashboard() {
     }
   }
 
-  async function startConvert(method: 'text' | 'vision' = 'text') {
+  async function startConvert(method: 'text' | 'vision' | 'worddoc' = 'text') {
     if (!selectedFile) return
     setConvertState('processing')
     setConvertError('')
@@ -852,6 +852,8 @@ export default function Dashboard() {
         try { await supabase.storage.from('documents').remove([pdfPath]) } catch(e) {}
 
         data = { address: jobResult.address || '', pages: jobResult.rooms?.length || 0, rooms: jobResult.rooms, _extractedText: '' }
+      } else if (method === 'worddoc') {
+        data = await convertWordDoc(selectedFile!, sess?.user?.id)
       } else {
         data = await convertPDF(base64, selectedFile?.name.toLowerCase().endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf', selectedFile, sess?.user?.id)
       }
@@ -1528,9 +1530,18 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <button onClick={() => startConvert('text')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Text) — 1 credit (£3.50)</button>
-                    <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Vision) — 1 credit (£3.50)</button>
-                    <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Text: fast extraction · Vision: reads PDF visually (better for complex layouts)</p>
+                    {selectedFile?.name.toLowerCase().endsWith('.docx') ? (
+                      <>
+                        <button onClick={() => startConvert('worddoc')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Word Doc) — 1 credit (£3.50)</button>
+                        <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Reads Word document table structure directly</p>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => startConvert('text')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Text) — 1 credit (£3.50)</button>
+                        <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Vision) — 1 credit (£3.50)</button>
+                        <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Text: fast extraction · Vision: reads PDF visually (better for complex layouts)</p>
+                      </>
+                    )}
                   </div>
                 )}
                 <button onClick={() => setConvertState('idle')} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Choose different file</button>
