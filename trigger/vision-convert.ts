@@ -216,6 +216,8 @@ export const visionConvertTask = task({
           });
 
           if (rows.length > 0) {
+            // Add Further views as first row (standard format)
+            rows = [{ item: "Further views", description: "", condition: "" }, ...rows];
             allRooms.push({ roomName: roomInfo.room, rows });
           }
 
