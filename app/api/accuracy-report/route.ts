@@ -63,7 +63,7 @@ Your checking rules:
 16. Accuracy = ((Total checked rows - Issues found) / Total checked rows) x 100
 
 EXTRACTED TEXT (source):
-${conv.extracted_text.slice(0, 40000)}
+${(conv.extracted_text || '').slice(0, 40000)}
 
 CONVERTED OUTPUT in JSON format:
 ${convertedText.slice(0, 60000)}
