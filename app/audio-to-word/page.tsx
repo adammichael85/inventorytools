@@ -34,7 +34,7 @@ export default function AudioToWord() {
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff0e6', color: '#c24a00', fontSize: 12, fontWeight: 500, padding: '5px 12px', borderRadius: 20, marginBottom: 22 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FD6A02', display: 'inline-block' }} /> AI-powered · Built for inventory clerks
           </div>
-          <h1 style={{ fontSize: isMobile ? 32 : 48, fontWeight: 700, lineHeight: 1.15, marginBottom: 20, letterSpacing: -1 }}>Stop dictating. Start <span style={{ color: '#FD6A02' }}>converting.</span></h1>
+          <h1 style={{ fontSize: isMobile ? 32 : 48, fontWeight: 700, lineHeight: 1.15, marginBottom: 20, letterSpacing: -1 }}>Stop typing. Start <span style={{ color: '#FD6A02' }}>converting.</span></h1>
           <p style={{ fontSize: 17, color: '#5A7068', lineHeight: 1.7, marginBottom: 36, maxWidth: 460 }}>Upload a voice recording of an inventory inspection and get a perfectly formatted Word document in minutes. What used to take hours of typing now starts from £5.50 — up to 45% cheaper than a manual typist.</p>
           <Link href="/auth" style={{ display: 'inline-block', padding: '13px 28px', borderRadius: 10, background: '#FD6A02', color: '#fff', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Log in to convert</Link>
         </div>
