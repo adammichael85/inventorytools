@@ -772,7 +772,7 @@ export default function Dashboard() {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z' },
-    { id: 'convert', label: 'Convert PDF', icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z', badge: 'New' },
+    { id: 'convert', label: toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF', icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z', badge: 'New' },
     { id: 'reports', label: 'Reports', icon: 'M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z' },
     { id: 'stats', label: 'Statistics', icon: 'M18 20V10M12 20V4M6 20v-6' },
     { id: 'team', label: 'Team', icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75' },
@@ -1184,15 +1184,15 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Credits</h3></div>
                     <div style={{ padding: 18 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span style={{ fontWeight: 600 }}>£{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining.</span></div>
-                      <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>Approx. <strong style={{ color: TEXT }}>{Math.floor(Number(credits) / 5)}</strong> conversions (accuracy report included with each)</p>
-                      <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>£5.00 per conversion · Accuracy report included · Balance never expires.</p>
+                      {toolTab !== 'audio' && <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>Approx. <strong style={{ color: TEXT }}>{Math.floor(Number(credits) / 5)}</strong> conversions (accuracy report included with each)</p>}
+                      <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>{toolTab === 'audio' ? 'Pricing varies by property size · Balance never expires.' : '£5.00 per conversion · Accuracy report included · Balance never expires.'}</p>
                       <button onClick={() => setShowTopup(true)} style={{ width: '100%', padding: 10, borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Top up balance</button>
                     </div>
                   </div>
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>This month</h3></div>
                     <div style={{ padding: 18 }}>
-                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*5).toFixed(2)],['Conversion cost per report','£5.00'],['Est. saving vs. typist','£'+(conversions.length*7).toFixed(2)]].map(([l,v],i) => (
+                      {[['Reports converted',conversions.length.toString()],['Total spent','£'+(conversions.length*5).toFixed(2)],['Conversion cost per report', toolTab === 'audio' ? 'Varies by size' : '£5.00'],['Est. saving vs. typist','£'+(conversions.length*7).toFixed(2)]].map(([l,v],i) => (
                         <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                           <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
                         </div>
@@ -1738,7 +1738,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 <button onClick={() => setShowTopup(false)} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
               </div>
               <div style={{ padding: '16px 24px', borderBottom: `1px solid ${BORDER}` }}>
-                <p style={{ fontSize: 12, color: HINT, margin: '0 0 4px' }}>£5.00 per conversion · Accuracy report included</p>
+                <p style={{ fontSize: 12, color: HINT, margin: '0 0 4px' }}>Pricing varies by property size · Balance never expires</p>
               </div>
               <div style={{ padding: '18px 24px' }}>
                 <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 10 }}>Quick select:</p>
