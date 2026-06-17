@@ -2003,7 +2003,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                         const { data: refreshData } = await supabase.auth.refreshSession()
                         if (!refreshData.session) throw new Error('Not authenticated — please sign in again')
                       }
-                      const session = uploadSession || (await supabase.auth.getSession()).data.session
+                      const activeSession = uploadSession || (await supabase.auth.getSession()).data.session
                       const ts = Date.now()
                       const filePaths: string[] = []
                       const fileNames: string[] = []
@@ -2069,8 +2069,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
                       // Upload Word doc to Supabase
                       let storagePath = ''
-                      const { data: { session } } = await supabase.auth.getSession()
-                      if (session) {
+                      const { data: { session: saveSession } } = await supabase.auth.getSession()
+                      if (saveSession) {
                         const ts = Date.now()
                         const addrClean = audioAddress.replace(/[^a-zA-Z0-9 _-]/g, '').trim()
                         const fn = session.user.id + '/' + ts + '_' + addrClean + '.docx'
@@ -2082,7 +2082,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
-                            user_id: session.user.id,
+                            user_id: saveSession.user.id,
                             address: audioAddress,
                             rooms: rooms.length,
                             duration_seconds: audioElapsedRef.current,
