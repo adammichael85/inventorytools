@@ -87,12 +87,13 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
   }
 
   const isAllTime = period === 'all'
-  const total = isAllTime && userStats ? userStats.total_conversions : filtered.length
-  const rooms = isAllTime && userStats ? userStats.total_rooms : filtered.reduce((s: number, r: any) => s + (r.rooms || 0), 0)
-  const duration = isAllTime && userStats ? userStats.total_duration_seconds : filtered.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
+  const allTabConversions = conversions.filter((c: any) => toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio')
+  const total = isAllTime ? allTabConversions.length : filtered.length
+  const rooms = isAllTime ? allTabConversions.reduce((s: number, r: any) => s + (r.rooms || 0), 0) : filtered.reduce((s: number, r: any) => s + (r.rooms || 0), 0)
+  const duration = isAllTime ? allTabConversions.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0) : filtered.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
   const avg = total > 0 ? Math.round(duration / total) : 0
-  const cost = isAllTime && userStats ? Number(userStats.total_spend) : filtered.reduce((s: number, c: any) => s + getActualCost(c), 0)
-  const saving = filtered.reduce((s: number, c: any) => s + Math.max(0, getMarketRate(c) - getActualCost(c)), 0)
+  const cost = (isAllTime ? allTabConversions : filtered).reduce((s: number, c: any) => s + getActualCost(c), 0)
+  const saving = (isAllTime ? allTabConversions : filtered).reduce((s: number, c: any) => s + Math.max(0, getMarketRate(c) - getActualCost(c)), 0)
   const savingPct = cost + saving > 0 ? Math.round((saving / (cost + saving)) * 100) : 0
 
   const last30 = Array.from({ length: 30 }, (_, i) => {
@@ -209,12 +210,13 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
       <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>{toolTab === 'audio' ? '*Saving based on 45% discount vs standard typing rates' : '*£12 avg. typist cost − £5 conversion = £7 net saving per report'}</p>
 
       {userStats && (() => {
-        const ltTotal = userStats.total_conversions
-        const ltCost = Number(userStats.total_spend)
-        const ltDuration = userStats.total_duration_seconds
-        const ltRooms = userStats.total_rooms
+        const ltConvs = conversions.filter((c: any) => toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio')
+        const ltTotal = ltConvs.length
+        const ltCost = ltConvs.reduce((s: number, c: any) => s + getActualCost(c), 0)
+        const ltDuration = ltConvs.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
+        const ltRooms = ltConvs.reduce((s: number, r: any) => s + (r.rooms || 0), 0)
         const ltAvg = ltTotal > 0 ? Math.round(ltDuration / ltTotal) : 0
-        const ltSaving = conversions.reduce((s: number, c: any) => s + Math.max(0, getMarketRate(c) - getActualCost(c)), 0)
+        const ltSaving = conversions.filter((c: any) => toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio').reduce((s: number, c: any) => s + Math.max(0, getMarketRate(c) - getActualCost(c)), 0)
         const ltSavingPct = ltCost + ltSaving > 0 ? Math.round((ltSaving / (ltCost + ltSaving)) * 100) : 0
         return (
           <div style={{ marginTop: 32 }}>
