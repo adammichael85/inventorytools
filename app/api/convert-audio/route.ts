@@ -181,6 +181,26 @@ Fittings and components belonging to one item stay in that items Description.
 RULE 12 - DO NOT DROP CLEANING CONDITIONS
 All cleaning conditions must be kept exactly as spoken.
 
+RULE 15 - NEVER MIX ROOM CONTENT
+You are processing ONE specific room. Extract ONLY content that belongs to that room.
+The transcription contains multiple rooms. You must find where the clerk starts talking about THIS room and stop when they move to the next room.
+
+CRITICAL: Two rooms may sound similar (e.g. Shower Room and Bathroom both have toilets, basins and showers). Do NOT copy content from one into the other.
+- Shower Room: look for the clerk saying "shower room" - extract only what follows until the next room name
+- Bathroom: look for the clerk saying "bathroom" - extract only what follows until the next room name
+- If a bath is mentioned, it belongs to Bathroom, not Shower Room, unless the clerk explicitly says otherwise
+- If a black laminate medicine cabinet is mentioned, it belongs to Bathroom
+- If a silver metal medicine cabinet is mentioned, it belongs to Shower Room
+- Never place a bath or bath panel row inside a Shower Room section
+
+Also fix these additional Whisper misreads:
+- "slash grey" in walls description -> /grey (use the / symbol, not the word slash)
+- "pomet" / "pelmit" / "perlmutt" -> pelmet
+- "white edgy" -> white edging
+- "solid crisper" -> salad crisper
+- "if fittings are fitted" -> fittings as fitted
+- "grey UPVC with seal" / "with seal" (when describing window frame sill) -> with sill
+
 RULE 13 - DO NOT CHANGE WORDS NOT IN CORRECTION DICTIONARY
 Only correct confirmed Whisper errors. Never change clear inventory words.
 Never substitute a similar word for a spoken word. If the clerk says "fascia" use "fascia". If they say "windowsill" use "windowsill". If they say "Velux" use "Velux". If they say "Vaillant" use "Vaillant". If they say "unable to access" keep it exactly as "Unable to access" in the Condition column.
