@@ -607,7 +607,6 @@ export default function Dashboard() {
   const [audioAddress, setAudioAddress] = React.useState('')
   const [audioPropertySize, setAudioPropertySize] = React.useState('')
   const [audioFurnished, setAudioFurnished] = React.useState('')
-  const audioPriceRef = React.useRef<number>(5.00)
   const [audioRoomOrder, setAudioRoomOrder] = React.useState('')
   const [audioConvertState, setAudioConvertState] = React.useState<'idle'|'selected'|'processing'|'done'|'error'>('idle')
   const [audioElapsed, setAudioElapsed] = React.useState(0)
@@ -1989,8 +1988,6 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     style={{ width: '100%', padding: 14, borderRadius: 10, border: 'none', background: AUDIO_BLUE, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
                     onClick={async () => {
                     if (audioFiles.length === 0) return
-                    const capturedPrice = price || 5.00
-                    audioPriceRef.current = capturedPrice
                     setAudioConvertState('processing')
                     setAudioError('')
                     setAudioElapsed(0)
@@ -2005,7 +2002,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                       const fileNames: string[] = []
                       for (let fi = 0; fi < audioFiles.length; fi++) {
                         const af = audioFiles[fi]
-                        const tempPath = uploadSession!.user.id + '/audio_temp_' + ts + '_' + fi + '_' + af.name
+                        const tempPath = uploadSession.user.id + '/audio_temp_' + ts + '_' + fi + '_' + af.name
                         const { data: upData, error: upErr } = await supabase.storage.from('documents').upload(tempPath, af, { contentType: af.type || 'audio/mpeg', upsert: true })
                         if (upErr) throw new Error('Upload failed: ' + upErr.message)
                         filePaths.push(upData.path)
@@ -2065,8 +2062,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
                       // Upload Word doc to Supabase
                       let storagePath = ''
-                      const { data: { session: saveSession } } = await supabase.auth.getSession()
-                      if (saveSession) {
+                      const { data: { session } } = await supabase.auth.getSession()
+                      if (session) {
                         const ts = Date.now()
                         const addrClean = audioAddress.replace(/[^a-zA-Z0-9 _-]/g, '').trim()
                         const fn = session.user.id + '/' + ts + '_' + addrClean + '.docx'
@@ -2078,7 +2075,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
-                            user_id: saveSession.user.id,
+                            user_id: session.user.id,
                             address: audioAddress,
                             rooms: rooms.length,
                             duration_seconds: audioElapsedRef.current,
@@ -2088,7 +2085,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                             property_size: audioPropertySize,
                             furnished: audioFurnished,
                             audio_length_seconds: data.audio_length_seconds || 0,
-                            cost: audioPriceRef.current || capturedPrice || 5.00,
+                            cost: price || 5.00,
                             converted_json: { rooms: data.rooms, address: audioAddress },
                             extracted_text: data.transcript || '',
                           })
