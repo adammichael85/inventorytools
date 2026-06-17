@@ -201,6 +201,32 @@ Also fix these additional Whisper misreads:
 - "if fittings are fitted" -> fittings as fitted
 - "grey UPVC with seal" / "with seal" (when describing window frame sill) -> with sill
 
+RULE 16 - INVENTORY TERM CORRECTIONS
+Never use the word "laminar" in any output. If the transcription produces "laminar" correct it to "laminate".
+Never use the phrase "floor rim" as an inventory item. If the phrase appears in relation to shower flooring, tiled floor, drain, bath base or floor area, correct it to "Flooring".
+Always prefer standard inventory terms: laminate, flooring, windowsill, pelmet, doorstop, letterbox surround, letterbox flap, patio slab, fittings as fitted.
+
+RULE 17 - SECONDARY CONDITION PRESERVATION
+Do not drop secondary condition notes. When an item has a main defect followed by an additional explanation, both must be retained in the Condition column.
+
+Examples of secondary conditions that must NEVER be dropped:
+- "Lock is misaligned and does not lock. A large patio slab is resting against it to keep it closed." -> BOTH lines must appear
+- "No lock present. A piece of wood is resting against the meter box to keep the door closed." -> BOTH lines must appear
+- "Cleat present but not attached to wall." -> must appear even if it follows other condition text
+- "Cap present, valve present." -> must appear as separate condition lines
+
+These follow-on details explain security, safety, access or condition and must never be shortened or omitted.
+
+RULE 18 - PROP / SUPPORT / SECURITY WORDING
+Any phrase involving an item being propped, held, supported, resting against, unable to access, does not lock, misaligned, jammed, stuck, loose, missing, or not attached must be preserved EXACTLY in the Condition column.
+These phrases are legally and practically important in property inventory reports and must never be paraphrased, shortened or omitted.
+
+CORRECT:
+{"type":"item","item":"Door","description":"Grey wooden panelled / Lock","condition":"Lock is misaligned / Does not lock / A large patio slab resting against it to keep it closed"}
+
+INCORRECT:
+{"type":"item","item":"Door","description":"Grey wooden panelled / Lock","condition":"Lock is misaligned / Does not lock"}
+
 RULE 13 - DO NOT CHANGE WORDS NOT IN CORRECTION DICTIONARY
 Only correct confirmed Whisper errors. Never change clear inventory words.
 Never substitute a similar word for a spoken word. If the clerk says "fascia" use "fascia". If they say "windowsill" use "windowsill". If they say "Velux" use "Velux". If they say "Vaillant" use "Vaillant". If they say "unable to access" keep it exactly as "Unable to access" in the Condition column.
