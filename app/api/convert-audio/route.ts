@@ -286,7 +286,6 @@ ${stitchedTranscript}`
         try {
           const response = await openai.chat.completions.create({
             model: 'gpt-5.5-2026-04-23',
-            temperature: 0,
             max_completion_tokens: 16000,
             messages: [
               { role: 'system', content: systemPrompt },
