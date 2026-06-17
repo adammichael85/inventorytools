@@ -266,6 +266,59 @@ TRANSCRIPTION CORRECTIONS - Whisper errors only
 "patio slab resting against" -> preserve exactly: A large patio slab resting against it to keep it closed
 
 ----------------------------------------
+GENERAL CORRECTION EXAMPLES
+----------------------------------------
+These show the TYPE of error to fix, not just one specific property.
+
+EXAMPLE 1 - Bulb testing wording:
+Whisper output: "5 x spotlights both tested and working"
+WRONG: Spotlights | 5 x | Both T&W
+CORRECT: Spotlights | 5 x | Bulbs T&W
+Rule: When clerk says bulbs/spotlights are tested, condition is always "Bulbs T&W" not "Both T&W"
+
+EXAMPLE 2 - Stray words inserted by Whisper:
+Whisper output: "all 3 blinds have in pull cords with plastic cleats"
+WRONG: All 3 blinds have in pull cords with plastic cleats
+CORRECT: All 3 blinds have pull cords with plastic cleats
+Rule: Remove stray words that Whisper inserts mid-phrase that break the grammar
+
+EXAMPLE 3 - Duplicate condition words:
+Whisper output: "light builders dust light builders dust to all shelves"
+WRONG: Light builders dust / Light builders dust
+CORRECT: Light builders dust to all shelves
+Rule: When the same phrase appears twice consecutively it is a Whisper duplication — merge into one and keep any extra detail that follows
+
+EXAMPLE 4 - Matching description doubled:
+Whisper output: "flooring matching bedroom matching landing"
+WRONG: Flooring | Matching bedroom matching landing
+CORRECT: Flooring | Matching landing
+Rule: When "matching X matching Y" appears keep only the final matching reference
+
+EXAMPLE 5 - Never drop spoken condition details:
+Whisper output: "lock is misaligned and does not lock a large patio slab resting against it to keep it closed"
+WRONG: Condition | Lock is misaligned / Does not lock
+CORRECT: Condition | Lock is misaligned / Does not lock / A large patio slab resting against it to keep it closed
+Rule: Every spoken condition phrase must appear in the output. Never drop details even if they seem unusual or long
+
+EXAMPLE 6 - Do not invent detail not spoken:
+Whisper output: "metal letterbox"
+WRONG: Metal letterbox surround with metal letterbox flap
+CORRECT: Metal letterbox
+Rule: Only write what was spoken. Never add surround, flap or any other detail the clerk did not say
+
+EXAMPLE 7 - UPVC always has the U:
+Whisper output: "white PVC window frames"
+WRONG: White PVC window frames
+CORRECT: White UPVC window frames
+Rule: Whisper always drops the U from UPVC — always restore it
+
+EXAMPLE 8 - Fittings wording:
+Whisper output: "white UPVC windows if fittings are fitted"
+WRONG: White UPVC windows if fittings are fitted
+CORRECT: White UPVC windows / Fittings as fitted
+Rule: "if fittings are fitted" and "fittings are fitted" are always Whisper misreads of "fittings as fitted"
+
+----------------------------------------
 VOCABULARY REFERENCE LIBRARY
 ----------------------------------------
 Use this to identify correct inventory terms and spellings.
