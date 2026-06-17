@@ -1055,7 +1055,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})} remaining</div>
-            <button onClick={() => toolTab === 'audio' ? setShowAudioConvert(true) : setShowConvert(true)} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer' }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF'}</button>
+            <button onClick={() => toolTab === 'audio' ? setShowAudioConvert(true) : setShowConvert(true)} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap' }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF'}</button>
           </div>
         </div>
 
