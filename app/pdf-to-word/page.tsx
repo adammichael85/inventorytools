@@ -38,38 +38,33 @@ export default function PDFToWord() {
           <p style={{ fontSize: 17, color: '#5A7068', lineHeight: 1.7, marginBottom: 36, maxWidth: 460 }}>Upload any inventory PDF and get a perfectly formatted Word document in 1–4 minutes depending on document length. What used to take a typist 90 minutes now costs £5.00.</p>
           <Link href="/auth" style={{ display: 'inline-block', padding: '13px 28px', borderRadius: 10, background: '#FD6A02', color: '#fff', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Log in to convert</Link>
         </div>
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2EAE7', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
-          <div style={{ background: '#F2F5F4', borderBottom: '1px solid #E2EAE7', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF6058' }} />
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FFBD2E' }} />
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
-            <span style={{ flex: 1, textAlign: 'center', fontSize: 12, color: '#94AEA6' }}>inventorytools.co.uk</span>
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2EAE7', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', maxWidth: 420 }}>
+          {/* Modal header */}
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2EAE7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p>
+              <p style={{ fontSize: 12, color: '#94AEA6', margin: 0 }}>£5.00 · £284.00 remaining</p>
+            </div>
+            <div style={{ width: 28, height: 28, borderRadius: 8, border: '1px solid #E2EAE7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#94AEA6' }}>×</div>
           </div>
-          <div style={{ padding: 22 }}>
-            <div style={{ border: '2px dashed #E2EAE7', borderRadius: 10, padding: 22, textAlign: 'center', marginBottom: 16, background: '#F7F9F8' }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>📄</div>
-              <p style={{ fontSize: 13, color: '#5A7068', margin: 0 }}>12 Milliners Court — Inventory.pdf</p>
-              <span style={{ fontSize: 11, color: '#94AEA6' }}>Uploaded · 2.4 MB</span>
-            </div>
-            <div style={{ background: '#F2F5F4', borderRadius: 10, padding: 14, marginBottom: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span style={{ fontSize: 12, fontWeight: 500 }}>Building Word document...</span>
-                <span style={{ fontSize: 11, color: '#94AEA6' }}>⏱ 18s</span>
+          {/* Completion card */}
+          <div style={{ margin: 16, background: '#fff0e6', border: '1px solid #FD6A02', borderRadius: 12, padding: 20, textAlign: 'center' }}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
+            <p style={{ fontSize: 15, fontWeight: 700, color: '#FD6A02', margin: '0 0 4px' }}>Conversion complete!</p>
+            <p style={{ fontSize: 13, color: '#c24a00', margin: '0 0 16px' }}>13 rooms in 1m 8s</p>
+            {[['Outside Front', true],['Entrance Hallway', true],['Reception Room', true],['Kitchen', true],['Stairs', true],['Landing', true],['Bedroom One', true],['Bathroom', true],['Bedroom Two', true]].map(([name]) => (
+              <div key={name as string} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid rgba(253,106,2,0.15)', textAlign: 'left' }}>
+                <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#FD6A02', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3" /></svg></div>
+                <span style={{ fontSize: 12, fontWeight: 500, color: '#c24a00', textTransform: 'uppercase', letterSpacing: 0.3 }}>{name as string}</span>
               </div>
-              {[['Entrance / Hallway', true], ['Living Room', true], ['Kitchen', true], ['Bedroom 1', 'active'], ['Bedroom 2', false], ['Bathroom', false]].map(([name, done]) => (
-                <div key={name as string} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', borderBottom: '1px solid #E2EAE7', opacity: done === false ? 0.35 : 1 }}>
-                  {done === true && <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#FD6A02', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3" /></svg></div>}
-                  {done === 'active' && <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid #FD6A02', borderTopColor: 'transparent', flexShrink: 0 }} />}
-                  {done === false && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#E2EAE7', margin: '0 5px', flexShrink: 0 }} />}
-                  <span style={{ fontSize: 12, fontWeight: done === 'active' ? 600 : 400 }}>{name as string}</span>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff0e6', borderRadius: 8, padding: '10px 14px' }}>
-              <span style={{ color: '#FD6A02' }}>✓</span>
-              <span style={{ fontSize: 12, color: '#c24a00', fontWeight: 500, flex: 1 }}>12 Milliners Court.docx ready</span>
-              <button style={{ fontSize: 11, background: '#FD6A02', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', cursor: 'pointer' }}>Download</button>
-            </div>
+            ))}
+          </div>
+          {/* Download button */}
+          <div style={{ padding: '0 16px 12px' }}>
+            <button style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#FD6A02', color: '#fff', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>↓ Download inventory.docx</button>
+          </div>
+          <div style={{ padding: '0 16px 16px' }}>
+            <button style={{ width: '100%', padding: 11, borderRadius: 10, border: '1px solid #E2EAE7', background: 'transparent', color: '#94AEA6', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Close</button>
           </div>
         </div>
       </section>
