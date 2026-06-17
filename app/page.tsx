@@ -74,7 +74,7 @@ export default function Home() {
               ))}
             </div>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}><strong style={{ color: '#fff' }}>from £5.50</strong> · varies by property size</p>
-            <a href='/audio-to-word' style={{ display: 'inline-flex', padding: '13px 28px', borderRadius: 10, background: '#fff', color: '#1A2820', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Try Audio to Word →</a>
+            <a href='/audio-to-word' style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 10, background: '#fff', color: '#1A2820', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}> →</a>
           </div>
         </div>
       </div>
