@@ -183,6 +183,8 @@ All cleaning conditions must be kept exactly as spoken.
 
 RULE 13 - DO NOT CHANGE WORDS NOT IN CORRECTION DICTIONARY
 Only correct confirmed Whisper errors. Never change clear inventory words.
+Never substitute a similar word for a spoken word. If the clerk says "fascia" use "fascia". If they say "windowsill" use "windowsill". If they say "Velux" use "Velux". If they say "Vaillant" use "Vaillant". If they say "unable to access" keep it exactly as "Unable to access" in the Condition column.
+"Unable to access" is always its own Condition line. Never replace it with an entrance row.
 
 RULE 14 - DESCRIPTION VS CONDITION COLUMN
 Matching and material descriptions always go in Description, never Condition.
@@ -208,6 +210,25 @@ TRANSCRIPTION CORRECTIONS - Whisper errors only
 "runner tile splashback" -> run of tiled splashback | "kit plates" -> kickplates
 "hound base" -> handbasin | "toilet system" -> toilet cistern
 "toilet bulb" -> toilet bowl | "pool cord" -> pull cord | "rise a bar" -> riser bar
+"blacked out pipe" / "blacked out pipes" -> black gutter pipe / black gutter pipes
+"window seals" -> windowsills (only when describing window sills, not actual seals)
+"face for property" / "face for a property" -> fascia of property
+"V-Lux window fairing" -> Velux window frame
+"V-Lux window" -> Velux window
+"valent boiler" -> Vaillant boiler
+"cooker fuser" -> cooker fuse switch
+"stingy nettles" -> stinging nettles
+"doesn't block the door" / "doesn't lock the door" -> does not lock
+"door opening Hungarian" -> delete entirely, do not include in output
+"bolt tested and working" / "bolted and working" -> bulb tested and working
+"tail rail" -> towel rail
+"tile flashback" -> tiled splashback
+"toilet ceiling lid" -> toilet seat and lid
+"window seal" -> windowsill (when describing a sill)
+"white grounder" -> requires further wipe around
+"bulk tested" -> bulb tested
+"sealant wiping is smooth" -> ceiling white painted smooth
+"sealant painted white" -> ceiling white painted
 
 ----------------------------------------
 VOCABULARY REFERENCE LIBRARY
