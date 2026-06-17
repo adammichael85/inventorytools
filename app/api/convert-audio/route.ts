@@ -259,7 +259,13 @@ export async function POST(req: NextRequest) {
       const filePath = filePaths[i]
       const fileName = fileNames[i] || 'audio.mp3'
 
-      const { data: urlData } = await supabase.storage.from('documents').createSignedUrl(filePath, 120)
+      // Retry signed URL up to 3 times in case of propagation delay
+      let urlData: any = null
+      for (let urlAttempt = 1; urlAttempt <= 3; urlAttempt++) {
+        const { data } = await supabase.storage.from('documents').createSignedUrl(filePath, 120)
+        if (data?.signedUrl) { urlData = data; break }
+        if (urlAttempt < 3) await new Promise(r => setTimeout(r, 1000 * urlAttempt))
+      }
       if (!urlData?.signedUrl) throw new Error('Could not get signed URL for ' + filePath)
 
       const audioRes = await fetch(urlData.signedUrl)
