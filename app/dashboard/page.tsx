@@ -1784,13 +1784,30 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           { value: '12bed', label: '12 bedrooms', beds: 12 },
         ]
 
-        const AUDIO_PRICES: Record<string, number> = {
-          room_only: 2.50, studio: 3.00, '1bed': 3.50, '2bed': 4.00, '3bed': 4.50,
-          '4bed': 5.00, '5bed': 5.50, '6bed': 6.00, '7bed': 6.50, '8bed': 7.00,
-          '9bed': 7.50, '10bed': 8.00, '11bed': 8.50, '12bed': 9.00,
+        const AUDIO_PRICES_UNFURNISHED: Record<string, number> = {
+          room_only: 10.00, studio: 15.00, '1bed': 15.00, '2bed': 20.00, '3bed': 25.00,
+          '4bed': 35.00, '5bed': 45.00, '6bed': 50.00, '7bed': 55.00, '8bed': 60.00,
+          '9bed': 65.00, '10bed': 70.00, '11bed': 75.00, '12bed': 80.00,
         }
-
-        const price = audioPropertySize ? AUDIO_PRICES[audioPropertySize] : null
+        const AUDIO_PRICES_FURNISHED: Record<string, number> = {
+          room_only: 12.50, studio: 17.50, '1bed': 17.50, '2bed': 22.50, '3bed': 27.50,
+          '4bed': 37.50, '5bed': 47.50, '6bed': 52.50, '7bed': 57.50, '8bed': 62.50,
+          '9bed': 67.50, '10bed': 72.50, '11bed': 77.50, '12bed': 82.50,
+        }
+        // Market rates (what a typist would charge) — used for savings calculation
+        const AUDIO_MARKET_UNFURNISHED: Record<string, number> = {
+          room_only: 18.18, studio: 27.27, '1bed': 27.27, '2bed': 36.36, '3bed': 45.45,
+          '4bed': 63.64, '5bed': 81.82, '6bed': 90.91, '7bed': 100.00, '8bed': 109.09,
+          '9bed': 118.18, '10bed': 127.27, '11bed': 136.36, '12bed': 145.45,
+        }
+        const AUDIO_MARKET_FURNISHED: Record<string, number> = {
+          room_only: 22.73, studio: 31.82, '1bed': 31.82, '2bed': 40.91, '3bed': 50.00,
+          '4bed': 68.18, '5bed': 86.36, '6bed': 95.45, '7bed': 104.55, '8bed': 113.64,
+          '9bed': 122.73, '10bed': 131.82, '11bed': 140.91, '12bed': 150.00,
+        }
+        const isFurnished = audioFurnished === 'furnished' || audioFurnished === 'part_furnished'
+        const price = audioPropertySize ? (isFurnished ? AUDIO_PRICES_FURNISHED[audioPropertySize] : AUDIO_PRICES_UNFURNISHED[audioPropertySize]) : null
+        const marketPrice = audioPropertySize ? (isFurnished ? AUDIO_MARKET_FURNISHED[audioPropertySize] : AUDIO_MARKET_UNFURNISHED[audioPropertySize]) : null
         const canConvert = audioFiles.length > 0 && audioAddress.trim() && audioPropertySize && audioFurnished
 
         function closeAudioModal() {
@@ -2060,6 +2077,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                             property_size: audioPropertySize,
                             furnished: audioFurnished,
                             audio_length_seconds: data.audio_length_seconds || 0,
+                            cost: price || 5.00,
                             converted_json: { rooms: data.rooms, address: audioAddress },
                             extracted_text: data.transcript || '',
                           })
