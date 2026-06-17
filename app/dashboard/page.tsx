@@ -1112,6 +1112,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </div>
                 ))}
               </div>
+                )})()}
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 20, marginTop: 16 }}>
