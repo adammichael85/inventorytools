@@ -180,7 +180,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         </div>
       </div>
 
-      <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>*£12 avg. typist cost − £5 conversion = £7 net saving per report</p>
+      <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>{toolTab === 'audio' ? '*Saving based on 45% discount vs standard typing rates' : '*£12 avg. typist cost − £5 conversion = £7 net saving per report'}</p>
 
       {userStats && (() => {
         const ltTotal = userStats.total_conversions
@@ -226,7 +226,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
                 </div>
               ))}
             </div>
-            <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>*£12 avg. typist cost − £5 conversion = £7 net saving per report</p>
+            <p style={{ fontSize: 11, color: HINT, marginTop: 6, fontStyle: 'italic' }}>{toolTab === 'audio' ? '*Saving based on 45% discount vs standard typing rates' : '*£12 avg. typist cost − £5 conversion = £7 net saving per report'}</p>
           </div>
         ) })()}
 
