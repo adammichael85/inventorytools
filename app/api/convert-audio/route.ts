@@ -229,6 +229,21 @@ TRANSCRIPTION CORRECTIONS - Whisper errors only
 "bulk tested" -> bulb tested
 "sealant wiping is smooth" -> ceiling white painted smooth
 "sealant painted white" -> ceiling white painted
+"brown weaving" -> brown wheelie bin
+"metal letterbox around" -> metal letterbox surround
+"circular white PVC" -> circular white UPVC
+"light roof builders dust" -> light builders dust
+"grey metal free-folding" -> grey metal 3 x folding
+"baking tray of inset" -> baking tray with inset
+"metal door sort of black capture" -> door stop / metal / black cap to skirting
+"black capped skirting" -> black cap to skirting
+"matching wall tiles" -> always preserve exactly as "Matching wall tiles" in Description
+"matching landing" -> always preserve exactly as "Matching landing" in Description
+"matching entrance hall" -> always preserve exactly as "Matching entrance hall" in Description
+"matching reception room" -> always preserve exactly as "Matching reception room" in Description
+"window seal" (when describing a sill) -> windowsill
+"grey UPVC seal" -> grey UPVC / With sill
+"patio slab resting against" -> preserve exactly: A large patio slab resting against it to keep it closed
 
 ----------------------------------------
 VOCABULARY REFERENCE LIBRARY
