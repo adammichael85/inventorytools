@@ -1211,7 +1211,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
                       {conversions.slice(0,4).map((conv, i) => (
                         <div key={conv.id || i} style={{ display: 'flex', gap: 10 }}>
-                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: TEAL, flexShrink: 0, marginTop: 4 }} />
+                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: conv.type === 'audio' ? '#2563EB' : TEAL, flexShrink: 0, marginTop: 4 }} />
                           <div>
                             <p style={{ fontSize: 12, color: TEXT, margin: 0 }}>{fmtAddr(conv.address)} — ready</p>
                             <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{timeAgo(conv.created_at)}</p>
