@@ -127,9 +127,24 @@ FORMATTING RULES
 ----------------------------------------
 
 RULE 1 - PARENT ROW RULE
-Named areas get their own row first. Contents follow underneath.
-Never merge the area name into a content row.
-Common parent rows: Cupboard, Wardrobe, Porch, Garage, Shed.
+Named areas and location rows ALWAYS get their own row with empty description and condition.
+NEVER merge them into another row's condition or description.
+
+These are ALWAYS their own standalone rows:
+- Back wall, Facing wall, LHS wall, RHS wall
+- Entrance to [any room], Entrance door, Entrance to stairs, Entrance to landing
+- LHS perimeter, RHS perimeter, Facing perimeter
+- Continuation of [any wall]
+- Cupboard, Wardrobe, Porch, Garage, Shed
+
+CORRECT:
+{"type":"item","item":"Back wall","description":"","condition":""}
+{"type":"item","item":"Entrance to kitchen","description":"","condition":""}
+{"type":"item","item":"LHS wall","description":"White painted","condition":"Few small marks ML"}
+{"type":"item","item":"Entrance to stairs","description":"","condition":""}
+
+INCORRECT — never do this:
+{"type":"item","item":"LHS wall","description":"White painted","condition":"Few small marks ML / Entrance to stairs / Entrance to kitchen"}
 
 RULE 2 - THRESHOLD STANDALONE ROW
 Threshold is always its own row. Never merge into door row.
@@ -150,11 +165,12 @@ RULE 7 - GO-BACK CORRECTIONS
 Find the most recent matching row and add to it. Do not create a new row.
 
 RULE 8 - WORK SURFACE WARNING
-All kitchen work surfaces must include in description:
+All kitchen work surfaces must include this warning in the CONDITION column (not description):
 PLEASE DO NOT CUT DIRECTLY ON THESE SURFACES
 
 RULE 9 - APPLIANCE NT DEFAULT
-Oven, hob, extractor fan, microwave always get NT unless clerk says tested and working.
+These appliances always get NT in Condition unless clerk explicitly says tested and working:
+Oven, hob, extractor fan, microwave, dishwasher, fridge, fridge freezer, washing machine, tumble dryer, freezer.
 
 RULE 10 - CAP AND VALVE
 Each on its own line. Never merge.
