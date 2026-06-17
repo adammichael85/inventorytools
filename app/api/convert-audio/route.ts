@@ -422,6 +422,27 @@ export async function POST(req: NextRequest) {
     const transcripts: string[] = []
     let totalSeconds = 0
 
+    const roomList = (roomOrder || '').trim().split('\n').filter((r: string) => r.trim()).map((r: string) => r.trim())
+
+    // Per-room file matching: check if any filename matches a room name
+    function normalise(s: string) {
+      return s.toLowerCase().replace(/\.(mp3|wav|m4a|ogg|webm)$/i, '').replace(/[^a-z0-9]/g, '')
+    }
+    const roomFileMap: Record<string, number> = {}
+    for (let i = 0; i < fileNames.length; i++) {
+      const baseName = normalise(fileNames[i])
+      for (const roomName of roomList) {
+        if (baseName === normalise(roomName)) {
+          roomFileMap[roomName] = i
+          break
+        }
+      }
+    }
+    const isPerRoom = Object.keys(roomFileMap).length === roomList.length
+    console.log('Per-room mode:', isPerRoom, 'matched:', Object.keys(roomFileMap))
+
+    // Transcribe all files
+    const transcriptMap: Record<number, string> = {}
     for (let i = 0; i < filePaths.length; i++) {
       const filePath = filePaths[i]
       const fileName = fileNames[i] || 'audio.mp3'
@@ -452,6 +473,7 @@ export async function POST(req: NextRequest) {
         response_format: 'verbose_json',
       })
 
+      transcriptMap[i] = transcription.text
       transcripts.push(transcription.text)
       totalSeconds += Math.round((transcription as any).duration || 0)
 
@@ -459,16 +481,22 @@ export async function POST(req: NextRequest) {
     }
 
     const stitchedTranscript = transcripts.join(' ')
-    const roomList = (roomOrder || '').trim().split('\n').filter((r: string) => r.trim()).map((r: string) => r.trim())
 
     const roomResults = await Promise.all(roomList.map(async (roomName: string) => {
+      // Use per-room transcript if matched, otherwise use full stitched transcript
+      const roomTranscript = isPerRoom && roomFileMap[roomName] !== undefined
+        ? transcriptMap[roomFileMap[roomName]]
+        : stitchedTranscript
+
+      console.log(`Room ${roomName}: using ${isPerRoom ? 'per-room' : 'stitched'} transcript (${roomTranscript.length} chars)`)
+
       const systemPrompt = buildSystemPrompt(roomName, items, descs, conds)
       const userMessage = `Property: ${address}
 Property size: ${propertySize}
 Room: ${roomName}
 
 TRANSCRIPTION:
-${stitchedTranscript}`
+${roomTranscript}`
 
       let parsed: any[] = []
       for (let attempt = 1; attempt <= 3; attempt++) {
