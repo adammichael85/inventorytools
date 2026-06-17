@@ -272,8 +272,7 @@ export async function POST(req: NextRequest) {
     const stitchedTranscript = transcripts.join(' ')
     const roomList = (roomOrder || '').trim().split('\n').filter((r: string) => r.trim()).map((r: string) => r.trim())
 
-    const result = []
-    for (const roomName of roomList) {
+    const roomResults = await Promise.all(roomList.map(async (roomName: string) => {
       const systemPrompt = buildSystemPrompt(roomName, items, descs, conds)
       const userMessage = `Property: ${address}
 Property size: ${propertySize}
@@ -286,7 +285,7 @@ ${stitchedTranscript}`
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           const response = await openai.chat.completions.create({
-            model: 'gpt-4.1-2025-04-14',
+            model: 'gpt-5.5-2026-04-23',
             temperature: 0,
             max_tokens: 16000,
             messages: [
@@ -314,8 +313,9 @@ ${stitchedTranscript}`
           condition: (r.condition || '').replace(/\\n/g, '\n'),
         }))
 
-      result.push({ roomName, rows })
-    }
+      return { roomName, rows }
+    }))
+    const result = roomResults
 
     return NextResponse.json({
       rooms: result,
