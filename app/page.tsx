@@ -73,13 +73,13 @@ export default function Home() {
                 <span key={t} style={{ fontSize: 12, fontWeight: 500, padding: '5px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.2)', color: '#fff' }}>{t}</span>
               ))}
             </div>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}><strong style={{ color: '#fff' }}>£5.00</strong> flat rate · any length recording</p>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginBottom: 24 }}><strong style={{ color: '#fff' }}>from £5.50</strong> · varies by property size</p>
             <a href='/audio-to-word' style={{ display: 'inline-flex', padding: '13px 28px', borderRadius: 10, background: '#fff', color: '#1A2820', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Try Audio to Word →</a>
           </div>
         </div>
       </div>
       <div style={{ height: 40, background: 'rgba(247,249,248,0.95)', borderTop: '1px solid #E2EAE7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#94AEA6', flexShrink: 0 }}>
-        <strong style={{ color: '#1A2820', marginRight: 4 }}>£5.00</strong> per conversion · Any tool · Credits never expire 
+        <strong style={{ color: '#1A2820', marginRight: 4 }}>PDF from £5.00</strong> · <strong style={{ color: '#1A2820', marginRight: 4 }}>Audio from £5.50</strong> · Credits never expire 
       </div>
     </main>
   )
