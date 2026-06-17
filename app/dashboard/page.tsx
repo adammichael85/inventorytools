@@ -1999,18 +1999,13 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     try {
                       // Upload audio files to Supabase Storage first (bypass Vercel 4.5MB limit)
                       const { data: { session: uploadSession } } = await supabase.auth.getSession()
-                      if (!uploadSession) {
-                        // Try refreshing session
-                        const { data: refreshData } = await supabase.auth.refreshSession()
-                        if (!refreshData.session) throw new Error('Not authenticated — please sign in again')
-                      }
-                      const activeSession = uploadSession || (await supabase.auth.getSession()).data.session
+                      if (!uploadSession) throw new Error('Not authenticated')
                       const ts = Date.now()
                       const filePaths: string[] = []
                       const fileNames: string[] = []
                       for (let fi = 0; fi < audioFiles.length; fi++) {
                         const af = audioFiles[fi]
-                        const tempPath = uploadSession.user.id + '/audio_temp_' + ts + '_' + fi + '_' + af.name
+                        const tempPath = uploadSession!.user.id + '/audio_temp_' + ts + '_' + fi + '_' + af.name
                         const { data: upData, error: upErr } = await supabase.storage.from('documents').upload(tempPath, af, { contentType: af.type || 'audio/mpeg', upsert: true })
                         if (upErr) throw new Error('Upload failed: ' + upErr.message)
                         filePaths.push(upData.path)
