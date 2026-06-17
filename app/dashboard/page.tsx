@@ -1126,14 +1126,16 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               {(() => {
                 const tabConvs = conversions.filter((c: any) => toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio')
                 const tabTotal = tabConvs.length
-                const tabSpend = tabTotal * 5
+                const tabSpend = tabConvs.reduce((s: number, c: any) => s + (c.cost ? Number(c.cost) : (c.type === 'audio' ? 11.00 : 5.00)), 0)
+                const tabMarket = tabConvs.reduce((s: number, c: any) => { const mkt: Record<string,number>={'room_only':10,'studio':15,'1bed':15,'2bed':20,'3bed':25,'4bed':35,'5bed':45,'6bed':50,'7bed':55,'8bed':60,'9bed':65,'10bed':70,'11bed':75,'12bed':80}; const market=c.type==='audio'?(c.property_size?mkt[c.property_size]||12:12):12; return s+market }, 0)
+                const tabSaving = Math.max(0, tabMarket - tabSpend)
                 const tabDur = tabConvs.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
                 const tabAvg = tabTotal > 0 ? Math.round(tabDur / tabTotal) : 0
                 const tabAudio = tabConvs.reduce((s: number, r: any) => s + (r.audio_length_seconds || 0), 0)
                 const fmtT = (s: number) => s >= 60 ? Math.floor(s/60)+'m '+(s%60)+'s' : s+'s'
                 return (
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : `repeat(${toolTab === 'audio' ? 6 : 5},minmax(0,1fr))`, gap: 16, marginBottom: 0 }}>
-                {[['Total reports', tabTotal.toString(), 'all time'],['Total spent', '£'+tabSpend.toFixed(2), toolTab === 'audio' ? 'varies by property size' : '@ £5.00 per report'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : []), ['Est. saving', '£'+(tabTotal * 7).toFixed(2), 'vs. typist avg. £12/report']].map(([label,val,sub]) => (
+                {[['Total reports', tabTotal.toString(), 'all time'],['Total spent', '£'+tabSpend.toFixed(2), toolTab === 'audio' ? 'varies by property size' : '@ £5.00 per report'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : []), ['Est. saving', '£'+tabSaving.toFixed(2), 'vs. manual typing']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
