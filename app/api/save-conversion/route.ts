@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       property_size: body.property_size || null,
       furnished: body.furnished || null,
       audio_length_seconds: body.audio_length_seconds || null,
+      cost: body.cost ? Number(body.cost) : 5.00,
     })
     if (convError) throw new Error(convError.message)
 
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
           total_conversions: (existing.total_conversions || 0) + 1,
           total_rooms: (existing.total_rooms || 0) + (body.rooms || 0),
           total_duration_seconds: (existing.total_duration_seconds || 0) + (body.duration_seconds || 0),
-          total_spend: (existing.total_spend || 0) + 5.0,
+          total_spend: (existing.total_spend || 0) + conversionCost,
           updated_at: new Date().toISOString()
         }).eq('user_id', body.user_id)
       } else {
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
           total_conversions: 1,
           total_rooms: body.rooms || 0,
           total_duration_seconds: body.duration_seconds || 0,
-          total_spend: 5.0
+          total_spend: conversionCost
         })
       }
     } catch(e) { console.log('Stats update failed:', e) }
