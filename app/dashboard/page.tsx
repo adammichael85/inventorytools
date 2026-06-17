@@ -141,7 +141,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
           <div style={{ height: 3, background: BORDER, borderRadius: 2 }}>
             <div style={{ height: '100%', width: Math.min(100, total * 5) + '%', background: TEAL, borderRadius: 2 }} />
           </div>
-          <p style={{ fontSize: 11, color: HINT, marginTop: 6 }}>{total} of 20 credit target</p>
+          {toolTab !== 'audio' && <p style={{ fontSize: 11, color: HINT, marginTop: 6 }}>{total} of 20 credit target</p>}
         </div>
 
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
@@ -205,7 +205,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
                 <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Total spent</p>
                 <p style={{ fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{ltCost.toFixed(2)}</p>
-                <p style={{ fontSize: 12, color: HINT }}>@ £5.00 per report</p>
+                <p style={{ fontSize: 12, color: HINT }}>{toolTab === 'audio' ? 'varies by property size' : '@ £5.00 per report'}</p>
               </div>
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
                 <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Est. saving*</p>
