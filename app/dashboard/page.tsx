@@ -1988,6 +1988,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     style={{ width: '100%', padding: 14, borderRadius: 10, border: 'none', background: AUDIO_BLUE, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
                     onClick={async () => {
                     if (audioFiles.length === 0) return
+                    const capturedPrice = price || 5.00
+                    audioPriceRef.current = capturedPrice
                     setAudioConvertState('processing')
                     setAudioError('')
                     setAudioElapsed(0)
@@ -1996,7 +1998,12 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     try {
                       // Upload audio files to Supabase Storage first (bypass Vercel 4.5MB limit)
                       const { data: { session: uploadSession } } = await supabase.auth.getSession()
-                      if (!uploadSession) throw new Error('Not authenticated')
+                      if (!uploadSession) {
+                        // Try refreshing session
+                        const { data: refreshData } = await supabase.auth.refreshSession()
+                        if (!refreshData.session) throw new Error('Not authenticated — please sign in again')
+                      }
+                      const session = uploadSession || (await supabase.auth.getSession()).data.session
                       const ts = Date.now()
                       const filePaths: string[] = []
                       const fileNames: string[] = []
@@ -2085,7 +2092,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                             property_size: audioPropertySize,
                             furnished: audioFurnished,
                             audio_length_seconds: data.audio_length_seconds || 0,
-                            cost: price || 5.00,
+                            cost: audioPriceRef.current || capturedPrice || 5.00,
                             converted_json: { rooms: data.rooms, address: audioAddress },
                             extracted_text: data.transcript || '',
                           })
