@@ -607,6 +607,7 @@ export default function Dashboard() {
   const [audioAddress, setAudioAddress] = React.useState('')
   const [audioPropertySize, setAudioPropertySize] = React.useState('')
   const [audioFurnished, setAudioFurnished] = React.useState('')
+  const audioPriceRef = React.useRef<number>(5.00)
   const [audioRoomOrder, setAudioRoomOrder] = React.useState('')
   const [audioConvertState, setAudioConvertState] = React.useState<'idle'|'selected'|'processing'|'done'|'error'>('idle')
   const [audioElapsed, setAudioElapsed] = React.useState(0)
