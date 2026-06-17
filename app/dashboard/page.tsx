@@ -1104,7 +1104,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 const tabAudio = tabConvs.reduce((s: number, r: any) => s + (r.audio_length_seconds || 0), 0)
                 const fmtT = (s: number) => s >= 60 ? Math.floor(s/60)+'m '+(s%60)+'s' : s+'s'
                 return (
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 0 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : `repeat(${toolTab === 'audio' ? 6 : 5},minmax(0,1fr))`, gap: 16, marginBottom: 0 }}>
                 {[['Total reports', tabTotal.toString(), 'all time'],['Total spent', '£'+tabSpend.toFixed(2), '@ £5.00 per report'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : []), ['Est. saving', '£'+(tabTotal * 7).toFixed(2), 'vs. typist avg. £12/report']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
