@@ -35,7 +35,7 @@ function timeAgo(dateStr: string): string {
   return then.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
-function StatsPage({ conversions, userStats, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
+function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
   const [period, setPeriod] = React.useState('month')
   const chartRef = React.useRef<any>(null)
   const chartInstanceRef = React.useRef<any>(null)
@@ -1322,7 +1322,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           )}
 
           {page === 'stats' && (
-            <StatsPage conversions={conversions} userStats={userStats} TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} TEAL_DARK={TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} />
+            <StatsPage conversions={conversions} userStats={userStats} toolTab={toolTab} TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} TEAL_DARK={TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} />
           )}
 
           {page === 'legal' && (
