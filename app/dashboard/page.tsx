@@ -1784,26 +1784,27 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           { value: '12bed', label: '12 bedrooms', beds: 12 },
         ]
 
+        // What you charge the user (55% of market rate)
         const AUDIO_PRICES_UNFURNISHED: Record<string, number> = {
+          room_only: 5.50, studio: 8.25, '1bed': 8.25, '2bed': 11.00, '3bed': 13.75,
+          '4bed': 19.25, '5bed': 24.75, '6bed': 27.50, '7bed': 30.25, '8bed': 33.00,
+          '9bed': 35.75, '10bed': 38.50, '11bed': 41.25, '12bed': 44.00,
+        }
+        const AUDIO_PRICES_FURNISHED: Record<string, number> = {
+          room_only: 6.88, studio: 9.63, '1bed': 9.63, '2bed': 12.38, '3bed': 15.13,
+          '4bed': 20.63, '5bed': 26.13, '6bed': 28.88, '7bed': 31.63, '8bed': 34.38,
+          '9bed': 37.13, '10bed': 39.88, '11bed': 42.63, '12bed': 45.38,
+        }
+        // Market rates (what a typist would charge) — used for savings calculation
+        const AUDIO_MARKET_UNFURNISHED: Record<string, number> = {
           room_only: 10.00, studio: 15.00, '1bed': 15.00, '2bed': 20.00, '3bed': 25.00,
           '4bed': 35.00, '5bed': 45.00, '6bed': 50.00, '7bed': 55.00, '8bed': 60.00,
           '9bed': 65.00, '10bed': 70.00, '11bed': 75.00, '12bed': 80.00,
         }
-        const AUDIO_PRICES_FURNISHED: Record<string, number> = {
+        const AUDIO_MARKET_FURNISHED: Record<string, number> = {
           room_only: 12.50, studio: 17.50, '1bed': 17.50, '2bed': 22.50, '3bed': 27.50,
           '4bed': 37.50, '5bed': 47.50, '6bed': 52.50, '7bed': 57.50, '8bed': 62.50,
           '9bed': 67.50, '10bed': 72.50, '11bed': 77.50, '12bed': 82.50,
-        }
-        // Market rates (what a typist would charge) — used for savings calculation
-        const AUDIO_MARKET_UNFURNISHED: Record<string, number> = {
-          room_only: 18.18, studio: 27.27, '1bed': 27.27, '2bed': 36.36, '3bed': 45.45,
-          '4bed': 63.64, '5bed': 81.82, '6bed': 90.91, '7bed': 100.00, '8bed': 109.09,
-          '9bed': 118.18, '10bed': 127.27, '11bed': 136.36, '12bed': 145.45,
-        }
-        const AUDIO_MARKET_FURNISHED: Record<string, number> = {
-          room_only: 22.73, studio: 31.82, '1bed': 31.82, '2bed': 40.91, '3bed': 50.00,
-          '4bed': 68.18, '5bed': 86.36, '6bed': 95.45, '7bed': 104.55, '8bed': 113.64,
-          '9bed': 122.73, '10bed': 131.82, '11bed': 140.91, '12bed': 150.00,
         }
         const isFurnished = audioFurnished === 'furnished' || audioFurnished === 'part_furnished'
         const price = audioPropertySize ? (isFurnished ? AUDIO_PRICES_FURNISHED[audioPropertySize] : AUDIO_PRICES_UNFURNISHED[audioPropertySize]) : null
