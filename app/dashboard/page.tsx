@@ -1170,7 +1170,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                           </td>
                           {toolTab === 'audio' ? (<><td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.property_size ? c.property_size.replace('bed',' bed').replace('_',' ') : '—'}</td><td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.furnished ? c.furnished.replace('_',' ') : '—'}</td><td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.audio_length_seconds ? (c.audio_length_seconds >= 60 ? Math.floor(c.audio_length_seconds/60)+'m '+(c.audio_length_seconds%60)+'s' : c.audio_length_seconds+'s') : '—'}</td></>) : (<td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms</td>)}
                           <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
-                          <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£5.00</td>
+                          <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£{(c.cost ? Number(c.cost) : 5).toFixed(2)}</td>
                           <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{(c.converted_by || '').split(' ').map((n: string, i: number) => i === 0 ? n : n[0]).join(' ')}</td>
                           <td style={{ padding: '12px 20px' }}>
                             <div style={{ display: 'flex', gap: 1 }}>
