@@ -2050,6 +2050,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                             furnished: audioFurnished,
                             audio_length_seconds: data.audio_length_seconds || 0,
                             converted_json: { rooms: data.rooms, address: audioAddress },
+                            extracted_text: data.transcript || '',
                           })
                         })
 
