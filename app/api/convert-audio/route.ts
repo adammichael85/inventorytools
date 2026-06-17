@@ -158,6 +158,19 @@ Each condition phrase on its own line using \n between conditions.
 RULE 5 - CONDITION PLACEMENT
 Condition goes against the item being described at that moment, not the next item.
 
+CRITICAL WALL CONDITION RULE:
+Marks, scuffs, rubs, patchy paint, scratches and similar wall conditions always stay with the WALL row they are spoken against — never move them to the item near them.
+
+CORRECT:
+{"type":"item","item":"Back wall","description":"","condition":"A few small rub marks to wall reveal / Slightly patchy around DPP"}
+{"type":"item","item":"DPP","description":"White","condition":""}
+
+INCORRECT:
+{"type":"item","item":"Back wall","description":"","condition":"A few small rub marks to wall reveal"}
+{"type":"item","item":"DPP","description":"White","condition":"Slightly patchy around DPP"}
+
+The clerk is describing the wall condition. "Around the DPP" tells you WHERE on the wall — it does not mean the DPP has a condition.
+
 RULE 6 - MATCHING ITEMS
 Copy the actual description. Never write "matching previous item".
 
@@ -275,6 +288,8 @@ TRANSCRIPTION CORRECTIONS - Whisper errors only
 "bulk tested" -> bulb tested
 "sealant wiping is smooth" -> ceiling white painted smooth
 "sealant painted white" -> ceiling white painted
+"shared felt" -> felt roofing (Whisper mishears "shed felt roofing" — "shed" is a parent row, "felt roofing" is the first item inside it)
+"overgrown forage" -> overgrown throughout
 "brown weaving" -> brown wheelie bin
 "metal letterbox around" -> metal letterbox surround
 "circular white PVC" -> circular white UPVC
@@ -343,6 +358,23 @@ Whisper output: "white UPVC windows if fittings are fitted"
 WRONG: White UPVC windows if fittings are fitted
 CORRECT: White UPVC windows / Fittings as fitted
 Rule: "if fittings are fitted" and "fittings are fitted" are always Whisper misreads of "fittings as fitted"
+
+EXAMPLE 9 - Outbuilding parent row before contents:
+Whisper output: "shed felt roofing wooden panels to the side grey wooden panelled door"
+WRONG:
+{"type":"item","item":"Roofing","description":"Shared felt","condition":""}
+CORRECT:
+{"type":"item","item":"Shed","description":"","condition":""}
+{"type":"item","item":"Roofing","description":"Felt","condition":""}
+{"type":"item","item":"Panels","description":"Wooden / To side","condition":""}
+{"type":"item","item":"Door","description":"Grey wooden panelled","condition":""}
+Rule: Outbuilding names (Shed, Garage, Porch, Store cupboard, Garden office) are always their own parent row. The outbuilding name is never merged into the first item inside it. This also prevents Whisper stitching "shed" onto the next word.
+
+EXAMPLE 10 - Never drop follow-on security and condition notes:
+Whisper output: "lock is misaligned and does not lock a large patio slab resting against it to keep it closed"
+WRONG: Condition | Lock is misaligned / Does not lock
+CORRECT: Condition | Lock is misaligned / Does not lock / A large patio slab resting against it to keep it closed
+Rule: Never drop follow-on condition or security notes after words like: does not lock, misaligned, resting against, kept closed, unable to access, propped, held, stuck, jammed, not attached. These details are legally important in property inventory reports.
 
 ----------------------------------------
 VOCABULARY REFERENCE LIBRARY
