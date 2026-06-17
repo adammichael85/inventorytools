@@ -43,6 +43,25 @@ function formatDocxName(address: string): string {
 }
 
 function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
+  const MARKET_UNFURNISHED: Record<string, number> = {
+    room_only: 10.00, studio: 15.00, '1bed': 15.00, '2bed': 20.00, '3bed': 25.00,
+    '4bed': 35.00, '5bed': 45.00, '6bed': 50.00, '7bed': 55.00, '8bed': 60.00,
+    '9bed': 65.00, '10bed': 70.00, '11bed': 75.00, '12bed': 80.00,
+  }
+  const MARKET_FURNISHED: Record<string, number> = {
+    room_only: 12.50, studio: 17.50, '1bed': 17.50, '2bed': 22.50, '3bed': 27.50,
+    '4bed': 37.50, '5bed': 47.50, '6bed': 52.50, '7bed': 57.50, '8bed': 62.50,
+    '9bed': 67.50, '10bed': 72.50, '11bed': 77.50, '12bed': 82.50,
+  }
+  function getMarketRate(c: any): number {
+    if (c.type !== 'audio') return 12.00
+    const isFurn = c.furnished === 'furnished' || c.furnished === 'part_furnished'
+    const table = isFurn ? MARKET_FURNISHED : MARKET_UNFURNISHED
+    return c.property_size ? (table[c.property_size] || 12.00) : 12.00
+  }
+  function getActualCost(c: any): number {
+    return c.cost ? Number(c.cost) : (c.type === 'audio' ? 11.00 : 5.00)
+  }
   const [period, setPeriod] = React.useState('month')
   const chartRef = React.useRef<any>(null)
   const chartInstanceRef = React.useRef<any>(null)
@@ -72,8 +91,8 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
   const rooms = isAllTime && userStats ? userStats.total_rooms : filtered.reduce((s: number, r: any) => s + (r.rooms || 0), 0)
   const duration = isAllTime && userStats ? userStats.total_duration_seconds : filtered.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
   const avg = total > 0 ? Math.round(duration / total) : 0
-  const cost = isAllTime && userStats ? Number(userStats.total_spend) : filtered.length * 5
-  const saving = total * 7
+  const cost = isAllTime && userStats ? Number(userStats.total_spend) : filtered.reduce((s: number, c: any) => s + getActualCost(c), 0)
+  const saving = filtered.reduce((s: number, c: any) => s + Math.max(0, getMarketRate(c) - getActualCost(c)), 0)
   const savingPct = cost + saving > 0 ? Math.round((saving / (cost + saving)) * 100) : 0
 
   const last30 = Array.from({ length: 30 }, (_, i) => {
@@ -195,7 +214,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         const ltDuration = userStats.total_duration_seconds
         const ltRooms = userStats.total_rooms
         const ltAvg = ltTotal > 0 ? Math.round(ltDuration / ltTotal) : 0
-        const ltSaving = ltTotal * 7
+        const ltSaving = conversions.reduce((s: number, c: any) => s + Math.max(0, getMarketRate(c) - getActualCost(c)), 0)
         const ltSavingPct = ltCost + ltSaving > 0 ? Math.round((ltSaving / (ltCost + ltSaving)) * 100) : 0
         return (
           <div style={{ marginTop: 32 }}>
