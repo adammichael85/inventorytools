@@ -1095,8 +1095,16 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Lifetime statistics <span style={{ fontSize: 12, fontWeight: 400, color: HINT }}>— includes deleted reports</span></p>
                 </div>
                 <div style={{ padding: '16px 20px' }}>
+              {(() => {
+                const tabConvs = conversions.filter((c: any) => toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio')
+                const tabTotal = tabConvs.length
+                const tabSpend = tabTotal * 5
+                const tabDur = tabConvs.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
+                const tabAvg = tabTotal > 0 ? Math.round(tabDur / tabTotal) : 0
+                const fmtT = (s: number) => s >= 60 ? Math.floor(s/60)+'m '+(s%60)+'s' : s+'s'
+                return (
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(5,minmax(0,1fr))', gap: 16, marginBottom: 0 }}>
-                {[['Total reports', (userStats ? userStats.total_conversions : conversions.length).toString(), 'all time'],['Total spent', '£'+((userStats ? Number(userStats.total_spend) : conversions.length * 5)).toFixed(2), '@ £5.00 per report'],['Avg. time', (userStats && userStats.total_conversions > 0) ? (()=>{ const avg=Math.round(userStats.total_duration_seconds/userStats.total_conversions); return avg>=60 ? Math.floor(avg/60)+'m '+(avg%60)+'s' : avg+'s' })() : '—', 'per conversion'],['Total time', (()=>{ const tot=userStats ? userStats.total_duration_seconds : conversions.reduce((s,r)=>s+(r.duration_seconds||0),0); return tot>=60 ? Math.floor(tot/60)+'m '+(tot%60)+'s' : tot+'s' })(), 'all conversions'],['Est. saving', '£'+((userStats ? userStats.total_conversions : conversions.length) * 7).toFixed(2), 'vs. typist avg. £12/report']].map(([label,val,sub]) => (
+                {[['Total reports', tabTotal.toString(), 'all time'],['Total spent', '£'+tabSpend.toFixed(2), '@ £5.00 per report'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'],['Est. saving', '£'+(tabTotal * 7).toFixed(2), 'vs. typist avg. £12/report']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
