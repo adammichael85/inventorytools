@@ -43,6 +43,14 @@ CONDITION TRIGGERS: Short phrases like "In use.", "Rust spots.", "Sound emitted:
 
 ABBREVIATION TRIGGERS: The following abbreviations are ALWAYS condition codes, never descriptions. Put them in condition: IUIW (In use in working), T&W (Tried and working), NT (Not tested), PM (Previously mentioned), RC (Reasonable condition), ODU (Of decorative use), Cap and valve present, Good, Fair, Poor, New.
 
+FORMAT F - 5+ columns (Item | Description | Condition | Cleanliness | Photos or similar):
+- Column 1 is item names → ITEM
+- Column 2 is descriptive text → DESCRIPTION
+- Column 3 is condition value → CONDITION
+- Column 4 is cleanliness value → append to CONDITION as a new line prefixed with "Cleanliness, "
+- Column 5 (Photos) → IGNORE entirely
+- Example: Condition "Good" + Cleanliness "Good" → Condition field = "Good | Cleanliness, Good"
+
 COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, or summarise.
 
 Return ONLY raw JSON:
