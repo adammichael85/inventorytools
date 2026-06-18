@@ -20,38 +20,74 @@ const PASS2_SYSTEM = `You are converting a section of a UK property inventory PD
 
 This PDF extract contains ONE room or area. Extract every inventory row from the table.
 
-STEP 1 — COUNT THE COLUMNS: Before extracting any data, look at the table header row and count how many columns there are. Common formats:
-- 3 columns: Item | Description | Condition
-- 4 columns: Ref/Number | Item | Description | Condition
-- 5 columns: Item | Description | Condition | Cleanliness | Photos
-
-STEP 2 — APPLY THE CORRECT MAPPING:
-
-If 3 columns (Item | Description | Condition):
-- Col 1 → item, Col 2 → description, Col 3 → condition
-
-If 4 columns (Ref | Item | Description | Condition):
-- Col 1 → IGNORE (ref number), Col 2 → item, Col 3 → description, Col 4 → condition
-
-If 5 columns (Item | Description | Condition | Cleanliness | Photos):
-- Col 1 → item, Col 2 → description, Col 3 → condition value, Col 4 → cleanliness value, Col 5 → IGNORE
-- MERGE condition and cleanliness into one condition field: "[Col3 value]\nCleanliness, [Col4 value]"
-- Example: Col3=Good, Col4=Good → condition: "Good\nCleanliness, Good"
-- Example: Col3=Good, Col4=Fair → condition: "Good\nCleanliness, Fair"
-- Example: Col3=Fair, Col4=Poor → condition: "Fair\nCleanliness, Poor"
-- If Col4 is blank → condition field = Col3 value only
-- The Cleanliness column may show coloured dots (green/amber/red) next to words — read the word, ignore the dot
-
 IGNORE completely:
-- Rows where item is "Further views" or a photo reference like "Ref # 3.1"
-- Photo captions or timestamps like "17 Aug 2023 10:28"
-- Cover pages, disclaimers, declaration pages
+- Rows where the item is "Further views" or similar photo-reference rows
+- Rows where the item or description is just a photo reference like "Ref # 3.1" or "Ref #5" or similar
+- Any text that is just a photo caption or timestamp like "17 Aug 2023 10:28"
+- Cover pages, disclaimers, declaration pages, abbreviations pages, contents pages, property summary pages
 
-REF NUMBER RULE: If BOTH a ref number AND an item name are present, put the ITEM NAME in item. Never put ref numbers like "2.1" in item when an item name is also present.
+COPY EXACTLY: Copy the ITEM column content exactly as it appears in the PDF. Do NOT invent, interpret or rename items. If the item column contains a number (1, 2, 3), copy the number. If it contains a name (Door, Ceiling), copy the name. Never replace numbers with guessed item names.
+
+DASH ITEMS: In some PDFs, the Item column contains only a dash (-). This means the row has no specific item name. When you see - in the Item column, always keep it as - in the Item column. Never replace the dash with the Description text.
+
+APPLIANCE INTERNALS: When an appliance row includes the appliance name followed by a specific appliance part, keep both the appliance name and the part name together in the Item column. Do not move appliance parts such as Fridge door interior, Freezer door interior, Oven interior, Dishwasher interior, Washing machine drawer, Microwave interior, or similar into the Description column. The Description column should only contain the contents, fittings, shelves, drawers, racks, compartments, trays, or accessories inside that appliance section.
+
+CONDITION TRIGGERS: Defect/status words like Dropped, chipped, marked, scratched, stained, loose, cracked, broken, grubby, PM, RC, ODU should normally start/continue the Condition column.
+
+EXTERNAL SECTIONS: The PDF may contain sections that are not standard rooms but must still be treated as room-level headers. These include: External Surfaces, External Features, and Boundaries. Treat these identically to rooms like Living Room or Kitchen.
+
+EMPTY COLUMNS: If a column is blank in the PDF, leave it blank in the output. Never move content from one column to fill an empty column.
+
+BRACKETED CONDITIONS: Some PDFs include condition notes in brackets within the description column e.g. "White brick wall (some bricks missing at top)". When you see text in brackets that describes a condition, defect, or state - extract it from the description and place it in the CONDITION column instead. Remove the brackets. Any text AFTER the closing bracket must NEVER be dropped — append it to the CONDITION field.
+
+REF NUMBER RULE: If BOTH a ref number AND an item name are present, put the ITEM NAME in item. Never put ref numbers like "2.1", "3.4" in item when an item name is also present.
 
 CORD KEEP RULE: "Cord keep attached." always goes in condition, never description.
 
-COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, or summarise.
+COLUMN DETECTION — first identify how many columns this PDF has, then apply the correct mapping:
+
+Format A - 4 columns (Number | Description | Condition/Comments | extras):
+- Column 1 is sequential numbers (1, 2, 3...) → put number into ITEM
+- Column 2 is descriptive text → DESCRIPTION
+- Column 3 is condition/comments → CONDITION
+- Any extra columns → append to CONDITION separated by " | "
+
+Format B - 4 columns (Number | Item name | Description | Condition):
+- Column 1 is sequential numbers → IGNORE
+- Column 2 is short item names (Door, Ceiling, Walls, Floor etc) → ITEM
+- Column 3 is descriptive text → DESCRIPTION
+- Column 4 is condition → CONDITION
+
+Format C - 3 columns (Item | Description | Condition):
+- Column 1 is item names → ITEM
+- Column 2 is descriptive text → DESCRIPTION
+- Column 3 is condition → CONDITION
+
+Format D - 2 columns (Item/Description combined | Condition):
+- Column 1 is combined item and description → ITEM, leave DESCRIPTION blank
+- Column 2 is condition → CONDITION
+
+Format E - 3 columns (Number | Description | Condition):
+- Column 1 is number → ITEM (copy exactly, do not reset or renumber)
+- Column 2 is descriptive text → DESCRIPTION
+- Column 3 is condition → CONDITION
+
+Format F - 5 columns (Item | Description | Condition | Cleanliness | Photos):
+- Column 1 is item name → ITEM
+- Column 2 is descriptive text → DESCRIPTION
+- Column 3 is condition → first line of CONDITION
+- Column 4 is cleanliness → second line of CONDITION as "Cleanliness, [value]"
+- Column 5 is photos → IGNORE entirely
+- The Cleanliness column may show coloured dots (green/amber/red) next to words — read the word, ignore the dot
+- Merge: condition field = "[Col3 value]\nCleanliness, [Col4 value]"
+
+COLUMN MERGING RULE — when both Condition and Cleanliness columns exist:
+- Line 1: the Condition value
+- Line 2: "Cleanliness," followed by the Cleanliness value
+- Examples: Good / Good → "Good\nCleanliness, Good" | Fair / Poor → "Fair\nCleanliness, Poor"
+- If Cleanliness is blank → output Condition value only
+- If Condition is blank but Cleanliness has a value → output "Cleanliness, [value]"
+- If both blank → leave empty
 
 Return ONLY raw JSON:
 {"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}`
