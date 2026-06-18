@@ -62,6 +62,8 @@ COLUMN MERGING RULE — when both Condition and Cleanliness columns exist:
 - Line 1: the Condition value
 - Line 2: "Cleanliness," followed by the Cleanliness value
 
+MID-TEXT DASH RULE: When a single cell contains text with a dash in the middle, like "Ceiling - white emulsion" or "Door - chrome handle", this is NOT a column separator. Keep the entire phrase together exactly as written in ONE field (item or description, whichever column it was in). Do not split the text at the dash into two different columns. Only treat a dash as a standalone item value (the DASH ITEMS rule) when the Item column contains ONLY a dash character and nothing else.
+
 COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, or summarise.
 
 Return ONLY raw JSON:
