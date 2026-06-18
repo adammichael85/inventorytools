@@ -1232,7 +1232,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Activity</h3></div>
                     <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                      {conversions.slice(0,4).map((conv, i) => (
+                      {conversions.slice(0,10).map((conv, i) => (
                         <div key={conv.id || i} style={{ display: 'flex', gap: 10 }}>
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: conv.type === 'audio' ? '#2563EB' : TEAL, flexShrink: 0, marginTop: 4 }} />
                           <div>
@@ -1586,6 +1586,10 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               <button onClick={closeConvert} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
             </div>
 
+            <div style={{ margin: '16px 24px 0', padding: '10px 14px', background: '#FFF8E1', border: '1px solid #FFD54F', borderRadius: 8 }}>
+              <p style={{ fontSize: 11, color: '#7B5E00', margin: 0, lineHeight: 1.5 }}>⚠️ This conversion uses AI and is not guaranteed to be 100% accurate. PDF quality, formatting, or compression may affect the result. Please check the Word document against the original PDF before use.</p>
+            </div>
+
             {convertState === 'idle' && (
               <div style={{ padding: 24 }}>
                 <label htmlFor="pdf-upload">
@@ -1867,6 +1871,10 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>{price ? `£${price.toFixed(2)} · £${Number(credits).toFixed(2)} remaining` : 'Select property size to see price'}</p>
                 </div>
                 <button onClick={closeAudioModal} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
+              </div>
+
+              <div style={{ margin: '16px 24px 0', padding: '10px 14px', background: '#FFF8E1', border: '1px solid #FFD54F', borderRadius: 8 }}>
+                <p style={{ fontSize: 11, color: '#7B5E00', margin: 0, lineHeight: 1.5 }}>⚠️ This conversion uses AI and is not guaranteed to be 100% accurate. Audio quality and clarity may affect the result. Please check the Word document against the original recording before use.</p>
               </div>
 
               <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 18 }}>
