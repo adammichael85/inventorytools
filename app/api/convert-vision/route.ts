@@ -40,6 +40,14 @@ CORD KEEP RULE: "Cord keep attached." is always a condition note. Put it in cond
 
 CONDITION TRIGGERS: Short phrases like "In use.", "Rust spots.", "Sound emitted: Yes.", "Cord keep attached.", "Replacement date: none visible." are condition notes — put them in condition, not description.
 
+FORMAT F — 5 columns (Item | Description | Condition | Cleanliness | Photos):
+- Column 1 is item name → ITEM
+- Column 2 is descriptive text → DESCRIPTION
+- Column 3 is condition → first line of CONDITION
+- Column 4 is cleanliness → second line of CONDITION as "Cleanliness, [value]"
+- Column 5 is photos → IGNORE entirely
+- Apply COLUMN MERGING RULE above for combining Condition and Cleanliness
+
 COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, or summarise.
 
 COLUMN MERGING RULE — 4-Column Source Documents with Cleanliness:
