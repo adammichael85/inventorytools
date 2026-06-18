@@ -42,6 +42,22 @@ CONDITION TRIGGERS: Short phrases like "In use.", "Rust spots.", "Sound emitted:
 
 COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, or summarise.
 
+COLUMN MERGING RULE — 4-Column Source Documents with Cleanliness:
+Some source PDFs contain four columns: Item, Description, Condition, and Cleanliness. The output Word document always uses three columns only: Item, Description, Condition.
+When the source PDF has both a Condition value and a Cleanliness value, merge them into the single output Condition cell as follows:
+- Line 1: the Condition value (e.g. Excellent, Good, Fair, Poor — or any other text)
+- Line 2: "Cleanliness," followed by the Cleanliness value
+Examples:
+- Condition: Good / Cleanliness: Good → output: Good\nCleanliness, Good
+- Condition: Fair / Cleanliness: Poor → output: Fair\nCleanliness, Poor
+- Condition: Excellent / Cleanliness: Good → output: Excellent\nCleanliness, Good
+- Condition: Poor / Cleanliness: Fair → output: Poor\nCleanliness, Fair
+Edge cases:
+- If Cleanliness is blank or N/A — output Condition value only, no second line
+- If Condition is blank but Cleanliness has a value — output: Cleanliness, [value]
+- If both are blank — leave the cell empty
+The Condition value can be any word or phrase — do not restrict or normalise it, output exactly as it appears in the source.
+
 Return ONLY raw JSON:
 {"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}`
 

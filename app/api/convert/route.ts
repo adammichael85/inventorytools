@@ -29,6 +29,23 @@ NUMBERED ITEMS: Each number (1, 2, 3...) represents exactly ONE row. Never split
 
 BRACKETED CONDITIONS: Some PDFs include condition notes in brackets within the description column, e.g. "White brick wall (some bricks missing at top)". When you see text in brackets that describes a condition, defect, or state - extract it from the description and place it in the CONDITION column instead. Remove the brackets. The description should contain only the physical description without the bracketed condition note. IMPORTANT: Any text that appears AFTER the closing bracket must NEVER be dropped. Append it to the CONDITION field after the bracketed text. Example: 'Wood door (stiff to close). 1 bolt key.' → Description: 'Wood door.' Condition: 'stiff to close. 1 bolt key.' Example: 'Mattress (worn). Fire resistant.' → Description: 'Mattress.' Condition: 'worn. Fire resistant.'
 
+
+COLUMN MERGING RULE — 4-Column Source Documents with Cleanliness:
+Some source PDFs contain four columns: Item, Description, Condition, and Cleanliness. The output Word document always uses three columns only: Item, Description, Condition.
+When the source PDF has both a Condition value and a Cleanliness value, merge them into the single output Condition cell as follows:
+- Line 1: the Condition value (e.g. Excellent, Good, Fair, Poor — or any other text)
+- Line 2: "Cleanliness," followed by the Cleanliness value
+Examples:
+- Condition: Good / Cleanliness: Good → output: Good\nCleanliness, Good
+- Condition: Fair / Cleanliness: Poor → output: Fair\nCleanliness, Poor
+- Condition: Excellent / Cleanliness: Good → output: Excellent\nCleanliness, Good
+- Condition: Poor / Cleanliness: Fair → output: Poor\nCleanliness, Fair
+Edge cases:
+- If Cleanliness is blank or N/A — output Condition value only, no second line
+- If Condition is blank but Cleanliness has a value — output: Cleanliness, [value]
+- If both are blank — leave the cell empty
+The Condition value can be any word or phrase — do not restrict or normalise it, output exactly as it appears in the source.
+
 COMPLETENESS: Every single numbered item must appear in the output. If you are near the end of the document, do not stop - continue until the very last item in the very last room.
 
 ROOM HEADINGS IN NUMBERED FORMAT: If a numbered item contains only a location or area name (e.g. '1 Outside Front' or '8 Hall' or '15 Sitting Room'), treat it as a room heading not an inventory row.
