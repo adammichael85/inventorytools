@@ -113,174 +113,83 @@ export async function POST(req: NextRequest) {
 
     const pdfBuffer = await pdfRes.arrayBuffer()
     const fullBase64 = Buffer.from(pdfBuffer).toString("base64")
-    console.log("Vision two-pass: PDF fetched, size:", pdfBuffer.byteLength)
+    console.log("Vision single-pass: PDF fetched, size:", pdfBuffer.byteLength)
 
-    // ── PASS 1: Get room list and page ranges ──
-    console.log("Pass 1: extracting room list...")
-    const pass1 = await fetch("https://api.openai.com/v1/responses", {
+    // Single pass: send full PDF and extract all rooms at once
+    const SINGLE_SYSTEM = PASS2_SYSTEM.replace(
+      'Return ONLY raw JSON:\n{"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}',
+      'Return ONLY raw JSON with all rooms:\n{"rooms":[{"roomName":"Kitchen","rows":[{"item":"Door","description":"White painted wood","condition":"Good"}]}]}'
+    )
+
+    const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
       body: JSON.stringify({
         model: "gpt-4.1",
-        max_output_tokens: 4000,
+        max_output_tokens: 32000,
         temperature: 0,
         input: [{
           role: "user",
           content: [
-            { type: "input_text", text: PASS1_SYSTEM },
+            { type: "input_text", text: SINGLE_SYSTEM + "\n\nExtract ALL rooms and ALL rows from this inventory PDF. Return raw JSON only." },
             { type: "input_file", filename: "inventory.pdf", file_data: "data:application/pdf;base64," + fullBase64 }
           ]
         }]
       })
     })
 
-    const pass1Data = await pass1.json()
-    let pass1Text = ""
-    if (pass1Data.output_text) {
-      pass1Text = pass1Data.output_text
-    } else if (pass1Data.output && Array.isArray(pass1Data.output)) {
-      for (const item of pass1Data.output) {
+    const responseData = await response.json()
+    let responseText = ""
+    if (responseData.output_text) {
+      responseText = responseData.output_text
+    } else if (responseData.output && Array.isArray(responseData.output)) {
+      for (const item of responseData.output) {
         if (item.content && Array.isArray(item.content)) {
           for (const c of item.content) {
-            if (c.type === "output_text" && c.text) pass1Text += c.text
+            if (c.type === "output_text" && c.text) responseText += c.text
           }
         }
       }
     }
 
-    console.log("Pass 1 response:", pass1Text.slice(0, 500))
+    console.log("Single pass response (first 500):", responseText.slice(0, 500))
 
-    const p1first = pass1Text.indexOf("{")
-    const p1last = pass1Text.lastIndexOf("}")
-    if (p1first === -1) throw new Error("Pass 1: No JSON found")
+    const first = responseText.indexOf("{")
+    const last = responseText.lastIndexOf("}")
+    if (first === -1) throw new Error("No JSON found in response")
 
-    let roomList: { room: string, startPage: number, endPage: number }[]
+    let parsed: any
     try {
-      const p1data = JSON.parse(pass1Text.slice(p1first, p1last + 1))
-      roomList = p1data.rooms || []
+      parsed = JSON.parse(responseText.slice(first, last + 1))
     } catch (e) {
-      throw new Error("Pass 1: JSON parse failed: " + pass1Text.slice(0, 200))
+      throw new Error("JSON parse failed: " + responseText.slice(0, 200))
     }
 
-    if (roomList.length === 0) throw new Error("Pass 1: No rooms found")
-    console.log("Pass 1 found", roomList.length, "rooms:", roomList.map(r => r.room).join(", "))
+    let allRooms = parsed.rooms || []
 
-    // Load the PDF for page extraction
-    const pdfDoc = await PDFDocument.load(pdfBuffer)
-    const totalPages = pdfDoc.getPageCount()
-    console.log("PDF total pages:", totalPages)
+    // Filter out Further views and photo reference rows from each room
+    allRooms = allRooms.map((room: any) => ({
+      ...room,
+      rows: (room.rows || []).filter((row: any) => {
+        const item = (row.item || "").toLowerCase().trim()
+        const desc = (row.description || "").toLowerCase().trim()
+        if (item === "further views" || item === "further view") return false
+        if (item === "photographs at point of inventory") return false
+        if (/^ref\s*#/.test(item)) return false
+        if (/^ref\s*#/.test(desc)) return false
+        if (/^\d+\s+\w{3}\s+\d{4}\s+\d{2}:\d{2}/.test(item)) return false
+        return true
+      })
+    })).filter((room: any) => room.rows.length > 0)
 
-    // ── PASS 2: Process each room individually ──
-    const allRooms: { roomName: string, rows: { item: string, description: string, condition: string }[] }[] = []
+    if (allRooms.length === 0) throw new Error("No rooms extracted")
 
-    // Extract address from first room's context (use property name from pdfPath)
-    let address = ""
+    console.log("Single-pass complete:", allRooms.length, "rooms total")
+
+    // Extract address from pdfPath
     const pathParts = pdfPath.split("/")
     const filename = pathParts[pathParts.length - 1] || ""
-    address = filename.replace(/[_-]/g, " ").replace(/\.(pdf|docx)$/i, "").trim()
-
-    for (let i = 0; i < roomList.length; i++) {
-      const roomInfo = roomList[i]
-      const startPage = Math.max(1, roomInfo.startPage)
-      const endPage = Math.min(roomInfo.endPage, totalPages)
-
-      console.log(`Pass 2 [${i + 1}/${roomList.length}]: ${roomInfo.room} pages ${startPage}-${endPage}`)
-
-      try {
-        // Extract pages for this room
-        const roomPdf = await PDFDocument.create()
-        const pageIndices = []
-        for (let p = startPage - 1; p < endPage; p++) {
-          pageIndices.push(p)
-        }
-        const copiedPages = await roomPdf.copyPages(pdfDoc, pageIndices)
-        copiedPages.forEach(page => roomPdf.addPage(page))
-
-        const roomPdfBytes = await roomPdf.save()
-        const roomBase64 = Buffer.from(roomPdfBytes).toString("base64")
-
-        // Call GPT-4.1 vision for this room
-        const pass2 = await fetch("https://api.openai.com/v1/responses", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + process.env.OPENAI_API_KEY },
-          body: JSON.stringify({
-            model: "gpt-4.1",
-            max_output_tokens: 8000,
-            temperature: 0,
-            input: [{
-              role: "user",
-              content: [
-                { type: "input_text", text: PASS2_SYSTEM + `\n\nThis section is: ${roomInfo.room}\n\nExtract ALL inventory rows. Return raw JSON only.` },
-                { type: "input_file", filename: "room.pdf", file_data: "data:application/pdf;base64," + roomBase64 }
-              ]
-            }]
-          })
-        })
-
-        const pass2Data = await pass2.json()
-        let pass2Text = ""
-        if (pass2Data.output_text) {
-          pass2Text = pass2Data.output_text
-        } else if (pass2Data.output && Array.isArray(pass2Data.output)) {
-          for (const item of pass2Data.output) {
-            if (item.content && Array.isArray(item.content)) {
-              for (const c of item.content) {
-                if (c.type === "output_text" && c.text) pass2Text += c.text
-              }
-            }
-          }
-        }
-
-        if (!pass2Text) {
-          console.log(`Room ${roomInfo.room}: empty response, skipping`)
-          continue
-        }
-
-        const p2first = pass2Text.indexOf("{")
-        const p2last = pass2Text.lastIndexOf("}")
-        if (p2first === -1) {
-          console.log(`Room ${roomInfo.room}: no JSON, skipping`)
-          continue
-        }
-
-        let roomData: any
-        try {
-          roomData = JSON.parse(pass2Text.slice(p2first, p2last + 1))
-        } catch (e) {
-          console.log(`Room ${roomInfo.room}: JSON parse failed, skipping`)
-          continue
-        }
-
-        let rows = roomData.rows || []
-
-        // Filter out Further views and photo reference rows
-        rows = rows.filter((row: any) => {
-          const item = (row.item || "").toLowerCase().trim()
-          const desc = (row.description || "").toLowerCase().trim()
-          if (item === "further views" || item === "further view") return false
-          if (item === "photographs at point of inventory") return false
-          if (/^ref\s*#/.test(item)) return false
-          if (/^ref\s*#/.test(desc)) return false
-          if (/^\d+\s+\w{3}\s+\d{4}\s+\d{2}:\d{2}/.test(item)) return false
-          return true
-        })
-
-        if (rows.length > 0) {
-          allRooms.push({ roomName: roomInfo.room, rows })
-          console.log(`Room ${roomInfo.room}: ${rows.length} rows extracted`)
-        } else {
-          console.log(`Room ${roomInfo.room}: 0 rows after filtering, skipping`)
-        }
-
-      } catch (roomErr: any) {
-        console.log(`Room ${roomInfo.room}: error - ${roomErr.message}, skipping`)
-        continue
-      }
-    }
-
-    if (allRooms.length === 0) throw new Error("No rooms extracted in pass 2")
-
-    console.log("Two-pass complete:", allRooms.length, "rooms total")
+    const address = filename.replace(/[_-]/g, " ").replace(/\.(pdf|docx)$/i, "").trim()
 
     return NextResponse.json({
       address,
@@ -290,7 +199,7 @@ export async function POST(req: NextRequest) {
     })
 
   } catch (err: any) {
-    console.error("Vision two-pass error:", err.message)
+    console.error("Vision single-pass error:", err.message)
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
