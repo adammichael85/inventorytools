@@ -43,13 +43,24 @@ CONDITION TRIGGERS: Short phrases like "In use.", "Rust spots.", "Sound emitted:
 
 ABBREVIATION TRIGGERS: The following abbreviations are ALWAYS condition codes, never descriptions. Put them in condition: IUIW (In use in working), T&W (Tried and working), NT (Not tested), PM (Previously mentioned), RC (Reasonable condition), ODU (Of decorative use), Cap and valve present, Good, Fair, Poor, New.
 
-FORMAT F - 5+ columns (Item | Description | Condition | Cleanliness | Photos or similar):
-- Column 1 is item names → ITEM
+FORMAT F - 5 columns (Item | Description | Condition | Cleanliness | Photos):
+- Column 1 is item name → ITEM
 - Column 2 is descriptive text → DESCRIPTION
-- Column 3 is condition value → CONDITION
-- Column 4 is cleanliness value → append to CONDITION as a new line prefixed with "Cleanliness, "
-- Column 5 (Photos) → IGNORE entirely
-- Example: Condition "Good" + Cleanliness "Good" → Condition field = "Good | Cleanliness, Good"
+- Column 3 is condition → first line of CONDITION
+- Column 4 is cleanliness → second line of CONDITION as "Cleanliness, [value]"
+- Column 5 is photos → IGNORE entirely
+- The Cleanliness column may show coloured dots (green/amber/red) next to words — read the word, ignore the dot
+- Merge condition and cleanliness: condition field = "[Col3 value]\nCleanliness, [Col4 value]"
+- Example: Condition=Good, Cleanliness=Good → condition: "Good\nCleanliness, Good"
+- Example: Condition=Good, Cleanliness=Fair → condition: "Good\nCleanliness, Fair"
+- Example: Condition=Fair, Cleanliness=Poor → condition: "Fair\nCleanliness, Poor"
+- If Cleanliness is blank → output Condition value only
+- If Condition is blank but Cleanliness has a value → output "Cleanliness, [value]"
+
+COLUMN MERGING RULE — when both Condition and Cleanliness columns exist:
+- ALWAYS output both values merged into the condition field
+- Line 1: the Condition value
+- Line 2: "Cleanliness," followed by the Cleanliness value
 
 COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, or summarise.
 
