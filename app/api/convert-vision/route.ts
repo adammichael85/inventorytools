@@ -20,56 +20,41 @@ const PASS2_SYSTEM = `You are converting a section of a UK property inventory PD
 
 This PDF extract contains ONE room or area. Extract every inventory row from the table.
 
+STEP 1 — COUNT THE COLUMNS: Before extracting any data, look at the table header row and count how many columns there are. Common formats:
+- 3 columns: Item | Description | Condition
+- 4 columns: Ref/Number | Item | Description | Condition
+- 5 columns: Item | Description | Condition | Cleanliness | Photos
+
+STEP 2 — APPLY THE CORRECT MAPPING:
+
+If 3 columns (Item | Description | Condition):
+- Col 1 → item, Col 2 → description, Col 3 → condition
+
+If 4 columns (Ref | Item | Description | Condition):
+- Col 1 → IGNORE (ref number), Col 2 → item, Col 3 → description, Col 4 → condition
+
+If 5 columns (Item | Description | Condition | Cleanliness | Photos):
+- Col 1 → item, Col 2 → description, Col 3 → condition value, Col 4 → cleanliness value, Col 5 → IGNORE
+- MERGE condition and cleanliness into one condition field: "[Col3 value]\nCleanliness, [Col4 value]"
+- Example: Col3=Good, Col4=Good → condition: "Good\nCleanliness, Good"
+- Example: Col3=Good, Col4=Fair → condition: "Good\nCleanliness, Fair"
+- Example: Col3=Fair, Col4=Poor → condition: "Fair\nCleanliness, Poor"
+- If Col4 is blank → condition field = Col3 value only
+- The Cleanliness column may show coloured dots (green/amber/red) next to words — read the word, ignore the dot
+
 IGNORE completely:
-- Rows where the item is "Further views" or similar photo-reference rows
-- Rows where the item or description is just a photo reference like "Ref # 3.1" or "Ref #5" or similar
-- Any text that is just a photo caption or timestamp like "17 Aug 2023 10:28"
+- Rows where item is "Further views" or a photo reference like "Ref # 3.1"
+- Photo captions or timestamps like "17 Aug 2023 10:28"
 - Cover pages, disclaimers, declaration pages
 
-COLUMN DETECTION: Identify the column format visually:
-- Some PDFs have: Ref | Name | Description | Condition (4 columns)
-- Some PDFs have: Item | Description | Condition (3 columns)  
-- Some PDFs have: Number | Description | Condition (3 columns)
-- Some PDFs have: Item | Description | Condition | Cleanliness | Photos (5 columns) — IMPORTANT: when you see both a Condition AND a Cleanliness column, merge them: output Condition value on line 1, then "Cleanliness, [value]" on line 2 in the condition field. The Photos column is always ignored.
-- Some PDFs have: Item | Description | Condition | Cleanliness | Photos (5 columns) — IMPORTANT: when you see both a Condition AND a Cleanliness column, merge them: output Condition value on line 1, then "Cleanliness, [value]" on line 2 in the condition field. The Photos column is always ignored.
+REF NUMBER RULE: If BOTH a ref number AND an item name are present, put the ITEM NAME in item. Never put ref numbers like "2.1" in item when an item name is also present.
 
-REF NUMBER RULE:
-- If BOTH a ref number AND an item name are present: put the ITEM NAME in the item field. IGNORE the ref number.
-- The Name/Item column contains values like "Front Door", "Flooring", "Walls", "Ceiling" — these go in item.
-- Never put ref numbers like "2.1", "3.4" in the item field when an item name is also present.
-
-CORD KEEP RULE: "Cord keep attached." is always a condition note. Put it in condition, never in description.
-
-CONDITION TRIGGERS: Short phrases like "In use.", "Rust spots.", "Sound emitted: Yes.", "Cord keep attached.", "Replacement date: none visible." are condition notes — put them in condition, not description.
-
-FORMAT F — 5 columns (Item | Description | Condition | Cleanliness | Photos):
-- Column 1 is item name → ITEM
-- Column 2 is descriptive text → DESCRIPTION
-- Column 3 is condition → first line of CONDITION
-- Column 4 is cleanliness → second line of CONDITION as "Cleanliness, [value]"
-- Column 5 is photos → IGNORE entirely
-- Apply COLUMN MERGING RULE above for combining Condition and Cleanliness
+CORD KEEP RULE: "Cord keep attached." always goes in condition, never description.
 
 COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, or summarise.
 
-COLUMN MERGING RULE — 4-Column Source Documents with Cleanliness:
-Some source PDFs contain four columns: Item, Description, Condition, and Cleanliness. The output Word document always uses three columns only: Item, Description, Condition.
-When the source PDF has both a Condition value and a Cleanliness value, merge them into the single output Condition cell as follows:
-- Line 1: the Condition value (e.g. Excellent, Good, Fair, Poor — or any other text)
-- Line 2: "Cleanliness," followed by the Cleanliness value
-Examples:
-- Condition: Good / Cleanliness: Good → output: Good\nCleanliness, Good
-- Condition: Fair / Cleanliness: Poor → output: Fair\nCleanliness, Poor
-- Condition: Excellent / Cleanliness: Good → output: Excellent\nCleanliness, Good
-- Condition: Poor / Cleanliness: Fair → output: Poor\nCleanliness, Fair
-Edge cases:
-- If Cleanliness is blank or N/A — output Condition value only, no second line
-- If Condition is blank but Cleanliness has a value — output: Cleanliness, [value]
-- If both are blank — leave the cell empty
-The Condition value can be any word or phrase — do not restrict or normalise it, output exactly as it appears in the source.
-
 Return ONLY raw JSON:
-{"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}`
+{"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}\`
 
 export async function POST(req: NextRequest) {
   try {
