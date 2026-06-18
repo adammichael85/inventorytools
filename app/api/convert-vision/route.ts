@@ -54,7 +54,7 @@ CORD KEEP RULE: "Cord keep attached." always goes in condition, never descriptio
 COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, or summarise.
 
 Return ONLY raw JSON:
-{"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}\`
+{"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}`
 
 export async function POST(req: NextRequest) {
   try {
