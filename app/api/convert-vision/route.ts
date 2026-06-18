@@ -31,6 +31,7 @@ COLUMN DETECTION: Identify the column format visually:
 - Some PDFs have: Item | Description | Condition (3 columns)  
 - Some PDFs have: Number | Description | Condition (3 columns)
 - Some PDFs have: Item | Description | Condition | Cleanliness | Photos (5 columns) — IMPORTANT: when you see both a Condition AND a Cleanliness column, merge them: output Condition value on line 1, then "Cleanliness, [value]" on line 2 in the condition field. The Photos column is always ignored.
+- Some PDFs have: Item | Description | Condition | Cleanliness | Photos (5 columns) — IMPORTANT: when you see both a Condition AND a Cleanliness column, merge them: output Condition value on line 1, then "Cleanliness, [value]" on line 2 in the condition field. The Photos column is always ignored.
 
 REF NUMBER RULE:
 - If BOTH a ref number AND an item name are present: put the ITEM NAME in the item field. IGNORE the ref number.
