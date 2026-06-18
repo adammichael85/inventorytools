@@ -75,6 +75,14 @@ Format D - 2 columns (Item/Description combined | Condition):
 
 Format E - 3 columns (Number | Description | Condition):
 - Column 1 is number → put number ONLY into ITEM, numbers must match exactly as they appear in the original PDF - do not reset or renumber
+
+Format F - 5 columns (Item | Description | Condition | Cleanliness | Photos):
+- Column 1 is item name → ITEM
+- Column 2 is descriptive text → DESCRIPTION
+- Column 3 is condition → first line of CONDITION
+- Column 4 is cleanliness → second line of CONDITION as "Cleanliness, [value]"
+- Column 5 is photos → IGNORE entirely
+- Apply COLUMN MERGING RULE above for combining Condition and Cleanliness
 - Column 2 is descriptive text → DESCRIPTION
 - Column 3 is condition → CONDITION
 
