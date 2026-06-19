@@ -105,6 +105,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
     const d = new Date(now); d.setDate(d.getDate() - (29 - i))
     const label = d.getDate() + ' ' + d.toLocaleString('default', { month: 'short' })
     const count = conversions.filter((c: any) => {
+      if (toolTab === 'audio' ? c.type !== 'audio' : c.type === 'audio') return false
       const cd = new Date(c.created_at)
       return cd.getDate() === d.getDate() && cd.getMonth() === d.getMonth() && cd.getFullYear() === d.getFullYear()
     }).length
@@ -139,7 +140,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         }
       }
     })
-  }, [chartReady, conversions])
+  }, [chartReady, conversions, toolTab])
 
   const periodLabels: any = { today: 'Today', week: 'This Week', month: 'This Month', all: 'All Time' }
 
@@ -205,7 +206,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: 20, marginBottom: 8 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>Conversions — last 30 days</p>
-          <span style={{ fontSize: 11, color: HINT }}>{conversions.length} total</span>
+          <span style={{ fontSize: 11, color: HINT }}>{last30.reduce((s,d)=>s+d.count,0)} total</span>
         </div>
         <div style={{ position: 'relative', height: 160 }}>
           <canvas ref={chartRef} role="img" aria-label="Bar chart of daily conversions over last 30 days" />
