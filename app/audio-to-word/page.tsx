@@ -35,7 +35,7 @@ export default function AudioToWord() {
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FD6A02', display: 'inline-block' }} /> AI-powered · Built for inventory clerks
           </div>
           <h1 style={{ fontSize: isMobile ? 32 : 48, fontWeight: 700, lineHeight: 1.15, marginBottom: 20, letterSpacing: -1 }}>Stop typing. Start <span style={{ color: '#FD6A02' }}>converting.</span></h1>
-          <p style={{ fontSize: 17, color: '#5A7068', lineHeight: 1.7, marginBottom: 36, maxWidth: 460 }}>Upload a voice recording of an inventory inspection and get a perfectly formatted Word document in minutes. What used to take hours of typing now starts from £4.80 — up to 52% cheaper than a manual typist.</p>
+          <p style={{ fontSize: 17, color: '#5A7068', lineHeight: 1.7, marginBottom: 36, maxWidth: 460 }}>Upload a voice recording of an inventory inspection and get a perfectly formatted Word document in minutes. What used to take hours of typing now starts from £4.88 — up to 51.25% cheaper than a manual typist.</p>
           <Link href="/auth" style={{ display: 'inline-block', padding: '13px 28px', borderRadius: 10, background: '#FD6A02', color: '#fff', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Log in to convert</Link>
         </div>
         <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2EAE7', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', maxWidth: 420 }}>
@@ -43,7 +43,7 @@ export default function AudioToWord() {
           <div style={{ padding: '14px 18px', borderBottom: '1px solid #E2EAE7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>🎙️ Convert Audio to Word</p>
-              <p style={{ fontSize: 12, color: '#94AEA6', margin: 0 }}>£12.00 · £65.25 remaining</p>
+              <p style={{ fontSize: 12, color: '#94AEA6', margin: 0 }}>£12.19 · £65.25 remaining</p>
             </div>
             <div style={{ width: 28, height: 28, borderRadius: 8, border: '1px solid #E2EAE7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#94AEA6' }}>×</div>
           </div>
@@ -59,7 +59,7 @@ export default function AudioToWord() {
                 <p style={{ fontSize: 11, fontWeight: 600, color: '#1D4ED8', textTransform: 'uppercase', letterSpacing: 0.5, margin: '0 0 2px' }}>Conversion price</p>
                 <p style={{ fontSize: 11, color: '#2563EB', margin: 0 }}>Based on selected property size</p>
               </div>
-              <p style={{ fontSize: 22, fontWeight: 700, color: '#2563EB', margin: 0 }}>£12.00</p>
+              <p style={{ fontSize: 22, fontWeight: 700, color: '#2563EB', margin: 0 }}>£12.19</p>
             </div>
             {/* Room order */}
             <div style={{ border: '1px solid #E2EAE7', borderRadius: 8, padding: '8px 10px', marginBottom: 10, fontSize: 12, color: '#1A2820', background: '#F7F9F8', lineHeight: 1.8 }}>
@@ -116,7 +116,7 @@ export default function AudioToWord() {
           <p style={{ fontSize: 16, color: '#5A7068', maxWidth: 520, lineHeight: 1.7, marginBottom: 40 }}>No typing. No formatting. No chasing typists. Just upload, wait a few minutes, and download.</p>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20 }}>
             {[['🎙️','Record on any device','Use your phone, tablet or voice recorder during the inspection. Upload the file when you\'re ready — MP3, WAV, M4A and more.'],
-              ['💷','From £4.80 · save up to 52% vs a typist','A room-only property starts at £4.80. A 3-bed unfurnished is £12.00. Always cheaper than a manual typist. Pay only when you convert.'],
+              ['💷','From £4.88 · save up to 51.25% vs a typist','A room-only property starts at £4.88. A 3-bed unfurnished is £12.19. Always cheaper than a manual typist. Pay only when you convert.'],
               ['🧠','AI dictation correction','Our AI understands inventory language — it corrects mumbled words, fills in abbreviations, and structures everything room by room.'],
               ['📋','Room-by-room structure','Every room is identified from your narration and formatted with items, descriptions and conditions in the correct columns.'],
               ['🔒','Staff logins included','Every team member gets their own secure login. No extra cost per seat — add as many staff as you need.'],
@@ -137,13 +137,13 @@ export default function AudioToWord() {
         <section style={{ maxWidth: 1100, margin: '0 auto', padding: '60px 5vw' }}>
           <p style={{ fontSize: 12, fontWeight: 500, color: '#FD6A02', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Pricing</p>
           <h2 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 700, marginBottom: 14, letterSpacing: -0.5 }}>Priced by property size. Always cheaper than a typist.</h2>
-          <p style={{ fontSize: 16, color: '#5A7068', maxWidth: 520, lineHeight: 1.7, marginBottom: 40 }}>A 3-bed unfurnished costs £12.00. Up to 52% cheaper than sending to a manual typist.</p>
+          <p style={{ fontSize: 16, color: '#5A7068', maxWidth: 520, lineHeight: 1.7, marginBottom: 40 }}>A 3-bed unfurnished costs £12.19. Up to 51.25% cheaper than sending to a manual typist.</p>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 24, alignItems: 'start' }}>
             <div style={{ background: '#FD6A02', borderRadius: 20, padding: 40, color: '#fff', textAlign: 'center' }}>
               <p style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 2, opacity: 0.75, marginBottom: 16 }}>Starting from</p>
-              <p style={{ fontSize: 72, fontWeight: 700, lineHeight: 1, letterSpacing: -2, marginBottom: 4 }}>£4.80</p>
+              <p style={{ fontSize: 72, fontWeight: 700, lineHeight: 1, letterSpacing: -2, marginBottom: 4 }}>£4.88</p>
               <p style={{ fontSize: 15, opacity: 0.8, marginBottom: 28 }}>room only · unfurnished</p>
-              {['Priced by property size — from £4.80','Pay as you go — no monthly commitment','Unlimited staff logins included','Credits never expire'].map(f => (
+              {['Priced by property size — from £4.88','Pay as you go — no monthly commitment','Unlimited staff logins included','Credits never expire'].map(f => (
                 <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, textAlign: 'left' }}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="2.5"><polyline points="3,8 6,11 13,5" /></svg>
                   <span style={{ fontSize: 14 }}>{f}</span>
@@ -156,7 +156,7 @@ export default function AudioToWord() {
                 <p style={{ fontSize: 13, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, color: '#94AEA6', marginBottom: 18 }}>How it compares</p>
                 {[['External typist','Average market rate per report','£12–£25','#E24B4A'],
                   ['In-house typing time','45–90 mins of staff time per report','~£18','#E24B4A'],
-                  ['InventoryTools','3-bed unfurnished · ready in minutes*','£12.00','#FD6A02']
+                  ['InventoryTools','3-bed unfurnished · ready in minutes*','£12.19','#FD6A02']
                 ].map(([title,sub,price,color]) => (
                   <div key={title} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: title !== 'InventoryTools' ? '1px solid #E2EAE7' : 'none' }}>
                     <div>
@@ -179,7 +179,7 @@ export default function AudioToWord() {
       {/* CTA */}
       <div style={{ background: '#FD6A02', padding: '60px 5vw', textAlign: 'center' }}>
         <h2 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 700, color: '#fff', marginBottom: 14, letterSpacing: -0.5 }}>Your next report done in minutes*</h2>
-        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', marginBottom: 8 }}>From £4.80. Up to 52% cheaper than a typist.</p>
+        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', marginBottom: 8 }}>From £4.88. Up to 51.25% cheaper than a typist.</p>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 30 }}>*Depending on length of recording</p>
         <Link href="/auth" style={{ display: 'inline-block', padding: '13px 32px', borderRadius: 10, background: '#fff', color: '#FD6A02', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Log in to get started</Link>
       </div>
