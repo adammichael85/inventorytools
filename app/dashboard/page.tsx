@@ -1096,7 +1096,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         </div>
         <nav style={{ padding: '12px 10px', flex: 1 }}>
           {navItems.map(item => (
-            <button key={item.id} onClick={() => item.id === 'convert' ? setShowConvert(true) : setPage(item.id)}
+            <button key={item.id} onClick={() => { if (item.id === 'convert') { if (toolTab === 'audio' ? audioEnabled : pdfEnabled) setShowConvert(true) } else { setPage(item.id) } }}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px', borderRadius: 8, width: '100%', textAlign: 'left', border: 'none', background: page === item.id ? TEAL_LIGHT : 'transparent', color: page === item.id ? TEAL_DARK : MUTED, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer', marginBottom: 2 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={item.icon}/></svg>
               {item.label}
@@ -1136,15 +1136,15 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {userRole === 'admin' && <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})} remaining</div>}
-            <button onClick={() => toolTab === 'audio' ? setShowAudioConvert(true) : setShowConvert(true)} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap' }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF'}</button>
+            <button onClick={() => { if (toolTab === 'audio') { if (audioEnabled) setShowAudioConvert(true) } else { if (pdfEnabled) setShowConvert(true) } }} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap' }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF'}</button>
           </div>
         </div>
 
         {/* TOOL TAB BAR */}
         <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 32px', display: 'flex', gap: 0, flexShrink: 0, justifyContent: 'center' }}>
           {[
-            { id: 'pdf', label: '📄 PDF to Word', color: TEAL },
-            { id: 'audio', label: '🎙️ Audio to Word', color: '#2563EB' },
+            ...(pdfEnabled ? [{ id: 'pdf', label: '📄 PDF to Word', color: TEAL }] : []),
+            ...(audioEnabled ? [{ id: 'audio', label: '🎙️ Audio to Word', color: '#2563EB' }] : []),
           ].map(tab => (
             <button
               key={tab.id}
