@@ -2056,16 +2056,16 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           { value: '12bed', label: '12 bedrooms', beds: 12 },
         ]
 
-        // What you charge the user (55% of market rate)
+        // What you charge the user (48.75% of market rate)
         const AUDIO_PRICES_UNFURNISHED: Record<string, number> = {
-          room_only: 5.50, studio: 8.25, '1bed': 8.25, '2bed': 11.00, '3bed': 13.75,
-          '4bed': 19.25, '5bed': 24.75, '6bed': 27.50, '7bed': 30.25, '8bed': 33.00,
-          '9bed': 35.75, '10bed': 38.50, '11bed': 41.25, '12bed': 44.00,
+          room_only: 4.88, studio: 7.31, '1bed': 7.31, '2bed': 9.75, '3bed': 12.19,
+          '4bed': 17.06, '5bed': 21.94, '6bed': 24.38, '7bed': 26.81, '8bed': 29.25,
+          '9bed': 31.69, '10bed': 34.13, '11bed': 36.56, '12bed': 39.00,
         }
         const AUDIO_PRICES_FURNISHED: Record<string, number> = {
-          room_only: 6.88, studio: 9.63, '1bed': 9.63, '2bed': 12.38, '3bed': 15.13,
-          '4bed': 20.63, '5bed': 26.13, '6bed': 28.88, '7bed': 31.63, '8bed': 34.38,
-          '9bed': 37.13, '10bed': 39.88, '11bed': 42.63, '12bed': 45.38,
+          room_only: 6.09, studio: 8.53, '1bed': 8.53, '2bed': 10.97, '3bed': 13.41,
+          '4bed': 18.28, '5bed': 23.16, '6bed': 25.59, '7bed': 28.03, '8bed': 30.47,
+          '9bed': 32.91, '10bed': 35.34, '11bed': 37.78, '12bed': 40.22,
         }
         // Market rates (what a typist would charge) — used for savings calculation
         const AUDIO_MARKET_UNFURNISHED: Record<string, number> = {
