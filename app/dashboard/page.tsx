@@ -499,6 +499,15 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
   const [typistPageRate, setTypistPageRate] = React.useState('0.50')
   const [savingTypistRates, setSavingTypistRates] = React.useState(false)
   const [savedTypistRates, setSavedTypistRates] = React.useState(false)
+  const [audioTypistMode, setAudioTypistMode] = React.useState('per_size')
+  const [audioTypistMinuteRate, setAudioTypistMinuteRate] = React.useState('0.50')
+  const [audioTypistRates, setAudioTypistRates] = React.useState<Record<string,string>>({
+    room_only: '10.00', studio: '15.00', '1bed': '15.00', '2bed': '20.00', '3bed': '25.00',
+    '4bed': '35.00', '5bed': '45.00', '6bed': '50.00', '7bed': '55.00', '8bed': '60.00',
+    '9bed': '65.00', '10bed': '70.00', '11bed': '75.00', '12bed': '80.00',
+  })
+  const [savingAudioTypistRates, setSavingAudioTypistRates] = React.useState(false)
+  const [savedAudioTypistRates, setSavedAudioTypistRates] = React.useState(false)
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data }: any) => {
@@ -511,6 +520,20 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
             setTypistRateMode(p.typist_rate_mode || 'per_report')
             setTypistReportRate(String(p.typist_report_rate ?? 12.00))
             setTypistPageRate(String(p.typist_page_rate ?? 0.50))
+            setAudioTypistMode(p.audio_typist_mode || 'per_size')
+            setAudioTypistMinuteRate(String(p.audio_typist_minute_rate ?? 0.50))
+            if (p.audio_typist_rates) {
+              const rates = p.audio_typist_rates
+              setAudioTypistRates({
+                room_only: String(rates.room_only ?? 10.00), studio: String(rates.studio ?? 15.00),
+                '1bed': String(rates['1bed'] ?? 15.00), '2bed': String(rates['2bed'] ?? 20.00),
+                '3bed': String(rates['3bed'] ?? 25.00), '4bed': String(rates['4bed'] ?? 35.00),
+                '5bed': String(rates['5bed'] ?? 45.00), '6bed': String(rates['6bed'] ?? 50.00),
+                '7bed': String(rates['7bed'] ?? 55.00), '8bed': String(rates['8bed'] ?? 60.00),
+                '9bed': String(rates['9bed'] ?? 65.00), '10bed': String(rates['10bed'] ?? 70.00),
+                '11bed': String(rates['11bed'] ?? 75.00), '12bed': String(rates['12bed'] ?? 80.00),
+              })
+            }
           }
         })
       }
@@ -586,8 +609,8 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
 
       {profile.role === 'admin' && (
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
-          <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>PDF typist cost settings</p>
-          <p style={{ fontSize: 12, color: MUTED, margin: '0 0 16px' }}>Set what your team would normally pay a manual typist for PDF inventory reports. This is used to calculate your real savings on the Statistics page. Defaults shown are our market rate estimate — update with your own real-world cost for accurate savings.</p>
+          <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>📄 PDF to Word — typist cost settings</p>
+          <p style={{ fontSize: 12, color: MUTED, margin: '0 0 16px' }}>Set what your team would normally pay a manual typist for PDF inventory reports. Used to calculate your real savings on the Statistics page.</p>
 
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             <button onClick={() => setTypistRateMode('per_report')} style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: `1px solid ${typistRateMode === 'per_report' ? TEAL : BORDER}`, background: typistRateMode === 'per_report' ? TEAL : 'transparent', color: typistRateMode === 'per_report' ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Per report (flat rate)</button>
@@ -603,7 +626,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
             <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>Cost per page (£)</label>
               <input type="number" step="0.01" min="0" value={typistPageRate} onChange={e => setTypistPageRate(e.target.value)} style={inputStyle} placeholder="0.50" />
-              <p style={{ fontSize: 11, color: HINT, marginTop: 6 }}>Savings will be calculated as (cost per page × number of pages in the PDF) − our conversion cost.</p>
+              <p style={{ fontSize: 11, color: HINT, marginTop: 6 }}>Savings = (cost per page × number of pages in the PDF) − our conversion cost.</p>
             </div>
           )}
 
@@ -625,6 +648,59 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
               {savingTypistRates ? 'Saving...' : 'Save typist cost'}
             </button>
             {savedTypistRates && <span style={{ fontSize: 13, color: TEAL }}>✓ Saved!</span>}
+          </div>
+        </div>
+      )}
+
+      {profile.role === 'admin' && (
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>🎙️ Audio to Word — typist cost settings</p>
+          <p style={{ fontSize: 12, color: MUTED, margin: '0 0 16px' }}>Set what your team would normally pay a manual typist for audio inventory reports. Used to calculate your real savings on the Statistics page.</p>
+
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            <button onClick={() => setAudioTypistMode('per_size')} style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: `1px solid ${audioTypistMode === 'per_size' ? '#2563EB' : BORDER}`, background: audioTypistMode === 'per_size' ? '#2563EB' : 'transparent', color: audioTypistMode === 'per_size' ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Per property size</button>
+            <button onClick={() => setAudioTypistMode('per_minute')} style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: `1px solid ${audioTypistMode === 'per_minute' ? '#2563EB' : BORDER}`, background: audioTypistMode === 'per_minute' ? '#2563EB' : 'transparent', color: audioTypistMode === 'per_minute' ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Per minute of audio</button>
+          </div>
+
+          {audioTypistMode === 'per_size' ? (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                {[['room_only','Room only'],['studio','Studio'],['1bed','1 bed'],['2bed','2 bed'],['3bed','3 bed'],['4bed','4 bed'],['5bed','5 bed'],['6bed','6 bed'],['7bed','7 bed'],['8bed','8 bed'],['9bed','9 bed'],['10bed','10 bed'],['11bed','11 bed'],['12bed','12 bed']].map(([key,label]) => (
+                  <div key={key}>
+                    <label style={labelStyle}>{label} (£)</label>
+                    <input type="number" step="0.01" min="0" value={audioTypistRates[key]} onChange={e => setAudioTypistRates(prev => ({...prev, [key]: e.target.value}))} style={inputStyle} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Cost per minute of audio (£)</label>
+              <input type="number" step="0.01" min="0" value={audioTypistMinuteRate} onChange={e => setAudioTypistMinuteRate(e.target.value)} style={inputStyle} placeholder="0.50" />
+              <p style={{ fontSize: 11, color: HINT, marginTop: 6 }}>Savings = (cost per minute × length of recording in minutes) − our conversion cost.</p>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button onClick={async () => {
+              setSavingAudioTypistRates(true)
+              const { data: { session } } = await supabase.auth.getSession()
+              if (session) {
+                const ratesAsNumbers: Record<string, number> = {}
+                Object.entries(audioTypistRates).forEach(([k, v]) => { ratesAsNumbers[k] = parseFloat(v) || 0 })
+                await supabase.from('profiles').update({
+                  audio_typist_mode: audioTypistMode,
+                  audio_typist_minute_rate: parseFloat(audioTypistMinuteRate) || 0.50,
+                  audio_typist_rates: ratesAsNumbers,
+                }).eq('id', session.user.id)
+              }
+              setSavingAudioTypistRates(false)
+              setSavedAudioTypistRates(true)
+              setTimeout(() => setSavedAudioTypistRates(false), 3000)
+            }} style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: savingAudioTypistRates ? '#94AEA6' : '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: savingAudioTypistRates ? 'default' : 'pointer' }}>
+              {savingAudioTypistRates ? 'Saving...' : 'Save typist cost'}
+            </button>
+            {savedAudioTypistRates && <span style={{ fontSize: 13, color: '#2563EB' }}>✓ Saved!</span>}
           </div>
         </div>
       )}
