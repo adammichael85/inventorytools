@@ -35,7 +35,7 @@ export default function PDFToWord() {
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FD6A02', display: 'inline-block' }} /> AI-powered · Built for inventory clerks
           </div>
           <h1 style={{ fontSize: isMobile ? 32 : 48, fontWeight: 700, lineHeight: 1.15, marginBottom: 20, letterSpacing: -1 }}>Stop typing. Start <span style={{ color: '#FD6A02' }}>converting.</span></h1>
-          <p style={{ fontSize: 17, color: '#5A7068', lineHeight: 1.7, marginBottom: 36, maxWidth: 460 }}>Upload any inventory PDF and get a perfectly formatted Word document in 1–4 minutes depending on document length. What used to take a typist 90 minutes now costs £5.00.</p>
+          <p style={{ fontSize: 17, color: '#5A7068', lineHeight: 1.7, marginBottom: 36, maxWidth: 460 }}>Upload any inventory PDF and get a perfectly formatted Word document in 1–4 minutes depending on document length. What used to take a typist 90 minutes now costs £4.00.</p>
           <Link href="/auth" style={{ display: 'inline-block', padding: '13px 28px', borderRadius: 10, background: '#FD6A02', color: '#fff', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Log in to convert</Link>
         </div>
         <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #E2EAE7', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', maxWidth: 420 }}>
@@ -43,7 +43,7 @@ export default function PDFToWord() {
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2EAE7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p>
-              <p style={{ fontSize: 12, color: '#94AEA6', margin: 0 }}>£5.00 · £284.00 remaining</p>
+              <p style={{ fontSize: 12, color: '#94AEA6', margin: 0 }}>£4.00 · £284.00 remaining</p>
             </div>
             <div style={{ width: 28, height: 28, borderRadius: 8, border: '1px solid #E2EAE7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#94AEA6' }}>×</div>
           </div>
@@ -98,7 +98,7 @@ export default function PDFToWord() {
           <p style={{ fontSize: 16, color: '#5A7068', maxWidth: 520, lineHeight: 1.7, marginBottom: 40 }}>No training. No formatting. No chasing typists. Just upload, wait 1–4 minutes, and download.</p>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20 }}>
             {[['⚡','Done in 1–4 minutes depending on document length','What used to take a typist 45–90 minutes is processed instantly. Your clerks move on to the next job while the doc builds itself.'],
-              ['💷','£5.00 flat — any property size','A studio flat costs the same as an 8-bedroom house. No surprises, no tiers, no monthly fees. Pay only when you convert.'],
+              ['💷','£4.00 flat — any property size','A studio flat costs the same as an 8-bedroom house. No surprises, no tiers, no monthly fees. Pay only when you convert.'],
               ['📋','Verbatim extraction','Every word copied exactly as it appears in the PDF. Zero edits, zero assumptions — your report, word for word.'],
               ['📝','Tenant disputes captured','Any "disagreed by tenant" or additional notes are captured and appended to the relevant item — nothing dropped.'],
               ['🔒','Staff logins included','Every team member gets their own secure login. No extra cost per seat — add as many staff as you need.'],
@@ -123,7 +123,7 @@ export default function PDFToWord() {
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 24, alignItems: 'start' }}>
             <div style={{ background: '#FD6A02', borderRadius: 20, padding: 40, color: '#fff', textAlign: 'center' }}>
               <p style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 2, opacity: 0.75, marginBottom: 16 }}>Flat rate per conversion</p>
-              <p style={{ fontSize: 72, fontWeight: 700, lineHeight: 1, letterSpacing: -2, marginBottom: 4 }}>£5.00</p>
+              <p style={{ fontSize: 72, fontWeight: 700, lineHeight: 1, letterSpacing: -2, marginBottom: 4 }}>£4.00</p>
               <p style={{ fontSize: 15, opacity: 0.8, marginBottom: 28 }}>per report · any size property</p>
               {['1-bed flat or 10-bed house — same price','Pay as you go — no monthly commitment','Unlimited staff logins included','Credits never expire'].map(f => (
                 <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, textAlign: 'left' }}>
@@ -138,7 +138,7 @@ export default function PDFToWord() {
                 <p style={{ fontSize: 13, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, color: '#94AEA6', marginBottom: 18 }}>How it compares</p>
                 {[['External typist','Average market rate per report','£12–£25','#E24B4A'],
                   ['In-house typing time','45–90 mins of staff time per report','~£18','#E24B4A'],
-                  ['InventoryTools','Any property · ready in 1–4 minutes depending on document length*','£5.00','#FD6A02']
+                  ['InventoryTools','Any property · ready in 1–4 minutes depending on document length*','£4.00','#FD6A02']
                 ].map(([title,sub,price,color]) => (
                   <div key={title} style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: 'center', gap: isMobile ? 16 : 0, padding: '14px 0', borderBottom: title !== 'InventoryTools' ? '1px solid #E2EAE7' : 'none' }}>
                     <div>
@@ -161,7 +161,7 @@ export default function PDFToWord() {
       {/* CTA */}
       <div style={{ background: '#FD6A02', padding: '60px 5vw', textAlign: 'center' }}>
         <h2 style={{ fontSize: isMobile ? 26 : 36, fontWeight: 700, color: '#fff', marginBottom: 14, letterSpacing: -0.5 }}>Your next report done in 1–4 minutes*</h2>
-        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', marginBottom: 8 }}>£5.00 flat rate. Any property. Any size.</p>
+        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', marginBottom: 8 }}>£4.00 flat rate. Any property. Any size.</p>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 30 }}>*Depending on size of property</p>
         <Link href="/auth" style={{ display: 'inline-block', padding: '13px 32px', borderRadius: 10, background: '#fff', color: '#FD6A02', fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>Log in to get started</Link>
       </div>
