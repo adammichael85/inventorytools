@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       property_size: body.property_size || null,
       furnished: body.furnished || null,
       audio_length_seconds: body.audio_length_seconds || null,
-      cost: body.cost ? Number(body.cost) : 5.00,
+      cost: body.cost ? Number(body.cost) : 4.00,
     })
     if (convError) throw new Error(convError.message)
 
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       .single()
     if (profileError) throw new Error(profileError.message)
 
-    const conversionCost = body.cost ? Number(body.cost) : 5.00
+    const conversionCost = body.cost ? Number(body.cost) : 4.00
     const newCredits = Math.max(0, (Number(profile.balance) || 0) - conversionCost)
     await supabase.from('profiles').update({ balance: newCredits }).eq('id', body.user_id)
 
