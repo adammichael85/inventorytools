@@ -489,12 +489,24 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
   const [savingAutoDelete, setSavingAutoDelete] = React.useState(false)
   const [autoAccuracyReport, setAutoAccuracyReport] = React.useState(false)
   const [savingAutoAccuracy, setSavingAutoAccuracy] = React.useState(false)
+  const [typistRateMode, setTypistRateMode] = React.useState('per_report')
+  const [typistReportRate, setTypistReportRate] = React.useState('12.00')
+  const [typistPageRate, setTypistPageRate] = React.useState('0.50')
+  const [savingTypistRates, setSavingTypistRates] = React.useState(false)
+  const [savedTypistRates, setSavedTypistRates] = React.useState(false)
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data }: any) => {
       if (data.session) {
         supabase.from('profiles').select('*').eq('id', data.session.user.id).single().then(({ data: p }: any) => {
-          if (p) { setProfile(p); setAutoDelete(p.auto_delete_days || 14); setAutoAccuracyReport(p.auto_accuracy_report || false) }
+          if (p) {
+            setProfile(p)
+            setAutoDelete(p.auto_delete_days || 14)
+            setAutoAccuracyReport(p.auto_accuracy_report || false)
+            setTypistRateMode(p.typist_rate_mode || 'per_report')
+            setTypistReportRate(String(p.typist_report_rate ?? 12.00))
+            setTypistPageRate(String(p.typist_page_rate ?? 0.50))
+          }
         })
       }
     })
@@ -566,6 +578,51 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
           {saved && <span style={{ fontSize: 13, color: TEAL }}>✓ Saved!</span>}
         </div>
       </div>
+
+      {profile.role === 'admin' && (
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>PDF typist cost settings</p>
+          <p style={{ fontSize: 12, color: MUTED, margin: '0 0 16px' }}>Set what your team would normally pay a manual typist for PDF inventory reports. This is used to calculate your real savings on the Statistics page. Defaults shown are our market rate estimate — update with your own real-world cost for accurate savings.</p>
+
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            <button onClick={() => setTypistRateMode('per_report')} style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: `1px solid ${typistRateMode === 'per_report' ? TEAL : BORDER}`, background: typistRateMode === 'per_report' ? TEAL : 'transparent', color: typistRateMode === 'per_report' ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Per report (flat rate)</button>
+            <button onClick={() => setTypistRateMode('per_page')} style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: `1px solid ${typistRateMode === 'per_page' ? TEAL : BORDER}`, background: typistRateMode === 'per_page' ? TEAL : 'transparent', color: typistRateMode === 'per_page' ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Per page</button>
+          </div>
+
+          {typistRateMode === 'per_report' ? (
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Cost per report (£)</label>
+              <input type="number" step="0.01" min="0" value={typistReportRate} onChange={e => setTypistReportRate(e.target.value)} style={inputStyle} placeholder="12.00" />
+            </div>
+          ) : (
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Cost per page (£)</label>
+              <input type="number" step="0.01" min="0" value={typistPageRate} onChange={e => setTypistPageRate(e.target.value)} style={inputStyle} placeholder="0.50" />
+              <p style={{ fontSize: 11, color: HINT, marginTop: 6 }}>Savings will be calculated as (cost per page × number of pages in the PDF) − our conversion cost.</p>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button onClick={async () => {
+              setSavingTypistRates(true)
+              const { data: { session } } = await supabase.auth.getSession()
+              if (session) {
+                await supabase.from('profiles').update({
+                  typist_rate_mode: typistRateMode,
+                  typist_report_rate: parseFloat(typistReportRate) || 12.00,
+                  typist_page_rate: parseFloat(typistPageRate) || 0.50,
+                }).eq('id', session.user.id)
+              }
+              setSavingTypistRates(false)
+              setSavedTypistRates(true)
+              setTimeout(() => setSavedTypistRates(false), 3000)
+            }} style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: savingTypistRates ? '#94AEA6' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: savingTypistRates ? 'default' : 'pointer' }}>
+              {savingTypistRates ? 'Saving...' : 'Save typist cost'}
+            </button>
+            {savedTypistRates && <span style={{ fontSize: 13, color: TEAL }}>✓ Saved!</span>}
+          </div>
+        </div>
+      )}
 
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
         <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Auto-delete reports</p>
