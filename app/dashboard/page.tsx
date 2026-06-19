@@ -580,7 +580,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
   if (!profile) return <div style={{ padding: 40, color: MUTED, fontSize: 13 }}>Loading...</div>
 
   return (
-    <div style={{ maxWidth: 600 }}>
+    <div style={{ maxWidth: 1100 }}>
       <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Settings</h2>
 
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
@@ -625,7 +625,8 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
       </div>
 
       {profile.role === 'admin' && (
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
           <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>📄 PDF to Word — typist cost settings</p>
           <p style={{ fontSize: 12, color: MUTED, margin: '0 0 16px' }}>Set what your team would normally pay a manual typist for PDF inventory reports. Used to calculate your real savings on the Statistics page.</p>
 
@@ -667,10 +668,8 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
             {savedTypistRates && <span style={{ fontSize: 13, color: TEAL }}>✓ Saved!</span>}
           </div>
         </div>
-      )}
 
-      {profile.role === 'admin' && (
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
           <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>🎙️ Audio to Word — typist cost settings</p>
           <p style={{ fontSize: 12, color: MUTED, margin: '0 0 16px' }}>Set what your team would normally pay a manual typist for audio inventory reports. Used to calculate your real savings on the Statistics page.</p>
 
@@ -724,9 +723,11 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
             {savedAudioTypistRates && <span style={{ fontSize: 13, color: '#2563EB' }}>✓ Saved!</span>}
           </div>
         </div>
+      </div>
       )}
 
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
         <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Auto-delete reports</p>
         <p style={{ fontSize: 12, color: MUTED, margin: '0 0 12px' }}>Automatically delete uploaded PDFs and conversion reports after the selected period. Default is 14 days for GDPR compliance.</p>
         <p style={{ fontSize: 13, color: MUTED, marginBottom: 8 }}>Automatically delete conversion reports and Word documents after a set period.</p>
@@ -768,20 +769,23 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
         </div>
         {savingAutoAccuracy && <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>Saving...</p>}
       </div>
+      </div>
 
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
         <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px' }}>Account</p>
         <p style={{ fontSize: 13, color: MUTED, marginBottom: 16 }}>Signed in as <strong style={{ color: TEXT }}>{userEmail}</strong></p>
         <button onClick={() => { if (window.confirm('Are you sure you want to sign out?')) { supabase.auth.signOut().then(() => { window.location.href = '/' }) } }} style={{ padding: '9px 20px', borderRadius: 9, border: `1px solid ${BORDER}`, background: 'transparent', color: TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Sign out</button>
       </div>
 
       {profile?.role === 'admin' && (
-        <div style={{ background: SURFACE, border: '1px solid #FECACA', marginTop: 16, borderRadius: 14, padding: 24 }}>
+        <div style={{ background: SURFACE, border: '1px solid #FECACA', borderRadius: 14, padding: 24 }}>
           <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 8px', color: '#DC2626' }}>Danger zone</p>
           <p style={{ fontSize: 13, color: MUTED, marginBottom: 16 }}>Permanently delete your company account. This will remove all users, conversions, files and data. This cannot be undone.</p>
           <DeleteAccountButton supabase={supabase} profile={profile} userEmail={userEmail} />
         </div>
       )}
+      </div>
     </div>
   )
 }
