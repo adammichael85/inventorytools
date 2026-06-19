@@ -501,10 +501,15 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
   const [savedTypistRates, setSavedTypistRates] = React.useState(false)
   const [audioTypistMode, setAudioTypistMode] = React.useState('per_size')
   const [audioTypistMinuteRate, setAudioTypistMinuteRate] = React.useState('0.50')
-  const [audioTypistRates, setAudioTypistRates] = React.useState<Record<string,string>>({
+  const [audioTypistRatesUnfurnished, setAudioTypistRatesUnfurnished] = React.useState<Record<string,string>>({
     room_only: '10.00', studio: '15.00', '1bed': '15.00', '2bed': '20.00', '3bed': '25.00',
     '4bed': '35.00', '5bed': '45.00', '6bed': '50.00', '7bed': '55.00', '8bed': '60.00',
     '9bed': '65.00', '10bed': '70.00', '11bed': '75.00', '12bed': '80.00',
+  })
+  const [audioTypistRatesFurnished, setAudioTypistRatesFurnished] = React.useState<Record<string,string>>({
+    room_only: '12.50', studio: '17.50', '1bed': '17.50', '2bed': '22.50', '3bed': '27.50',
+    '4bed': '37.50', '5bed': '47.50', '6bed': '52.50', '7bed': '57.50', '8bed': '62.50',
+    '9bed': '67.50', '10bed': '72.50', '11bed': '77.50', '12bed': '82.50',
   })
   const [savingAudioTypistRates, setSavingAudioTypistRates] = React.useState(false)
   const [savedAudioTypistRates, setSavedAudioTypistRates] = React.useState(false)
@@ -522,16 +527,28 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
             setTypistPageRate(String(p.typist_page_rate ?? 0.50))
             setAudioTypistMode(p.audio_typist_mode || 'per_size')
             setAudioTypistMinuteRate(String(p.audio_typist_minute_rate ?? 0.50))
-            if (p.audio_typist_rates) {
-              const rates = p.audio_typist_rates
-              setAudioTypistRates({
-                room_only: String(rates.room_only ?? 10.00), studio: String(rates.studio ?? 15.00),
-                '1bed': String(rates['1bed'] ?? 15.00), '2bed': String(rates['2bed'] ?? 20.00),
-                '3bed': String(rates['3bed'] ?? 25.00), '4bed': String(rates['4bed'] ?? 35.00),
-                '5bed': String(rates['5bed'] ?? 45.00), '6bed': String(rates['6bed'] ?? 50.00),
-                '7bed': String(rates['7bed'] ?? 55.00), '8bed': String(rates['8bed'] ?? 60.00),
-                '9bed': String(rates['9bed'] ?? 65.00), '10bed': String(rates['10bed'] ?? 70.00),
-                '11bed': String(rates['11bed'] ?? 75.00), '12bed': String(rates['12bed'] ?? 80.00),
+            if (p.audio_typist_rates?.unfurnished) {
+              const r = p.audio_typist_rates.unfurnished
+              setAudioTypistRatesUnfurnished({
+                room_only: String(r.room_only ?? 10.00), studio: String(r.studio ?? 15.00),
+                '1bed': String(r['1bed'] ?? 15.00), '2bed': String(r['2bed'] ?? 20.00),
+                '3bed': String(r['3bed'] ?? 25.00), '4bed': String(r['4bed'] ?? 35.00),
+                '5bed': String(r['5bed'] ?? 45.00), '6bed': String(r['6bed'] ?? 50.00),
+                '7bed': String(r['7bed'] ?? 55.00), '8bed': String(r['8bed'] ?? 60.00),
+                '9bed': String(r['9bed'] ?? 65.00), '10bed': String(r['10bed'] ?? 70.00),
+                '11bed': String(r['11bed'] ?? 75.00), '12bed': String(r['12bed'] ?? 80.00),
+              })
+            }
+            if (p.audio_typist_rates?.furnished) {
+              const r = p.audio_typist_rates.furnished
+              setAudioTypistRatesFurnished({
+                room_only: String(r.room_only ?? 12.50), studio: String(r.studio ?? 17.50),
+                '1bed': String(r['1bed'] ?? 17.50), '2bed': String(r['2bed'] ?? 22.50),
+                '3bed': String(r['3bed'] ?? 27.50), '4bed': String(r['4bed'] ?? 37.50),
+                '5bed': String(r['5bed'] ?? 47.50), '6bed': String(r['6bed'] ?? 52.50),
+                '7bed': String(r['7bed'] ?? 57.50), '8bed': String(r['8bed'] ?? 62.50),
+                '9bed': String(r['9bed'] ?? 67.50), '10bed': String(r['10bed'] ?? 72.50),
+                '11bed': String(r['11bed'] ?? 77.50), '12bed': String(r['12bed'] ?? 82.50),
               })
             }
           }
@@ -664,14 +681,16 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
 
           {audioTypistMode === 'per_size' ? (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                {[['room_only','Room only'],['studio','Studio'],['1bed','1 bed'],['2bed','2 bed'],['3bed','3 bed'],['4bed','4 bed'],['5bed','5 bed'],['6bed','6 bed'],['7bed','7 bed'],['8bed','8 bed'],['9bed','9 bed'],['10bed','10 bed'],['11bed','11 bed'],['12bed','12 bed']].map(([key,label]) => (
-                  <div key={key}>
-                    <label style={labelStyle}>{label} (£)</label>
-                    <input type="number" step="0.01" min="0" value={audioTypistRates[key]} onChange={e => setAudioTypistRates(prev => ({...prev, [key]: e.target.value}))} style={inputStyle} />
-                  </div>
-                ))}
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 8, marginBottom: 8, fontSize: 11, fontWeight: 600, color: MUTED, textTransform: 'uppercase' as const }}>
+                <span></span><span>Unfurnished</span><span>Furnished</span>
               </div>
+              {[['room_only','Room only'],['studio','Studio'],['1bed','1 bed'],['2bed','2 bed'],['3bed','3 bed'],['4bed','4 bed'],['5bed','5 bed'],['6bed','6 bed'],['7bed','7 bed'],['8bed','8 bed'],['9bed','9 bed'],['10bed','10 bed'],['11bed','11 bed'],['12bed','12 bed']].map(([key,label]) => (
+                <div key={key} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                  <label style={{ fontSize: 13, color: TEXT }}>{label}</label>
+                  <input type="number" step="0.01" min="0" value={audioTypistRatesUnfurnished[key]} onChange={e => setAudioTypistRatesUnfurnished(prev => ({...prev, [key]: e.target.value}))} style={inputStyle} />
+                  <input type="number" step="0.01" min="0" value={audioTypistRatesFurnished[key]} onChange={e => setAudioTypistRatesFurnished(prev => ({...prev, [key]: e.target.value}))} style={inputStyle} />
+                </div>
+              ))}
             </div>
           ) : (
             <div style={{ marginBottom: 16 }}>
@@ -686,12 +705,14 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
               setSavingAudioTypistRates(true)
               const { data: { session } } = await supabase.auth.getSession()
               if (session) {
-                const ratesAsNumbers: Record<string, number> = {}
-                Object.entries(audioTypistRates).forEach(([k, v]) => { ratesAsNumbers[k] = parseFloat(v) || 0 })
+                const unfurnishedNumbers: Record<string, number> = {}
+                Object.entries(audioTypistRatesUnfurnished).forEach(([k, v]) => { unfurnishedNumbers[k] = parseFloat(v) || 0 })
+                const furnishedNumbers: Record<string, number> = {}
+                Object.entries(audioTypistRatesFurnished).forEach(([k, v]) => { furnishedNumbers[k] = parseFloat(v) || 0 })
                 await supabase.from('profiles').update({
                   audio_typist_mode: audioTypistMode,
                   audio_typist_minute_rate: parseFloat(audioTypistMinuteRate) || 0.50,
-                  audio_typist_rates: ratesAsNumbers,
+                  audio_typist_rates: { unfurnished: unfurnishedNumbers, furnished: furnishedNumbers },
                 }).eq('id', session.user.id)
               }
               setSavingAudioTypistRates(false)
