@@ -42,7 +42,7 @@ function formatDocxName(address: string): string {
   return words.map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
 }
 
-function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
+function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT, typistRateMode, typistReportRate, typistPageRate }: any) {
   const MARKET_UNFURNISHED: Record<string, number> = {
     room_only: 10.00, studio: 15.00, '1bed': 15.00, '2bed': 20.00, '3bed': 25.00,
     '4bed': 35.00, '5bed': 45.00, '6bed': 50.00, '7bed': 55.00, '8bed': 60.00,
@@ -54,7 +54,12 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
     '9bed': 67.50, '10bed': 72.50, '11bed': 77.50, '12bed': 82.50,
   }
   function getMarketRate(c: any): number {
-    if (c.type !== 'audio') return 12.00
+    if (c.type !== 'audio') {
+      if (typistRateMode === 'per_page' && c.page_count) {
+        return (typistPageRate || 0.50) * c.page_count
+      }
+      return typistReportRate || 12.00
+    }
     const isFurn = c.furnished === 'furnished' || c.furnished === 'part_furnished'
     const table = isFurn ? MARKET_FURNISHED : MARKET_UNFURNISHED
     return c.property_size ? (table[c.property_size] || 12.00) : 12.00
@@ -765,6 +770,9 @@ export default function Dashboard() {
   const [userRole, setUserRole] = useState('user')
   const [pdfEnabled, setPdfEnabled] = useState(true)
   const [audioEnabled, setAudioEnabled] = useState(true)
+  const [typistRateMode, setTypistRateModeD] = useState('per_report')
+  const [typistReportRate, setTypistReportRateD] = useState(12.00)
+  const [typistPageRate, setTypistPageRateD] = useState(0.50)
   const [convertState, setConvertState] = useState<'idle'|'selected'|'processing'|'done'|'error'>('idle')
   const [selectedFile, setSelectedFile] = useState<File|null>(null)
   const [selectedCredits, setSelectedCredits] = useState<{credits:number,price:number}|null>(null)
@@ -894,13 +902,16 @@ export default function Dashboard() {
       setUserEmail(session.user.email || '')
       setAccessToken(session.access_token)
       // Load profile (credits + name)
-      supabase.from('profiles').select('balance, full_name, onboarding_confirmed, role, pdf_enabled, audio_enabled').eq('id', session.user.id).single().then(({ data: profile }) => {
+      supabase.from('profiles').select('balance, full_name, onboarding_confirmed, role, pdf_enabled, audio_enabled, typist_rate_mode, typist_report_rate, typist_page_rate').eq('id', session.user.id).single().then(({ data: profile }) => {
         if (profile) {
           setCredits(profile.balance || 0)
           setUserName(profile.full_name || session.user.email || '')
           setUserRole(profile.role || 'user')
           setPdfEnabled(profile.pdf_enabled !== false)
           setAudioEnabled(profile.audio_enabled !== false)
+          setTypistRateModeD(profile.typist_rate_mode || 'per_report')
+          setTypistReportRateD(profile.typist_report_rate ?? 12.00)
+          setTypistPageRateD(profile.typist_page_rate ?? 0.50)
           if (!profile.onboarding_confirmed) setShowOnboarding(true)
         }
       })
@@ -1487,7 +1498,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           )}
 
           {page === 'stats' && (
-            <StatsPage conversions={conversions} userStats={userStats} toolTab={toolTab} TEAL={toolTab === 'audio' ? '#2563EB' : TEAL} TEAL_LIGHT={toolTab === 'audio' ? '#DBEAFE' : TEAL_LIGHT} TEAL_DARK={toolTab === 'audio' ? '#1D4ED8' : TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} />
+            <StatsPage conversions={conversions} userStats={userStats} toolTab={toolTab} TEAL={toolTab === 'audio' ? '#2563EB' : TEAL} TEAL_LIGHT={toolTab === 'audio' ? '#DBEAFE' : TEAL_LIGHT} TEAL_DARK={toolTab === 'audio' ? '#1D4ED8' : TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} typistRateMode={typistRateMode} typistReportRate={typistReportRate} typistPageRate={typistPageRate} />
           )}
 
           {page === 'legal' && (
