@@ -646,6 +646,9 @@ export default function Dashboard() {
   const [accessToken, setAccessToken] = useState('')
   const [credits, setCredits] = useState(0)
   const [userName, setUserName] = useState('')
+  const [userRole, setUserRole] = useState('user')
+  const [pdfEnabled, setPdfEnabled] = useState(true)
+  const [audioEnabled, setAudioEnabled] = useState(true)
   const [convertState, setConvertState] = useState<'idle'|'selected'|'processing'|'done'|'error'>('idle')
   const [selectedFile, setSelectedFile] = useState<File|null>(null)
   const [selectedCredits, setSelectedCredits] = useState<{credits:number,price:number}|null>(null)
@@ -774,10 +777,13 @@ export default function Dashboard() {
       setUserEmail(session.user.email || '')
       setAccessToken(session.access_token)
       // Load profile (credits + name)
-      supabase.from('profiles').select('balance, full_name, onboarding_confirmed').eq('id', session.user.id).single().then(({ data: profile }) => {
+      supabase.from('profiles').select('balance, full_name, onboarding_confirmed, role, pdf_enabled, audio_enabled').eq('id', session.user.id).single().then(({ data: profile }) => {
         if (profile) {
           setCredits(profile.balance || 0)
           setUserName(profile.full_name || session.user.email || '')
+          setUserRole(profile.role || 'user')
+          setPdfEnabled(profile.pdf_enabled !== false)
+          setAudioEnabled(profile.audio_enabled !== false)
           if (!profile.onboarding_confirmed) setShowOnboarding(true)
         }
       })
