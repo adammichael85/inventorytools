@@ -396,6 +396,12 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
     loadTeam()
   }
 
+  async function toggleRole(memberId: string, currentRole: string) {
+    const newRole = currentRole === 'admin' ? 'user' : 'admin'
+    await supabase.from('profiles').update({ role: newRole }).eq('id', memberId)
+    setMembers(prev => prev.map(m => m.id === memberId ? { ...m, role: newRole } : m))
+  }
+
   const isAdmin = myRole === 'admin'
 
   return (
@@ -433,6 +439,12 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
               <p style={{ fontSize: 12, color: HINT, margin: 0 }}>{m.company_position || ''}</p>
             </div>
             <span style={{ fontSize: 12, background: m.role === 'admin' ? TEAL_LIGHT : BG, color: m.role === 'admin' ? TEAL_DARK : MUTED, padding: '3px 10px', borderRadius: 20, textTransform: 'capitalize' as const, flexShrink: 0 }}>{m.role || 'user'}</span>
+
+            {isAdmin && m.id !== myId && (
+              <button onClick={() => toggleRole(m.id, m.role || 'user')} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: `1px solid ${BORDER}`, cursor: 'pointer', background: 'transparent', color: MUTED, flexShrink: 0 }}>
+                {m.role === 'admin' ? 'Demote to user' : 'Promote to admin'}
+              </button>
+            )}
 
             {isAdmin && (
               <>
