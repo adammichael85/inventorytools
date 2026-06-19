@@ -360,15 +360,18 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
   const [inviteEmail, setInviteEmail] = React.useState('')
   const [inviteSent, setInviteSent] = React.useState(false)
   const [loading, setLoading] = React.useState(true)
+  const [myRole, setMyRole] = React.useState('user')
+  const [myId, setMyId] = React.useState('')
+  const [confirmRemove, setConfirmRemove] = React.useState<any>(null)
 
-  React.useEffect(() => {
+  function loadTeam() {
     supabase.auth.getSession().then(({ data }: any) => {
       if (data.session) {
-        // Get current user's company
-        supabase.from('profiles').select('company_name').eq('id', data.session.user.id).single().then(({ data: me }: any) => {
+        setMyId(data.session.user.id)
+        supabase.from('profiles').select('company_name, role').eq('id', data.session.user.id).single().then(({ data: me }: any) => {
+          if (me) setMyRole(me.role || 'user')
           if (me?.company_name) {
-            // Get all team members with same company
-            supabase.from('profiles').select('id, full_name, company_position, role, created_at').eq('company_name', me.company_name).order('created_at', { ascending: true }).then(({ data: team }: any) => {
+            supabase.from('profiles').select('id, full_name, company_position, role, created_at, pdf_enabled, audio_enabled').eq('company_name', me.company_name).order('created_at', { ascending: true }).then(({ data: team }: any) => {
               if (team) setMembers(team)
               setLoading(false)
             })
@@ -378,16 +381,31 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
         })
       }
     })
-  }, [])
+  }
+
+  React.useEffect(() => { loadTeam() }, [])
+
+  async function toggleAccess(memberId: string, field: 'pdf_enabled' | 'audio_enabled', current: boolean) {
+    await supabase.from('profiles').update({ [field]: !current }).eq('id', memberId)
+    setMembers(prev => prev.map(m => m.id === memberId ? { ...m, [field]: !current } : m))
+  }
+
+  async function removeMember(memberId: string) {
+    await supabase.from('profiles').update({ company_name: null }).eq('id', memberId)
+    setConfirmRemove(null)
+    loadTeam()
+  }
+
+  const isAdmin = myRole === 'admin'
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Team</h2>
-        <button onClick={() => setShowInvite(!showInvite)} style={{ padding: '9px 18px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>+ Invite member</button>
+        {isAdmin && <button onClick={() => setShowInvite(!showInvite)} style={{ padding: '9px 18px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>+ Invite member</button>}
       </div>
 
-      {showInvite && (
+      {showInvite && isAdmin && (
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 20, marginBottom: 16 }}>
           <p style={{ fontSize: 13, fontWeight: 600, margin: '0 0 12px' }}>Invite a team member</p>
           <p style={{ fontSize: 13, color: MUTED, margin: '0 0 16px' }}>Share this signup link with your team member. They will be added to your company account automatically.</p>
@@ -406,18 +424,47 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
         ) : members.length === 0 ? (
           <div style={{ padding: 40, textAlign: 'center', color: MUTED, fontSize: 13 }}>No team members found.</div>
         ) : members.map((m, i) => (
-          <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px', borderBottom: i < members.length-1 ? `1px solid ${BORDER}` : 'none' }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: TEAL_DARK }}>
+          <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px', borderBottom: i < members.length-1 ? `1px solid ${BORDER}` : 'none', flexWrap: 'wrap' as const }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: TEAL_DARK, flexShrink: 0 }}>
               {(m.full_name || 'U').split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase()}
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 140 }}>
               <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{m.full_name || 'Unknown'}</p>
               <p style={{ fontSize: 12, color: HINT, margin: 0 }}>{m.company_position || ''}</p>
             </div>
-            <span style={{ fontSize: 12, background: m.role === 'admin' ? TEAL_LIGHT : BG, color: m.role === 'admin' ? TEAL_DARK : MUTED, padding: '3px 10px', borderRadius: 20, textTransform: 'capitalize' as const }}>{m.role || 'user'}</span>
+            <span style={{ fontSize: 12, background: m.role === 'admin' ? TEAL_LIGHT : BG, color: m.role === 'admin' ? TEAL_DARK : MUTED, padding: '3px 10px', borderRadius: 20, textTransform: 'capitalize' as const, flexShrink: 0 }}>{m.role || 'user'}</span>
+
+            {isAdmin && (
+              <>
+                <button onClick={() => toggleAccess(m.id, 'pdf_enabled', m.pdf_enabled !== false)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: 'none', cursor: 'pointer', background: m.pdf_enabled !== false ? TEAL_LIGHT : BG, color: m.pdf_enabled !== false ? TEAL_DARK : MUTED, flexShrink: 0 }}>
+                  PDF {m.pdf_enabled !== false ? 'ON' : 'OFF'}
+                </button>
+                <button onClick={() => toggleAccess(m.id, 'audio_enabled', m.audio_enabled !== false)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: 'none', cursor: 'pointer', background: m.audio_enabled !== false ? '#DBEAFE' : BG, color: m.audio_enabled !== false ? '#1D4ED8' : MUTED, flexShrink: 0 }}>
+                  Audio {m.audio_enabled !== false ? 'ON' : 'OFF'}
+                </button>
+                {m.id !== myId && (
+                  <button onClick={() => setConfirmRemove(m)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: 'none', cursor: 'pointer', background: '#FEE2E2', color: '#DC2626', flexShrink: 0 }}>
+                    Remove
+                  </button>
+                )}
+              </>
+            )}
           </div>
         ))}
       </div>
+
+      {confirmRemove && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 380, padding: 24 }}>
+            <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px' }}>Remove {confirmRemove.full_name || 'this member'}?</p>
+            <p style={{ fontSize: 13, color: MUTED, margin: '0 0 20px' }}>They will lose access to the company account and will need a new invite to rejoin.</p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setConfirmRemove(null)} style={{ flex: 1, padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => removeMember(confirmRemove.id)} style={{ flex: 1, padding: 11, borderRadius: 10, border: 'none', background: '#DC2626', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Remove</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
