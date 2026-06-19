@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       property_size: body.property_size || null,
       furnished: body.furnished || null,
       audio_length_seconds: body.audio_length_seconds || null,
+      page_count: body.page_count || null,
       cost: body.cost ? Number(body.cost) : 4.00,
     })
     if (convError) throw new Error(convError.message)

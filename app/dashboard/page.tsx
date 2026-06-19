@@ -735,6 +735,7 @@ export default function Dashboard() {
   const [compressing, setCompressing] = useState(false)
   const [originalSize, setOriginalSize] = useState(0)
   const [compressedSize, setCompressedSize] = useState(0)
+  const [pdfPageCount, setPdfPageCount] = useState<number | null>(null)
   const [docxUrl, setDocxUrl] = useState<string|null>(null)
   const [docxName, setDocxName] = useState('')
 
@@ -889,6 +890,7 @@ export default function Dashboard() {
       setOriginalSize(file.size)
       const arrayBuffer = await file.arrayBuffer()
       const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true })
+      setPdfPageCount(pdfDoc.getPageCount())
       const compressed = await pdfDoc.save({ useObjectStreams: true })
       const blob = new Blob([new Uint8Array(compressed as unknown as ArrayBuffer)], { type: 'application/pdf' })
       const compressedFile = new File([blob], file.name, { type: 'application/pdf' })
@@ -1050,6 +1052,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         rooms: rooms.length,
         items: rooms.reduce((sum: number, r: any) => sum + (r.rows?.length || 0), 0),
         pages: data.pages || rooms.length,
+        page_count: pdfPageCount,
         duration_seconds: elapsedRef.current,
         file_path: storagePath,
         converted_by: userName || session.user.email,
