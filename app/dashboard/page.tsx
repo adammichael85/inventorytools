@@ -60,7 +60,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
     return c.property_size ? (table[c.property_size] || 12.00) : 12.00
   }
   function getActualCost(c: any): number {
-    return c.cost ? Number(c.cost) : (c.type === 'audio' ? 11.00 : 5.00)
+    return c.cost ? Number(c.cost) : (c.type === 'audio' ? 9.60 : 4.00)
   }
   const [period, setPeriod] = React.useState('month')
   const chartRef = React.useRef<any>(null)
@@ -164,7 +164,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
           <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Total spent</p>
           <p style={{ fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{cost.toFixed(2)}</p>
-          <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>{toolTab === 'audio' ? 'varies by property size' : '@ £5.00 per report'}</p>
+          <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>{toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'}</p>
           <div style={{ height: 3, background: BORDER, borderRadius: 2 }}>
             <div style={{ height: '100%', width: Math.min(100, total * 5) + '%', background: TEAL, borderRadius: 2 }} />
           </div>
@@ -233,7 +233,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
                 <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Total spent</p>
                 <p style={{ fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{ltCost.toFixed(2)}</p>
-                <p style={{ fontSize: 12, color: HINT }}>{toolTab === 'audio' ? 'varies by property size' : '@ £5.00 per report'}</p>
+                <p style={{ fontSize: 12, color: HINT }}>{toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'}</p>
               </div>
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
                 <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Est. saving*</p>
@@ -1191,7 +1191,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               {(() => {
                 const tabConvs = conversions.filter((c: any) => toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio')
                 const tabTotal = tabConvs.length
-                const tabSpend = tabConvs.reduce((s: number, c: any) => s + (c.cost ? Number(c.cost) : (c.type === 'audio' ? 11.00 : 5.00)), 0)
+                const tabSpend = tabConvs.reduce((s: number, c: any) => s + (c.cost ? Number(c.cost) : (c.type === 'audio' ? 9.60 : 4.00)), 0)
                 const tabMarket = tabConvs.reduce((s: number, c: any) => { const mkt: Record<string,number>={'room_only':10,'studio':15,'1bed':15,'2bed':20,'3bed':25,'4bed':35,'5bed':45,'6bed':50,'7bed':55,'8bed':60,'9bed':65,'10bed':70,'11bed':75,'12bed':80}; const market=c.type==='audio'?(c.property_size?mkt[c.property_size]||12:12):12; return s+market }, 0)
                 const tabSaving = Math.max(0, tabMarket - tabSpend)
                 const tabDur = tabConvs.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
@@ -1200,7 +1200,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 const fmtT = (s: number) => s >= 60 ? Math.floor(s/60)+'m '+(s%60)+'s' : s+'s'
                 return (
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : `repeat(${toolTab === 'audio' ? 6 : 5},minmax(0,1fr))`, gap: 16, marginBottom: 0 }}>
-                {[['Total reports', tabTotal.toString(), 'all time'],['Total spent', '£'+tabSpend.toFixed(2), toolTab === 'audio' ? 'varies by property size' : '@ £5.00 per report'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : []), ['Est. saving', '£'+tabSaving.toFixed(2), 'vs. manual typing']].map(([label,val,sub]) => (
+                {[['Total reports', tabTotal.toString(), 'all time'],['Total spent', '£'+tabSpend.toFixed(2), toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : []), ['Est. saving', '£'+tabSaving.toFixed(2), 'vs. manual typing']].map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
@@ -1280,14 +1280,14 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <div style={{ padding: 18 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span style={{ fontWeight: 600 }}>£{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining.</span></div>
                       {toolTab !== 'audio' && <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>Approx. <strong style={{ color: TEXT }}>{Math.floor(Number(credits) / 5)}</strong> conversions (accuracy report included with each)</p>}
-                      <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>{toolTab === 'audio' ? 'Pricing varies by property size · Balance never expires.' : '£5.00 per conversion · Accuracy report included · Balance never expires.'}</p>
+                      <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>{toolTab === 'audio' ? 'Pricing varies by property size · Balance never expires.' : '£4.00 per conversion · Accuracy report included · Balance never expires.'}</p>
                       <button onClick={() => setShowTopup(true)} style={{ width: '100%', padding: 10, borderRadius: 9, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Top up balance</button>
                     </div>
                   </div>
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>This month</h3></div>
                     <div style={{ padding: 18 }}>
-                      {[['Reports converted',conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').length.toString()],['Total spent','£'+conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').reduce((s:number,c:any)=>s+(c.cost?Number(c.cost):5),0).toFixed(2)],['Conversion cost per report', toolTab === 'audio' ? 'Varies by size' : '£5.00'],['Est. saving vs. typist','£'+conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').reduce((s:number,c:any)=>{const mkt:Record<string,number>={'room_only':10,'studio':15,'1bed':15,'2bed':20,'3bed':25,'4bed':35,'5bed':45,'6bed':50,'7bed':55,'8bed':60,'9bed':65,'10bed':70,'11bed':75,'12bed':80};const market=c.type==='audio'?(c.property_size?mkt[c.property_size]||12:12):12;return s+Math.max(0,market-(c.cost?Number(c.cost):5))},0).toFixed(2)]].map(([l,v],i) => (
+                      {[['Reports converted',conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').length.toString()],['Total spent','£'+conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').reduce((s:number,c:any)=>s+(c.cost?Number(c.cost):4),0).toFixed(2)],['Conversion cost per report', toolTab === 'audio' ? 'Varies by size' : '£4.00'],['Est. saving vs. typist','£'+conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').reduce((s:number,c:any)=>{const mkt:Record<string,number>={'room_only':10,'studio':15,'1bed':15,'2bed':20,'3bed':25,'4bed':35,'5bed':45,'6bed':50,'7bed':55,'8bed':60,'9bed':65,'10bed':70,'11bed':75,'12bed':80};const market=c.type==='audio'?(c.property_size?mkt[c.property_size]||12:12):12;return s+Math.max(0,market-(c.cost?Number(c.cost):4))},0).toFixed(2)]].map(([l,v],i) => (
                         <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                           <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
                         </div>
@@ -1326,7 +1326,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Purchase credits to continue.</p>
                 </div>
               ) : (
-                <button onClick={() => setShowConvert(true)} style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: '#FD6A02', color: '#fff', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>+ Convert now — £5.00</button>
+                <button onClick={() => setShowConvert(true)} style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: '#FD6A02', color: '#fff', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>+ Convert now — £4.00</button>
               )}
               <p style={{ fontSize: 12, color: '#94AEA6', marginTop: 16 }}>{credits} credit{credits !== 1 ? 's' : ''} remaining</p>
             </div>
@@ -1375,7 +1375,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <td style={{ padding: '12px 20px', fontSize: 11, fontWeight: 500, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmtAddr(c.address)}</td>
                     {toolTab === 'audio' ? (<><td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{c.property_size ? c.property_size.replace('bed',' bed').replace('_',' ') : '—'}</td><td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{c.furnished ? c.furnished.replace('_',' ') : '—'}</td><td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{c.audio_length_seconds ? (c.audio_length_seconds >= 60 ? Math.floor(c.audio_length_seconds/60)+'m '+(c.audio_length_seconds%60)+'s' : c.audio_length_seconds+'s') : '—'}</td></>) : (<td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{c.rooms} rooms</td>)}
                     <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
-                    <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£5.00</td>
+                    <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£4.00</td>
                     <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{(c.converted_by || '').split(' ').map((n: string, i: number) => i === 0 ? n : n[0]).join(' ')}</td>
                     <td style={{ padding: '12px 20px' }}>
                       <div style={{ display: 'flex', gap: 1 }}>
@@ -1538,7 +1538,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 ['📄', 'Upload any inventory PDF', 'Our AI converts it into a perfectly formatted Word document in 1–4 minutes'],
                 ['⚙️', 'Check your Settings', 'Your uploaded PDFs and reports are automatically deleted after 14 days by default for GDPR compliance. You can change this period in Settings at any time.'],
                 ['📊', 'Accuracy reports', 'After conversion, run an accuracy report to check the quality of your conversion — or cross reference it yourself against your original PDF once the Word document is downloaded.'],
-                ['💷', 'Balance', 'Each conversion costs £5.00 and includes a free accuracy report. Top up your balance in the Billing section anytime'],
+                ['💷', 'Balance', 'Each conversion costs £4.00 and includes a free accuracy report. Top up your balance in the Billing section anytime'],
               ].map(([icon, title, desc]) => (
                 <div key={title as string} style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
                   <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
@@ -1647,7 +1647,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 480, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
             <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£5.00 · £{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining</p></div>
+              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£4.00 · £{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining</p></div>
               <button onClick={closeConvert} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
             </div>
 
@@ -1737,13 +1737,13 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {selectedFile?.name.toLowerCase().endsWith('.docx') ? (
                       <>
-                        <button onClick={() => startConvert('worddoc')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Word Doc) — £5.00</button>
+                        <button onClick={() => startConvert('worddoc')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Word Doc) — £4.00</button>
                         <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Reads Word document table structure directly</p>
                       </>
                     ) : (
                       <>
-                        <button onClick={() => startConvert('text')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Text) — £5.00</button>
-                        <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Vision) — £5.00</button>
+                        <button onClick={() => startConvert('text')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Text) — £4.00</button>
+                        <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Vision) — £4.00</button>
                         <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Text: fast extraction · Vision: reads PDF visually (better for complex layouts)</p>
                       </>
                     )}
@@ -2181,7 +2181,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                             property_size: audioPropertySize,
                             furnished: audioFurnished,
                             audio_length_seconds: data.audio_length_seconds || 0,
-                            cost: price || 5.00,
+                            cost: price || 4.00,
                             converted_json: { rooms: data.rooms, address: audioAddress },
                             extracted_text: data.transcript || '',
                           })
