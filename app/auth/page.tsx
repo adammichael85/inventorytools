@@ -85,6 +85,28 @@ export default function Auth() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'start_session', userId, sessionToken, deviceLabel })
     })
+
+    // Resolve and cache the brand BEFORE redirecting, so the dashboard never shows default colours
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('company_name')
+        .eq('id', userId)
+        .single()
+
+      if (profile?.company_name) {
+        const { data: brandRow } = await supabase
+          .from('brands')
+          .select('*')
+          .eq('company_name', profile.company_name)
+          .maybeSingle()
+
+        if (brandRow) {
+          sessionStorage.setItem('cachedBrand', JSON.stringify(brandRow))
+        }
+      }
+    } catch (e) { /* if this fails, BrandContext will resolve it normally on dashboard load */ }
+
     window.scrollTo(0,0)
     sessionStorage.setItem('freshLogin', '1')
     router.push('/dashboard')
