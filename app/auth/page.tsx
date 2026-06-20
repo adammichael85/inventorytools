@@ -12,6 +12,7 @@ export default function Auth() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [company, setCompany] = useState('')
+  const [companyType, setCompanyType] = useState('')
   const [position, setPosition] = useState('')
   const [address, setAddress] = useState('')
   const [phone, setPhone] = useState('')
@@ -78,6 +79,7 @@ export default function Auth() {
           id: data.user.id,
           full_name: firstName + ' ' + lastName,
           company_name: company,
+          company_type: companyType,
           company_position: position,
           company_address: address,
           company_phone: phone,
@@ -226,6 +228,24 @@ export default function Auth() {
                   ['Work email', 'email', email, (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value), 'jane@company.com', !!inviteToken],
                   ['Password', 'password', password, (e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value), '••••••••', false],
                   ['Company name', 'text', company, (e: React.ChangeEvent<HTMLInputElement>) => setCompany(e.target.value), 'ABC Inventories Ltd', !!inviteToken],
+                ].map(([label, type, value, onChange, placeholder, disabled]) => (
+                  <div key={label as string} style={{ marginBottom: 14 }}>
+                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>{label as string}</label>
+                    <input type={type as string} value={value as string} disabled={disabled as boolean} onChange={onChange as React.ChangeEventHandler<HTMLInputElement>} placeholder={placeholder as string} style={disabled ? {...input, background: BG, color: M} : input} />
+                  </div>
+                ))}
+                {!inviteToken && (
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>Company type</label>
+                    <select value={companyType} onChange={e => setCompanyType(e.target.value)} style={{ ...input, appearance: 'none' as const }}>
+                      <option value="">Select company type...</option>
+                      <option value="inventory_company">Inventory Company</option>
+                      <option value="typing_company">Typing Company</option>
+                      <option value="estate_agent">Estate Agent</option>
+                    </select>
+                  </div>
+                )}
+                {[
                   ['Your position', 'text', position, (e: React.ChangeEvent<HTMLInputElement>) => setPosition(e.target.value), 'Inventory Clerk', false],
                   ['Company address', 'text', address, (e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value), '123 High Street, London', !!inviteToken],
                   ['Company phone', 'tel', phone, (e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value), '01234 567890', !!inviteToken],

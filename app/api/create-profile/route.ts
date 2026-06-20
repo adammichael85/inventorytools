@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
       full_name: body.full_name,
       role: role,
       company_name: companyName,
+      company_type: body.company_type || null,
       company_position: body.company_position,
       company_address: body.company_address,
       company_phone: body.company_phone,
