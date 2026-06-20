@@ -1594,7 +1594,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           {page === 'convert' && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
               <div style={{ width: 64, height: 64, borderRadius: 16, background: '#fff0e6', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FD6A02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
               </div>
               <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 8px' }}>Convert PDF to Word</h2>
               <p style={{ fontSize: 14, color: '#5A7068', margin: '0 0 24px', textAlign: 'center' }}>Upload any inventory PDF or Word doc and get a perfectly formatted Word document.</p>
@@ -1604,7 +1604,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Purchase credits to continue.</p>
                 </div>
               ) : (
-                <button onClick={() => setShowConvert(true)} style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: '#FD6A02', color: '#fff', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>+ Convert now — £4.00</button>
+                <button onClick={() => setShowConvert(true)} style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>+ Convert now — £4.00</button>
               )}
               <p style={{ fontSize: 12, color: '#94AEA6', marginTop: 16 }}>{credits} credit{credits !== 1 ? 's' : ''} remaining</p>
             </div>
@@ -1792,7 +1792,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             <button
               disabled={pendingRatings.some((x: any) => !tempRatings[x.id])}
               onClick={submitRatings}
-              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: pendingRatings.every((x: any) => tempRatings[x.id]) ? '#FD6A02' : '#E2EAE7', color: pendingRatings.every((x: any) => tempRatings[x.id]) ? '#ffffff' : '#94AEA6', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: pendingRatings.every((x: any) => tempRatings[x.id]) ? 'pointer' : 'default', transition: 'all 0.15s' }}>
+              style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: pendingRatings.every((x: any) => tempRatings[x.id]) ? TEAL : '#E2EAE7', color: pendingRatings.every((x: any) => tempRatings[x.id]) ? '#ffffff' : '#94AEA6', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: pendingRatings.every((x: any) => tempRatings[x.id]) ? 'pointer' : 'default', transition: 'all 0.15s' }}>
               Continue to dashboard →
             </button>
           </div>
@@ -1897,8 +1897,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             <div style={{ width: 40, height: 40, borderRadius: '50%', border: `3px solid ${TEAL_LIGHT}`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
             <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px' }}>Generating accuracy report...</p>
             <p style={{ fontSize: 13, color: MUTED, margin: '0 0 10px' }}>This may take 30-90 seconds. Please wait.</p>
-            <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', letterSpacing: 0.3 }}>PLEASE KEEP THIS TAB OPEN WHILE GENERATING.</p>
-            <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', letterSpacing: 0.3 }}>CLOSING THIS TAB WILL CANCEL YOUR REPORT.</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, letterSpacing: 0.3 }}>PLEASE KEEP THIS TAB OPEN WHILE GENERATING.</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, letterSpacing: 0.3 }}>CLOSING THIS TAB WILL CANCEL YOUR REPORT.</p>
           </div>
         </div>
       )}
@@ -1932,7 +1932,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             <div style={{ fontSize: 13, lineHeight: 1.8, color: '#1a1a2e', marginTop: 12 }}>
               {viewingReport.accuracy_report.split('\n').map((line: string, i: number) => {
                 if (line.startsWith('### ')) return <h3 key={i} style={{ fontSize: 14, fontWeight: 700, margin: '20px 0 4px', color: '#1a1a2e', borderTop: '2px solid #e8e8e8', paddingTop: 12 }}>{line.replace('### ', '')}</h3>
-                if (line.startsWith('## ')) return <h2 key={i} style={{ fontSize: 15, fontWeight: 700, margin: '24px 0 8px', color: '#1a1a2e', borderBottom: '2px solid #FD6A02', paddingBottom: 6 }}>{line.replace('## ', '')}</h2>
+                if (line.startsWith('## ')) return <h2 key={i} style={{ fontSize: 15, fontWeight: 700, margin: '24px 0 8px', color: '#1a1a2e', borderBottom: `2px solid ${TEAL}`, paddingBottom: 6 }}>{line.replace('## ', '')}</h2>
                 if (line.startsWith('**Wrong column**') || line.startsWith('**Missing row**') || line.startsWith('**Extra item**') || line.startsWith('**Duplicated row**')) return <p key={i} style={{ fontWeight: 700, margin: '10px 0 6px', color: '#DC2626', fontSize: 13 }}>{line.replace(/\*\*/g, '')}</p>
                 if (line.startsWith('**Original File:**') || line.startsWith('**PDF:**')) return <p key={i} style={{ fontWeight: 700, margin: '10px 0 2px', color: '#1a1a2e', borderTop: '1px solid #e8e8e8', paddingTop: 8 }}>Original File:</p>
                 if (line.startsWith('**Converted Word.doc:**') || line.startsWith('**Word doc:**')) return <p key={i} style={{ fontWeight: 700, margin: '10px 0 2px', color: '#1a1a2e', borderTop: '1px solid #e8e8e8', paddingTop: 8 }}>Converted Word.doc:</p>
@@ -2079,11 +2079,11 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#d45500' }}>⏱ {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</span>
                   </div>
                   <p style={{ fontSize: 11, color: '#d45500', margin: '0 0 12px' }}>{selectedFile?.name}</p>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', margin: '0 0 4px', letterSpacing: 0.3 }}>THIS IS RUNNING IN THE BACKGROUND — YOU CAN USE OTHER TABS FREELY.</p>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: '#FD6A02', margin: 0, letterSpacing: 0.3 }}>DO NOT CLOSE THIS TAB UNTIL THE CONVERSION IS COMPLETE.</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: '0 0 4px', letterSpacing: 0.3 }}>THIS IS RUNNING IN THE BACKGROUND — YOU CAN USE OTHER TABS FREELY.</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: 0, letterSpacing: 0.3 }}>DO NOT CLOSE THIS TAB UNTIL THE CONVERSION IS COMPLETE.</p>
                 </div>
                 <div style={{ height: 4, borderRadius: 20, background: 'rgba(29,158,117,0.2)', overflow: 'hidden', marginBottom: 14 }}>
-                  <div style={{ height: '100%', borderRadius: 20, background: '#FD6A02', animation: 'progress 2s ease-in-out infinite' }} />
+                  <div style={{ height: '100%', borderRadius: 20, background: TEAL, animation: 'progress 2s ease-in-out infinite' }} />
                 </div>
                 {processingRooms.map((room, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 10, padding: '6px 0', borderBottom: `1px solid ${BORDER}`, opacity: room.state === 'pending' ? 0.35 : 1 }}>
