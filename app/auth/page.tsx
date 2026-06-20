@@ -110,7 +110,7 @@ export default function Auth() {
 
     window.scrollTo(0,0)
     sessionStorage.setItem('freshLogin', '1')
-    router.push('/dashboard')
+    window.location.href = '/dashboard'
   }
 
   async function handleSignIn() {
