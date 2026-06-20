@@ -4,9 +4,15 @@ import crypto from 'crypto'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const FROM_EMAIL = 'noreply@inventorytools.co.uk'
-const APP_URL = 'https://inventorytools.co.uk'
 
-function inviteEmail(companyName: string, inviteUrl: string) {
+const DEFAULT_BRAND = {
+  display_name: 'InventoryTools',
+  domain: 'inventorytools.co.uk',
+  primary_color: '#FD6A02',
+  logo_url: 'https://inventorytools.co.uk/logo-email-full.png',
+}
+
+function inviteEmail(brand: typeof DEFAULT_BRAND, companyName: string, inviteUrl: string) {
   return `
 <!DOCTYPE html>
 <html>
@@ -14,16 +20,16 @@ function inviteEmail(companyName: string, inviteUrl: string) {
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:'Helvetica Neue',Arial,sans-serif;">
   <div style="max-width:560px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
     <div style="background:#ffffff;padding:32px 40px;text-align:center;border-bottom:1px solid #f0f0f0;">
-      <img src="https://inventorytools.co.uk/logo-email-full.png" width="200" alt="InventoryTools" style="display:block;margin:0 auto;height:auto;">
+      <img src="${brand.logo_url}" width="200" alt="${brand.display_name}" style="display:block;margin:0 auto;height:auto;">
     </div>
     <div style="padding:40px;">
       <h2 style="color:#1a1a2e;font-size:20px;font-weight:700;margin:0 0 12px;">You've been invited to join ${companyName}</h2>
       <p style="color:#888;font-size:14px;line-height:1.6;margin:0 0 24px;">Click the button below to create your account and start converting inventory PDFs and recordings into Word documents.</p>
-      <a href="${inviteUrl}" style="display:inline-block;background:#FD6A02;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;margin-bottom:24px;">Accept invite</a>
+      <a href="${inviteUrl}" style="display:inline-block;background:${brand.primary_color};color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;margin-bottom:24px;">Accept invite</a>
       <p style="color:#aaa;font-size:12px;margin:0;">This invite link expires in 7 days. If you weren't expecting this, you can ignore this email.</p>
     </div>
     <div style="background:#f5f5f5;padding:20px 40px;text-align:center;">
-      <p style="color:#aaa;font-size:11px;margin:0;">© ${new Date().getFullYear()} InventoryTools · <a href="${APP_URL}" style="color:#FD6A02;text-decoration:none;">inventorytools.co.uk</a></p>
+      <p style="color:#aaa;font-size:11px;margin:0;">© ${new Date().getFullYear()} ${brand.display_name} · <a href="https://${brand.domain}" style="color:${brand.primary_color};text-decoration:none;">${brand.domain}</a></p>
     </div>
   </div>
 </body>
@@ -51,12 +57,22 @@ export async function POST(req: NextRequest) {
     if (inviter.role !== 'admin') return NextResponse.json({ error: 'Only admins can invite team members' }, { status: 403 })
     if (!inviter.company_name) return NextResponse.json({ error: 'No company name set on your profile' }, { status: 400 })
 
-    // Check if email already has an account
-    const { data: existing } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', email) // placeholder check below uses auth admin list instead
+    // Resolve brand for this company
+    let brand = DEFAULT_BRAND
+    const { data: brandRow } = await supabase
+      .from('brands')
+      .select('display_name, domain, primary_color, logo_url')
+      .eq('company_name', inviter.company_name)
       .maybeSingle()
+
+    if (brandRow) {
+      brand = {
+        display_name: brandRow.display_name || DEFAULT_BRAND.display_name,
+        domain: brandRow.domain || DEFAULT_BRAND.domain,
+        primary_color: brandRow.primary_color || DEFAULT_BRAND.primary_color,
+        logo_url: brandRow.logo_url ? `https://${DEFAULT_BRAND.domain}${brandRow.logo_url.startsWith('/') ? '' : '/'}${brandRow.logo_url}` : DEFAULT_BRAND.logo_url,
+      }
+    }
 
     const token = crypto.randomBytes(32).toString('hex')
 
@@ -68,7 +84,7 @@ export async function POST(req: NextRequest) {
     })
     if (insertErr) throw new Error(insertErr.message)
 
-    const inviteUrl = `${APP_URL}/auth?invite=${token}`
+    const inviteUrl = `https://${DEFAULT_BRAND.domain}/auth?invite=${token}`
 
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -76,8 +92,8 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         from: FROM_EMAIL,
         to: email,
-        subject: `You've been invited to join ${inviter.company_name} on InventoryTools`,
-        html: inviteEmail(inviter.company_name, inviteUrl)
+        subject: `You've been invited to join ${inviter.company_name} on ${brand.display_name}`,
+        html: inviteEmail(brand, inviter.company_name, inviteUrl)
       })
     })
 
