@@ -106,9 +106,32 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
         sessionStorage.setItem(CACHE_KEY, JSON.stringify(resolved))
         sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString())
       } catch (e) { /* ignore */ }
+
+      if (resolved.favicon_url && typeof document !== 'undefined') {
+        let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null
+        if (!link) {
+          link = document.createElement('link')
+          link.rel = 'icon'
+          document.head.appendChild(link)
+        }
+        link.href = resolved.favicon_url
+      }
     }
 
     resolveBrand()
+  }, [])
+
+  // Apply cached favicon immediately too, for instant correctness on repeat visits
+  useEffect(() => {
+    if (cachedAtStart?.favicon_url && typeof document !== 'undefined') {
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null
+      if (!link) {
+        link = document.createElement('link')
+        link.rel = 'icon'
+        document.head.appendChild(link)
+      }
+      link.href = cachedAtStart.favicon_url
+    }
   }, [])
 
   return (
