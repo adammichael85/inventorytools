@@ -1380,8 +1380,14 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       <aside style={{ width: isMobile ? 0 : 220, background: SURFACE, borderRight: isMobile ? 'none' : `1px solid ${BORDER}`, display: isMobile ? 'none' : 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0 }}>
         <div style={{ height: 64, padding: '0 18px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-            <svg width="32" height="32" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}><rect width="120" height="120" rx="26" fill="#FD6A02"/><rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            <span style={{ fontSize: 13, fontWeight: 700, color: TEXT }}>inventory<span style={{ color: TEAL }}>tools</span></span>
+            {brand.company_name === 'InventoryTools' ? (
+              <>
+                <svg width="32" height="32" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}><rect width="120" height="120" rx="26" fill={TEAL}/><rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <span style={{ fontSize: 13, fontWeight: 700, color: TEXT }}>inventory<span style={{ color: TEAL }}>tools</span></span>
+              </>
+            ) : (
+              <img src={brand.logo_url || ''} alt={brand.display_name} style={{ height: 32, width: 'auto', flexShrink: 0 }} />
+            )}
           </Link>
         </div>
         <nav style={{ padding: '12px 10px', flex: 1 }}>
@@ -1409,15 +1415,19 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: isMobile ? '0 16px' : '0 32px', height: isMobile ? 56 : 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 0 }}>
             {isMobile && (
-              <svg width="30" height="30" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                <rect width="120" height="120" rx="26" fill="#FD6A02"/>
-                <rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
-                <rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
-                <rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
-                <rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/>
-                <rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/>
-                <path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              brand.company_name === 'InventoryTools' ? (
+                <svg width="30" height="30" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                  <rect width="120" height="120" rx="26" fill={TEAL}/>
+                  <rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
+                  <rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
+                  <rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
+                  <rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/>
+                  <rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/>
+                  <path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ) : (
+                <img src={brand.logo_url || ''} alt={brand.display_name} style={{ height: 30, width: 'auto', flexShrink: 0 }} />
+              )
             )}
             <div>
             <h1 style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3, margin: 0 }}>{page === 'dashboard' ? ((() => { const h = new Date().getHours(); return (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ' ' + (userName ? userName.split(' ')[0].charAt(0).toUpperCase() + userName.split(' ')[0].slice(1) : (userEmail.split('@')[0].charAt(0).toUpperCase() + userEmail.split('@')[0].slice(1))) + (isMobile ? '' : ' 👋') })()) : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
