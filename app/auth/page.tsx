@@ -46,6 +46,8 @@ export default function Auth() {
           setEmail(data.email)
           setInviteCompanyName(data.company_name)
           setCompany(data.company_name)
+          setAddress(data.company_address || '')
+          setPhone(data.company_phone || '')
         }
       })
     }
@@ -225,8 +227,8 @@ export default function Auth() {
                   ['Password', 'password', password, (e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value), '••••••••', false],
                   ['Company name', 'text', company, (e: React.ChangeEvent<HTMLInputElement>) => setCompany(e.target.value), 'ABC Inventories Ltd', !!inviteToken],
                   ['Your position', 'text', position, (e: React.ChangeEvent<HTMLInputElement>) => setPosition(e.target.value), 'Inventory Clerk', false],
-                  ['Company address', 'text', address, (e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value), '123 High Street, London', false],
-                  ['Company phone', 'tel', phone, (e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value), '01234 567890', false],
+                  ['Company address', 'text', address, (e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value), '123 High Street, London', !!inviteToken],
+                  ['Company phone', 'tel', phone, (e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value), '01234 567890', !!inviteToken],
                 ].map(([label, type, value, onChange, placeholder, disabled]) => (
                   <div key={label as string} style={{ marginBottom: 14 }}>
                     <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>{label as string}</label>
