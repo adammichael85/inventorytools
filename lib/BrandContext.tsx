@@ -30,6 +30,17 @@ const DEFAULT_BRAND: Brand = {
   email_from_name: 'InventoryTools',
 }
 
+const CACHE_KEY = 'cachedBrand'
+
+function getCachedBrand(): Brand {
+  if (typeof window === 'undefined') return DEFAULT_BRAND
+  try {
+    const cached = sessionStorage.getItem(CACHE_KEY)
+    if (cached) return JSON.parse(cached) as Brand
+  } catch (e) { /* ignore parse errors */ }
+  return DEFAULT_BRAND
+}
+
 const BrandContext = createContext<Brand>(DEFAULT_BRAND)
 
 export function useBrand() {
@@ -37,10 +48,13 @@ export function useBrand() {
 }
 
 export function BrandProvider({ children }: { children: React.ReactNode }) {
-  const [brand, setBrand] = useState<Brand>(DEFAULT_BRAND)
+  // Initialize from cache synchronously - no flash of wrong brand on repeat visits
+  const [brand, setBrand] = useState<Brand>(getCachedBrand)
 
   useEffect(() => {
     async function resolveBrand() {
+      let resolved: Brand = DEFAULT_BRAND
+
       // 1. Check if logged in - account-based branding takes priority
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
@@ -57,15 +71,10 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
             .eq('company_name', profile.company_name)
             .maybeSingle()
 
-          if (brandRow) {
-            setBrand(brandRow as Brand)
-            return
-          }
+          if (brandRow) resolved = brandRow as Brand
         }
-      }
-
-      // 2. Not logged in (or no matching brand) - fall back to domain-based lookup
-      if (typeof window !== 'undefined') {
+      } else if (typeof window !== 'undefined') {
+        // 2. Not logged in - fall back to domain-based lookup
         const hostname = window.location.hostname.replace('www.', '')
         const { data: brandRow } = await supabase
           .from('brands')
@@ -73,14 +82,13 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
           .eq('domain', hostname)
           .maybeSingle()
 
-        if (brandRow) {
-          setBrand(brandRow as Brand)
-          return
-        }
+        if (brandRow) resolved = brandRow as Brand
       }
 
-      // 3. Default fallback
-      setBrand(DEFAULT_BRAND)
+      setBrand(resolved)
+      try {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(resolved))
+      } catch (e) { /* ignore storage errors */ }
     }
 
     resolveBrand()
