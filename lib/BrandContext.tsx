@@ -108,13 +108,18 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
       } catch (e) { /* ignore */ }
 
       if (resolved.favicon_url && typeof document !== 'undefined') {
-        let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null
-        if (!link) {
-          link = document.createElement('link')
-          link.rel = 'icon'
-          document.head.appendChild(link)
-        }
-        link.href = resolved.favicon_url
+        const existingIcons = document.querySelectorAll("link[rel='icon'], link[rel='shortcut icon']")
+        existingIcons.forEach(el => el.remove())
+        const iconLink = document.createElement('link')
+        iconLink.rel = 'icon'
+        iconLink.type = 'image/png'
+        iconLink.href = resolved.favicon_url
+        document.head.appendChild(iconLink)
+        const shortcutLink = document.createElement('link')
+        shortcutLink.rel = 'shortcut icon'
+        shortcutLink.type = 'image/png'
+        shortcutLink.href = resolved.favicon_url
+        document.head.appendChild(shortcutLink)
       }
     }
 
@@ -124,13 +129,18 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   // Apply cached favicon immediately too, for instant correctness on repeat visits
   useEffect(() => {
     if (cachedAtStart?.favicon_url && typeof document !== 'undefined') {
-      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null
-      if (!link) {
-        link = document.createElement('link')
-        link.rel = 'icon'
-        document.head.appendChild(link)
-      }
-      link.href = cachedAtStart.favicon_url
+      const existingIcons = document.querySelectorAll("link[rel='icon'], link[rel='shortcut icon']")
+      existingIcons.forEach(el => el.remove())
+      const iconLink = document.createElement('link')
+      iconLink.rel = 'icon'
+      iconLink.type = 'image/png'
+      iconLink.href = cachedAtStart.favicon_url
+      document.head.appendChild(iconLink)
+      const shortcutLink = document.createElement('link')
+      shortcutLink.rel = 'shortcut icon'
+      shortcutLink.type = 'image/png'
+      shortcutLink.href = cachedAtStart.favicon_url
+      document.head.appendChild(shortcutLink)
     }
   }, [])
 
