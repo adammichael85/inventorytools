@@ -1343,8 +1343,19 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       .then(() => {
         supabase.auth.getSession().then(({ data }) => {
           if (data.session) {
-            supabase.from('profiles').select('balance').eq('id', data.session.user.id).single().then(({ data: p }) => { if (p) setCredits(p.balance || 0) })
-            supabase.from('conversions').select('*').eq('user_id', data.session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => { if (convs) { setConversions(convs); const latest = convs[0]; if (latest && !latest.rating) { setQuickRateConvId(latest.id); setQuickRateConvAddress(latest.address || ''); setShowQuickRate(true); localStorage.setItem('lastConverted', Date.now().toString()) } } })
+            supabase.from('profiles').select('balance, auto_accuracy_report').eq('id', data.session.user.id).single().then(({ data: p }) => {
+              if (p) setCredits(p.balance || 0)
+              supabase.from('conversions').select('*').eq('user_id', data.session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => {
+                if (convs) {
+                  setConversions(convs)
+                  const latest = convs[0]
+                  if (latest && !latest.rating) { setQuickRateConvId(latest.id); setQuickRateConvAddress(latest.address || ''); setShowQuickRate(true); localStorage.setItem('lastConverted', Date.now().toString()) }
+                  if (latest && p?.auto_accuracy_report && !latest.accuracy_report && latest.extracted_text) {
+                    generateAccuracyReport(latest)
+                  }
+                }
+              })
+            })
           }
         })
       })
