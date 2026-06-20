@@ -24,6 +24,9 @@ export default function Auth() {
   const [inviteCompanyName, setInviteCompanyName] = useState('')
   const [inviteError, setInviteError] = useState('')
   const [checkingInvite, setCheckingInvite] = useState(false)
+  const [showSessionWarning, setShowSessionWarning] = useState(false)
+  const [existingSessionDevice, setExistingSessionDevice] = useState('')
+  const [pendingLoginUserId, setPendingLoginUserId] = useState('')
 
   React.useEffect(() => {
     if (typeof window !== 'undefined' && window.location.search.includes('reason=inactivity')) {
@@ -55,12 +58,64 @@ export default function Auth() {
   }, [])
   const router = useRouter()
 
+  function getDeviceLabel() {
+    if (typeof navigator === 'undefined') return 'Unknown device'
+    const ua = navigator.userAgent
+    let browser = 'Unknown browser'
+    if (ua.includes('Edg/')) browser = 'Edge'
+    else if (ua.includes('Chrome/') && !ua.includes('Chromium')) browser = 'Chrome'
+    else if (ua.includes('Safari/') && !ua.includes('Chrome')) browser = 'Safari'
+    else if (ua.includes('Firefox/')) browser = 'Firefox'
+    let os = 'Unknown OS'
+    if (ua.includes('Windows')) os = 'Windows'
+    else if (ua.includes('Mac OS')) os = 'Mac'
+    else if (ua.includes('iPhone')) os = 'iPhone'
+    else if (ua.includes('iPad')) os = 'iPad'
+    else if (ua.includes('Android')) os = 'Android'
+    else if (ua.includes('Linux')) os = 'Linux'
+    return `${browser} on ${os}`
+  }
+
+  async function completeLogin(userId: string) {
+    const sessionToken = crypto.randomUUID()
+    const deviceLabel = getDeviceLabel()
+    sessionStorage.setItem('deviceSessionToken', sessionToken)
+    await fetch('/api/session-check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'start_session', userId, sessionToken, deviceLabel })
+    })
+    window.scrollTo(0,0)
+    sessionStorage.setItem('freshLogin', '1')
+    router.push('/dashboard')
+  }
+
   async function handleSignIn() {
     setLoading(true)
     setError('')
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) { setError(error.message); setLoading(false) }
-    else { window.scrollTo(0,0); sessionStorage.setItem('freshLogin', '1'); router.push('/dashboard') }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) { setError(error.message); setLoading(false); return }
+
+    const userId = data.user?.id
+    if (!userId) { setLoading(false); return }
+
+    // Check for an existing active session on another device
+    const checkRes = await fetch('/api/session-check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'check_existing', userId })
+    })
+    const checkData = await checkRes.json()
+
+    if (checkData.hasActiveSession) {
+      setPendingLoginUserId(userId)
+      setExistingSessionDevice(checkData.device || 'another device')
+      setShowSessionWarning(true)
+      setLoading(false)
+      return
+    }
+
+    await completeLogin(userId)
   }
 
   async function handleSignUp() {
@@ -265,6 +320,19 @@ export default function Auth() {
           </div>
         </div>
       </div>
+
+      {showSessionWarning && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 420, padding: 28, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px' }}>Active session detected</h3>
+            <p style={{ fontSize: 14, color: M, lineHeight: 1.6, marginBottom: 24 }}>You're already signed in on <strong style={{ color: TX }}>{existingSessionDevice}</strong>. Each account can only be active on one device at a time. Do you want to log that device out and continue here?</p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => { setShowSessionWarning(false); setPendingLoginUserId(''); setLoading(false) }} style={{ flex: 1, padding: 12, borderRadius: 10, border: `1px solid ${B}`, background: 'transparent', color: M, fontFamily: 'inherit', fontSize: 14, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={async () => { setShowSessionWarning(false); setLoading(true); await completeLogin(pendingLoginUserId) }} style={{ flex: 1, padding: 12, borderRadius: 10, border: 'none', background: T, color: '#fff', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Log out other device</button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
