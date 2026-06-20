@@ -59,7 +59,11 @@ export function useBrand() {
 }
 
 export function BrandProvider({ children }: { children: React.ReactNode }) {
-  const [brand, setBrand] = useState<Brand>(getCachedBrand)
+  const [brand, setBrand] = useState<Brand>(() => {
+    const cached = getCachedBrand()
+    console.log('[BrandProvider] Initial state from cache:', cached.company_name, 'fresh:', isCacheFresh())
+    return cached
+  })
 
   useEffect(() => {
     // If login just cached a fresh brand moments ago, trust it - skip re-fetch to avoid any flash
