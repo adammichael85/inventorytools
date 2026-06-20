@@ -953,6 +953,7 @@ export default function Dashboard() {
   }
   const [showRatingPopup, setShowRatingPopup] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [showSessionEnded, setShowSessionEnded] = useState(false)
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   const [savingOnboarding, setSavingOnboarding] = useState(false)
   const [showQuickRate, setShowQuickRate] = useState(false)
@@ -1057,6 +1058,38 @@ export default function Dashboard() {
       clearTimeout(timer)
       events.forEach(e => window.removeEventListener(e, reset))
     }
+  }, [])
+
+  useEffect(() => {
+    const sessionToken = typeof window !== 'undefined' ? sessionStorage.getItem('deviceSessionToken') : null
+    if (!sessionToken) return // no token means user logged in before this feature existed - skip check gracefully
+
+    let userId = ''
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) userId = data.session.user.id
+    })
+
+    const interval = setInterval(async () => {
+      if (!userId) {
+        const { data } = await supabase.auth.getSession()
+        if (data.session) userId = data.session.user.id
+        else return
+      }
+      try {
+        const res = await fetch('/api/session-check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'verify_session', userId, sessionToken })
+        })
+        const result = await res.json()
+        if (result.ok && !result.valid) {
+          setShowSessionEnded(true)
+          clearInterval(interval)
+        }
+      } catch (e) { /* ignore network blips */ }
+    }, 30000)
+
+    return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
@@ -1722,6 +1755,17 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           ))}
         </nav>
       )}
+      {showSessionEnded && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 420, padding: 28, boxShadow: '0 20px 60px rgba(0,0,0,0.25)', textAlign: 'center' }}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>🔒</div>
+            <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px' }}>You've been signed out</h3>
+            <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.6, marginBottom: 24 }}>Your account was signed in on another device, so this session has ended. Sign in again to continue here.</p>
+            <button onClick={() => { supabase.auth.signOut().then(() => { window.location.href = '/auth' }) }} style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Sign in again</button>
+          </div>
+        </div>
+      )}
+
       {/* RATING POPUP */}
       {showRatingPopup && pendingRatings.length > 0 && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
