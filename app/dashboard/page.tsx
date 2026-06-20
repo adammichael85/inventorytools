@@ -911,6 +911,7 @@ export default function Dashboard() {
   const [convertError, setConvertError] = useState('')
   const [conversions, setConversions] = useState<any[]>([])
   const [userStats, setUserStats] = useState<any>(null)
+  const [transactions, setTransactions] = useState<any[]>([])
   function fmtAddr(addr: string) {
     if (!addr) return addr
     const titled = addr.toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())
@@ -1045,6 +1046,14 @@ export default function Dashboard() {
         }
       })
       supabase.from('user_stats').select('*').eq('user_id', session.user.id).single().then(({ data: stats }) => { if (stats) setUserStats(stats) })
+      // Load transaction/invoice history for this company
+      supabase.from('profiles').select('company_name').eq('id', session.user.id).single().then(({ data: me }) => {
+        if (me?.company_name) {
+          supabase.from('transactions').select('*').eq('company_name', me.company_name).order('created_at', { ascending: false }).then(({ data: txns }) => {
+            if (txns) setTransactions(txns)
+          })
+        }
+      })
       // Load conversions
       const isFreshLogin = !!sessionStorage.getItem('freshLogin')
       sessionStorage.removeItem('freshLogin')
@@ -1619,6 +1628,34 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   ))}
                 </div>
               </div>
+
+              {userRole === 'admin' && (
+                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+                  <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Invoice history</h3>
+                  </div>
+                  {transactions.length === 0 ? (
+                    <div style={{ padding: 40, textAlign: 'center', color: MUTED, fontSize: 13 }}>No invoices yet. Top-ups will appear here once payments are processed.</div>
+                  ) : (
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead><tr style={{ background: BG }}>
+                        {['Date','Invoice #','Description','Amount',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase' as const, letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
+                      </tr></thead>
+                      <tbody>
+                        {transactions.map(t => (
+                          <tr key={t.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
+                            <td style={{ padding: '12px 20px', fontSize: 13 }}>{new Date(t.created_at).toLocaleDateString('en-GB')}</td>
+                            <td style={{ padding: '12px 20px', fontSize: 13, fontFamily: 'monospace' }}>{t.invoice_number || '—'}</td>
+                            <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{t.description || 'Balance top-up'}</td>
+                            <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£{Number(t.amount).toFixed(2)}</td>
+                            <td style={{ padding: '12px 20px' }}><button style={{ fontSize: 12, color: TEAL, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Download</button></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
