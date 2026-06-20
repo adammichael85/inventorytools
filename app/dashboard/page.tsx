@@ -267,11 +267,13 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
 }
 
 
-function LegalPage({ TEAL, TEAL_LIGHT, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
+function LegalPage({ TEAL, TEAL_LIGHT, BORDER, SURFACE, BG, HINT, MUTED, TEXT, brand }: any) {
+  const productName = brand.display_name || 'InventoryTools'
+  const supportEmail = brand.company_name === 'InventoryTools' ? 'support@inventorytools.co.uk' : ('support@' + (brand.domain || 'inventorytools.co.uk'))
   const sections = [
     {
       title: 'Privacy Policy',
-      content: `InventoryTools collects and processes the following personal data:
+      content: `${productName} collects and processes the following personal data:
 
 • Account information: name, email address, company name, position, address and phone number provided at signup
 • Conversion data: property addresses, room counts and conversion times
@@ -279,13 +281,13 @@ function LegalPage({ TEAL, TEAL_LIGHT, BORDER, SURFACE, BG, HINT, MUTED, TEXT }:
 
 Your data is stored securely on Supabase servers located in the EU. We do not sell, share or transfer your personal data to third parties except as required to operate the service (Supabase for database storage, Vercel for hosting, OpenAI for document processing).
 
-You have the right to access, correct or delete your personal data at any time. To exercise these rights, contact us at support@inventorytools.co.uk.
+You have the right to access, correct or delete your personal data at any time. To exercise these rights, contact us at ${supportEmail}.
 
 Data is retained for the duration of your account. Upon account deletion, all personal data is permanently removed within 30 days.`
     },
     {
       title: 'Terms of Service',
-      content: `By using InventoryTools you agree to these terms:
+      content: `By using ${productName} you agree to these terms:
 
 • The service converts inventory PDFs and Word documents into formatted Word documents
 • Credits are purchased in advance and deducted per conversion
@@ -297,14 +299,14 @@ Data is retained for the duration of your account. Upon account deletion, all pe
     },
     {
       title: 'GDPR Compliance',
-      content: `InventoryTools is committed to GDPR compliance:
+      content: `${productName} is committed to GDPR compliance:
 
 • Legal basis for processing: contract performance and legitimate interests
-• Data controller: InventoryTools (inventorytools.co.uk)
+• Data controller: InventoryTools Ltd (inventorytools.co.uk) on behalf of ${productName}
 • Data processor: Supabase Inc (database), Vercel Inc (hosting), OpenAI Inc (document processing)
 • Data retention: account data retained until account deletion
 • Your rights: access, rectification, erasure, restriction, portability, objection
-• To exercise your rights: support@inventorytools.co.uk
+• To exercise your rights: ${supportEmail}
 • Supervisory authority: Information Commissioner's Office (ICO), ico.org.uk`
     },
     {
@@ -1747,7 +1749,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           )}
 
           {page === 'legal' && (
-            <LegalPage TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} />
+            <LegalPage TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} brand={brand} />
           )}
 
           {page === 'team' && (
@@ -1889,7 +1891,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
             </div>
             <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginBottom: 20 }}>
               <input type="checkbox" checked={onboardingChecked} onChange={e => setOnboardingChecked(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: TEAL, flexShrink: 0 }} />
-              <span style={{ fontSize: 13, color: TEXT, lineHeight: 1.5 }}>I have read and understood how InventoryTools stores and manages my data, including the auto-delete policy.</span>
+              <span style={{ fontSize: 13, color: TEXT, lineHeight: 1.5 }}>I have read and understood how {brand.display_name} stores and manages my data, including the auto-delete policy.</span>
             </label>
             <button disabled={!onboardingChecked || savingOnboarding} onClick={async () => {
               setSavingOnboarding(true)
