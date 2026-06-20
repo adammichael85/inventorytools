@@ -61,7 +61,6 @@ export function useBrand() {
 export function BrandProvider({ children }: { children: React.ReactNode }) {
   const [brand, setBrand] = useState<Brand>(() => {
     const cached = getCachedBrand()
-    console.log('[BrandProvider] Initial state from cache:', cached.company_name, 'fresh:', isCacheFresh())
     return cached
   })
 
