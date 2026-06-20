@@ -19,9 +19,35 @@ export default function Auth() {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [inactiveMsg, setInactiveMsg] = useState(false)
+  const [inviteToken, setInviteToken] = useState('')
+  const [inviteCompanyName, setInviteCompanyName] = useState('')
+  const [inviteError, setInviteError] = useState('')
+  const [checkingInvite, setCheckingInvite] = useState(false)
+
   React.useEffect(() => {
     if (typeof window !== 'undefined' && window.location.search.includes('reason=inactivity')) {
       setInactiveMsg(true)
+    }
+    const params = new URLSearchParams(window.location.search)
+    const invite = params.get('invite')
+    if (invite) {
+      setInviteToken(invite)
+      setTab('signup')
+      setCheckingInvite(true)
+      fetch('/api/validate-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: invite })
+      }).then(r => r.json()).then(data => {
+        setCheckingInvite(false)
+        if (data.error) {
+          setInviteError(data.error)
+        } else {
+          setEmail(data.email)
+          setInviteCompanyName(data.company_name)
+          setCompany(data.company_name)
+        }
+      })
     }
   }, [])
   const router = useRouter()
@@ -53,6 +79,7 @@ export default function Auth() {
           company_position: position,
           company_address: address,
           company_phone: phone,
+          invite_token: inviteToken || undefined,
         })
       })
       const profileData = await profileRes.json()
@@ -166,8 +193,23 @@ export default function Auth() {
 
             {tab === 'signup' && (
               <div>
-                <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.4, marginBottom: 6 }}>Create your account</h2>
-                <p style={{ fontSize: 14, color: M, marginBottom: 24 }}>Set up your InventoryTools account.</p>
+                {checkingInvite ? (
+                  <p style={{ fontSize: 14, color: M }}>Checking invite link...</p>
+                ) : inviteError ? (
+                  <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
+                    <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>{inviteError}</p>
+                  </div>
+                ) : inviteToken ? (
+                  <>
+                    <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.4, marginBottom: 6 }}>Join {inviteCompanyName}</h2>
+                    <p style={{ fontSize: 14, color: M, marginBottom: 24 }}>You've been invited to join {inviteCompanyName} on InventoryTools. Set a password to finish creating your account.</p>
+                  </>
+                ) : (
+                  <>
+                    <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.4, marginBottom: 6 }}>Create your account</h2>
+                    <p style={{ fontSize: 14, color: M, marginBottom: 24 }}>Set up your InventoryTools account.</p>
+                  </>
+                )}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
                   <div>
                     <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>First name</label>
@@ -179,20 +221,20 @@ export default function Auth() {
                   </div>
                 </div>
                 {[
-                  ['Work email', 'email', email, (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value), 'jane@company.com'],
-                  ['Password', 'password', password, (e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value), '••••••••'],
-                  ['Company name', 'text', company, (e: React.ChangeEvent<HTMLInputElement>) => setCompany(e.target.value), 'ABC Inventories Ltd'],
-                  ['Your position', 'text', position, (e: React.ChangeEvent<HTMLInputElement>) => setPosition(e.target.value), 'Inventory Clerk'],
-                  ['Company address', 'text', address, (e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value), '123 High Street, London'],
-                  ['Company phone', 'tel', phone, (e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value), '01234 567890'],
-                ].map(([label, type, value, onChange, placeholder]) => (
+                  ['Work email', 'email', email, (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value), 'jane@company.com', !!inviteToken],
+                  ['Password', 'password', password, (e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value), '••••••••', false],
+                  ['Company name', 'text', company, (e: React.ChangeEvent<HTMLInputElement>) => setCompany(e.target.value), 'ABC Inventories Ltd', !!inviteToken],
+                  ['Your position', 'text', position, (e: React.ChangeEvent<HTMLInputElement>) => setPosition(e.target.value), 'Inventory Clerk', false],
+                  ['Company address', 'text', address, (e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value), '123 High Street, London', false],
+                  ['Company phone', 'tel', phone, (e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value), '01234 567890', false],
+                ].map(([label, type, value, onChange, placeholder, disabled]) => (
                   <div key={label as string} style={{ marginBottom: 14 }}>
                     <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>{label as string}</label>
-                    <input type={type as string} value={value as string} onChange={onChange as React.ChangeEventHandler<HTMLInputElement>} placeholder={placeholder as string} style={input} />
+                    <input type={type as string} value={value as string} disabled={disabled as boolean} onChange={onChange as React.ChangeEventHandler<HTMLInputElement>} placeholder={placeholder as string} style={disabled ? {...input, background: BG, color: M} : input} />
                   </div>
                 ))}
-                <button onClick={handleSignUp} disabled={loading} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: loading ? H : T, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', marginBottom: 12, marginTop: 4 }}>
-                  {loading ? 'Creating account...' : 'Create account'}
+                <button onClick={handleSignUp} disabled={loading || !!inviteError || checkingInvite} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: loading ? H : T, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', marginBottom: 12, marginTop: 4 }}>
+                  {loading ? 'Creating account...' : inviteToken ? 'Join team' : 'Create account'}
                 </button>
                 <p style={{ fontSize: 12, color: H, lineHeight: 1.6, textAlign: 'center' }}>By creating an account you agree to our <a href="#" style={{ color: M }}>Terms</a> and <a href="#" style={{ color: M }}>Privacy Policy</a>.</p>
                 <p style={{ textAlign: 'center', fontSize: 13, color: M, marginTop: 12 }}>Already have an account? <button onClick={() => setTab('signin')} style={{ color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Sign in →</button></p>

@@ -364,7 +364,9 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
   const [members, setMembers] = React.useState<any[]>([])
   const [showInvite, setShowInvite] = React.useState(false)
   const [inviteEmail, setInviteEmail] = React.useState('')
+  const [inviteSending, setInviteSending] = React.useState(false)
   const [inviteSent, setInviteSent] = React.useState(false)
+  const [inviteErr, setInviteErr] = React.useState('')
   const [loading, setLoading] = React.useState(true)
   const [myRole, setMyRole] = React.useState('user')
   const [myId, setMyId] = React.useState('')
@@ -391,6 +393,28 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
 
   React.useEffect(() => { loadTeam() }, [])
 
+  async function sendInvite() {
+    if (!inviteEmail.trim()) return
+    setInviteSending(true)
+    setInviteErr('')
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setInviteSending(false); return }
+    const res = await fetch('/api/send-invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: inviteEmail.trim(), inviterUserId: session.user.id })
+    })
+    const data = await res.json()
+    setInviteSending(false)
+    if (data.error) {
+      setInviteErr(data.error)
+    } else {
+      setInviteSent(true)
+      setInviteEmail('')
+      setTimeout(() => setInviteSent(false), 4000)
+    }
+  }
+
   async function toggleAccess(memberId: string, field: 'pdf_enabled' | 'audio_enabled', current: boolean) {
     await supabase.from('profiles').update({ [field]: !current }).eq('id', memberId)
     setMembers(prev => prev.map(m => m.id === memberId ? { ...m, [field]: !current } : m))
@@ -409,6 +433,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
   }
 
   const isAdmin = myRole === 'admin'
+  const inputStyle = { width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none', background: '#fff', boxSizing: 'border-box' as const }
 
   return (
     <div>
@@ -420,13 +445,15 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
       {showInvite && isAdmin && (
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 20, marginBottom: 16 }}>
           <p style={{ fontSize: 13, fontWeight: 600, margin: '0 0 12px' }}>Invite a team member</p>
-          <p style={{ fontSize: 13, color: MUTED, margin: '0 0 16px' }}>Share this signup link with your team member. They will be added to your company account automatically.</p>
-          <div style={{ background: BG, border: `1px solid ${BORDER}`, borderRadius: 8, padding: '10px 14px', fontSize: 13, fontFamily: 'monospace', color: MUTED, marginBottom: 12, wordBreak: 'break-all' as const }}>
-            {typeof window !== 'undefined' ? window.location.origin + '/auth' : ''}/auth
+          <p style={{ fontSize: 13, color: MUTED, margin: '0 0 16px' }}>Enter their email address. They'll receive an invite link by email — once they sign up, they'll be added to your company automatically as a standard user.</p>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <input type="email" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder="colleague@company.com" style={inputStyle} onKeyDown={e => { if (e.key === 'Enter') sendInvite() }} />
+            <button onClick={sendInvite} disabled={inviteSending || !inviteEmail.trim()} style={{ padding: '9px 18px', borderRadius: 8, border: 'none', background: inviteSending ? '#94AEA6' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: inviteSending ? 'default' : 'pointer', whiteSpace: 'nowrap' as const }}>
+              {inviteSending ? 'Sending...' : 'Send invite'}
+            </button>
           </div>
-          <button onClick={() => { navigator.clipboard.writeText(window.location.origin + '/auth'); setInviteSent(true); setTimeout(() => setInviteSent(false), 3000) }} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
-            {inviteSent ? '✓ Copied!' : 'Copy link'}
-          </button>
+          {inviteSent && <p style={{ fontSize: 13, color: TEAL, marginTop: 10, marginBottom: 0 }}>✓ Invite sent!</p>}
+          {inviteErr && <p style={{ fontSize: 13, color: '#DC2626', marginTop: 10, marginBottom: 0 }}>{inviteErr}</p>}
         </div>
       )}
 
