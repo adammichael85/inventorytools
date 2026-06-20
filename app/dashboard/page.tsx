@@ -1862,7 +1862,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <img src={brand.logo_url || ''} alt={brand.display_name} style={{ height: 44, width: 'auto' }} />
                 )}
               </div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 8px', color: TEXT }}>Welcome to {brand.display_name}</h2>
+              <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 8px', color: TEXT }}>Welcome to InventoryTools</h2>
               <p style={{ fontSize: 14, color: MUTED, margin: 0 }}>Before you get started, here's a quick overview</p>
             </div>
             <div style={{ background: BG, borderRadius: 12, padding: 20, marginBottom: 20 }}>
