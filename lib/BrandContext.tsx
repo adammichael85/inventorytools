@@ -31,6 +31,8 @@ const DEFAULT_BRAND: Brand = {
 }
 
 const CACHE_KEY = 'cachedBrand'
+const CACHE_TIME_KEY = 'cachedBrandTime'
+const FRESH_WINDOW_MS = 15000 // trust a cache set within the last 15 seconds without re-fetching
 
 function getCachedBrand(): Brand {
   if (typeof window === 'undefined') return DEFAULT_BRAND
@@ -41,6 +43,15 @@ function getCachedBrand(): Brand {
   return DEFAULT_BRAND
 }
 
+function isCacheFresh(): boolean {
+  if (typeof window === 'undefined') return false
+  try {
+    const t = sessionStorage.getItem(CACHE_TIME_KEY)
+    if (!t) return false
+    return (Date.now() - parseInt(t, 10)) < FRESH_WINDOW_MS
+  } catch (e) { return false }
+}
+
 const BrandContext = createContext<Brand>(DEFAULT_BRAND)
 
 export function useBrand() {
@@ -48,14 +59,15 @@ export function useBrand() {
 }
 
 export function BrandProvider({ children }: { children: React.ReactNode }) {
-  // Initialize from cache synchronously - no flash of wrong brand on repeat visits
   const [brand, setBrand] = useState<Brand>(getCachedBrand)
 
   useEffect(() => {
+    // If login just cached a fresh brand moments ago, trust it - skip re-fetch to avoid any flash
+    if (isCacheFresh()) return
+
     async function resolveBrand() {
       let resolved: Brand = DEFAULT_BRAND
 
-      // 1. Check if logged in - account-based branding takes priority
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
         const { data: profile } = await supabase
@@ -74,7 +86,6 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
           if (brandRow) resolved = brandRow as Brand
         }
       } else if (typeof window !== 'undefined') {
-        // 2. Not logged in - fall back to domain-based lookup
         const hostname = window.location.hostname.replace('www.', '')
         const { data: brandRow } = await supabase
           .from('brands')
@@ -88,6 +99,7 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
       setBrand(resolved)
       try {
         sessionStorage.setItem(CACHE_KEY, JSON.stringify(resolved))
+        sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString())
       } catch (e) { /* ignore storage errors */ }
     }
 

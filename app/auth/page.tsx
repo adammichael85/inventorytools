@@ -103,6 +103,7 @@ export default function Auth() {
 
         if (brandRow) {
           sessionStorage.setItem('cachedBrand', JSON.stringify(brandRow))
+          sessionStorage.setItem('cachedBrandTime', Date.now().toString())
         }
       }
     } catch (e) { /* if this fails, BrandContext will resolve it normally on dashboard load */ }
