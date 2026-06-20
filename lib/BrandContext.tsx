@@ -32,15 +32,15 @@ const DEFAULT_BRAND: Brand = {
 
 const CACHE_KEY = 'cachedBrand'
 const CACHE_TIME_KEY = 'cachedBrandTime'
-const FRESH_WINDOW_MS = 15000 // trust a cache set within the last 15 seconds without re-fetching
+const FRESH_WINDOW_MS = 15000
 
-function getCachedBrand(): Brand {
-  if (typeof window === 'undefined') return DEFAULT_BRAND
+function getCachedBrand(): Brand | null {
+  if (typeof window === 'undefined') return null
   try {
     const cached = sessionStorage.getItem(CACHE_KEY)
     if (cached) return JSON.parse(cached) as Brand
-  } catch (e) { /* ignore parse errors */ }
-  return DEFAULT_BRAND
+  } catch (e) { /* ignore */ }
+  return null
 }
 
 function isCacheFresh(): boolean {
@@ -59,15 +59,15 @@ export function useBrand() {
 }
 
 export function BrandProvider({ children }: { children: React.ReactNode }) {
-  const [brand, setBrand] = useState<Brand>(() => {
-    const cached = getCachedBrand()
-    console.log('[BrandProvider] Initial state from cache:', cached.company_name, 'fresh:', isCacheFresh())
-    return cached
-  })
+  const [brand, setBrand] = useState<Brand | null>(getCachedBrand)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    // If login just cached a fresh brand moments ago, trust it - skip re-fetch to avoid any flash
-    if (isCacheFresh()) return
+    // Have a cached value already - show it immediately, no loading screen needed
+    if (brand) {
+      setReady(true)
+      if (isCacheFresh()) return // trust it, skip re-fetch entirely
+    }
 
     async function resolveBrand() {
       let resolved: Brand = DEFAULT_BRAND
@@ -101,14 +101,24 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
       }
 
       setBrand(resolved)
+      setReady(true)
       try {
         sessionStorage.setItem(CACHE_KEY, JSON.stringify(resolved))
         sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString())
-      } catch (e) { /* ignore storage errors */ }
+      } catch (e) { /* ignore */ }
     }
 
     resolveBrand()
   }, [])
 
-  return <BrandContext.Provider value={brand}>{children}</BrandContext.Provider>
+  if (!ready) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '3px solid #e0e0e0', borderTopColor: '#999', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
+  }
+
+  return <BrandContext.Provider value={brand || DEFAULT_BRAND}>{children}</BrandContext.Provider>
 }
