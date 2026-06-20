@@ -118,9 +118,9 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(120,120,120,0.8)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          backgroundColor: 'rgba(245,245,245,0.97)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
           zIndex: 99999,
         }} />
       )}
