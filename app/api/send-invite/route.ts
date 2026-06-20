@@ -14,8 +14,16 @@ function inviteEmail(companyName: string, inviteUrl: string) {
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:'Helvetica Neue',Arial,sans-serif;">
   <div style="max-width:560px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
     <div style="background:#FD6A02;padding:32px 40px;text-align:center;">
-      <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;letter-spacing:-0.5px;">inventorytools</h1>
-      <p style="color:rgba(255,255,255,0.8);margin:6px 0 0;font-size:13px;">PDF to Word Converter</p>
+      <table role="presentation" style="margin:0 auto;border-collapse:collapse;">
+        <tr>
+          <td style="width:34px;height:34px;background:#ffffff;border-radius:8px;text-align:center;vertical-align:middle;">
+            <span style="font-size:18px;line-height:34px;color:#FD6A02;font-weight:700;">&#10003;</span>
+          </td>
+          <td style="padding-left:10px;vertical-align:middle;">
+            <span style="color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.5px;">inventorytools</span>
+          </td>
+        </tr>
+      </table>
     </div>
     <div style="padding:40px;">
       <h2 style="color:#1a1a2e;font-size:20px;font-weight:700;margin:0 0 12px;">You've been invited to join ${companyName}</h2>
