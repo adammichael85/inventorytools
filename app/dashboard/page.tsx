@@ -541,6 +541,9 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
   })
   const [savingAudioTypistRates, setSavingAudioTypistRates] = React.useState(false)
   const [savedAudioTypistRates, setSavedAudioTypistRates] = React.useState(false)
+  const [lowBalanceThreshold, setLowBalanceThreshold] = React.useState('25.00')
+  const [savingLowBalance, setSavingLowBalance] = React.useState(false)
+  const [savedLowBalance, setSavedLowBalance] = React.useState(false)
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data }: any) => {
@@ -555,6 +558,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
             setTypistPageRate(String(p.typist_page_rate ?? 0.50))
             setAudioTypistMode(p.audio_typist_mode || 'per_size')
             setAudioTypistMinuteRate(String(p.audio_typist_minute_rate ?? 0.50))
+            setLowBalanceThreshold(String(p.low_balance_threshold ?? 25.00))
             if (p.audio_typist_rates?.unfurnished) {
               const r = p.audio_typist_rates.unfurnished
               setAudioTypistRatesUnfurnished({
@@ -752,6 +756,36 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
           </div>
         </div>
       </div>
+      )}
+
+      {profile.role === 'admin' && (
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>🔔 Low balance email alerts</p>
+          <p style={{ fontSize: 12, color: MUTED, margin: '0 0 16px' }}>When your company balance drops below this amount, all admins will get an email letting them know it's time to top up. Set to 0 to disable.</p>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
+            <div style={{ flex: 1, maxWidth: 200 }}>
+              <label style={labelStyle}>Alert threshold (£)</label>
+              <input type="number" step="0.01" min="0" value={lowBalanceThreshold} onChange={e => setLowBalanceThreshold(e.target.value)} style={inputStyle} placeholder="25.00" />
+            </div>
+            <button onClick={async () => {
+              setSavingLowBalance(true)
+              const { data: { session } } = await supabase.auth.getSession()
+              if (session) {
+                const val = parseFloat(lowBalanceThreshold)
+                await supabase.from('profiles').update({
+                  low_balance_threshold: isNaN(val) || val <= 0 ? null : val,
+                  low_balance_alert_sent: false,
+                }).eq('id', session.user.id)
+              }
+              setSavingLowBalance(false)
+              setSavedLowBalance(true)
+              setTimeout(() => setSavedLowBalance(false), 3000)
+            }} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: savingLowBalance ? '#94AEA6' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: savingLowBalance ? 'default' : 'pointer' }}>
+              {savingLowBalance ? 'Saving...' : 'Save'}
+            </button>
+            {savedLowBalance && <span style={{ fontSize: 13, color: TEAL, alignSelf: 'center' }}>✓ Saved!</span>}
+          </div>
+        </div>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
