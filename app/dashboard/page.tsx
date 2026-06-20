@@ -5,10 +5,8 @@ import Link from 'next/link'
 import { convertPDF, convertPDFVision, convertWordDoc } from './convert-action'
 import { PDFDocument } from 'pdf-lib'
 import { supabase } from '@/lib/supabase'
+import { useBrand } from '@/lib/BrandContext'
 
-const TEAL = '#FD6A02'
-const TEAL_LIGHT = '#fff0e6'
-const TEAL_DARK = '#c24a00'
 const BORDER = '#e8e8e8'
 const BG = '#f5f5f5'
 const SURFACE = '#ffffff'
@@ -898,6 +896,10 @@ function DeleteAccountButton({ supabase, profile, userEmail }: any) {
 }
 
 export default function Dashboard() {
+  const brand = useBrand()
+  const TEAL = brand.primary_color
+  const TEAL_LIGHT = brand.primary_color_light || brand.primary_color
+  const TEAL_DARK = brand.primary_color_dark || brand.primary_color
   const [isMobile, setIsMobile] = React.useState(false)
   React.useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
