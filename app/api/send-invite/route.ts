@@ -4,7 +4,7 @@ import crypto from 'crypto'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const FROM_EMAIL = 'noreply@inventorytools.co.uk'
-const APP_URL = 'https://www.inventorytools.co.uk'
+const APP_URL = 'https://inventorytools.co.uk'
 
 function inviteEmail(companyName: string, inviteUrl: string) {
   return `
@@ -15,7 +15,7 @@ function inviteEmail(companyName: string, inviteUrl: string) {
   <div style="max-width:560px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
     <div style="background:#FD6A02;padding:32px 40px;text-align:center;">
       <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;letter-spacing:-0.5px;">inventorytools</h1>
-      <p style="color:rgba(255,255,255,0.8);margin:6px 0 0;font-size:13px;">PDF & Audio to Word Converter</p>
+      <p style="color:rgba(255,255,255,0.8);margin:6px 0 0;font-size:13px;">PDF to Word Converter</p>
     </div>
     <div style="padding:40px;">
       <h2 style="color:#1a1a2e;font-size:20px;font-weight:700;margin:0 0 12px;">You've been invited to join ${companyName}</h2>
