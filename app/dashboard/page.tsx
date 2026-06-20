@@ -1352,7 +1352,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   setConversions(convs)
                   const latest = convs[0]
                   if (latest && !latest.rating) { setQuickRateConvId(latest.id); setQuickRateConvAddress(latest.address || ''); setShowQuickRate(true); localStorage.setItem('lastConverted', Date.now().toString()) }
-                  if (latest && p?.auto_accuracy_report && !latest.accuracy_report && (latest.extracted_text || latest.converted_json) && latest.type !== 'audio') {
+                  if (false && latest && p?.auto_accuracy_report && !latest.accuracy_report && (latest.extracted_text || latest.converted_json) && latest.type !== 'audio') {
                     generateAccuracyReport(latest)
                   }
                 }
