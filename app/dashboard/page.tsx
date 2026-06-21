@@ -1021,6 +1021,8 @@ export default function Dashboard() {
   function getUsageInvoiceConversions() {
     const { from, to } = getUsageInvoiceDateRange()
     return conversions.filter((c: any) => {
+      const matchesTab = toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio'
+      if (!matchesTab) return false
       const created = new Date(c.created_at)
       return created >= from && created < to
     }).sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
