@@ -952,6 +952,10 @@ export default function Dashboard() {
   const [conversions, setConversions] = useState<any[]>([])
   const [userStats, setUserStats] = useState<any>(null)
   const [transactions, setTransactions] = useState<any[]>([])
+  const [usageInvoicePeriod, setUsageInvoicePeriod] = useState<'today'|'week'|'month'|'custom'>('month')
+  const [usageInvoiceFrom, setUsageInvoiceFrom] = useState('')
+  const [usageInvoiceTo, setUsageInvoiceTo] = useState('')
+  const [generatingUsageInvoice, setGeneratingUsageInvoice] = useState(false)
   function fmtAddr(addr: string) {
     if (!addr) return addr
     const titled = addr.toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())
@@ -989,6 +993,91 @@ export default function Dashboard() {
   const [showAccuracyConfirm, setShowAccuracyConfirm] = React.useState<any>(null)
   const [viewingReport, setViewingReport] = React.useState<any>(null)
   const [generatingReport, setGeneratingReport] = React.useState(false)
+
+  function getUsageInvoiceDateRange(): { from: Date, to: Date } {
+    const now = new Date()
+    if (usageInvoicePeriod === 'today') {
+      const from = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const to = new Date(from); to.setDate(to.getDate() + 1)
+      return { from, to }
+    }
+    if (usageInvoicePeriod === 'week') {
+      const from = new Date(now); from.setDate(now.getDate() - now.getDay())
+      from.setHours(0,0,0,0)
+      const to = new Date(from); to.setDate(to.getDate() + 7)
+      return { from, to }
+    }
+    if (usageInvoicePeriod === 'month') {
+      const from = new Date(now.getFullYear(), now.getMonth(), 1)
+      const to = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+      return { from, to }
+    }
+    // custom
+    const from = usageInvoiceFrom ? new Date(usageInvoiceFrom) : new Date(now.getFullYear(), now.getMonth(), 1)
+    const to = usageInvoiceTo ? new Date(new Date(usageInvoiceTo).getTime() + 24*60*60*1000) : new Date()
+    return { from, to }
+  }
+
+  function getUsageInvoiceConversions() {
+    const { from, to } = getUsageInvoiceDateRange()
+    return conversions.filter((c: any) => {
+      const created = new Date(c.created_at)
+      return created >= from && created < to
+    }).sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+  }
+
+  async function downloadUsageInvoicePDF() {
+    setGeneratingUsageInvoice(true)
+    try {
+      const { jsPDF } = await import('jspdf')
+      const autoTableModule = await import('jspdf-autotable')
+      const autoTable = autoTableModule.default
+
+      const items = getUsageInvoiceConversions()
+      const { from, to } = getUsageInvoiceDateRange()
+      const total = items.reduce((s: number, c: any) => s + (c.cost ? Number(c.cost) : (c.type === 'audio' ? 4.88 : 4.00)), 0)
+
+      const doc = new jsPDF()
+      doc.setFontSize(18)
+      doc.setFont('helvetica', 'bold')
+      doc.text(brand.display_name || 'InventoryTools', 14, 20)
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'normal')
+      doc.text('Usage Invoice', 14, 28)
+      doc.setFontSize(9)
+      doc.setTextColor(120)
+      doc.text(`Period: ${from.toLocaleDateString('en-GB')} - ${new Date(to.getTime() - 1).toLocaleDateString('en-GB')}`, 14, 35)
+      doc.text(`Generated: ${new Date().toLocaleDateString('en-GB')}`, 14, 40)
+
+      autoTable(doc, {
+        startY: 48,
+        head: [['Date', 'Property', 'Type', 'Cost']],
+        body: items.map((c: any) => [
+          new Date(c.created_at).toLocaleDateString('en-GB'),
+          c.address || 'Unknown',
+          c.type === 'audio' ? 'Audio' : 'PDF',
+          '£' + (c.cost ? Number(c.cost).toFixed(2) : (c.type === 'audio' ? '4.88' : '4.00'))
+        ]),
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [21, 32, 69] },
+      })
+
+      const finalY = (doc as any).lastAutoTable.finalY || 60
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`Total: £${total.toFixed(2)}`, 14, finalY + 12)
+      doc.setFontSize(8)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(150)
+      doc.text(`${items.length} report${items.length === 1 ? '' : 's'} in this period`, 14, finalY + 18)
+
+      doc.save(`usage-invoice-${from.toISOString().slice(0,10)}-to-${new Date(to.getTime()-1).toISOString().slice(0,10)}.pdf`)
+    } catch (e) {
+      alert('Failed to generate usage invoice PDF')
+    } finally {
+      setGeneratingUsageInvoice(false)
+    }
+  }
 
   async function generateAccuracyReport(conv: any) {
     setGeneratingReport(true)
