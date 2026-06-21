@@ -1104,10 +1104,9 @@ export default function Dashboard() {
       const session = data.session
       setUserEmail(session.user.email || '')
       setAccessToken(session.access_token)
-      // Load profile (credits + name)
-      supabase.from('profiles').select('balance, full_name, onboarding_confirmed, role, pdf_enabled, audio_enabled, typist_rate_mode, typist_report_rate, typist_page_rate').eq('id', session.user.id).single().then(({ data: profile }) => {
+      // Load profile (name, role, settings) and company balance
+      supabase.from('profiles').select('company_name, full_name, onboarding_confirmed, role, pdf_enabled, audio_enabled, typist_rate_mode, typist_report_rate, typist_page_rate').eq('id', session.user.id).single().then(({ data: profile }) => {
         if (profile) {
-          setCredits(profile.balance || 0)
           setUserName(profile.full_name || session.user.email || '')
           setUserRole(profile.role || 'user')
           setPdfEnabled(profile.pdf_enabled !== false)
@@ -1116,6 +1115,11 @@ export default function Dashboard() {
           setTypistReportRateD(profile.typist_report_rate ?? 12.00)
           setTypistPageRateD(profile.typist_page_rate ?? 0.50)
           if (!profile.onboarding_confirmed) setShowOnboarding(true)
+          if (profile.company_name) {
+            supabase.from('companies').select('balance').eq('company_name', profile.company_name).single().then(({ data: company }) => {
+              if (company) setCredits(company.balance || 0)
+            })
+          }
         }
       })
       supabase.from('user_stats').select('*').eq('user_id', session.user.id).single().then(({ data: stats }) => { if (stats) setUserStats(stats) })
@@ -1345,8 +1349,10 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       .then(() => {
         supabase.auth.getSession().then(({ data }) => {
           if (data.session) {
-            supabase.from('profiles').select('balance, auto_accuracy_report').eq('id', data.session.user.id).single().then(({ data: p }) => {
-              if (p) setCredits(p.balance || 0)
+            supabase.from('profiles').select('company_name, auto_accuracy_report').eq('id', data.session.user.id).single().then(({ data: p }) => {
+              if (p?.company_name) {
+                supabase.from('companies').select('balance').eq('company_name', p.company_name).single().then(({ data: co }) => { if (co) setCredits(co.balance || 0) })
+              }
               supabase.from('conversions').select('*').eq('user_id', data.session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => {
                 if (convs) {
                   setConversions(convs)
@@ -1378,7 +1384,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => { if (convs) setConversions(convs) })
-        supabase.from('profiles').select('balance').eq('id', session.user.id).single().then(({ data: p }) => { if (p) setCredits(p.balance || 0) })
+        supabase.from('profiles').select('company_name').eq('id', session.user.id).single().then(({ data: p }) => { if (p?.company_name) { supabase.from('companies').select('balance').eq('company_name', p.company_name).single().then(({ data: co }) => { if (co) setCredits(co.balance || 0) }) } })
       }
     })
     setSelectedFile(null)
@@ -2536,7 +2542,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                         })
 
                         // Refresh balance + conversions
-                        supabase.from('profiles').select('balance').eq('id', session.user.id).single().then(({ data: p }: any) => { if (p) setCredits(p.balance || 0) })
+                        supabase.from('profiles').select('company_name').eq('id', session.user.id).single().then(({ data: p }: any) => { if (p?.company_name) { supabase.from('companies').select('balance').eq('company_name', p.company_name).single().then(({ data: co }: any) => { if (co) setCredits(co.balance || 0) }) } })
                         supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }: any) => { if (convs) setConversions(convs) })
                       }
 
