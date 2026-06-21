@@ -117,7 +117,7 @@ export default function OakleyJaneLogin() {
   const input = { width: '100%', padding: '11px 14px', borderRadius: 9, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 14, outline: 'none', background: '#fff', boxSizing: 'border-box' as const }
 
   return (
-    <main style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: BG }}>
+    <main style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffffff' }}>
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
       <div style={{ width: '100%', maxWidth: 400, padding: '0 24px' }}>
