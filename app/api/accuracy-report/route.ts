@@ -19,9 +19,7 @@ export async function POST(req: NextRequest) {
     if (error || !conv) return NextResponse.json({ error: 'Conversion not found' }, { status: 404 })
     if (!conv.extracted_text && !conv.pdf_path) return NextResponse.json({ error: 'No source data available for this conversion.' }, { status: 400 })
 
-    // Check balance
-    const { data: profile } = await supabase.from('profiles').select('balance').eq('id', user_id).single()
-    // Accuracy report now included free
+    // Accuracy report is included free with conversion - no balance check needed
 
     if (!conv.converted_json) return NextResponse.json({ error: 'No conversion data available for this report. Please reconvert the document.' }, { status: 400 })
 
@@ -174,7 +172,7 @@ Do not include any introduction or preamble — start directly with "I checked r
 
     // Save report (included free with conversion)
     await supabase.from('conversions').update({ accuracy_report: report }).eq('id', conversion_id)
-    return NextResponse.json({ ok: true, report, balance: Number(profile?.balance || 0) })
+    return NextResponse.json({ ok: true, report })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }

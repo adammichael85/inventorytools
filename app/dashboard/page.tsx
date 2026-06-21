@@ -1004,7 +1004,6 @@ export default function Dashboard() {
       const d = await res.json()
       if (d.error) { alert(d.error); return }
       setConversions(prev => prev.map(x => x.id === conv.id ? { ...x, accuracy_report: d.report } : x))
-      setCredits(d.balance)
       setViewingReport({ ...conv, accuracy_report: d.report })
     } catch(e) { alert('Failed to generate report') }
     finally { setGeneratingReport(false) }
