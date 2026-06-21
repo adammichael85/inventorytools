@@ -1844,6 +1844,74 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   )}
                 </div>
               )}
+
+              {userRole === 'admin' && (
+                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden', marginTop: 20 }}>
+                  <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}` }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px' }}>Usage invoices</h3>
+                    <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Download a report of completed conversions and their cost for your own accounting records.</p>
+                  </div>
+                  <div style={{ padding: 20 }}>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' as const }}>
+                      {(['today','week','month','custom'] as const).map(p => (
+                        <button key={p} onClick={() => setUsageInvoicePeriod(p)} style={{ padding: '7px 16px', borderRadius: 8, border: `1px solid ${usageInvoicePeriod === p ? TEAL : BORDER}`, background: usageInvoicePeriod === p ? TEAL : 'transparent', color: usageInvoicePeriod === p ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer', textTransform: 'capitalize' as const }}>
+                          {p === 'today' ? 'Today' : p === 'week' ? 'This week' : p === 'month' ? 'This month' : 'Custom range'}
+                        </button>
+                      ))}
+                    </div>
+
+                    {usageInvoicePeriod === 'custom' && (
+                      <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' as const }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: 12, color: MUTED, marginBottom: 5 }}>From</label>
+                          <input type="date" value={usageInvoiceFrom} onChange={e => setUsageInvoiceFrom(e.target.value)} style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13 }} />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: 12, color: MUTED, marginBottom: 5 }}>To</label>
+                          <input type="date" value={usageInvoiceTo} onChange={e => setUsageInvoiceTo(e.target.value)} style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13 }} />
+                        </div>
+                      </div>
+                    )}
+
+                    {(() => {
+                      const items = getUsageInvoiceConversions()
+                      const total = items.reduce((s: number, c: any) => s + (c.cost ? Number(c.cost) : (c.type === 'audio' ? 4.88 : 4.00)), 0)
+                      return (
+                        <>
+                          <div style={{ background: BG, borderRadius: 10, padding: '14px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <p style={{ fontSize: 13, color: MUTED, margin: '0 0 2px' }}>{items.length} report{items.length === 1 ? '' : 's'} in this period</p>
+                              <p style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>£{total.toFixed(2)}</p>
+                            </div>
+                            <button onClick={downloadUsageInvoicePDF} disabled={generatingUsageInvoice || items.length === 0} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: items.length === 0 ? BORDER : TEAL, color: items.length === 0 ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: items.length === 0 ? 'default' : 'pointer' }}>
+                              {generatingUsageInvoice ? 'Generating...' : '↓ Download PDF'}
+                            </button>
+                          </div>
+                          {items.length > 0 && (
+                            <div style={{ maxHeight: 240, overflowY: 'auto', border: `1px solid ${BORDER}`, borderRadius: 10 }}>
+                              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead><tr style={{ background: BG, position: 'sticky' as const, top: 0 }}>
+                                  {['Date','Property','Type','Cost'].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase' as const, letterSpacing: 0.8, padding: '8px 14px', textAlign: 'left' }}>{h}</th>)}
+                                </tr></thead>
+                                <tbody>
+                                  {items.map((c: any) => (
+                                    <tr key={c.id} style={{ borderTop: `1px solid ${BORDER}` }}>
+                                      <td style={{ padding: '8px 14px', fontSize: 12 }}>{new Date(c.created_at).toLocaleDateString('en-GB')}</td>
+                                      <td style={{ padding: '8px 14px', fontSize: 12, color: MUTED, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{c.address || 'Unknown'}</td>
+                                      <td style={{ padding: '8px 14px', fontSize: 12 }}>{c.type === 'audio' ? 'Audio' : 'PDF'}</td>
+                                      <td style={{ padding: '8px 14px', fontSize: 12, fontWeight: 600 }}>£{(c.cost ? Number(c.cost) : (c.type === 'audio' ? 4.88 : 4.00)).toFixed(2)}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </>
+                      )
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
