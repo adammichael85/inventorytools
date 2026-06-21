@@ -29,32 +29,38 @@ export async function POST(req: NextRequest) {
     })
     if (convError) throw new Error(convError.message)
 
-    // Deduct 1 credit
-    const { data: profile, error: profileError } = await supabase
+    const conversionCost = body.cost ? Number(body.cost) : 4.00
+
+    // Get the converting user's company name
+    const { data: userProfile, error: profileError } = await supabase
       .from('profiles')
-      .select('balance')
+      .select('company_name')
       .eq('id', body.user_id)
       .single()
     if (profileError) throw new Error(profileError.message)
 
-    const conversionCost = body.cost ? Number(body.cost) : 4.00
-    const newCredits = Math.max(0, (Number(profile.balance) || 0) - conversionCost)
-    await supabase.from('profiles').update({ balance: newCredits }).eq('id', body.user_id)
+    if (!userProfile?.company_name) {
+      throw new Error('User has no company assigned - cannot deduct balance')
+    }
+
+    // Deduct from the shared company balance
+    const { data: company, error: companyError } = await supabase
+      .from('companies')
+      .select('balance, low_balance_threshold, low_balance_alert_sent')
+      .eq('company_name', userProfile.company_name)
+      .single()
+    if (companyError) throw new Error(companyError.message)
+
+    const newBalance = Math.max(0, (Number(company.balance) || 0) - conversionCost)
+    await supabase.from('companies').update({ balance: newBalance }).eq('company_name', userProfile.company_name)
 
     // Low balance alert check
     try {
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('company_name, low_balance_threshold, low_balance_alert_sent')
-        .eq('id', body.user_id)
-        .single()
+      if (company.low_balance_threshold != null) {
+        const threshold = Number(company.low_balance_threshold)
+        const wasBelow = newBalance < threshold
 
-      if (userProfile?.company_name && userProfile.low_balance_threshold != null) {
-        const threshold = Number(userProfile.low_balance_threshold)
-        const wasBelow = newCredits < threshold
-
-        if (wasBelow && !userProfile.low_balance_alert_sent) {
-          // Get all admins for this company
+        if (wasBelow && !company.low_balance_alert_sent) {
           const { data: admins } = await supabase
             .from('profiles')
             .select('id, full_name')
@@ -86,7 +92,7 @@ export async function POST(req: NextRequest) {
     </div>
     <div style="padding:40px;">
       <h2 style="color:#1a1a2e;font-size:20px;font-weight:700;margin:0 0 12px;">Your balance is running low</h2>
-      <p style="color:#888;font-size:14px;line-height:1.6;margin:0 0 24px;">Your ${userProfile.company_name} account balance has dropped below your alert threshold of £${threshold.toFixed(2)}. Current balance: £${newCredits.toFixed(2)}. Top up to keep converting without interruption.</p>
+      <p style="color:#888;font-size:14px;line-height:1.6;margin:0 0 24px;">Your ${userProfile.company_name} account balance has dropped below your alert threshold of £${threshold.toFixed(2)}. Current balance: £${newBalance.toFixed(2)}. Top up to keep converting without interruption.</p>
       <a href="https://www.inventorytools.co.uk/dashboard" style="display:inline-block;background:#FD6A02;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;margin-bottom:24px;">Top up balance</a>
     </div>
     <div style="background:#f5f5f5;padding:20px 40px;text-align:center;">
@@ -100,10 +106,9 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          await supabase.from('profiles').update({ low_balance_alert_sent: true }).eq('company_name', userProfile.company_name)
-        } else if (!wasBelow && userProfile.low_balance_alert_sent) {
-          // Reset flag once balance is topped back up above threshold
-          await supabase.from('profiles').update({ low_balance_alert_sent: false }).eq('company_name', userProfile.company_name)
+          await supabase.from('companies').update({ low_balance_alert_sent: true }).eq('company_name', userProfile.company_name)
+        } else if (!wasBelow && company.low_balance_alert_sent) {
+          await supabase.from('companies').update({ low_balance_alert_sent: false }).eq('company_name', userProfile.company_name)
         }
       }
     } catch (e) { console.log('Low balance alert check failed:', e) }
@@ -130,7 +135,7 @@ export async function POST(req: NextRequest) {
       }
     } catch(e) { console.log('Stats update failed:', e) }
 
-    return NextResponse.json({ ok: true, balance: newCredits })
+    return NextResponse.json({ ok: true, balance: newBalance })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
