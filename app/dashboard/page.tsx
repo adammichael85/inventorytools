@@ -1124,7 +1124,9 @@ export default function Dashboard() {
     // Reload conversions
     const { data: { session } } = await supabase.auth.getSession()
     if (session) {
-      const { data: convs } = await supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50)
+      let delConvQuery = supabase.from('conversions').select('*').order('created_at', { ascending: false }).limit(50)
+      if (userRole !== 'admin') delConvQuery = delConvQuery.eq('user_id', session.user.id)
+      const { data: convs } = await delConvQuery
       if (convs) {
         setConversions(convs)
         const unrated = convs.filter((x: any) => !x.rating)
@@ -1211,6 +1213,23 @@ export default function Dashboard() {
               if (company) setCredits(company.balance || 0)
             })
           }
+
+          // Load conversions - admins see every conversion for the company, regular users see only their own.
+          // Decided here (not in a parallel fetch) so we know profile.role before building the query.
+          const isFreshLogin = !!sessionStorage.getItem('freshLogin')
+          sessionStorage.removeItem('freshLogin')
+          let convQuery = supabase.from('conversions').select('*').order('created_at', { ascending: false }).limit(50)
+          if (profile.role !== 'admin') convQuery = convQuery.eq('user_id', session.user.id)
+          convQuery.then(({ data: convs }) => {
+            if (convs) {
+              setConversions(convs)
+              const unrated = convs.filter((x: any) => !x.rating)
+              if (unrated.length > 0) {
+                setPendingRatings(unrated)
+                if (isFreshLogin) { setShowRatingPopup(true) }
+              }
+            }
+          })
         }
       })
       supabase.from('user_stats').select('*').eq('user_id', session.user.id).single().then(({ data: stats }) => { if (stats) setUserStats(stats) })
@@ -1220,19 +1239,6 @@ export default function Dashboard() {
           supabase.from('transactions').select('*').eq('company_name', me.company_name).order('created_at', { ascending: false }).then(({ data: txns }) => {
             if (txns) setTransactions(txns)
           })
-        }
-      })
-      // Load conversions
-      const isFreshLogin = !!sessionStorage.getItem('freshLogin')
-      sessionStorage.removeItem('freshLogin')
-      supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => {
-        if (convs) {
-          setConversions(convs)
-          const unrated = convs.filter((x: any) => !x.rating)
-          if (unrated.length > 0) {
-            setPendingRatings(unrated)
-            if (isFreshLogin) { setShowRatingPopup(true) }
-          }
         }
       })
     })
@@ -1444,7 +1450,9 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               if (p?.company_name) {
                 supabase.from('companies').select('balance').eq('company_name', p.company_name).single().then(({ data: co }) => { if (co) setCredits(co.balance || 0) })
               }
-              supabase.from('conversions').select('*').eq('user_id', data.session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => {
+              let pdfRefreshQuery = supabase.from('conversions').select('*').order('created_at', { ascending: false }).limit(50)
+              if (userRole !== 'admin') pdfRefreshQuery = pdfRefreshQuery.eq('user_id', data.session.user.id)
+              pdfRefreshQuery.then(({ data: convs }) => {
                 if (convs) {
                   setConversions(convs)
                   const latest = convs[0]
@@ -1474,7 +1482,9 @@ supabase.auth.getSession().then(({ data: { session } }) => {
     // Refresh conversions list when modal closes
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }) => { if (convs) setConversions(convs) })
+        let closeConvertQuery = supabase.from('conversions').select('*').order('created_at', { ascending: false }).limit(50)
+        if (userRole !== 'admin') closeConvertQuery = closeConvertQuery.eq('user_id', session.user.id)
+        closeConvertQuery.then(({ data: convs }) => { if (convs) setConversions(convs) })
         supabase.from('profiles').select('company_name').eq('id', session.user.id).single().then(({ data: p }) => { if (p?.company_name) { supabase.from('companies').select('balance').eq('company_name', p.company_name).single().then(({ data: co }) => { if (co) setCredits(co.balance || 0) }) } })
       }
     })
@@ -2702,7 +2712,9 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
                         // Refresh balance + conversions
                         supabase.from('profiles').select('company_name').eq('id', session.user.id).single().then(({ data: p }: any) => { if (p?.company_name) { supabase.from('companies').select('balance').eq('company_name', p.company_name).single().then(({ data: co }: any) => { if (co) setCredits(co.balance || 0) }) } })
-                        supabase.from('conversions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(50).then(({ data: convs }: any) => { if (convs) setConversions(convs) })
+                        let audioRefreshQuery = supabase.from('conversions').select('*').order('created_at', { ascending: false }).limit(50)
+                        if (userRole !== 'admin') audioRefreshQuery = audioRefreshQuery.eq('user_id', session.user.id)
+                        audioRefreshQuery.then(({ data: convs }: any) => { if (convs) setConversions(convs) })
                       }
 
                       clearInterval(timer)
