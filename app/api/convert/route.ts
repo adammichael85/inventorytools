@@ -86,6 +86,16 @@ Format F - 5 columns (Item | Description | Condition | Cleanliness | Photos):
 - Column 2 is descriptive text → DESCRIPTION
 - Column 3 is condition → CONDITION
 
+Format G - 3 columns labelled Room | Description | Comment (NOT Item | Description | Condition):
+- This format uses different column headers: "Room", "Description", "Comment" instead of "Item", "Description", "Condition"
+- The "Room" column contains a generic, repeated value like "Original Report" — this is NOT an item name. IGNORE this column entirely, do not put its value anywhere.
+- The "Description" column in this format contains BOTH a reference number AND an item name together, e.g. "20. Windows" or "21. Walls"
+  - Split this: the reference number (e.g. "20.") → goes in ITEM
+  - The item name after the number (e.g. "Windows") → goes in DESCRIPTION
+- The "Comment" column → goes directly into CONDITION, unchanged
+- Example: Room="Original Report", Description="20. Windows", Comment="Repair marks under window facing" → ITEM: "20.", DESCRIPTION: "Windows", CONDITION: "Repair marks under window facing"
+- Detect this format by the column headers themselves: if you see "Room", "Description", "Comment" as the three headers, apply this rule instead of any other format above.
+
 RULES:
 - No number prefix on room names
 - Strip photo counts and duplicate conditions (Good Good becomes Good)
