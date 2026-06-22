@@ -127,7 +127,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
       type: 'bar',
       data: {
         labels: last30.map(d => d.label),
-        datasets: [{ label: 'Conversions', data: last30.map(d => d.count), backgroundColor: toolTab === 'audio' ? '#2563EB' : '#FD6A02', borderRadius: 3, borderSkipped: false }]
+        datasets: [{ label: 'Conversions', data: last30.map(d => d.count), backgroundColor: toolTab === 'audio' ? '#2563EB' : TEAL, borderRadius: 3, borderSkipped: false }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
@@ -138,7 +138,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         }
       }
     })
-  }, [chartReady, conversions, toolTab])
+  }, [chartReady, conversions, toolTab, TEAL])
 
   const periodLabels: any = { today: 'Today', week: 'This Week', month: 'This Month', all: 'All Time' }
 
