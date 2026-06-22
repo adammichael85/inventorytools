@@ -26,9 +26,6 @@ export async function POST(req: NextRequest) {
 
       companyName = invite.company_name
       role = 'user'
-
-      // Mark invite as used
-      await supabase.from('invites').update({ used: true }).eq('token', body.invite_token)
     } else {
       // Normal signup (no invite) - first signup for this company gets admin role
       const { count } = await supabase
@@ -48,9 +45,14 @@ export async function POST(req: NextRequest) {
       company_position: body.company_position,
       company_address: body.company_address,
       company_phone: body.company_phone,
-      balance: 0,
     })
     if (error) throw new Error(error.message)
+
+    // Only mark the invite as used once the profile has actually been created successfully
+    if (body.invite_token) {
+      await supabase.from('invites').update({ used: true }).eq('token', body.invite_token)
+    }
+
     return NextResponse.json({ ok: true, role })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
