@@ -31,6 +31,7 @@ export default function Auth() {
   type Brand = { display_name: string; logo_url: string | null; primary_color: string; primary_color_light: string | null; primary_color_dark: string | null }
   const DEFAULT_BRAND: Brand = { display_name: 'InventoryTools', logo_url: null, primary_color: '#FD6A02', primary_color_light: '#fff0e6', primary_color_dark: '#c24a00' }
   const [brand, setBrand] = useState<Brand>(DEFAULT_BRAND)
+  const [brandReady, setBrandReady] = useState(true)
 
   React.useEffect(() => {
     if (typeof window !== 'undefined' && window.location.search.includes('reason=inactivity')) {
@@ -42,6 +43,7 @@ export default function Auth() {
       setInviteToken(invite)
       setTab('signup')
       setCheckingInvite(true)
+      setBrandReady(false)
       fetch('/api/validate-invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -50,6 +52,7 @@ export default function Auth() {
         setCheckingInvite(false)
         if (data.error) {
           setInviteError(data.error)
+          setBrandReady(true)
         } else {
           setEmail(data.email)
           setInviteCompanyName(data.company_name)
@@ -72,6 +75,7 @@ export default function Auth() {
                   primary_color_dark: brandRow.primary_color_dark || DEFAULT_BRAND.primary_color_dark,
                 })
               }
+              setBrandReady(true)
             })
         }
       })
@@ -384,6 +388,9 @@ export default function Auth() {
             </div>
           </div>
         </div>
+      )}
+      {!brandReady && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(245,245,245,0.97)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 99999 }} />
       )}
     </main>
   )
