@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error || !invite) return NextResponse.json({ error: 'Invalid invite link' }, { status: 404 })
-    if (invite.used) return NextResponse.json({ error: 'This invite has already been used' }, { status: 410 })
-    if (new Date(invite.expires_at) < new Date()) return NextResponse.json({ error: 'This invite has expired' }, { status: 410 })
+    if (invite.used) return NextResponse.json({ error: 'This invite has already been used', company_name: invite.company_name }, { status: 410 })
+    if (new Date(invite.expires_at) < new Date()) return NextResponse.json({ error: 'This invite has expired', company_name: invite.company_name }, { status: 410 })
 
     // Fetch the inviting admin's company address/phone so the new user's form can show real data
     let companyAddress = ''

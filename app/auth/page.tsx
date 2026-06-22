@@ -52,7 +52,27 @@ export default function Auth() {
         setCheckingInvite(false)
         if (data.error) {
           setInviteError(data.error)
-          setBrandReady(true)
+          if (data.company_name) {
+            supabase
+              .from('brands')
+              .select('display_name, logo_url, primary_color, primary_color_light, primary_color_dark')
+              .eq('company_name', data.company_name)
+              .maybeSingle()
+              .then(({ data: brandRow }) => {
+                if (brandRow) {
+                  setBrand({
+                    display_name: brandRow.display_name || DEFAULT_BRAND.display_name,
+                    logo_url: brandRow.logo_url || null,
+                    primary_color: brandRow.primary_color || DEFAULT_BRAND.primary_color,
+                    primary_color_light: brandRow.primary_color_light || DEFAULT_BRAND.primary_color_light,
+                    primary_color_dark: brandRow.primary_color_dark || DEFAULT_BRAND.primary_color_dark,
+                  })
+                }
+                setBrandReady(true)
+              })
+          } else {
+            setBrandReady(true)
+          }
         } else {
           setEmail(data.email)
           setInviteCompanyName(data.company_name)
