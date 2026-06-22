@@ -93,15 +93,6 @@ export async function POST(req: NextRequest) {
     const { user, email_data } = body
     const email = user?.email
     const emailType = email_data?.email_action_type
-    const redirectTo = emailType === 'recovery' ? `${APP_URL}/auth/reset` : APP_URL
-    const confirmUrl = email_data?.token_hash
-      ? `https://auth.inventorytools.co.uk/auth/v1/verify?token=${email_data.token_hash}&type=${emailType}&redirect_to=${redirectTo}`
-      : email_data?.confirmation_url
-
-    if (!email || !confirmUrl) {
-      console.log('Missing email or URL:', { email, confirmUrl })
-      return NextResponse.json({ error: 'Missing data' }, { status: 400 })
-    }
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -123,6 +114,19 @@ export async function POST(req: NextRequest) {
     }
 
     const brand = await resolveBrand(supabase, companyName)
+
+    // After confirming signup, send the person to their own brand's domain/login
+    // rather than the generic InventoryTools marketing homepage.
+    const postConfirmUrl = companyName === 'Oakley Jane' ? 'https://oakleyjanetools.co.uk' : APP_URL
+    const redirectTo = emailType === 'recovery' ? `${APP_URL}/auth/reset` : postConfirmUrl
+    const confirmUrl = email_data?.token_hash
+      ? `https://auth.inventorytools.co.uk/auth/v1/verify?token=${email_data.token_hash}&type=${emailType}&redirect_to=${redirectTo}`
+      : email_data?.confirmation_url
+
+    if (!email || !confirmUrl) {
+      console.log('Missing email or URL:', { email, confirmUrl })
+      return NextResponse.json({ error: 'Missing data' }, { status: 400 })
+    }
 
     let subject = `Confirm your ${brand.display_name} account`
     let html = confirmEmail(brand, confirmUrl)
