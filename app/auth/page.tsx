@@ -146,7 +146,7 @@ export default function Auth() {
     setError('')
     const { data, error } = await supabase.auth.signUp({
       email, password,
-      options: { data: { full_name: firstName + ' ' + lastName } }
+      options: { data: { full_name: firstName + ' ' + lastName, company_name: company } }
     })
     if (error) { setError(error.message); setLoading(false); return }
     if (data.user) {

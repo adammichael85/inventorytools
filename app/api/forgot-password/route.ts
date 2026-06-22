@@ -1,6 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+const RESEND_API_KEY = process.env.RESEND_API_KEY
+
+const DEFAULT_BRAND = {
+  display_name: 'InventoryTools',
+  domain: 'inventorytools.co.uk',
+  primary_color: '#FD6A02',
+  logo_url: '/logo.png',
+  email_from_name: 'InventoryTools',
+}
+
+function resetEmail(brand: typeof DEFAULT_BRAND, resetUrl: string) {
+  const logoUrl = `https://inventorytools.co.uk${brand.logo_url}`
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <div style="max-width:560px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+    <div style="background:#ffffff;padding:32px 40px;text-align:center;border-bottom:1px solid #f0f0f0;">
+      <img src="${logoUrl}" width="180" alt="${brand.display_name}" style="display:block;margin:0 auto;height:auto;">
+    </div>
+    <div style="padding:40px;">
+      <h2 style="color:#1a1a2e;font-size:20px;font-weight:700;margin:0 0 12px;">Reset your password</h2>
+      <p style="color:#888;font-size:14px;line-height:1.6;margin:0 0 24px;">We received a request to reset your password. Click the button below to choose a new one.</p>
+      <a href="${resetUrl}" style="display:inline-block;background:${brand.primary_color};color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;margin-bottom:24px;">Reset password</a>
+      <p style="color:#aaa;font-size:12px;margin:0;">If you did not request a password reset, you can ignore this email. This link expires in 1 hour.</p>
+    </div>
+    <div style="background:#f5f5f5;padding:20px 40px;text-align:center;">
+      <p style="color:#aaa;font-size:11px;margin:0;">© ${new Date().getFullYear()} ${brand.display_name} · ${brand.domain}</p>
+    </div>
+  </div>
+</body>
+</html>`
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json()
@@ -24,46 +58,45 @@ export async function POST(req: NextRequest) {
     }
 
     const resetUrl = data.properties.action_link
-    console.log('Reset URL generated:', resetUrl.slice(0, 50))
 
-    const html = `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#f5f5f5;font-family:'Helvetica Neue',Arial,sans-serif;">
-  <div style="max-width:560px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-    <div style="background:#FD6A02;padding:32px 40px;text-align:center;">
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
-        <tr>
-          <td style="vertical-align:middle;padding-right:10px;">
-            <svg width="36" height="36" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" rx="26" fill="rgba(255,255,255,0.25)"/><rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.6"/><rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.6"/><rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.6"/><rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.4"/><rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.4"/><rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.4"/><rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.4"/><rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.3"/><path d="M30 62 L50 84 L90 40" stroke="white" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </td>
-          <td style="vertical-align:middle;">
-            <span style="color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.5px;">inventory<span style="color:rgba(255,255,255,0.7);">tools</span></span>
-          </td>
-        </tr>
-      </table>
-      <p style="color:rgba(255,255,255,0.8);margin:10px 0 0;font-size:13px;">PDF to Word Converter</p>
-    </div>
-    <div style="padding:40px;">
-      <h2 style="color:#1a1a2e;font-size:20px;font-weight:700;margin:0 0 12px;">Reset your password</h2>
-      <p style="color:#888;font-size:14px;line-height:1.6;margin:0 0 24px;">We received a request to reset your password. Click the button below to choose a new one.</p>
-      <a href="${resetUrl}" style="display:inline-block;background:#FD6A02;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;margin-bottom:24px;">Reset password</a>
-      <p style="color:#aaa;font-size:12px;margin:0;">If you did not request a password reset, you can ignore this email. This link expires in 1 hour.</p>
-    </div>
-    <div style="background:#f5f5f5;padding:20px 40px;text-align:center;">
-      <p style="color:#aaa;font-size:11px;margin:0;">2026 InventoryTools · inventorytools.co.uk</p>
-    </div>
-  </div>
-</body>
-</html>`
+    // Resolve brand based on the user's company
+    let brand = DEFAULT_BRAND
+    const userId = data.user?.id
+    if (userId) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('company_name')
+        .eq('id', userId)
+        .maybeSingle()
+
+      if (profile?.company_name) {
+        const { data: brandRow } = await supabase
+          .from('brands')
+          .select('display_name, domain, primary_color, logo_url, email_from_name')
+          .eq('company_name', profile.company_name)
+          .maybeSingle()
+
+        if (brandRow) {
+          brand = {
+            display_name: brandRow.display_name || DEFAULT_BRAND.display_name,
+            domain: brandRow.domain || DEFAULT_BRAND.domain,
+            primary_color: brandRow.primary_color || DEFAULT_BRAND.primary_color,
+            logo_url: brandRow.logo_url || DEFAULT_BRAND.logo_url,
+            email_from_name: brandRow.email_from_name || DEFAULT_BRAND.email_from_name,
+          }
+        }
+      }
+    }
+
+    const html = resetEmail(brand, resetUrl)
 
     const resendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
-        from: 'hello@inventorytools.co.uk',
+        from: `${brand.email_from_name} <noreply@inventorytools.co.uk>`,
         to: email,
-        subject: 'Reset your InventoryTools password',
+        subject: `Reset your ${brand.display_name} password`,
         html
       })
     })
