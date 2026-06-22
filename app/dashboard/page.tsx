@@ -1144,7 +1144,8 @@ export default function Dashboard() {
     const reset = () => {
       clearTimeout(timer)
       timer = setTimeout(() => {
-        supabase.auth.signOut().then(() => { window.location.href = '/auth?reason=inactivity' })
+        const loginPath = brand.company_name === 'Oakley Jane' ? '/oj-login' : '/auth'
+        supabase.auth.signOut().then(() => { window.location.href = `${loginPath}?reason=inactivity` })
       }, 20 * 60 * 1000)
     }
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click']

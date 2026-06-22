@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -22,6 +22,12 @@ export default function OakleyJaneLogin() {
   const [existingSessionDevice, setExistingSessionDevice] = useState('')
   const [pendingLoginUserId, setPendingLoginUserId] = useState('')
   const router = useRouter()
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('reason=inactivity')) {
+      setMessage('You have been logged out due to inactivity. Please sign in again.')
+    }
+  }, [])
 
   function getDeviceLabel() {
     if (typeof navigator === 'undefined') return 'Unknown device'
