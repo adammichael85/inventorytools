@@ -9,6 +9,7 @@ const DEFAULT_BRAND = {
   primary_color: '#FD6A02',
   logo_url: '/logo.png',
   email_from_name: 'InventoryTools',
+  send_domain: 'inventorytools.co.uk',
 }
 
 function resetEmail(brand: typeof DEFAULT_BRAND, resetUrl: string) {
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
       if (profile?.company_name) {
         const { data: brandRow } = await supabase
           .from('brands')
-          .select('display_name, domain, primary_color, logo_url, email_from_name')
+          .select('display_name, domain, primary_color, logo_url, email_from_name, send_domain')
           .eq('company_name', profile.company_name)
           .maybeSingle()
 
@@ -83,6 +84,7 @@ export async function POST(req: NextRequest) {
             primary_color: brandRow.primary_color || DEFAULT_BRAND.primary_color,
             logo_url: brandRow.logo_url || DEFAULT_BRAND.logo_url,
             email_from_name: brandRow.email_from_name || DEFAULT_BRAND.email_from_name,
+            send_domain: brandRow.send_domain || DEFAULT_BRAND.send_domain,
           }
         }
       }
@@ -94,7 +96,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
-        from: `${brand.email_from_name} <noreply@inventorytools.co.uk>`,
+        from: `${brand.email_from_name} <noreply@${brand.send_domain}>`,
         to: email,
         subject: `Reset your ${brand.display_name} password`,
         html

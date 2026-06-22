@@ -3,13 +3,12 @@ import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
-const FROM_EMAIL = 'noreply@inventorytools.co.uk'
-
 const DEFAULT_BRAND = {
   display_name: 'InventoryTools',
   domain: 'inventorytools.co.uk',
   primary_color: '#FD6A02',
   logo_url: 'https://inventorytools.co.uk/logo-email-full.png',
+  send_domain: 'inventorytools.co.uk',
 }
 
 function inviteEmail(brand: typeof DEFAULT_BRAND, companyName: string, inviteUrl: string) {
@@ -61,7 +60,7 @@ export async function POST(req: NextRequest) {
     let brand = DEFAULT_BRAND
     const { data: brandRow } = await supabase
       .from('brands')
-      .select('display_name, domain, primary_color, logo_url')
+      .select('display_name, domain, primary_color, logo_url, send_domain')
       .eq('company_name', inviter.company_name)
       .maybeSingle()
 
@@ -71,6 +70,7 @@ export async function POST(req: NextRequest) {
         domain: brandRow.domain || DEFAULT_BRAND.domain,
         primary_color: brandRow.primary_color || DEFAULT_BRAND.primary_color,
         logo_url: brandRow.logo_url ? `https://${DEFAULT_BRAND.domain}${brandRow.logo_url.startsWith('/') ? '' : '/'}${brandRow.logo_url}` : DEFAULT_BRAND.logo_url,
+        send_domain: brandRow.send_domain || DEFAULT_BRAND.send_domain,
       }
     }
 
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
-        from: FROM_EMAIL,
+        from: `${brand.display_name} <noreply@${brand.send_domain}>`,
         to: email,
         subject: `You've been invited to join ${inviter.company_name} on ${brand.display_name}`,
         html: inviteEmail(brand, inviter.company_name, inviteUrl)
