@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -28,6 +28,10 @@ export default function Auth() {
   const [existingSessionDevice, setExistingSessionDevice] = useState('')
   const [pendingLoginUserId, setPendingLoginUserId] = useState('')
 
+  type Brand = { display_name: string; logo_url: string | null; primary_color: string; primary_color_light: string | null; primary_color_dark: string | null }
+  const DEFAULT_BRAND: Brand = { display_name: 'InventoryTools', logo_url: null, primary_color: '#FD6A02', primary_color_light: '#fff0e6', primary_color_dark: '#c24a00' }
+  const [brand, setBrand] = useState<Brand>(DEFAULT_BRAND)
+
   React.useEffect(() => {
     if (typeof window !== 'undefined' && window.location.search.includes('reason=inactivity')) {
       setInactiveMsg(true)
@@ -52,6 +56,23 @@ export default function Auth() {
           setCompany(data.company_name)
           setAddress(data.company_address || '')
           setPhone(data.company_phone || '')
+
+          supabase
+            .from('brands')
+            .select('display_name, logo_url, primary_color, primary_color_light, primary_color_dark')
+            .eq('company_name', data.company_name)
+            .maybeSingle()
+            .then(({ data: brandRow }) => {
+              if (brandRow) {
+                setBrand({
+                  display_name: brandRow.display_name || DEFAULT_BRAND.display_name,
+                  logo_url: brandRow.logo_url || null,
+                  primary_color: brandRow.primary_color || DEFAULT_BRAND.primary_color,
+                  primary_color_light: brandRow.primary_color_light || DEFAULT_BRAND.primary_color_light,
+                  primary_color_dark: brandRow.primary_color_dark || DEFAULT_BRAND.primary_color_dark,
+                })
+              }
+            })
         }
       })
     }
@@ -171,9 +192,9 @@ export default function Auth() {
     setLoading(false)
   }
 
-  const T = '#FD6A02'
-  const TL = '#fff0e6'
-  const TD = '#c24a00'
+  const T = brand.primary_color
+  const TL = brand.primary_color_light || brand.primary_color
+  const TD = brand.primary_color_dark || brand.primary_color
   const B = '#E2EAE7'
   const BG = '#F7F9F8'
   const TX = '#1A2820'
@@ -188,28 +209,35 @@ export default function Auth() {
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
       <nav style={{ background: 'rgba(247,249,248,0.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${B}`, padding: '0 5vw', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <div style={{ width: 34, height: 34, background: T, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="34" height="34" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="120" height="120" rx="26" fill="#FD6A02"/>
-            <rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
-            <rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
-            <rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
-            <rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/>
-            <rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/>
-            <rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/>
-            <rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/>
-            <rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/>
-            <path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          </div>
-          <span style={{ fontSize: 15, fontWeight: 700, color: TX }}>inventory<span style={{ color: T }}>tools</span>.co.uk</span>
+          {brand.logo_url ? (
+            <img src={brand.logo_url} alt={brand.display_name} style={{ height: 32, width: 'auto' }} />
+          ) : (
+            <>
+              <div style={{ width: 34, height: 34, background: T, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="34" height="34" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="120" height="120" rx="26" fill="#FD6A02"/>
+                <rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
+                <rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
+                <rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
+                <rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/>
+                <rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/>
+                <rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/>
+                <rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/>
+                <rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/>
+                <path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              </div>
+              <span style={{ fontSize: 15, fontWeight: 700, color: TX }}>inventory<span style={{ color: T }}>tools</span>.co.uk</span>
+            </>
+          )}
         </Link>
         <div style={{ fontSize: 13, color: M }}>
           {tab === 'signup' ? <>Already have an account? <button onClick={() => setTab('signin')} style={{ color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Sign in</button></> : <>No account? <button onClick={() => setTab('signup')} style={{ color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Sign up</button></>}
         </div>
       </nav>
 
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'var(--auth-cols, 1fr 1fr)' }}>
+      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: inviteToken ? '1fr' : 'var(--auth-cols, 1fr 1fr)' }}>
+        {!inviteToken && (
         <div style={{ background: T, padding: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
@@ -226,6 +254,7 @@ export default function Auth() {
             ))}
           </div>
         </div>
+        )}
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 5vw', background: BG, overflowY: 'auto' }}>
           <div style={{ width: '100%', maxWidth: 420 }}>
@@ -284,7 +313,7 @@ export default function Auth() {
                 ) : inviteToken ? (
                   <>
                     <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.4, marginBottom: 6 }}>Join {inviteCompanyName}</h2>
-                    <p style={{ fontSize: 14, color: M, marginBottom: 24 }}>You've been invited to join {inviteCompanyName} on InventoryTools. Set a password to finish creating your account.</p>
+                    <p style={{ fontSize: 14, color: M, marginBottom: 24 }}>You've been invited to join {inviteCompanyName} on {brand.display_name}. Set a password to finish creating your account.</p>
                   </>
                 ) : (
                   <>
