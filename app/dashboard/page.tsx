@@ -1248,8 +1248,8 @@ export default function Dashboard() {
     { id: 'dashboard', label: 'Dashboard', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z' },
     { id: 'convert', label: toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF', icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z', badge: 'New' },
     { id: 'reports', label: 'Reports', icon: 'M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z' },
-    { id: 'stats', label: 'Statistics', icon: 'M18 20V10M12 20V4M6 20v-6' },
-    { id: 'team', label: 'Team', icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75' },
+    ...(userRole === 'admin' ? [{ id: 'stats', label: 'Statistics', icon: 'M18 20V10M12 20V4M6 20v-6' }] : []),
+    ...(userRole === 'admin' ? [{ id: 'team', label: 'Team', icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75' }] : []),
     ...(userRole === 'admin' ? [{ id: 'billing', label: 'Billing', icon: 'M1 4h22v16a2 2 0 01-2 2H3a2 2 0 01-2-2V4zM1 10h22' }] : []),
     { id: 'settings', label: 'Settings', icon: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14' },
     { id: 'legal', label: 'Legal', icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
@@ -1609,8 +1609,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 const tabAudio = tabConvs.reduce((s: number, r: any) => s + (r.audio_length_seconds || 0), 0)
                 const fmtT = (s: number) => s >= 60 ? Math.floor(s/60)+'m '+(s%60)+'s' : s+'s'
                 return (
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : `repeat(${toolTab === 'audio' ? 6 : 5},minmax(0,1fr))`, gap: 16, marginBottom: 0 }}>
-                {[['Total reports', tabTotal.toString(), 'all time'],['Total spent', '£'+tabSpend.toFixed(2), toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : []), ['Est. saving', '£'+tabSaving.toFixed(2), 'vs. manual typing']].map(([label,val,sub]) => (
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : `repeat(${userRole === 'admin' ? (toolTab === 'audio' ? 6 : 5) : (toolTab === 'audio' ? 4 : 3)},minmax(0,1fr))`, gap: 16, marginBottom: 0 }}>
+                {(userRole === 'admin' ? [['Total reports', tabTotal.toString(), 'all time'],['Total spent', '£'+tabSpend.toFixed(2), toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : []), ['Est. saving', '£'+tabSaving.toFixed(2), 'vs. manual typing']] : [['Total reports', tabTotal.toString(), 'all time'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : [])]).map(([label,val,sub]) => (
                   <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
                     <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
                     <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
@@ -1629,7 +1629,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600, display: isMobile ? 'none' : 'table' }}>
                     <thead><tr style={{ background: BG }}>
-                      {(toolTab === 'audio' ? ['Property','Property Size','Furn/Unfurn','Audio Length','Conv. Time','Cost','By','Rating','Status',''] : ['Property','Rooms','Conv. Time','Cost','By','Rating','Status','']).map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
+                      {(toolTab === 'audio' ? ['Property','Property Size','Furn/Unfurn','Audio Length','Conv. Time','Cost','By','Rating','Status',''] : ['Property','Rooms','Conv. Time','Cost','By','Rating','Status','']).filter(h => userRole === 'admin' || h !== 'Cost').map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
                     </tr></thead>
                     <tbody>
                       {conversions.filter(c => toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio').slice(0, 14).map(c => (
@@ -1645,7 +1645,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                           </td>
                           {toolTab === 'audio' ? (<><td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.property_size ? c.property_size.replace('bed',' bed').replace('_',' ') : '—'}</td><td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.furnished ? c.furnished.replace('_',' ') : '—'}</td><td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.audio_length_seconds ? (c.audio_length_seconds >= 60 ? Math.floor(c.audio_length_seconds/60)+'m '+(c.audio_length_seconds%60)+'s' : c.audio_length_seconds+'s') : '—'}</td></>) : (<td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.rooms} rooms</td>)}
                           <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{c.duration_seconds ? (c.duration_seconds >= 60 ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : c.duration_seconds+"s") : "—"}</td>
-                          <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£{(c.cost ? Number(c.cost) : 5).toFixed(2)}</td>
+                          {userRole === 'admin' && <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£{(c.cost ? Number(c.cost) : 5).toFixed(2)}</td>}
                           <td style={{ padding: '12px 20px', fontSize: 12, color: MUTED }}>{(c.converted_by || '').split(' ').map((n: string, i: number) => i === 0 ? n : n[0]).join(' ')}</td>
                           <td style={{ padding: '12px 20px' }}>
                             <div style={{ display: 'flex', gap: 1 }}>
