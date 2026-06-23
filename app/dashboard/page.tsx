@@ -2196,6 +2196,12 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                         const { PDFDocument } = await import('pdf-lib')
                         const arrayBuffer = await file.arrayBuffer()
                         const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true })
+                        if (pdfDoc.isEncrypted) {
+                          setCompressing(false)
+                          setConvertError('This file is encrypted/locked. Please use a PDF unlocker (e.g. ilovepdf.com) before uploading the file again.')
+                          setConvertState('error')
+                          return
+                        }
                         const compressed = await pdfDoc.save({ useObjectStreams: true })
                         const blob = new Blob([new Uint8Array(compressed as unknown as ArrayBuffer)], { type: 'application/pdf' })
                         const compressedFile = new File([blob], file.name, { type: 'application/pdf' })
@@ -2226,6 +2232,12 @@ supabase.auth.getSession().then(({ data: { session } }) => {
         const { PDFDocument } = await import('pdf-lib')
         const arrayBuffer = await file.arrayBuffer()
         const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true })
+        if (pdfDoc.isEncrypted) {
+          setCompressing(false)
+          setConvertError('This file is encrypted/locked. Please use a PDF unlocker (e.g. ilovepdf.com) before uploading the file again.')
+          setConvertState('error')
+          return
+        }
         const compressed = await pdfDoc.save({ useObjectStreams: true })
         const blob = new Blob([new Uint8Array(compressed as unknown as ArrayBuffer)], { type: 'application/pdf' })
         const compressedFile = new File([blob], file.name, { type: 'application/pdf' })
