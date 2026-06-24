@@ -930,6 +930,10 @@ export default function Dashboard() {
   function setPage(p: string) { setPageState(p); setTimeout(() => { const main = document.querySelector('main div[style*="overflow"]') as HTMLElement; if (main) main.scrollTop = 0 }, 0) }
   const [showConvert, setShowConvert] = useState(false)
   const [showTopup, setShowTopup] = useState(false)
+  const [cleanPdfFile, setCleanPdfFile] = useState<File | null>(null)
+  const [cleanPdfState, setCleanPdfState] = useState<'idle'|'processing'|'done'|'error'>('idle')
+  const [cleanPdfError, setCleanPdfError] = useState('')
+  const [cleanPdfResult, setCleanPdfResult] = useState<{ base64: string, filename: string } | null>(null)
   const [topupAmount, setTopupAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState('')
   const [userEmail, setUserEmail] = useState('')
@@ -1247,6 +1251,7 @@ export default function Dashboard() {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z' },
     { id: 'convert', label: toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF', icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z', badge: 'New' },
+    { id: 'cleanpdf', label: 'Clean PDF', icon: 'M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8' },
     { id: 'reports', label: 'Reports', icon: 'M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z' },
     ...(userRole === 'admin' ? [{ id: 'stats', label: 'Statistics', icon: 'M18 20V10M12 20V4M6 20v-6' }] : []),
     ...(userRole === 'admin' ? [{ id: 'team', label: 'Team', icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75' }] : []),
@@ -1739,6 +1744,122 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 <button onClick={() => setShowConvert(true)} style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>+ Convert now — £4.00</button>
               )}
               <p style={{ fontSize: 12, color: '#94AEA6', marginTop: 16 }}>{credits} credit{credits !== 1 ? 's' : ''} remaining</p>
+            </div>
+          )}
+
+          {page === 'cleanpdf' && (
+            <div style={{ maxWidth: 560, margin: '0 auto' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: 28 }}>
+                <div style={{ width: 64, height: 64, borderRadius: 16, background: '#E8EAF0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><polyline points="21,3 21,8 16,8"/></svg>
+                </div>
+                <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px' }}>Clean &amp; Unlock PDF</h2>
+                <p style={{ fontSize: 14, color: MUTED, margin: 0, lineHeight: 1.6 }}>Some PDFs have a security/encryption wrapper applied — even with no password, this can stop our AI from reading the file properly during conversion, causing rooms or rows to be missed. This tool removes that restriction and gives you back a clean copy you can convert normally. If a conversion fails or comes back incomplete, try cleaning the file here first.</p>
+              </div>
+
+              {cleanPdfState === 'idle' && (
+                <div>
+                  <label htmlFor="clean-pdf-upload" style={{ display: 'block', cursor: 'pointer' }}>
+                    <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 16, padding: '40px 24px', textAlign: 'center', background: SURFACE }}>
+                      <div style={{ width: 52, height: 52, borderRadius: 12, background: '#E8EAF0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      </div>
+                      <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your PDF here</p>
+                      <p style={{ fontSize: 13, color: HINT }}>or click to browse</p>
+                    </div>
+                  </label>
+                  <input id="clean-pdf-upload" type="file" accept=".pdf,application/pdf" style={{ display: 'none' }} onChange={e => {
+                    if (e.target.files?.[0]) setCleanPdfFile(e.target.files[0])
+                  }} />
+
+                  {cleanPdfFile && (
+                    <div style={{ marginTop: 16, background: BG, borderRadius: 10, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 13, color: TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, maxWidth: 300 }}>{cleanPdfFile.name}</span>
+                      <button onClick={() => setCleanPdfFile(null)} style={{ background: 'none', border: 'none', color: MUTED, cursor: 'pointer', fontSize: 13 }}>Remove</button>
+                    </div>
+                  )}
+
+                  <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '12px 16px', marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 13, color: MUTED }}>Cost</span>
+                    <span style={{ fontSize: 14, fontWeight: 700 }}>£0.50</span>
+                  </div>
+
+                  {cleanPdfError && <p style={{ fontSize: 13, color: '#DC2626', marginTop: 12 }}>{cleanPdfError}</p>}
+
+                  <button
+                    disabled={!cleanPdfFile || credits < 0.50}
+                    onClick={async () => {
+                      if (!cleanPdfFile) return
+                      setCleanPdfState('processing')
+                      setCleanPdfError('')
+                      try {
+                        const base64 = await fileToBase64(cleanPdfFile)
+                        const { data: { session } } = await supabase.auth.getSession()
+                        if (!session) throw new Error('Not signed in')
+                        const res = await fetch('/api/clean-pdf', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ user_id: session.user.id, file_base64: base64 })
+                        })
+                        const d = await res.json()
+                        if (d.error) {
+                          setCleanPdfError(d.error)
+                          setCleanPdfState('idle')
+                          return
+                        }
+                        const cleanName = cleanPdfFile.name.replace(/\.pdf$/i, '') + '_clean.pdf'
+                        setCleanPdfResult({ base64: d.cleaned_base64, filename: cleanName })
+                        setCredits(d.balance)
+                        setCleanPdfState('done')
+                      } catch (e: any) {
+                        setCleanPdfError(e.message || 'Something went wrong')
+                        setCleanPdfState('idle')
+                      }
+                    }}
+                    style={{ width: '100%', marginTop: 20, padding: 14, borderRadius: 12, border: 'none', background: (!cleanPdfFile || credits < 0.50) ? BORDER : TEAL, color: (!cleanPdfFile || credits < 0.50) ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: (!cleanPdfFile || credits < 0.50) ? 'default' : 'pointer' }}
+                  >
+                    Clean PDF — £0.50
+                  </button>
+                  <p style={{ fontSize: 12, color: HINT, textAlign: 'center', marginTop: 12 }}>{credits.toFixed ? credits.toFixed(2) : credits} balance remaining</p>
+                </div>
+              )}
+
+              {cleanPdfState === 'processing' && (
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: '50%', border: `3px solid ${BORDER}`, borderTopColor: TEAL, margin: '0 auto 20px', animation: 'spin 0.8s linear infinite' }} />
+                  <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Cleaning your PDF...</p>
+                  <p style={{ fontSize: 13, color: MUTED }}>This usually takes a few seconds.</p>
+                  <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                </div>
+              )}
+
+              {cleanPdfState === 'done' && cleanPdfResult && (
+                <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#E8F5EE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px', fontSize: 26 }}>✅</div>
+                  <p style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>Your PDF is clean and ready</p>
+                  <p style={{ fontSize: 13, color: MUTED, marginBottom: 24 }}>Download it below, then upload it to Convert PDF as normal.</p>
+                  <button
+                    onClick={() => {
+                      const byteArray = Uint8Array.from(atob(cleanPdfResult.base64), c => c.charCodeAt(0))
+                      const blob = new Blob([byteArray], { type: 'application/pdf' })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = cleanPdfResult.filename
+                      document.body.appendChild(a)
+                      a.click()
+                      document.body.removeChild(a)
+                      URL.revokeObjectURL(url)
+                    }}
+                    style={{ padding: '13px 28px', borderRadius: 12, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    ↓ Download {cleanPdfResult.filename}
+                  </button>
+                  <p style={{ marginTop: 20 }}>
+                    <button onClick={() => { setCleanPdfState('idle'); setCleanPdfFile(null); setCleanPdfResult(null) }} style={{ background: 'none', border: 'none', color: MUTED, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>Clean another PDF</button>
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
