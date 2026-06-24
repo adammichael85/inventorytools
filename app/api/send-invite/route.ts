@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     })
     if (insertErr) throw new Error(insertErr.message)
 
-    const inviteUrl = `https://${DEFAULT_BRAND.domain}/auth?invite=${token}`
+    const inviteUrl = `https://www.${brand.send_domain || DEFAULT_BRAND.domain}/auth?invite=${token}`
 
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
