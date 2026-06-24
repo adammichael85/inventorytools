@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
-        from: `${brand.display_name} <noreply@${brand.send_domain}>`,
+        from: `${brand.display_name} <hello@${brand.send_domain}>`,
         to: email,
         subject: brand.display_name === 'InventoryTools' ? `You've been invited to join ${inviter.company_name} on InventoryTools` : `You've been invited to join ${brand.display_name}`,
         html: inviteEmail(brand, inviter.company_name, inviteUrl)
