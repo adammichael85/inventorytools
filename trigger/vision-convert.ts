@@ -88,41 +88,66 @@ COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, 
 Return ONLY raw JSON:
 {"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}`;
 
-async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: string, maxTokens: number) {
-  const r = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + process.env.OPENAI_API_KEY
-    },
-    body: JSON.stringify({
-      model: "gpt-4.1",
-      max_output_tokens: maxTokens,
-      temperature: 0,
-      input: [{
-        role: "user",
-        content: [
-          { type: "input_text", text: systemPrompt + "\n\n" + userPrompt },
-          { type: "input_file", filename: "inventory.pdf", file_data: "data:application/pdf;base64," + base64 }
-        ]
-      }]
-    })
-  });
+async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: string, maxTokens: number, retries = 3): Promise<string> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const r = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + process.env.OPENAI_API_KEY
+      },
+      body: JSON.stringify({
+        model: "gpt-4.1",
+        max_output_tokens: maxTokens,
+        temperature: 0,
+        input: [{
+          role: "user",
+          content: [
+            { type: "input_text", text: systemPrompt + "\n\n" + userPrompt },
+            { type: "input_file", filename: "inventory.pdf", file_data: "data:application/pdf;base64," + base64 }
+          ]
+        }]
+      })
+    });
 
-  const d = await r.json();
-  let text = "";
-  if (d.output_text) {
-    text = d.output_text;
-  } else if (d.output && Array.isArray(d.output)) {
-    for (const item of d.output) {
-      if (item.content && Array.isArray(item.content)) {
-        for (const c of item.content) {
-          if (c.type === "output_text" && c.text) text += c.text;
+    if (!r.ok) {
+      const errBody = await r.text();
+      logger.log(`OpenAI API error (attempt ${attempt}/${retries})`, { status: r.status, body: errBody.slice(0, 1000) });
+
+      if (r.status === 429 || r.status >= 500) {
+        // Rate limited or server error - wait and retry with backoff
+        const waitMs = attempt * 5000;
+        if (attempt < retries) {
+          await new Promise(resolve => setTimeout(resolve, waitMs));
+          continue;
+        }
+      }
+      return ""; // give up after retries exhausted or non-retryable error
+    }
+
+    const d = await r.json();
+    let text = "";
+    if (d.output_text) {
+      text = d.output_text;
+    } else if (d.output && Array.isArray(d.output)) {
+      for (const item of d.output) {
+        if (item.content && Array.isArray(item.content)) {
+          for (const c of item.content) {
+            if (c.type === "output_text" && c.text) text += c.text;
+          }
         }
       }
     }
+
+    if (!text && attempt < retries) {
+      logger.log(`Empty text in successful response (attempt ${attempt}/${retries}), retrying`, { responseKeys: Object.keys(d) });
+      await new Promise(resolve => setTimeout(resolve, attempt * 3000));
+      continue;
+    }
+
+    return text;
   }
-  return text;
+  return "";
 }
 
 export const visionConvertTask = task({
@@ -175,7 +200,7 @@ export const visionConvertTask = task({
         fullBase64,
         PASS1_SYSTEM,
         "Identify all rooms and their page ranges. Return raw JSON only.",
-        4000
+        16000
       );
 
       const p1first = pass1Text.indexOf("{");
@@ -222,27 +247,31 @@ export const visionConvertTask = task({
             roomBase64,
             PASS2_SYSTEM,
             `This section is: ${roomInfo.room}\n\nExtract ALL inventory rows. Return raw JSON only.`,
-            16000
+            28000
           );
 
           if (!pass2Text) {
-            logger.log(`Room ${roomInfo.room}: empty response, skipping`);
+            logger.log(`ROOM SKIPPED - empty response: ${roomInfo.room}`);
             continue;
           }
 
           const p2first = pass2Text.indexOf("{");
           const p2last = pass2Text.lastIndexOf("}");
-          if (p2first === -1) continue;
+          if (p2first === -1) {
+            logger.log(`ROOM SKIPPED - no JSON found: ${roomInfo.room}`, { responsePreview: pass2Text.slice(0, 500) });
+            continue;
+          }
 
           let roomData: any;
           try {
             roomData = JSON.parse(pass2Text.slice(p2first, p2last + 1));
           } catch (e) {
-            logger.log(`Room ${roomInfo.room}: JSON parse failed`);
+            logger.log(`ROOM SKIPPED - JSON parse failed: ${roomInfo.room}`, { error: String(e), responsePreview: pass2Text.slice(p2first, p2first + 500) });
             continue;
           }
 
           let rows = roomData.rows || [];
+          logger.log(`Room ${roomInfo.room}: extracted ${rows.length} raw rows before filtering`);
 
           // Filter out Further views and photo reference rows
           rows = rows.filter((row: any) => {
@@ -260,6 +289,8 @@ export const visionConvertTask = task({
             // Add Further views as first row (standard format)
             rows = [{ item: "Further views", description: "", condition: "" }, ...rows];
             allRooms.push({ roomName: roomInfo.room, rows });
+          } else {
+            logger.log(`ROOM SKIPPED - zero rows after filtering: ${roomInfo.room}`, { rawRowCount: (roomData.rows || []).length });
           }
 
         } catch (roomErr: any) {
