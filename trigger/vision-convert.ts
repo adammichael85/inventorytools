@@ -1,5 +1,5 @@
 import { task, logger } from "@trigger.dev/sdk/v3";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { createClient } from "@supabase/supabase-js";
 import ws from "ws";
 import type { WebSocket as WSType } from "ws";
@@ -190,16 +190,44 @@ export const visionConvertTask = task({
       if (!pdfRes.ok) throw new Error("Could not fetch PDF: " + pdfRes.status);
 
       const pdfBuffer = await pdfRes.arrayBuffer();
-      const fullBase64 = Buffer.from(pdfBuffer).toString("base64");
       logger.log("PDF fetched", { size: pdfBuffer.byteLength });
+
+      // Stamp visible page numbers onto every page so GPT has a ground-truth reference
+      // instead of having to count pages itself (which drifts on long documents)
+      let stampedBase64 = "";
+      try {
+        const stampSourceDoc = await PDFDocument.load(pdfBuffer, { ignoreEncryption: true });
+        const pageCount = stampSourceDoc.getPageCount();
+        const helveticaFont = await stampSourceDoc.embedFont(StandardFonts.Helvetica);
+
+        for (let i = 0; i < pageCount; i++) {
+          const page = stampSourceDoc.getPage(i);
+          const { width } = page.getSize();
+          const label = `Page ${i + 1} of ${pageCount}`;
+          page.drawText(label, {
+            x: width - 150,
+            y: 10,
+            size: 10,
+            font: helveticaFont,
+            color: rgb(1, 0, 0),
+          });
+        }
+
+        const stampedBytes = await stampSourceDoc.save();
+        stampedBase64 = Buffer.from(stampedBytes).toString("base64");
+        logger.log("Page numbers stamped successfully", { pageCount });
+      } catch (e) {
+        logger.log("Page stamping failed, using original PDF", { error: String(e) });
+        stampedBase64 = Buffer.from(pdfBuffer).toString("base64");
+      }
 
       await updateJob("running", 5, "Identifying rooms...");
 
-      // Pass 1: Get room list
+      // Pass 1: Get room list (using the page-numbered version for accurate page anchoring)
       const pass1Text = await callVisionAPI(
-        fullBase64,
+        stampedBase64,
         PASS1_SYSTEM,
-        "Identify all rooms and their page ranges. Return raw JSON only.",
+        "Identify all rooms and their page ranges. Each page has a visible 'Page X of Y' label in red in the bottom right corner - use this exact label to determine page numbers, do not count pages yourself. Return raw JSON only.",
         16000
       );
 
@@ -213,6 +241,7 @@ export const visionConvertTask = task({
       if (roomList.length === 0) throw new Error("No rooms found in PDF");
       const address = p1data.address || "";
       logger.log("Pass 1 complete", { rooms: roomList.length });
+      logger.log("Pass 1 page ranges", { ranges: roomList.map(r => `${r.room}: pages ${r.startPage}-${r.endPage}`) });
 
       await updateJob("running", 10, `Found ${roomList.length} rooms. Starting conversion...`, undefined, undefined, roomList.map(r => r.room));
 
