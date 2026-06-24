@@ -96,6 +96,18 @@ Format G - 3 columns labelled Room | Description | Comment (NOT Item | Descripti
 - Example: Room="Original Report", Description="20. Windows", Comment="Repair marks under window facing" → ITEM: "20.", DESCRIPTION: "Windows", CONDITION: "Repair marks under window facing"
 - Detect this format by the column headers themselves: if you see "Room", "Description", "Comment" as the three headers, apply this rule instead of any other format above.
 
+Format H - SRP Inventories landscape format, 5 columns (Ref | Name | Description | Condition | Additional Comments):
+- Detect this format by: landscape page orientation, column headers "Ref", "Name", "Description", "Condition", "Additional Comments", and Ref numbers formatted like 1.1, 1.2, 2.1, 2.2.
+- Column "Ref" → IGNORE, do not include in output. Use only internally to confirm row order and that no rows are skipped or merged.
+- Column "Name" → ITEM
+- Column "Description" → DESCRIPTION
+- Column "Condition" → first line(s) of CONDITION
+- Column "Additional Comments" → if it contains text, append it underneath the Condition text on a separate line in the CONDITION field. If blank, add nothing extra.
+- Preserve every condition statement on its own line where the source shows multiple semicolon-separated statements.
+- Do not merge two different Ref rows together, and do not split one Ref row into multiple output rows.
+- Treat pages labelled "(Cont.)" after a room name as a continuation of that same room, not a new room — combine all continuation rows into the same room's row list in sequence.
+- Preserve terms exactly: UPVC, ADT, Chubb, Ref, Yale, thermostat, trickle vents, securely mounted, tested and working, not tested, newly decorated, used condition, good order, intact. Do not modernise wording or change capitalisation unless clearly an OCR error.
+
 RULES:
 - No number prefix on room names
 - Strip photo counts and duplicate conditions (Good Good becomes Good)
