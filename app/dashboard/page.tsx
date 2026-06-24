@@ -1575,7 +1575,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setToolTab(tab.id as 'pdf' | 'audio')}
+              onClick={() => { setToolTab(tab.id as 'pdf' | 'audio'); setPage('dashboard') }}
               style={{
                 padding: '10px 20px',
                 border: 'none',
