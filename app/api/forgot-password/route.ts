@@ -7,7 +7,7 @@ const DEFAULT_BRAND = {
   display_name: 'InventoryTools',
   domain: 'inventorytools.co.uk',
   primary_color: '#FD6A02',
-  logo_url: '/logo.png',
+  logo_url: '/logo-email-full.png',
   email_from_name: 'InventoryTools',
   send_domain: 'inventorytools.co.uk',
 }
@@ -20,7 +20,7 @@ function resetEmail(brand: typeof DEFAULT_BRAND, resetUrl: string) {
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:'Helvetica Neue',Arial,sans-serif;">
   <div style="max-width:560px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
     <div style="background:#ffffff;padding:32px 40px;text-align:center;border-bottom:1px solid #f0f0f0;">
-      <img src="${logoUrl}" width="180" alt="${brand.display_name}" style="display:block;margin:0 auto;height:auto;">
+      <img src="${logoUrl}" width="200" alt="${brand.display_name}" style="display:block;margin:0 auto;height:auto;">
     </div>
     <div style="padding:40px;">
       <h2 style="color:#1a1a2e;font-size:20px;font-weight:700;margin:0 0 12px;">Reset your password</h2>
