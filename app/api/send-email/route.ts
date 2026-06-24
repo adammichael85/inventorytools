@@ -7,7 +7,7 @@ const DEFAULT_BRAND = {
   display_name: 'InventoryTools',
   domain: 'inventorytools.co.uk',
   primary_color: '#FD6A02',
-  logo_url: 'https://inventorytools.co.uk/logo-email-full.png',
+  logo_url: 'https://www.inventorytools.co.uk/logo-email-full.png',
 }
 
 async function getBrandForEmail(email: string) {
