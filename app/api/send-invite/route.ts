@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         display_name: brandRow.display_name || DEFAULT_BRAND.display_name,
         domain: brandRow.domain || DEFAULT_BRAND.domain,
         primary_color: brandRow.primary_color || DEFAULT_BRAND.primary_color,
-        logo_url: brandRow.logo_url ? `https://${DEFAULT_BRAND.domain}${brandRow.logo_url.startsWith('/') ? '' : '/'}${brandRow.logo_url}` : DEFAULT_BRAND.logo_url,
+        logo_url: brandRow.logo_url ? `https://www.${brandRow.send_domain || DEFAULT_BRAND.domain}${brandRow.logo_url.startsWith('/') ? '' : '/'}${brandRow.logo_url}` : DEFAULT_BRAND.logo_url,
         send_domain: brandRow.send_domain || DEFAULT_BRAND.send_domain,
       }
     }
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         from: `${brand.display_name} <noreply@${brand.send_domain}>`,
         to: email,
-        subject: `You've been invited to join ${inviter.company_name} on ${brand.display_name}`,
+        subject: brand.display_name === 'InventoryTools' ? `You've been invited to join ${inviter.company_name} on InventoryTools` : `You've been invited to join ${brand.display_name}`,
         html: inviteEmail(brand, inviter.company_name, inviteUrl)
       })
     })
