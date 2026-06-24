@@ -103,10 +103,15 @@ Format H - SRP Inventories landscape format, 5 columns (Ref | Name | Description
 - Column "Description" → DESCRIPTION
 - Column "Condition" → first line(s) of CONDITION
 - Column "Additional Comments" → if it contains text, append it underneath the Condition text on a separate line in the CONDITION field. If blank, add nothing extra.
+- A valid inventory row starts with a Ref number such as 1.1, 1.2, 1.3, 2.1, 2.2, 2.3. Use the Ref number as the row anchor. Keep all text in the same row until the next Ref number begins. Do not merge two Ref rows together, and do not split one Ref row into multiple output rows.
 - Preserve every condition statement on its own line where the source shows multiple semicolon-separated statements.
-- Do not merge two different Ref rows together, and do not split one Ref row into multiple output rows.
-- Treat pages labelled "(Cont.)" after a room name as a continuation of that same room, not a new room — combine all continuation rows into the same room's row list in sequence.
 - Preserve terms exactly: UPVC, ADT, Chubb, Ref, Yale, thermostat, trickle vents, securely mounted, tested and working, not tested, newly decorated, used condition, good order, intact. Do not modernise wording or change capitalisation unless clearly an OCR error.
+
+SRP ROOM DETECTION RULES (critical - this format is prone to missed rooms):
+- The room headings look like: "Exterior Front", "Exterior Front (Cont.)", "Entrance And Hallway", "Entrance And Hallway (Cont.)". The "(Cont.)" heading does NOT mean a new room - it means the same room continues. Never skip a room because its heading includes "(Cont.)". Never treat "Room Name (Cont.)" as a separate room. Always merge every "Room Name (Cont.)" section into the main room with the same name.
+- If there is a Contents/Areas page listing all rooms, use it as the master list of rooms you must extract. Do not finish the conversion until every room on that list has been checked and either included or clearly flagged as not found.
+- A room may have: table pages, then photo pages, then the next room heading. Photo pages do not end a room. Do not stop extraction because a photo block appears - keep scanning forward page by page. The next room only starts when a new numbered room heading appears, for example "3. Dining Room", "4. Kitchen", "5. Utility Room".
+- COMMON FAILURE TO AVOID: do not only extract the first few rooms (e.g. Exterior Front, Entrance And Hallway, Dining Room, Kitchen) and stop there. The report continues after photo pages, and later rooms must still be extracted all the way through to the final room in the document.
 
 RULES:
 - No number prefix on room names

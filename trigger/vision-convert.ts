@@ -14,7 +14,12 @@ EXCLUDE: Cover page, contents page, notes, disclaimers, checklists, keys and uti
 
 IMPORTANT: Be generous with page ranges. If unsure where a room ends, extend the endPage by 2-3 extra pages. It is better to include too many pages than too few. Small transitional areas like Porch, Stairs, Hallways must be included even if they only span 1-2 pages.
 
-CONTINUATION PAGES: If a page is labelled "(Cont.)" after a room name (e.g. "Kitchen (Cont.)"), this is a CONTINUATION of that same room, not a new room. Extend the original room's endPage to include these continuation pages rather than creating a separate room entry.
+CONTINUATION PAGES: If a page is labelled "(Cont.)" after a room name (e.g. "Kitchen (Cont.)"), this is a CONTINUATION of that same room, not a new room. Extend the original room's endPage to include these continuation pages rather than creating a separate room entry. Never treat "Room Name (Cont.)" as a separate room — always merge it into the main room with the same name.
+
+SRP INVENTORIES LANDSCAPE REPORTS - ROOM DETECTION:
+If this PDF is an SRP Inventories landscape-style report (look for a Contents/Areas page listing room names, and table columns Ref | Name | Description | Condition | Additional Comments), use the Contents page as the master list of rooms. You must identify every room listed there. Do not finish until every room in that list has been located and assigned a page range.
+A room may span: table pages, then photo pages, then the next room heading. Photo-only pages do NOT end a room — keep scanning forward page by page. The next room only starts when a new numbered room heading appears (e.g. "3. Dining Room", "4. Kitchen"). A heading with "(Cont.)" is always a continuation of the same numbered room, never a new one.
+Common failure to avoid: do not stop after only finding the first few rooms (e.g. Exterior Front, Entrance And Hallway, Dining Room, Kitchen) just because photo pages follow them. The report continues after photo pages and later rooms must still be detected and included with correct page ranges, all the way to the final room in the Contents list.
 
 Return ONLY raw JSON, no markdown, no explanation:
 {"address":"6 Broughton Close, Marston, Oxford, OX3 0RQ","rooms":[{"room":"Kitchen","startPage":5,"endPage":12},{"room":"Living Room","startPage":13,"endPage":18}]}`;
@@ -66,18 +71,17 @@ COLUMN MERGING RULE — when both Condition and Cleanliness columns exist:
 
 MID-TEXT DASH RULE: When a single cell contains text with a dash in the middle, like "Ceiling - white emulsion" or "Door - chrome handle", this is NOT a column separator. Keep the entire phrase together exactly as written in ONE field (item or description, whichever column it was in). Do not split the text at the dash into two different columns. Only treat a dash as a standalone item value (the DASH ITEMS rule) when the Item column contains ONLY a dash character and nothing else.
 
-SRP LANDSCAPE FORMAT (Ref | Name | Description | Condition | Additional Comments, 5 columns, landscape layout):
-This is a distinct format from SRP Inventories check-in reports. Detect it by: landscape orientation, column headers "Ref", "Name", "Description", "Condition", "Additional Comments", and Ref numbers formatted like 1.1, 1.2, 2.1, 2.2.
-- Column "Name" → ITEM
-- Column "Description" → DESCRIPTION
-- Column "Condition" → first line(s) of CONDITION
-- Column "Additional Comments" → if it contains text, append it underneath the Condition text on a separate line in the CONDITION field. If Additional Comments is blank, add nothing extra.
-- Column "Ref" → do NOT include in output. Use Ref numbers only internally to confirm row order and that no rows were skipped or merged.
-- Preserve every condition statement on its own line where the source shows multiple semicolon-separated statements.
-- Do not merge two different Ref rows together, and do not split one Ref row into multiple output rows.
-- If a room's photo pages appear (e.g. "Ref #1", "Ref #2" image references with no written caption), do NOT create item rows for them. Instead, where a room has photo pages, the FIRST row output for that room should be: item: "Further Views", description: "", condition: "" — this is a deliberate inclusion for this format only, unlike the normal IGNORE rule for photo-reference rows above.
-- Preserve terms exactly: UPVC, ADT, Chubb, Ref, Yale, thermostat, trickle vents, securely mounted, tested and working, not tested, newly decorated, used condition, good order, intact. Do not modernise wording or change capitalisation unless clearly an OCR error.
-- Treat "(Cont.)" labelled pages as a continuation of the same room, not a new room — combine all continuation rows into the same room's row list in sequence.
+SRP INVENTORIES LANDSCAPE FORMAT (Ref | Name | Description | Condition | Additional Comments, 5 columns):
+This format uses landscape orientation with columns: Ref, Name, Description, Condition, Additional Comments. Ref numbers are formatted like 1.1, 1.2, 2.1, 2.2.
+Column mapping:
+- Name → ITEM
+- Description → DESCRIPTION
+- Condition → CONDITION (first line(s))
+- Additional Comments → if it contains text, add it underneath the Condition text on a new line. If blank, add nothing extra.
+- Ref → do not include in output. Use only to keep row order and check nothing is missed.
+A valid inventory row starts with a Ref number such as 1.1, 1.2, 1.3, 2.1, 2.2, 2.3. Use the Ref number as the row anchor. Keep all text in the same row until the next Ref number begins. Do not merge two Ref rows together. Do not split one Ref row into multiple rows. Preserve the original row order and wording as closely as possible, including semicolons, hyphens, brackets, apostrophes and capitalisation. Do not rewrite, summarise, tidy, improve or modernise the wording.
+The SRP PDF has a lot of photo pages. Photo pages are not room data, only supporting images. Ignore the images except for adding "Further Views" as the first row of the room if that room has photo pages.
+Preserve terms exactly: UPVC, ADT, Chubb, Ref, Yale, thermostat, trickle vents, securely mounted, tested and working, not tested, newly decorated, used condition, good order, intact.
 
 COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, or summarise.
 
