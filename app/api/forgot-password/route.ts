@@ -13,7 +13,7 @@ const DEFAULT_BRAND = {
 }
 
 function resetEmail(brand: typeof DEFAULT_BRAND, resetUrl: string) {
-  const logoUrl = `https://inventorytools.co.uk${brand.logo_url}`
+  const logoUrl = `https://www.${brand.send_domain}${brand.logo_url}`
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
@@ -47,10 +47,38 @@ export async function POST(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
+    // Look up the user and their company/brand BEFORE generating the link, so we know the correct redirect domain
+    let redirectDomain = 'inventorytools.co.uk'
+    let redirectPath = '/auth/reset'
+    try {
+      const { data: { users } } = await supabase.auth.admin.listUsers()
+      const matchedUser = users.find((u: any) => u.email === email)
+      if (matchedUser) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('company_name')
+          .eq('id', matchedUser.id)
+          .maybeSingle()
+
+        if (profile?.company_name) {
+          const { data: brandRow } = await supabase
+            .from('brands')
+            .select('send_domain, company_name')
+            .eq('company_name', profile.company_name)
+            .maybeSingle()
+
+          if (brandRow?.send_domain) {
+            redirectDomain = brandRow.send_domain
+            redirectPath = brandRow.company_name === 'InventoryTools' ? '/auth/reset' : '/oj-login'
+          }
+        }
+      }
+    } catch (e) { /* fall back to InventoryTools default if lookup fails */ }
+
     const { data, error } = await supabase.auth.admin.generateLink({
       type: 'recovery',
       email,
-      options: { redirectTo: 'https://inventorytools.co.uk/auth/reset' }
+      options: { redirectTo: `https://www.${redirectDomain}${redirectPath}` }
     })
 
     if (error || !data?.properties?.action_link) {
