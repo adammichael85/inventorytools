@@ -1593,6 +1593,24 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               {tab.label}
             </button>
           ))}
+          <button
+            onClick={() => setPage('cleanpdf')}
+            style={{
+              padding: '10px 20px',
+              border: 'none',
+              borderBottom: page === 'cleanpdf' ? '2px solid #16A34A' : '2px solid transparent',
+              background: 'transparent',
+              color: page === 'cleanpdf' ? '#16A34A' : MUTED,
+              fontFamily: 'inherit',
+              fontSize: 13,
+              fontWeight: page === 'cleanpdf' ? 600 : 400,
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+              marginBottom: -1,
+            }}
+          >
+            🧹 Clean PDF
+          </button>
         </div>
 
         <div style={{ flex: 1, overflow: 'auto', padding: isMobile ? 16 : 28, paddingBottom: isMobile ? 100 : 28 }}>
