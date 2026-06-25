@@ -7,12 +7,12 @@ import { PDFDocument } from 'pdf-lib'
 import { supabase } from '@/lib/supabase'
 import { useBrand } from '@/lib/BrandContext'
 
-const BORDER = '#e8e8e8'
-const BG = '#f5f5f5'
+const BORDER = '#E3E7E9'
+const BG = '#F3F5F6'
 const SURFACE = '#ffffff'
-const TEXT = '#1a1a2e'
-const MUTED = '#888888'
-const HINT = '#888888'
+const TEXT = '#11151A'
+const MUTED = '#6B7780'
+const HINT = '#9BA3A8'
 
 
 
@@ -1500,8 +1500,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
 
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', overflow: 'hidden', background: BG }}>
-      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <div style={{ fontFamily: "'General Sans', sans-serif", display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', overflow: 'hidden', background: BG }}>
+      <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap" rel="stylesheet" />
 
       {/* SIDEBAR */}
       <aside style={{ width: isMobile ? 0 : 220, background: SURFACE, borderRight: isMobile ? 'none' : `1px solid ${BORDER}`, display: isMobile ? 'none' : 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0 }}>
