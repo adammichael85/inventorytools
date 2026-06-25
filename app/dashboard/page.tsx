@@ -2903,11 +2903,11 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <p style={{ fontSize: 14, fontWeight: 600, color: '#DC2626', margin: '0 0 4px' }}>Insufficient balance</p>
                     <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>Top up your balance to continue.</p>
                   </div>
-                ) : (
+                ) : audioConvertState === 'idle' ? (
                   <button disabled style={{ width: '100%', padding: 14, borderRadius: 10, border: 'none', background: BORDER, color: MUTED, fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'default' }}>
                     Fill in all fields to continue
                   </button>
-                )}
+                ) : null}
 
                 {audioConvertState === 'idle' && <button onClick={closeAudioModal} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>}
               </div>
