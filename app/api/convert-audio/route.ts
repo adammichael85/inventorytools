@@ -119,8 +119,10 @@ When the clerk describes parts or components of one appliance or fixture
 -> All parts stay in the Description column of that ONE item row
 -> Only create a new row when the clerk moves to a completely different item
 
-Example: "Beko freestanding fridge freezer interior fridge door seal three times plastic door shelves light debris"
--> Fridge freezer | Beko freestanding / Interior door seal / 3 x plastic door shelves | Light debris
+Example: "white boiler unit make Worcester three control dials displays pressure gauge"
+-> Boiler | White / Worcester / 3 x control dials / Displays / Pressure gauge |
+
+EXCEPTION: Fridges, fridge freezers, dishwashers and ovens are NOT grouped this way when the clerk names distinct internal compartments (interior door, interior fridge, freezer drawers, top rack, grill compartment, etc.) - see RULE 20.
 
 ----------------------------------------
 FORMATTING RULES
@@ -152,6 +154,16 @@ Threshold is always its own row. Never merge into door row.
 RULE 3 - DOOR AND FRAME SEPARATION
 Door frame and door are always separate rows.
 
+The reverse (interior-facing) side of a door is NEVER labelled by repeating "Door frame"/"Door" again, and NEVER labelled "Reverse of door frame"/"Reverse of door". Always use:
+- Interior frame (for the reverse of the door frame)
+- Interior door (for the reverse of the door)
+
+Example:
+Door frame | White wooden |
+Door | 4 panel white wooden / Metal handle |
+Interior frame | White wooden |
+Interior door | 4 panel white wooden / Metal handle |
+
 RULE 4 - MULTIPLE CONDITION LINES
 Each condition phrase on its own line using \n between conditions.
 
@@ -178,8 +190,19 @@ RULE 7 - GO-BACK CORRECTIONS
 Find the most recent matching row and add to it. Do not create a new row.
 
 RULE 8 - WORK SURFACE WARNING
-All kitchen work surfaces must include this warning in the CONDITION column (not description):
-PLEASE DO NOT CUT DIRECTLY ON THESE SURFACES
+The warning PLEASE DO NOT CUT DIRECTLY ON THESE SURFACES applies ONLY in Kitchen and Utility Room.
+NEVER include it in Bathroom, En-Suite, Shower Room or any other room.
+
+Within Kitchen or Utility Room, include this warning ONLY ONCE per room - on the Condition of the very FIRST Surface row encountered in that room. Every subsequent Surface row in the same room must NOT repeat the warning - use only that row's own spoken condition details (or leave empty if none were spoken).
+
+CORRECT (first Surface in Kitchen gets the warning, later Surfaces in the same Kitchen do not):
+{"type":"item","item":"Surface","description":"Light wood effect Formica","condition":"PLEASE DO NOT CUT DIRECTLY ON THESE SURFACES"}
+... later in the same Kitchen ...
+{"type":"item","item":"Surface","description":"Run of the surface","condition":"Chip above pull-out drawers"}
+
+INCORRECT - never repeat the warning on every surface row in the same room:
+{"type":"item","item":"Surface","description":"Run of the surface","condition":"PLEASE DO NOT CUT DIRECTLY ON THESE SURFACES"}
+{"type":"item","item":"Surface","description":"Run of the surface","condition":"PLEASE DO NOT CUT DIRECTLY ON THESE SURFACES"}
 
 RULE 9 - APPLIANCE NT DEFAULT
 These appliances always get NT in Condition unless clerk explicitly says tested and working:
@@ -261,10 +284,33 @@ T&W = Tested and working | T&NW = Tested and not working | UL = Upper level
 
 IMPORTANT: Do not replace "requires further wipe" with RFC.
 
+RULE 19 - UNIT HOUSING WORDING
+When the clerk describes an appliance as "[Brand] unit housing [components]" (this applies to washer dryer, washing machine, dishwasher, tumble dryer):
+-> ITEM = "Unit housing [Brand] [appliance name]"
+-> DESCRIPTION = only the housed components, written naturally (e.g. "Soap tray, door, controls & seal")
+-> CONDITION = each defect on its own line using \n, never repeated twice for the same issue
+
+Example: "Zanussi unit housing soap tray door and controls seal NT large shaded mark to the inside door soap tray soiled throughout requires cleaning door and controls dusty seal scale lint debris requires further cleaning"
+-> Unit housing Zanussi washer dryer | Soap tray, door, controls & seal | NT\nLarge shaded mark to the inside door\nSoap tray soiled throughout\nDoor and controls dusty\nSeal scale\nLint debris\nRequires further cleaning
+
+Never write "requires cleaning" as its own separate condition line if it is immediately followed by "requires further cleaning" describing the same defect - keep only the more specific final phrase, do not duplicate.
+
+RULE 20 - MULTI-COMPARTMENT APPLIANCES (Fridge / Fridge Freezer / Dishwasher / Oven)
+Do NOT bulk a fridge, fridge freezer, dishwasher or oven's internal compartments into one row's Description. When the clerk names a distinct compartment (interior door, interior fridge, freezer interior door, freezer drawers, top rack, bottom rack, grill compartment, etc.), give each named compartment its OWN row.
+
+CORRECT:
+{"type":"item","item":"Fridge freezer","description":"White freestanding","condition":""}
+{"type":"item","item":"Fridge door interior","description":"2 x interior door compartments\nBottle compartment","condition":""}
+{"type":"item","item":"Fridge interior","description":"White freezer flap door\n2 x glass shelves with white plastic edging trim\nPlastic salad crisper","condition":"NT\nOdour to the fridge\nGlass shelves require further wipe"}
+
+INCORRECT - never merge all compartments into the main appliance row:
+{"type":"item","item":"Fridge freezer","description":"Zanussi Unit housing Interior door has 4 x clear plastic door shelves Interior fridge 5 x glass shelves with white edging 2 x clear plastic crispers Freezer interior door 3 x clear plastic freezer drawers","condition":"NT Odour to the fridge..."}
+
 ----------------------------------------
 TRANSCRIPTION CORRECTIONS - Whisper errors only
 ----------------------------------------
 "kick place" -> kickplates | "you pvc" -> UPVC | "wide wooden" -> white wooden
+"draft" -> always correct to "draught" (e.g. "draft excluder" -> draught excluder, "draft shaded" -> draught shaded)
 "grey would affect" -> grey wood effect | "bolt tested" -> bulb tested
 "runner tile splashback" -> run of tiled splashback | "kit plates" -> kickplates
 "hound base" -> handbasin | "toilet system" -> toilet cistern
