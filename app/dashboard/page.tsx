@@ -516,7 +516,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
   )
 }
 
-function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE, BG, HINT, isMobile }: any) {
+function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE, BG, HINT, isMobile, onTypistRatesSaved, onAudioTypistRatesSaved }: any) {
   const [profile, setProfile] = React.useState<any>(null)
   const [saving, setSaving] = React.useState(false)
   const [saved, setSaved] = React.useState(false)
@@ -692,6 +692,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
                   typist_report_rate: parseFloat(typistReportRate) || 12.00,
                   typist_page_rate: parseFloat(typistPageRate) || 0.50,
                 }).eq('id', session.user.id)
+                onTypistRatesSaved?.(parseFloat(typistReportRate) || 12.00, parseFloat(typistPageRate) || 0.50, typistRateMode)
               }
               setSavingTypistRates(false)
               setSavedTypistRates(true)
@@ -747,6 +748,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
                   audio_typist_minute_rate: parseFloat(audioTypistMinuteRate) || 0.50,
                   audio_typist_rates: { unfurnished: unfurnishedNumbers, furnished: furnishedNumbers },
                 }).eq('id', session.user.id)
+                onAudioTypistRatesSaved?.({ unfurnished: unfurnishedNumbers, furnished: furnishedNumbers })
               }
               setSavingAudioTypistRates(false)
               setSavedAudioTypistRates(true)
@@ -2072,7 +2074,9 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           )}
 
            {page === 'settings' && (
-            <SettingsPage supabase={supabase} userEmail={userEmail} TEXT={TEXT} MUTED={MUTED} TEAL={TEAL} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} isMobile={isMobile} />
+            <SettingsPage supabase={supabase} userEmail={userEmail} TEXT={TEXT} MUTED={MUTED} TEAL={TEAL} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} isMobile={isMobile}
+              onTypistRatesSaved={(report: number, page: number, mode: string) => { setTypistReportRateD(report); setTypistPageRateD(page); setTypistRateModeD(mode) }}
+              onAudioTypistRatesSaved={(rates: any) => setAudioTypistRates(rates)} />
           )}
 
           {page === 'stats' && (
