@@ -40,7 +40,7 @@ function formatDocxName(address: string): string {
   return words.map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
 }
 
-function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT, typistRateMode, typistReportRate, typistPageRate, isMobile }: any) {
+function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT, typistRateMode, typistReportRate, typistPageRate, isMobile, audioTypistRates }: any) {
   const MARKET_UNFURNISHED: Record<string, number> = {
     room_only: 10.00, studio: 15.00, '1bed': 15.00, '2bed': 20.00, '3bed': 25.00,
     '4bed': 35.00, '5bed': 45.00, '6bed': 50.00, '7bed': 55.00, '8bed': 60.00,
@@ -59,7 +59,9 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
       return typistReportRate || 12.00
     }
     const isFurn = c.furnished === 'furnished' || c.furnished === 'part_furnished'
-    const table = isFurn ? MARKET_FURNISHED : MARKET_UNFURNISHED
+    const configuredTable = audioTypistRates ? (isFurn ? audioTypistRates.furnished : audioTypistRates.unfurnished) : null
+    const fallbackTable = isFurn ? MARKET_FURNISHED : MARKET_UNFURNISHED
+    const table = (configuredTable && Object.keys(configuredTable).length > 0) ? configuredTable : fallbackTable
     return c.property_size ? (table[c.property_size] || 12.00) : 12.00
   }
   function getActualCost(c: any): number {
@@ -946,6 +948,7 @@ export default function Dashboard() {
   const [typistRateMode, setTypistRateModeD] = useState('per_report')
   const [typistReportRate, setTypistReportRateD] = useState(12.00)
   const [typistPageRate, setTypistPageRateD] = useState(0.50)
+  const [audioTypistRates, setAudioTypistRates] = useState<{unfurnished: Record<string, number>, furnished: Record<string, number>} | null>(null)
   const [convertState, setConvertState] = useState<'idle'|'selected'|'processing'|'done'|'error'>('idle')
   const [selectedFile, setSelectedFile] = useState<File|null>(null)
   const [selectedCredits, setSelectedCredits] = useState<{credits:number,price:number}|null>(null)
@@ -1202,7 +1205,7 @@ export default function Dashboard() {
       setUserEmail(session.user.email || '')
       setAccessToken(session.access_token)
       // Load profile (name, role, settings) and company balance
-      supabase.from('profiles').select('company_name, full_name, onboarding_confirmed, role, pdf_enabled, audio_enabled, typist_rate_mode, typist_report_rate, typist_page_rate').eq('id', session.user.id).single().then(({ data: profile }) => {
+      supabase.from('profiles').select('company_name, full_name, onboarding_confirmed, role, pdf_enabled, audio_enabled, typist_rate_mode, typist_report_rate, typist_page_rate, audio_typist_rates').eq('id', session.user.id).single().then(({ data: profile }) => {
         if (profile) {
           setUserName(profile.full_name || session.user.email || '')
           setUserRole(profile.role || 'user')
@@ -1211,6 +1214,7 @@ export default function Dashboard() {
           setTypistRateModeD(profile.typist_rate_mode || 'per_report')
           setTypistReportRateD(profile.typist_report_rate ?? 12.00)
           setTypistPageRateD(profile.typist_page_rate ?? 0.50)
+          setAudioTypistRates(profile.audio_typist_rates || null)
           if (!profile.onboarding_confirmed) setShowOnboarding(true)
           if (profile.company_name) {
             supabase.from('companies').select('balance').eq('company_name', profile.company_name).single().then(({ data: company }) => {
@@ -2072,7 +2076,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           )}
 
           {page === 'stats' && (
-            <StatsPage conversions={conversions} userStats={userStats} toolTab={toolTab} TEAL={toolTab === 'audio' ? '#2563EB' : TEAL} TEAL_LIGHT={toolTab === 'audio' ? '#DBEAFE' : TEAL_LIGHT} TEAL_DARK={toolTab === 'audio' ? '#1D4ED8' : TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} typistRateMode={typistRateMode} typistReportRate={typistReportRate} typistPageRate={typistPageRate} isMobile={isMobile} />
+            <StatsPage conversions={conversions} userStats={userStats} toolTab={toolTab} TEAL={toolTab === 'audio' ? '#2563EB' : TEAL} TEAL_LIGHT={toolTab === 'audio' ? '#DBEAFE' : TEAL_LIGHT} TEAL_DARK={toolTab === 'audio' ? '#1D4ED8' : TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} typistRateMode={typistRateMode} typistReportRate={typistReportRate} typistPageRate={typistPageRate} isMobile={isMobile} audioTypistRates={audioTypistRates} />
           )}
 
           {page === 'legal' && (
