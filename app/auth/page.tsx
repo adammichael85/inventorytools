@@ -261,8 +261,26 @@ export default function Auth() {
         </div>
       </nav>
 
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: inviteToken ? '1fr' : 'var(--auth-cols, 1fr 1fr)' }}>
+      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: inviteToken ? '1fr' : 'var(--auth-cols, 1fr 1fr)', background: brand.display_name === DEFAULT_BRAND.display_name ? BG : 'transparent' }}>
         {!inviteToken && (
+        brand.display_name === DEFAULT_BRAND.display_name ? (
+        <div style={{ padding: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ background: '#fff', border: `1px solid ${B}`, borderRadius: 20, padding: 36 }}>
+            <h2 style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, color: T, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>Two tools · one login</h2>
+            <h2 style={{ fontSize: 28, fontWeight: 800, color: TX, lineHeight: 1.2, letterSpacing: -0.6, marginBottom: 14 }}>Reports done in minutes.</h2>
+            <p style={{ fontSize: 14.5, color: M, lineHeight: 1.7, marginBottom: 30 }}>PDF to Word: upload any inventory PDF and get a perfectly formatted Word document in minutes. Audio to Word: upload a voice recording and get a structured Word doc automatically. Both tools. One login.</p>
+            {[['⏱', 'Convert old or other companies\' inventories in minutes', 'vs. 45–90 mins with a typist'], ['💷', 'Word & PDF to Word from £4.00 · Audio to Word from £4.88*', 'Priced by property size. No monthly fees.'], ['✓', 'Save up to 60% vs. manual audio typists', 'Audio to Word SAVES you money on EVERY report!']].map(([icon, title, sub]) => (
+              <div key={title} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: TL, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{icon}</div>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: TX, marginBottom: 2 }}>{title}</p>
+                  <p style={{ fontSize: 12, color: M }}>{sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        ) : (
         <div style={{ background: T, padding: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
@@ -279,9 +297,10 @@ export default function Auth() {
             ))}
           </div>
         </div>
+        )
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 5vw', background: BG, overflowY: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 5vw', background: brand.display_name === DEFAULT_BRAND.display_name ? 'transparent' : BG, overflowY: 'auto' }}>
           <div style={{ width: '100%', maxWidth: 420 }}>
             <div style={{ display: 'flex', background: '#fff', border: `1px solid ${B}`, borderRadius: 12, padding: 4, marginBottom: 28 }}>
               {(['signin', 'signup'] as const).map(t => (
