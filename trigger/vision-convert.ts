@@ -85,6 +85,10 @@ Preserve terms exactly: UPVC, ADT, Chubb, Ref, Yale, thermostat, trickle vents, 
 
 COPY EXACTLY: Copy text exactly as it appears. Do not correct spelling, reword, or summarise.
 
+LINE BREAKS WITHIN DESCRIPTION AND CONDITION: When a Description or Condition contains multiple distinct sentences or phrases (this is common when the source PDF has flowing prose rather than short tabular fragments), put each distinct sentence on its own line by separating them with \n. Copy the wording of each sentence EXACTLY as it appears - this is a presentation change only, never reword, shorten, merge or drop any sentence.
+Example: "Slightly overpainted to edges. Minor scratches to lock surround. Minor rubs and scuffs to mid and lower. Old defects under." -> "Slightly overpainted to edges.\nMinor scratches to lock surround.\nMinor rubs and scuffs to mid and lower.\nOld defects under."
+This applies independently in both the Description column and the Condition column.
+
 Return ONLY raw JSON:
 {"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}`;
 

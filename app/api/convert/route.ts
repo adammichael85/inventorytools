@@ -121,6 +121,10 @@ RULES:
 - Separate multiple values with " | "
 - Never truncate or summarise - copy ALL rows
 
+LINE BREAKS WITHIN DESCRIPTION AND CONDITION: When a Description or Condition contains multiple distinct sentences or phrases (this is common when the source PDF has flowing prose rather than short tabular fragments), put each distinct sentence on its own line by separating them with \n. Copy the wording of each sentence EXACTLY as it appears - this is a presentation change only, never reword, shorten, merge or drop any sentence.
+Example: "Slightly overpainted to edges. Minor scratches to lock surround. Minor rubs and scuffs to mid and lower. Old defects under." -> "Slightly overpainted to edges.\nMinor scratches to lock surround.\nMinor rubs and scuffs to mid and lower.\nOld defects under."
+This applies independently in both the Description column and the Condition column.
+
 OUTPUT raw JSON only: {"address":"","pages":1,"rooms":[{"roomName":"","rows":[{"item":"","description":"","condition":""}]}]}\``
 
 export async function POST(req: NextRequest) {
