@@ -51,7 +51,7 @@ export default function AudioToWord() {
       </nav>
 
       {/* TOOL SWITCHER TABS */}
-      <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 5vw', display: 'flex', gap: 4 }}>
+      <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 5vw', display: 'flex', gap: 4, justifyContent: 'center' }}>
         <Link href="/pdf-to-word" style={{ padding: '14px 18px', fontSize: 14, fontWeight: 500, color: MUTED, borderBottom: '2px solid transparent', textDecoration: 'none' }}>PDF to Word</Link>
         <Link href="/audio-to-word" style={{ padding: '14px 18px', fontSize: 14, fontWeight: 700, color: ACCENT, borderBottom: `2px solid ${ACCENT}`, textDecoration: 'none' }}>Audio to Word</Link>
       </div>
