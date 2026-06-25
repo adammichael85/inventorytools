@@ -219,18 +219,19 @@ export default function Auth() {
   const T = brand.primary_color
   const TL = brand.primary_color_light || brand.primary_color
   const TD = brand.primary_color_dark || brand.primary_color
-  const B = '#E2EAE7'
-  const BG = '#F7F9F8'
-  const TX = '#1A2820'
-  const M = '#5A7068'
-  const H = '#94AEA6'
+  const B = '#E3E7E9'
+  const BG = '#F3F5F6'
+  const TX = '#11151A'
+  const M = '#6B7780'
+  const H = '#9BA3A8'
 
   const input = { width: '100%', padding: '11px 14px', borderRadius: 9, border: `1px solid ${B}`, fontFamily: 'inherit', fontSize: 14, outline: 'none', background: '#fff', boxSizing: 'border-box' as const }
 
   return (
-    <main style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <main style={{ fontFamily: "'General Sans', sans-serif", minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <style>{`@media(max-width:768px){:root{--auth-cols:1fr}.auth-left{display:none!important}}`}</style>
-      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
       <nav style={{ background: 'rgba(247,249,248,0.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${B}`, padding: '0 5vw', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           {brand.logo_url ? (
@@ -266,8 +267,8 @@ export default function Auth() {
           <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
             <h2 style={{ fontSize: 36, fontWeight: 700, color: '#fff', lineHeight: 1.2, letterSpacing: -0.5, marginBottom: 16 }}>Two tools. One login. Reports done in minutes.</h2>
-            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 40 }}>PDF to Word: upload any inventory PDF and get a perfectly formatted Word document in 1–4 minutes. Audio to Word: upload a voice recording and get a structured Word doc automatically. Both tools. One login.</p>
-            {[['⏱', '1–4 minutes', 'vs. 45–90 mins with a typist'], ['💷', 'PDF from £4.00 · Audio from £4.88', 'Priced by property size. No monthly fees.'], ['✓', 'Up to 51.25% cheaper than a typist', 'Audio to Word saves you money on every report']].map(([icon, title, sub]) => (
+            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 40 }}>PDF to Word: upload any inventory PDF and get a perfectly formatted Word document in minutes. Audio to Word: upload a voice recording and get a structured Word doc automatically. Both tools. One login.</p>
+            {[['⏱', 'Convert old or other companies\' inventories in minutes', 'vs. 45–90 mins with a typist'], ['💷', 'Word & PDF to Word from £4.00 · Audio to Word from £4.88*', 'Priced by property size. No monthly fees.'], ['✓', 'Save up to 60% vs. manual audio typists', 'Audio to Word SAVES you money on EVERY report!']].map(([icon, title, sub]) => (
               <div key={title} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{icon}</div>
                 <div>
