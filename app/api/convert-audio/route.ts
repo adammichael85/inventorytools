@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import OpenAI, { toFile } from 'openai'
 import { createClient } from '@supabase/supabase-js'
 
+export const maxDuration = 300
+
 function buildSystemPrompt(roomName: string, items: string[], descs: string[], conds: string[]): string {
   return `You are an expert UK property inventory formatter.
 You are processing ONE room from a UK property inventory inspection.
@@ -488,9 +490,8 @@ export async function POST(req: NextRequest) {
     console.log('Per-room mode:', isPerRoom, 'matched:', Object.keys(roomFileMap))
 
     // Transcribe all files
-    const transcriptMap: Record<number, string> = {}
-    for (let i = 0; i < filePaths.length; i++) {
-      const filePath = filePaths[i]
+    // Transcribe all files IN PARALLEL (was sequential - 8 files one-at-a-time was a major contributor to timeouts)
+    const transcriptionResults = await Promise.all(filePaths.map(async (filePath: string, i: number) => {
       const fileName = fileNames[i] || 'audio.mp3'
 
       // Retry signed URL up to 3 times in case of propagation delay
@@ -519,11 +520,16 @@ export async function POST(req: NextRequest) {
         response_format: 'verbose_json',
       })
 
-      transcriptMap[i] = transcription.text
-      transcripts.push(transcription.text)
-      totalSeconds += Math.round((transcription as any).duration || 0)
-
       try { await supabase.storage.from('documents').remove([filePath]) } catch(e) {}
+
+      return { i, text: transcription.text, duration: Math.round((transcription as any).duration || 0) }
+    }))
+
+    const transcriptMap: Record<number, string> = {}
+    for (const r of transcriptionResults) {
+      transcriptMap[r.i] = r.text
+      transcripts[r.i] = r.text
+      totalSeconds += r.duration
     }
 
     const stitchedTranscript = transcripts.join(' ')
