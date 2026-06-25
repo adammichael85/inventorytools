@@ -29,7 +29,7 @@ export default function Auth() {
   const [pendingLoginUserId, setPendingLoginUserId] = useState('')
 
   type Brand = { display_name: string; logo_url: string | null; primary_color: string; primary_color_light: string | null; primary_color_dark: string | null }
-  const DEFAULT_BRAND: Brand = { display_name: 'InventoryTools', logo_url: null, primary_color: '#FD6A02', primary_color_light: '#fff0e6', primary_color_dark: '#c24a00' }
+  const DEFAULT_BRAND: Brand = { display_name: 'InventoryTools', logo_url: '/logo-full.png', primary_color: '#FD6A02', primary_color_light: '#fff0e6', primary_color_dark: '#c24a00' }
   const [brand, setBrand] = useState<Brand>(DEFAULT_BRAND)
   const [brandReady, setBrandReady] = useState(true)
 
