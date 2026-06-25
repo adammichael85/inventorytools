@@ -17,13 +17,11 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode, delay?: nu
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false)
-  const [heroShown, setHeroShown] = useState(false)
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
     check()
     window.addEventListener('resize', check)
-    const t = setTimeout(() => setHeroShown(true), 60)
-    return () => { window.removeEventListener('resize', check); clearTimeout(t) }
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   const BG = '#F3F5F6', SURFACE = '#FFFFFF', BORDER = '#E3E7E9', INK = '#11151A', ACCENT = '#FD6A02', ACCENT_SOFT = '#FFF1E6', MUTED = '#6B7780'
@@ -32,6 +30,12 @@ export default function Home() {
     <main style={{ fontFamily: "'General Sans', sans-serif", background: BG, color: INK, minHeight: '100vh' }}>
       <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap" rel="stylesheet" />
       <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+      <style>{`
+        @keyframes riseIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .rise-1 { animation: riseIn 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+        .rise-2 { animation: riseIn 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s both; }
+        .rise-3 { animation: riseIn 0.7s cubic-bezier(0.16,1,0.3,1) 0.18s both; }
+      `}</style>
 
       {/* NAV */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${BORDER}`, padding: '0 5vw', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -43,7 +47,7 @@ export default function Home() {
 
       {/* HERO */}
       <section style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center', padding: isMobile ? '56px 6vw 36px' : '90px 6vw 50px' }}>
-        <div style={{ opacity: heroShown ? 1 : 0, transform: heroShown ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)' }}>
+        <div className="rise-1">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: ACCENT_SOFT, color: '#C24A00', fontSize: 12, fontWeight: 500, padding: '6px 14px', borderRadius: 20, marginBottom: 24 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: ACCENT, display: 'inline-block' }} /> Built for UK inventory clerks
           </div>
@@ -54,7 +58,7 @@ export default function Home() {
 
       {/* TOOL CARDS */}
       <section style={{ maxWidth: 1000, margin: '0 auto', padding: isMobile ? '0 6vw 70px' : '0 6vw 100px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 22 }}>
-        <div style={{ opacity: heroShown ? 1 : 0, transform: heroShown ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s' }}>
+        <div className="rise-2">
           <Link href="/pdf-to-word" style={{ display: 'block', background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 20, padding: isMobile ? 28 : 36, textDecoration: 'none', color: INK, height: '100%', transition: 'transform 0.2s, box-shadow 0.2s' }}>
             <div style={{ width: 46, height: 46, borderRadius: 11, background: ACCENT_SOFT, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C24A00" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14,2 14,8 20,8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
@@ -68,7 +72,7 @@ export default function Home() {
             </div>
           </Link>
         </div>
-        <div style={{ opacity: heroShown ? 1 : 0, transform: heroShown ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.18s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.18s' }}>
+        <div className="rise-3">
           <Link href="/audio-to-word" style={{ display: 'block', background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 20, padding: isMobile ? 28 : 36, textDecoration: 'none', color: INK, height: '100%', transition: 'transform 0.2s, box-shadow 0.2s' }}>
             <div style={{ width: 46, height: 46, borderRadius: 11, background: ACCENT_SOFT, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C24A00" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" /><path d="M19 10v2a7 7 0 01-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>

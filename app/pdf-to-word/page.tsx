@@ -52,6 +52,12 @@ export default function PDFToWord() {
         </div>
       </nav>
 
+      {/* TOOL SWITCHER TABS */}
+      <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 5vw', display: 'flex', gap: 4 }}>
+        <Link href="/pdf-to-word" style={{ padding: '14px 18px', fontSize: 14, fontWeight: 700, color: ACCENT, borderBottom: `2px solid ${ACCENT}`, textDecoration: 'none' }}>PDF to Word</Link>
+        <Link href="/audio-to-word" style={{ padding: '14px 18px', fontSize: 14, fontWeight: 500, color: MUTED, borderBottom: '2px solid transparent', textDecoration: 'none' }}>Audio to Word</Link>
+      </div>
+
       {/* HERO */}
       <section style={{ maxWidth: 1180, margin: '0 auto', padding: isMobile ? '52px 6vw 30px' : '88px 6vw 60px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 36 : 50, alignItems: 'center' }}>
         <div style={{ opacity: heroShown ? 1 : 0, transform: heroShown ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)' }}>
