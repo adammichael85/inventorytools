@@ -2825,7 +2825,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                         borders: cellBorders,
                         width: { size: colWidth, type: WidthType.DXA },
                         verticalAlign: VerticalAlign.TOP,
-                        children: (text || '').split(' / ').map((line: string) => new Paragraph({ children: [new TextRun({ text: line.trim().replace(/[ --]/g,''), font: 'Arial', size: 20, color: '000000' })] }))
+                        children: (text || '').split(/\n| \| /).map((line: string) => new Paragraph({ children: [new TextRun({ text: line.trim().replace(/[ --]/g,'').replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-'), font: 'Arial', size: 20, color: '000000' })] }))
                       })
                       const children: any[] = []
                       for (let i = 0; i < rooms.length; i++) {
