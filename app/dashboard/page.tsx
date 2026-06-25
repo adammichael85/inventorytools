@@ -40,7 +40,7 @@ function formatDocxName(address: string): string {
   return words.map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
 }
 
-function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT, typistRateMode, typistReportRate, typistPageRate }: any) {
+function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT, typistRateMode, typistReportRate, typistPageRate, isMobile }: any) {
   const MARKET_UNFURNISHED: Record<string, number> = {
     room_only: 10.00, studio: 15.00, '1bed': 15.00, '2bed': 20.00, '3bed': 25.00,
     '4bed': 35.00, '5bed': 45.00, '6bed': 50.00, '7bed': 55.00, '8bed': 60.00,
@@ -514,7 +514,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
   )
 }
 
-function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE, BG, HINT }: any) {
+function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE, BG, HINT, isMobile }: any) {
   const [profile, setProfile] = React.useState<any>(null)
   const [saving, setSaving] = React.useState(false)
   const [saved, setSaved] = React.useState(false)
@@ -2068,11 +2068,11 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           )}
 
            {page === 'settings' && (
-            <SettingsPage supabase={supabase} userEmail={userEmail} TEXT={TEXT} MUTED={MUTED} TEAL={TEAL} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} />
+            <SettingsPage supabase={supabase} userEmail={userEmail} TEXT={TEXT} MUTED={MUTED} TEAL={TEAL} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} isMobile={isMobile} />
           )}
 
           {page === 'stats' && (
-            <StatsPage conversions={conversions} userStats={userStats} toolTab={toolTab} TEAL={toolTab === 'audio' ? '#2563EB' : TEAL} TEAL_LIGHT={toolTab === 'audio' ? '#DBEAFE' : TEAL_LIGHT} TEAL_DARK={toolTab === 'audio' ? '#1D4ED8' : TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} typistRateMode={typistRateMode} typistReportRate={typistReportRate} typistPageRate={typistPageRate} />
+            <StatsPage conversions={conversions} userStats={userStats} toolTab={toolTab} TEAL={toolTab === 'audio' ? '#2563EB' : TEAL} TEAL_LIGHT={toolTab === 'audio' ? '#DBEAFE' : TEAL_LIGHT} TEAL_DARK={toolTab === 'audio' ? '#1D4ED8' : TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} typistRateMode={typistRateMode} typistReportRate={typistReportRate} typistPageRate={typistPageRate} isMobile={isMobile} />
           )}
 
           {page === 'legal' && (
