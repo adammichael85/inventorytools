@@ -229,7 +229,7 @@ export default function Auth() {
 
   return (
     <main style={{ fontFamily: "'General Sans', sans-serif", minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <style>{`@media(max-width:768px){:root{--auth-cols:1fr}.auth-left{display:none!important}}`}</style>
+      <style>{`@media(max-width:768px){:root{--auth-cols:1fr}.auth-left{display:none!important}.name-grid{grid-template-columns:1fr!important}}`}</style>
       <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap" rel="stylesheet" />
       <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
       <nav style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${B}`, padding: '0 5vw', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -365,7 +365,7 @@ export default function Auth() {
                     <p style={{ fontSize: 14, color: M, marginBottom: 24 }}>Set up your InventoryTools account.</p>
                   </>
                 )}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                <div className="name-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
                   <div>
                     <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>First name</label>
                     <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Jane" style={input} />

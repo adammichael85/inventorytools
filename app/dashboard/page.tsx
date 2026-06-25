@@ -188,7 +188,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 12, marginBottom: 12 }}>
         {[
           ['Rooms processed', rooms.toString()],
           ['Avg conv. time', fmtTime(avg)],
@@ -250,7 +250,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
                 </div>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 12, marginBottom: 8 }}>
               {[['Rooms processed', ltRooms.toString()],['Avg conv. time', fmtTime(ltAvg)],['Total conv. time', fmtTime(ltDuration)]].map(([lbl, val]) => (
                 <div key={lbl} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
                   <p style={{ fontSize: 11, color: HINT, marginBottom: 8 }}>{lbl}</p>
@@ -620,7 +620,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
           <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>Profile</p>
           <span style={{ fontSize: 11, background: profile.role === 'admin' ? '#fff0e6' : '#F7F9F8', color: profile.role === 'admin' ? '#c24a00' : MUTED, padding: '3px 10px', borderRadius: 20, fontWeight: 500, textTransform: 'uppercase' as const }}>{profile.role || 'user'}</span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14, marginBottom: 14 }}>
           <div>
             <label style={labelStyle}>Full name</label>
             <input value={profile.full_name || ''} onChange={e => setProfile({...profile, full_name: e.target.value})} style={inputStyle} />
@@ -630,7 +630,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
             <input value={userEmail} disabled style={{...inputStyle, background: BG, color: MUTED}} />
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14, marginBottom: 14 }}>
           <div>
             <label style={labelStyle}>Company name</label>
             <input value={profile.company_name || ''} onChange={e => setProfile({...profile, company_name: e.target.value})} style={inputStyle} />
@@ -657,7 +657,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
       </div>
 
       {profile.role === 'admin' && (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
           <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>📄 PDF to Word — typist cost settings</p>
           <p style={{ fontSize: 12, color: MUTED, margin: '0 0 16px' }}>Set what your team would normally pay a manual typist for PDF inventory reports. Used to calculate your real savings on the Statistics page.</p>
@@ -712,11 +712,11 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
 
           {audioTypistMode === 'per_size' ? (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 8, marginBottom: 8, fontSize: 11, fontWeight: 600, color: MUTED, textTransform: 'uppercase' as const }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1fr', gap: 8, marginBottom: 8, fontSize: 11, fontWeight: 600, color: MUTED, textTransform: 'uppercase' as const }}>
                 <span></span><span>Unfurnished</span><span>Furnished</span>
               </div>
               {[['room_only','Room only'],['studio','Studio'],['1bed','1 bed'],['2bed','2 bed'],['3bed','3 bed'],['4bed','4 bed'],['5bed','5 bed'],['6bed','6 bed'],['7bed','7 bed'],['8bed','8 bed'],['9bed','9 bed'],['10bed','10 bed'],['11bed','11 bed'],['12bed','12 bed']].map(([key,label]) => (
-                <div key={key} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                <div key={key} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1fr', gap: 8, marginBottom: 8, alignItems: 'center' }}>
                   <label style={{ fontSize: 13, color: TEXT }}>{label}</label>
                   <input type="number" step="0.01" min="0" value={audioTypistRatesUnfurnished[key]} onChange={e => setAudioTypistRatesUnfurnished(prev => ({...prev, [key]: e.target.value}))} style={inputStyle} />
                   <input type="number" step="0.01" min="0" value={audioTypistRatesFurnished[key]} onChange={e => setAudioTypistRatesFurnished(prev => ({...prev, [key]: e.target.value}))} style={inputStyle} />
@@ -788,7 +788,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
         <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Auto-delete reports</p>
         <p style={{ fontSize: 12, color: MUTED, margin: '0 0 12px' }}>Automatically delete uploaded PDFs and conversion reports after the selected period. Default is 14 days for GDPR compliance.</p>
@@ -835,7 +835,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
       )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
       <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
         <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px' }}>Account</p>
         <p style={{ fontSize: 13, color: MUTED, marginBottom: 16 }}>Signed in as <strong style={{ color: TEXT }}>{userEmail}</strong></p>
@@ -2291,7 +2291,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 if (line.startsWith('| ')) {
                   const cells = line.split('|').filter((c: string) => c.trim())
                   const isHeader = cells.every((c: string) => c.trim())
-                  return <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, margin: '1px 0', background: '#e8e8e8' }}>
+                  return <div key={i} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 1, margin: '1px 0', background: '#e8e8e8' }}>
                     {cells.map((cell: string, ci: number) => <div key={ci} style={{ background: isHeader && i < 3 ? '#f0f0f0' : '#fff', padding: '4px 8px', fontSize: 12, fontWeight: cell.includes('---') ? 400 : isHeader && i < 3 ? 600 : 400 }}>{cell.trim().replace(/^-+$/, '')}</div>)}
                   </div>
                 }
@@ -2625,7 +2625,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                 </div>
 
                 {/* Property size + Furnished row */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
                   <div>
                     <label style={labelStyle}>Property size</label>
                     <select value={audioPropertySize} onChange={e => setAudioPropertySize(e.target.value)} style={{ ...inputStyle, appearance: 'none' as const }}>
