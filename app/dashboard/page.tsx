@@ -1133,7 +1133,7 @@ export default function Dashboard() {
       const { data: convs } = await delConvQuery
       if (convs) {
         setConversions(convs)
-        const unrated = convs.filter((x: any) => !x.rating)
+        const unrated = convs.filter((x: any) => !x.rating && x.user_id === session.user.id)
         if (unrated.length > 0) {
           setPendingRatings(unrated)
             if (sessionStorage.getItem('freshLogin')) { sessionStorage.removeItem('freshLogin'); setShowRatingPopup(true) }
@@ -1227,7 +1227,7 @@ export default function Dashboard() {
           convQuery.then(({ data: convs }) => {
             if (convs) {
               setConversions(convs)
-              const unrated = convs.filter((x: any) => !x.rating)
+              const unrated = convs.filter((x: any) => !x.rating && x.user_id === session.user.id)
               if (unrated.length > 0) {
                 setPendingRatings(unrated)
                 if (isFreshLogin) { setShowRatingPopup(true) }
