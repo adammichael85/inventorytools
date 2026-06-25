@@ -54,7 +54,7 @@ export default function Home() {
 
       {/* TOOL CARDS */}
       <section style={{ maxWidth: 1000, margin: '0 auto', padding: isMobile ? '0 6vw 70px' : '0 6vw 100px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 22 }}>
-        <Reveal>
+        <div style={{ opacity: heroShown ? 1 : 0, transform: heroShown ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s' }}>
           <Link href="/pdf-to-word" style={{ display: 'block', background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 20, padding: isMobile ? 28 : 36, textDecoration: 'none', color: INK, height: '100%', transition: 'transform 0.2s, box-shadow 0.2s' }}>
             <div style={{ width: 46, height: 46, borderRadius: 11, background: ACCENT_SOFT, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C24A00" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14,2 14,8 20,8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
@@ -67,8 +67,8 @@ export default function Home() {
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 8, background: ACCENT, color: '#fff', fontSize: 13.5, fontWeight: 700 }}>Convert →</span>
             </div>
           </Link>
-        </Reveal>
-        <Reveal delay={0.1}>
+        </div>
+        <div style={{ opacity: heroShown ? 1 : 0, transform: heroShown ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.18s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.18s' }}>
           <Link href="/audio-to-word" style={{ display: 'block', background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 20, padding: isMobile ? 28 : 36, textDecoration: 'none', color: INK, height: '100%', transition: 'transform 0.2s, box-shadow 0.2s' }}>
             <div style={{ width: 46, height: 46, borderRadius: 11, background: ACCENT_SOFT, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C24A00" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" /><path d="M19 10v2a7 7 0 01-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>
@@ -81,7 +81,7 @@ export default function Home() {
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 8, background: ACCENT, color: '#fff', fontSize: 13.5, fontWeight: 700 }}>Convert →</span>
             </div>
           </Link>
-        </Reveal>
+        </div>
       </section>
 
       {/* FOOTER BAR */}
