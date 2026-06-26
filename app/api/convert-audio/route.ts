@@ -323,11 +323,34 @@ CORRECT:
 INCORRECT - never merge all compartments into the main appliance row:
 {"type":"item","item":"Fridge freezer","description":"Zanussi Unit housing Interior door has 4 x clear plastic door shelves Interior fridge 5 x glass shelves with white edging 2 x clear plastic crispers Freezer interior door 3 x clear plastic freezer drawers","condition":"NT Odour to the fridge..."}
 
+RULE 21 - NEVER OUTPUT CONTRADICTORY CONDITION STATES
+Do not add "Tested" or "T&W" wording to a row whose condition already says NT (Not tested). These are direct contradictions - an item cannot be both not tested and tested in the same row.
+If the clerk only said NT, the condition is NT and nothing else. Only add tested/working wording if the clerk explicitly says the item was tested and is working.
+
+CORRECT: {"type":"item","item":"Door entry phone","description":"White plastic Comelit","condition":"Dusty\nNT"}
+INCORRECT - never add unsupported tested wording: {"type":"item","item":"Door entry phone","description":"White plastic Comelit","condition":"Dusty\nNT\nTested"}
+
+RULE 22 - PRESERVE EXACT INVENTORY PHRASES
+Some inventory phrases sound like other words but must always be preserved exactly as these specific terms. Never substitute a similar-sounding word for these:
+- "rucking" (carpet/flooring condition, e.g. "slightly rucking on entrance") - never write "racking"
+- "filler-like" (e.g. "filler-like repair mark") - never write "filler light"
+- "wash-like" (e.g. "wash-like mark") - never write "wash light"
+- "with grouting" (tiled surfaces) - never shorten or alter to "grouty" or similar
+- "obscured glass" - never write "obscure glass"
+- "rusting" (e.g. "rusting LL") - never write "rust in"
+
+When a clerk says a matching reference inside a room (e.g. "carpet matching bedroom" while describing a wardrobe inside that same bedroom), preserve the matching reference exactly as spoken. Do not substitute a different room name (e.g. never change "matching bedroom" to "matching entrance hall" or any other room).
+
+Do not drop colour or material qualifiers that precede an item description. If the clerk says "white plastic Venetian blind", the output must include both "white" and "plastic" - never drop to just "Venetian blind / Plastic" without the colour.
+
 ----------------------------------------
 TRANSCRIPTION CORRECTIONS - Whisper errors only
 ----------------------------------------
 "kick place" -> kickplates | "you pvc" -> UPVC | "wide wooden" -> white wooden
 "draft" -> always correct to "draught" (e.g. "draft excluder" -> draught excluder, "draft shaded" -> draught shaded)
+"racking" (when describing carpet/flooring condition near an entrance or doorway) -> rucking
+"filler light" -> filler-like | "wash light mark" -> wash-like mark
+"grouty" -> with grouting | "obscure glass" -> obscured glass | "rust in" (location band condition, e.g. "rust in LL") -> rusting
 "grey would affect" -> grey wood effect | "bolt tested" -> bulb tested
 "runner tile splashback" -> run of tiled splashback | "kit plates" -> kickplates
 "hound base" -> handbasin | "toilet system" -> toilet cistern
