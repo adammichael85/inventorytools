@@ -78,55 +78,89 @@ Your checking rules:
 CONVERTED OUTPUT in JSON format:
 ${convertedText.slice(0, 60000)}
 
-Use this exact report layout:
+Use this exact report layout, modelled on a professional QA extraction-comparison check:
 
-I checked rooms only: room headings, item rows, descriptions, and conditions.
+# Extraction Comparison Check — [Property name/address, or "this property" if unknown]
 
-Overall result: the conversion is [brief result], but it is not 100% column-perfect.
+**Original:** PDF full inventory report
+**Converted:** Word document conversion
+**Scope:** Room inventory sections only — Item / Description / Condition. Ignore admin pages, meters, keys, alarms, photos, declarations and "Further Views" rows.
 
-| Check | Result |
-|---|---:|
-| Rooms/areas in PDF | X |
-| Rooms/areas in Word doc | X |
-| Room/area count match | Yes/No |
-| Total room/area rows in PDF | X |
-| Total room/area rows in Word doc | X |
-| Row count match | Yes/No |
-| Row/column placement issues found | X |
-| Overall accuracy | Approx. X% |
+## Overall verdict
 
-The main issue is not missing rooms/areas or missing rows. It is [brief explanation of the main issue].
+Write 2-4 sentences giving a clear, honest overall verdict. State plainly whether this is strong, mixed, or has serious problems. If there are structural failures (missing rooms, room content swapped/leaked between rooms, room boundary failures), say so explicitly and clearly - these are the most serious category of error.
 
-## Specific column errors found
+## Estimated accuracy
 
-If there are no issues, write: No column-placement issues found.
+**Approximate accuracy: X-X%** (give a realistic range, not a single overly-precise number)
 
-IMPORTANT: Only list rows that have ACTUAL errors. Do NOT list rows that are correctly placed just to show you checked them. Do NOT add comments like 'No issue here, correct placement' — simply skip correct rows entirely.
+If there are structural failures, briefly state what the accuracy would be without them, e.g. "If [the specific failure] had not happened, this would be much closer to X%."
 
-If there are issues, list every individual issue under the correct room/area heading:
+---
 
-### ROOM / AREA NAME
-**Wrong column** / **Missing row** / **Extra item not in PDF** / **Duplicated row**
-**Original File:**
-**Item:** ...
-**Description:** ...
-**Condition:** ...
-**Converted Word.doc:**
-**Item:** ...
-**Description:** ...
-**Condition:** ...
+# Room-by-room findings
 
-## Room-by-room result
+For EVERY room/area found in the PDF, write a numbered section:
 
-| Room / Area | Result |
-|---|---|
-| Room/Area Name | Row count matches. No issues found. |
-| Room/Area Name | Row count matches. X column issues found. |
-| Room/Area Name | Row count does not match. X missing/extra rows found. |
+## N. [Room/Area Name]
 
-So the extraction/formatting has captured the room/area data [very well / extremely well / with issues]. There are X remaining issues across X checked room/area rows, giving an estimated accuracy of X%.
+**Result:** One short phrase (Excellent / Good / Mostly good / Mixed / Major problem).
 
-Do not include any introduction or preamble — start directly with "I checked rooms only".`
+A short paragraph describing what the room captures correctly, listing the key items present.
+
+### [Sub-heading like "Main issues" or "Remaining issues" or omit entirely if none]
+
+If there are issues in this room, use a markdown table:
+
+| PDF original | Word doc issue | Error type |
+|---|---|---|
+| **exact PDF wording** | **exact Word doc wording** | Brief description of what went wrong (e.g. "Misread word", "Wrong room leakage", "Missing item", "Nonsense phrase", "Wording error") |
+
+If there are no issues in this room, write: "No major issue." or similar, and do not include an issues table.
+
+### [Room name] verdict
+
+One sentence verdict for this specific room.
+
+---
+
+# Final verdict
+
+A short section summarising whether this is near-final/client-ready, or still needs work, and why.
+
+## Fundamental trust-affecting errors
+
+If there are any high or medium severity errors, use this table (omit entirely if there are none and say "No high-severity trust errors." instead):
+
+| Issue | Severity | Why it matters |
+|---|---:|---|
+| Brief description | **High**/Medium/Low | Why this specific error matters in practice |
+
+## Must-fix corrections
+
+A numbered list of every correction that should be made, grouped by room, in the format:
+
+1. **[Room name]**
+   - Change: **[wrong text]**
+   - To: **[correct text]**
+
+---
+
+# Final discrepancy chart
+
+One master table covering every single issue found across all rooms, for quick reference:
+
+| Room | PDF comment | Word doc comment | Issue between both |
+|---|---|---|---|
+| Room name | exact PDF wording | exact Word doc wording | Brief description of the issue |
+
+---
+
+IMPORTANT FORMATTING RULES:
+- Only include rooms, issues, and table rows for things that have ACTUAL problems. Do not pad the report with rows just to show every room was checked - rooms with no issues just get a brief "No major issue" verdict and nothing else.
+- Always quote exact wording from both the PDF and the Word doc using bold, so the person reading can see precisely what changed.
+- Be direct and honest about severity - do not soften a structural failure (missing room, room leakage, room content swap) by calling it a minor issue.
+- Do not include any introduction or preamble before the report - start directly with the "# Extraction Comparison Check" heading.`
 
     let report = ''
     if (pdfBase64) {
