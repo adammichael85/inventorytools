@@ -21,6 +21,25 @@ function dedupeLines(text: string): string {
   return result.join('\n')
 }
 
+// Checks whether key fixture keywords mentioned in the room's transcript actually made it into
+// the parsed output rows. Catches the case where a room returns SOME rows (so the empty-rows
+// retry doesn't trigger) but is still missing a specific major fixture like a bath - a real
+// non-determinism failure mode seen in QA testing (Bedroom 4 En-Suite bath silently dropping
+// on some runs despite RULE 26 explicitly listing it).
+function findMissingFixtures(transcript: string, rows: any[]): string[] {
+  const keywords = ['bath', 'shower', 'toilet', 'basin', 'radiator', 'towel rail', 'medicine cabinet']
+  const transcriptLower = transcript.toLowerCase()
+  const rowsText = rows.map((r: any) => `${r.item} ${r.description} ${r.condition}`).join(' ').toLowerCase()
+  const missing: string[] = []
+  for (const kw of keywords) {
+    const re = new RegExp('\\b' + kw.replace(' ', '\\s+') + '\\b', 'i')
+    if (re.test(transcriptLower) && !rowsText.includes(kw)) {
+      missing.push(kw)
+    }
+  }
+  return missing
+}
+
 function buildSystemPrompt(roomName: string, items: string[], descs: string[], conds: string[]): string {
   return `You are an expert UK property inventory formatter.
 You are processing ONE room from a UK property inventory inspection.
@@ -686,8 +705,13 @@ ${roomTranscript}`
           // non-deterministic failure to find the room in the transcript. Retry rather than silently
           // dropping the room (this was the root cause of a whole Bathroom vanishing on one run with
           // no prompt change at all - same input, different output).
-          if (rows.length > 0) break
-          console.warn(`Room ${roomName} attempt ${attempt}: parsed successfully but got 0 rows - retrying`)
+          const missingFixtures = findMissingFixtures(roomTranscript, rows)
+          if (rows.length > 0 && missingFixtures.length === 0) break
+          if (missingFixtures.length > 0) {
+            console.warn(`Room ${roomName} attempt ${attempt}: transcript mentions [${missingFixtures.join(', ')}] but output is missing them - retrying`)
+          } else {
+            console.warn(`Room ${roomName} attempt ${attempt}: parsed successfully but got 0 rows - retrying`)
+          }
         } catch (e) {
           console.error(`Room ${roomName} attempt ${attempt} failed:`, e)
         }
