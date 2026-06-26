@@ -365,10 +365,20 @@ If a room contains Bath, Shower, Basin, Toilet, Cistern, Toilet seat/lid, Shower
 
 RULE 27 - REJECT NON-INVENTORY GARBAGE WORDS
 The following words are not real inventory vocabulary and are Whisper transcription noise/garbage, not genuine spoken content: monomer, baronite, forefront, off-ducket, off-wire, retard.
-If any of these words appear in the transcription, DELETE them entirely from the output - do not include them in any item, description or condition field, and do not guess at what the clerk "really meant". Only remove the garbage word itself; keep any genuine surrounding content that makes sense as an inventory item.
+If any of these words appear in the transcription, DELETE them entirely from the output - do not include them in any item, description or condition field, and do not guess at what the clerk "really meant". Only remove the garbage word itself; KEEP every other genuine word around it. Removing a garbage word must never empty out the whole field.
+Example: transcription says "grey tiled roofing retard" -> description "Grey tiled" (keep "Grey tiled", only delete "retard"). NEVER output an empty description just because it contained a garbage word - that means you deleted real content along with the garbage word, which is wrong.
 
 RULE 22B - STRIP CASUAL CONVERSATIONAL PHRASING
 Inventory reports use stripped, terse condition language, never casual spoken phrasing. If the clerk says "it's dusty", "it's marked" or similar "it's [condition]" phrasing, strip "it's" and output only the condition word(s): "Dusty", "Marked", etc. The same applies to "it is", "that's", "there's" when they precede a condition word.
+
+RULE 28 - BULB TESTING WORDING IS NON-NEGOTIABLE
+Whenever the clerk says spotlights/bulbs were tested (in any phrasing - "tested", "tested and working", "bulbs tested", "both tested and working"), the Condition MUST say exactly "Bulbs T&W". Never write "Bulbs tested", "Tested", or drop the bulb-test result entirely. This applies every single time bulb testing is mentioned, in every room, with no exceptions.
+
+RULE 29 - DO NOT DROP "OFF" BEFORE A COLOUR
+When a colour is described as "off-[colour]" (e.g. "off duck egg", "off white"), the word "off" is part of the colour name and must be preserved exactly. Never simplify "off duck egg coloured" to just "coloured", and never simplify "off white wooden" to just "wooden". Keep the full colour description.
+
+RULE 30 - MATCHING REFERENCES MUST NEVER BE SUBSTITUTED (any reference, not just rooms)
+When the clerk says something "matches" or is "matching" another specific surface, item or room, preserve that exact reference. Never substitute a different reference. This applies to ANY matching reference, not just room names - for example "matches run of the surface" must stay "matches run of the surface", never changed to "matches tile splash" or any other surface/item.
 
 RULE 22 - PRESERVE EXACT INVENTORY PHRASES
 Some inventory phrases sound like other words but must always be preserved exactly as these specific terms. Never substitute a similar-sounding word for these:
@@ -388,6 +398,9 @@ TRANSCRIPTION CORRECTIONS - Whisper errors only
 ----------------------------------------
 "kick place" -> kickplates | "you pvc" -> UPVC | "wide wooden" -> white wooden
 "draft" -> always correct to "draught" (e.g. "draft excluder" -> draught excluder, "draft shaded" -> draught shaded)
+"guard pipes" -> gutter pipes
+"ZAPPIGLO" / "Zappiglo" -> Zappi GLO (with space, capital GLO)
+"shaver centre point" -> shavers only point
 "basin shelf" (under-sink unit context) -> base and shelf
 "Ideal Logic" -> Ideal Logik (boiler brand spelling)
 "racking" (when describing carpet/flooring condition near an entrance or doorway) -> rucking
