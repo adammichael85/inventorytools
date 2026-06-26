@@ -360,8 +360,9 @@ INCORRECT: "Dusty\nHairs scaled around the drain" (merges two separate observati
 RULE 25 - MERGE NEAR-DUPLICATE PHRASES, NOT JUST EXACT DUPLICATES
 If two phrases in the same cell express the same thing with slightly different wording (e.g. "Clean and new" followed later by "Clean / new"), keep only one - prefer the more complete phrasing and remove the redundant near-duplicate. This applies even when the wording is not byte-for-byte identical.
 
-RULE 26 - SANITARY FIXTURES MUST NEVER BE DROPPED
-If a room contains Bath, Shower, Basin, Toilet, Cistern, Toilet seat/lid, Shower tray, Bath panel, Bath surround, or Shower screen in the source transcription, those items must be present as their own rows in the final output. Never omit a sanitary fixture that was spoken about, even if the room already has several other fixtures.
+RULE 26 - NAMED FIXTURES MUST NEVER BE DROPPED
+If a room contains Bath, Shower, Basin, Toilet, Cistern, Toilet seat/lid, Shower tray, Bath panel, Bath surround, Shower screen, Radiator, or Light switch in the source transcription, those items must be present as their own rows in the final output. Never omit a named fixture that was spoken about, even if the room already has several other fixtures, and even if it appears right before a parent row like "Entrance to bedroom X".
+Concrete example: if the clerk says "white metal bar radiator caps present then entrance to bedroom 1 brushed metal 4-way light switch", ALL THREE must appear as separate rows: Radiator (White metal bar / Caps present), Entrance to bedroom 1 (parent row, empty description/condition), and Light switch (Brushed metal 4-way). Do not let the radiator or light switch get lost around the parent row.
 
 RULE 27 - REJECT NON-INVENTORY GARBAGE WORDS
 The following words are not real inventory vocabulary and are Whisper transcription noise/garbage, not genuine spoken content: monomer, baronite, forefront, off-ducket, off-wire, retard.
@@ -376,9 +377,22 @@ Whenever the clerk says spotlights/bulbs were tested (in any phrasing - "tested"
 
 RULE 29 - DO NOT DROP "OFF" BEFORE A COLOUR
 When a colour is described as "off-[colour]" (e.g. "off duck egg", "off white"), the word "off" is part of the colour name and must be preserved exactly. Never simplify "off duck egg coloured" to just "coloured", and never simplify "off white wooden" to just "wooden". Keep the full colour description.
+Concrete example that must not happen again: clerk says "doorframe off duck egg coloured" -> CORRECT: "Doorframe / Off duck egg coloured". INCORRECT: "Door frame / Coloured" (this drops both the colour name AND the word "off" - never do this).
+Concrete example: clerk says "reverse of doorframe off white wooden" -> CORRECT: "Reverse of doorframe / Off white wooden". INCORRECT: "Interior frame / Wooden" (drops "off white" entirely).
 
 RULE 30 - MATCHING REFERENCES MUST NEVER BE SUBSTITUTED (any reference, not just rooms)
 When the clerk says something "matches" or is "matching" another specific surface, item or room, preserve that exact reference. Never substitute a different reference. This applies to ANY matching reference, not just room names - for example "matches run of the surface" must stay "matches run of the surface", never changed to "matches tile splash" or any other surface/item.
+
+RULE 30B - MATCHING REFERENCE WORKED EXAMPLE
+Concrete example that must not happen again: clerk says "windowsill matches run of the surface" -> CORRECT: "Windowsill / Matches run of the surface". INCORRECT: "Windowsill / Matches tile splash" (substitutes a completely different, unspoken reference).
+
+RULE 31 - NEVER SILENTLY DROP A TEST RESULT
+If the clerk states a test result (NT, T&W, T&NW, Bulbs T&W, Lock T&W, Fan T&W, etc.) for an item, that result MUST appear in the Condition field. Never drop it entirely, even if the rest of the row's description is short or the row otherwise looks complete without it.
+Concrete example: clerk says "2 spotlights bulbs tested and working" -> CORRECT: "Spotlights / 2 x" with condition "Bulbs T&W". INCORRECT: "Spotlights / 2 x" with no condition at all (the test result has been silently dropped).
+
+RULE 32 - NEVER EXPRESS UNCERTAINTY IN THE OUTPUT
+Always commit to a single best reading of a quantity or detail. Never output hedged/uncertain phrasing like "8 or 2 x", "maybe 3", "looks like 5 or 6". Pick the most likely correct number based on context and state it plainly with no hedge words.
+Concrete example: if the audio is ambiguous between "8" and "2", output just "2 x" (your single best reading) - never "8 or 2 x".
 
 RULE 22 - PRESERVE EXACT INVENTORY PHRASES
 Some inventory phrases sound like other words but must always be preserved exactly as these specific terms. Never substitute a similar-sounding word for these:
