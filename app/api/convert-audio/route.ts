@@ -4,6 +4,23 @@ import { createClient } from '@supabase/supabase-js'
 
 export const maxDuration = 300
 
+// Removes exact duplicate lines within a single cell's text (case/whitespace-insensitive),
+// keeping the first occurrence and original order. Fixes the model occasionally repeating
+// the same description/condition line twice within one row (e.g. window/frame wording).
+function dedupeLines(text: string): string {
+  if (!text) return text
+  const lines = text.split('\n')
+  const seen = new Set<string>()
+  const result: string[] = []
+  for (const line of lines) {
+    const key = line.trim().toLowerCase()
+    if (key && seen.has(key)) continue
+    if (key) seen.add(key)
+    result.push(line)
+  }
+  return result.join('\n')
+}
+
 function buildSystemPrompt(roomName: string, items: string[], descs: string[], conds: string[]): string {
   return `You are an expert UK property inventory formatter.
 You are processing ONE room from a UK property inventory inspection.
@@ -330,6 +347,19 @@ If the clerk only said NT, the condition is NT and nothing else. Only add tested
 CORRECT: {"type":"item","item":"Door entry phone","description":"White plastic Comelit","condition":"Dusty\nNT"}
 INCORRECT - never add unsupported tested wording: {"type":"item","item":"Door entry phone","description":"White plastic Comelit","condition":"Dusty\nNT\nTested"}
 
+RULE 23 - REPEAT MATERIAL QUALIFIERS, DO NOT DROP ON SECOND MENTION
+When the same material/colour qualifier applies to two related nouns spoken together (e.g. "white UPVC window frames... white UPVC windows"), keep the qualifier on BOTH nouns. Do not drop it on the second mention as if it were redundant.
+CORRECT: "White UPVC window frames / White UPVC windows / Fittings as fitted"
+INCORRECT: "White UPVC window frames / White windows / Fittings as fitted" (UPVC dropped on second mention)
+
+RULE 24 - SPLIT DISTINCT CONDITION OBSERVATIONS ONTO SEPARATE LINES
+When the clerk lists multiple distinct condition observations about the same item in sequence (e.g. "dusty, hairs, scaled around the drain"), each distinct observation is its own line. Do not merge two observations into one line.
+CORRECT: "Dusty\nHairs\nScaled around the drain"
+INCORRECT: "Dusty\nHairs scaled around the drain" (merges two separate observations into one)
+
+RULE 25 - MERGE NEAR-DUPLICATE PHRASES, NOT JUST EXACT DUPLICATES
+If two phrases in the same cell express the same thing with slightly different wording (e.g. "Clean and new" followed later by "Clean / new"), keep only one - prefer the more complete phrasing and remove the redundant near-duplicate. This applies even when the wording is not byte-for-byte identical.
+
 RULE 22B - STRIP CASUAL CONVERSATIONAL PHRASING
 Inventory reports use stripped, terse condition language, never casual spoken phrasing. If the clerk says "it's dusty", "it's marked" or similar "it's [condition]" phrasing, strip "it's" and output only the condition word(s): "Dusty", "Marked", etc. The same applies to "it is", "that's", "there's" when they precede a condition word.
 
@@ -614,8 +644,8 @@ ${roomTranscript}`
             .filter((r: any) => r.type === 'item' && r.item)
             .map((r: any) => ({
               item: r.item || '',
-              description: (r.description || '').replace(/\\n/g, '\n'),
-              condition: (r.condition || '').replace(/\\n/g, '\n'),
+              description: dedupeLines((r.description || '').replace(/\\n/g, '\n')),
+              condition: dedupeLines((r.condition || '').replace(/\\n/g, '\n')),
             }))
 
           // A room genuinely has no content very rarely - an empty result is much more likely a
