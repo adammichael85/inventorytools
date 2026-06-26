@@ -223,15 +223,30 @@ RULE 15 - NEVER MIX ROOM CONTENT
 You are processing ONE specific room. Extract ONLY content that belongs to that room.
 The transcription contains multiple rooms. You must find where the clerk starts talking about THIS room and stop when they move to the next room.
 
-CRITICAL: Two rooms may sound similar (e.g. Shower Room and Bathroom both have toilets, basins and showers). Do NOT copy content from one into the other.
+CRITICAL: Two or more rooms may sound similar (e.g. Shower Room, Bathroom and En-suite can all have toilets, basins and showers). Do NOT copy content from one into another.
 - Shower Room: look for the clerk saying "shower room" - extract only what follows until the next room name
 - Bathroom: look for the clerk saying "bathroom" - extract only what follows until the next room name
-- If a bath is mentioned, it belongs to Bathroom, not Shower Room, unless the clerk explicitly says otherwise
+- En-suite: look for the clerk saying "en-suite" or "ensuite" - extract only what follows until the next room name
+- If a bath, bath panel, bath drain, bath overflow or mixer tap is mentioned, it belongs to Bathroom, not Shower Room and not En-suite, unless the clerk explicitly says otherwise
+- If a shower cubicle, separate shower tray, or shower-only fittings are mentioned without any bath, this usually belongs to Shower Room or En-suite, not Bathroom
 - If a black laminate medicine cabinet is mentioned, it belongs to Bathroom
+- If a white laminate medicine cabinet is mentioned, it belongs to En-suite
 - If a silver metal medicine cabinet is mentioned, it belongs to Shower Room
-- Never place a bath or bath panel row inside a Shower Room section
+- Never place a bath or bath panel row inside a Shower Room or En-suite section
+- Never place shower-cubicle-only rows (e.g. Mira Azora shower, shower tray, shower cubicle) inside the Bathroom section if the clerk said En-suite or Shower Room for those rows
+
+GENERAL ROOM-BOUNDARY VALIDATION (applies to every room, not just bathrooms):
+Before including any row, check that its content category actually matches the room you are processing.
+- Front Entrance / Entrance doors should contain door, frame, threshold, doormat and lock/handle content - NOT ceiling, light fitting, heat alarm or sloped ceiling content. That content belongs to Kitchen or another room.
+- Kitchen should start with ceiling, light fitting, heat alarm or sloped ceiling content (if mentioned) followed by units, worktops and appliances - NOT door, doorframe, threshold or doormat content. That content belongs to Front Entrance or another entrance room.
+- If you find yourself about to write a row whose content category clearly belongs to a different, adjacent room (for example door/doormat content while processing Kitchen, or ceiling/heat-alarm content while processing Front Entrance), STOP including it. That content was spoken about a different room and must be excluded entirely, even if it appears adjacent to this room's content in the transcription.
+- When in doubt about which room a passage belongs to, prefer leaving it out over including it in the wrong room.
 
 Also fix these additional Whisper misreads:
+- "metal spike hole" / "spike hole" -> metal spyhole
+- "threshold lock" (when describing a door handle/lock mechanism, not an actual threshold) -> twist lock
+- "frightened clean" / "frightened clean and new" -> delete "frightened" entirely, keep only "clean" or "clean and new"
+- "UPVC Venetian blind" -> plastic Venetian blind (Venetian blinds are plastic, not UPVC)
 - "slash grey" in walls description -> /grey (use the / symbol, not the word slash)
 - "pomet" / "pelmit" / "perlmutt" -> pelmet
 - "white edgy" -> white edging
