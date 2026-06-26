@@ -360,6 +360,13 @@ INCORRECT: "Dusty\nHairs scaled around the drain" (merges two separate observati
 RULE 25 - MERGE NEAR-DUPLICATE PHRASES, NOT JUST EXACT DUPLICATES
 If two phrases in the same cell express the same thing with slightly different wording (e.g. "Clean and new" followed later by "Clean / new"), keep only one - prefer the more complete phrasing and remove the redundant near-duplicate. This applies even when the wording is not byte-for-byte identical.
 
+RULE 26 - SANITARY FIXTURES MUST NEVER BE DROPPED
+If a room contains Bath, Shower, Basin, Toilet, Cistern, Toilet seat/lid, Shower tray, Bath panel, Bath surround, or Shower screen in the source transcription, those items must be present as their own rows in the final output. Never omit a sanitary fixture that was spoken about, even if the room already has several other fixtures.
+
+RULE 27 - REJECT NON-INVENTORY GARBAGE WORDS
+The following words are not real inventory vocabulary and are Whisper transcription noise/garbage, not genuine spoken content: monomer, baronite, forefront, off-ducket, off-wire, retard.
+If any of these words appear in the transcription, DELETE them entirely from the output - do not include them in any item, description or condition field, and do not guess at what the clerk "really meant". Only remove the garbage word itself; keep any genuine surrounding content that makes sense as an inventory item.
+
 RULE 22B - STRIP CASUAL CONVERSATIONAL PHRASING
 Inventory reports use stripped, terse condition language, never casual spoken phrasing. If the clerk says "it's dusty", "it's marked" or similar "it's [condition]" phrasing, strip "it's" and output only the condition word(s): "Dusty", "Marked", etc. The same applies to "it is", "that's", "there's" when they precede a condition word.
 
