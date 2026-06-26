@@ -330,6 +330,9 @@ If the clerk only said NT, the condition is NT and nothing else. Only add tested
 CORRECT: {"type":"item","item":"Door entry phone","description":"White plastic Comelit","condition":"Dusty\nNT"}
 INCORRECT - never add unsupported tested wording: {"type":"item","item":"Door entry phone","description":"White plastic Comelit","condition":"Dusty\nNT\nTested"}
 
+RULE 22B - STRIP CASUAL CONVERSATIONAL PHRASING
+Inventory reports use stripped, terse condition language, never casual spoken phrasing. If the clerk says "it's dusty", "it's marked" or similar "it's [condition]" phrasing, strip "it's" and output only the condition word(s): "Dusty", "Marked", etc. The same applies to "it is", "that's", "there's" when they precede a condition word.
+
 RULE 22 - PRESERVE EXACT INVENTORY PHRASES
 Some inventory phrases sound like other words but must always be preserved exactly as these specific terms. Never substitute a similar-sounding word for these:
 - "rucking" (carpet/flooring condition, e.g. "slightly rucking on entrance") - never write "racking"
@@ -348,6 +351,8 @@ TRANSCRIPTION CORRECTIONS - Whisper errors only
 ----------------------------------------
 "kick place" -> kickplates | "you pvc" -> UPVC | "wide wooden" -> white wooden
 "draft" -> always correct to "draught" (e.g. "draft excluder" -> draught excluder, "draft shaded" -> draught shaded)
+"basin shelf" (under-sink unit context) -> base and shelf
+"Ideal Logic" -> Ideal Logik (boiler brand spelling)
 "racking" (when describing carpet/flooring condition near an entrance or doorway) -> rucking
 "filler light" -> filler-like | "wash light mark" -> wash-like mark
 "grouty" -> with grouting | "obscure glass" -> obscured glass | "rust in" (location band condition, e.g. "rust in LL") -> rusting
@@ -588,7 +593,7 @@ Room: ${roomName}
 TRANSCRIPTION:
 ${roomTranscript}`
 
-      let parsed: any[] = []
+      let rows: any[] = []
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           const response = await openai.chat.completions.create({
@@ -602,22 +607,32 @@ ${roomTranscript}`
           const raw = response.choices[0].message.content || ''
           console.log(`Room ${roomName} raw (first 300):`, raw.slice(0, 300))
           const cleaned = raw.replace(/```json/g, '').replace(/```/g, '').trim()
-          parsed = JSON.parse(cleaned)
-          console.log(`Room ${roomName}: ${parsed.length} entries parsed`)
-          break
+          const parsed = JSON.parse(cleaned)
+          console.log(`Room ${roomName} attempt ${attempt}: ${parsed.length} entries parsed`)
+
+          rows = parsed
+            .filter((r: any) => r.type === 'item' && r.item)
+            .map((r: any) => ({
+              item: r.item || '',
+              description: (r.description || '').replace(/\\n/g, '\n'),
+              condition: (r.condition || '').replace(/\\n/g, '\n'),
+            }))
+
+          // A room genuinely has no content very rarely - an empty result is much more likely a
+          // non-deterministic failure to find the room in the transcript. Retry rather than silently
+          // dropping the room (this was the root cause of a whole Bathroom vanishing on one run with
+          // no prompt change at all - same input, different output).
+          if (rows.length > 0) break
+          console.warn(`Room ${roomName} attempt ${attempt}: parsed successfully but got 0 rows - retrying`)
         } catch (e) {
           console.error(`Room ${roomName} attempt ${attempt} failed:`, e)
-          if (attempt === 3) parsed = []
         }
+        if (attempt < 3) await new Promise(r => setTimeout(r, 500))
       }
 
-      const rows = parsed
-        .filter((r: any) => r.type === 'item' && r.item)
-        .map((r: any) => ({
-          item: r.item || '',
-          description: (r.description || '').replace(/\\n/g, '\n'),
-          condition: (r.condition || '').replace(/\\n/g, '\n'),
-        }))
+      if (rows.length === 0) {
+        console.error(`Room ${roomName}: 0 rows after 3 attempts - this room may be missing from the final document`)
+      }
 
       return { roomName, rows }
     }))
