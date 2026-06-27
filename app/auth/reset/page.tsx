@@ -21,6 +21,11 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [brand, setBrand] = useState<Brand>(DEFAULT_BRAND)
+  const [revealed, setRevealed] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setRevealed(true), 1000)
+    return () => clearTimeout(t)
+  }, [])
 
   useEffect(() => {
     async function resolveBrandForUser(userId: string) {
@@ -75,7 +80,11 @@ export default function ResetPassword() {
   const input = { width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e8e8e8', fontFamily: 'inherit', fontSize: 14, outline: 'none', boxSizing: 'border-box' as const }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
+    <div style={{
+      minHeight: '100vh', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Helvetica Neue', Arial, sans-serif",
+      filter: revealed ? 'none' : 'grayscale(0.9) blur(8px)',
+      transition: 'filter 0.4s ease',
+    }}>
       <div style={{ background: '#fff', borderRadius: 16, padding: 40, width: '100%', maxWidth: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           {brand.logo_url ? (
