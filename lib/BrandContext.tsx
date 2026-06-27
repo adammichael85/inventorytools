@@ -60,15 +60,13 @@ export function useBrand() {
 
 export function BrandProvider({ children }: { children: React.ReactNode }) {
   const cachedAtStart = getCachedBrand()
+  // Trust any cached brand immediately, regardless of age - this is what's shown instantly on
+  // every refresh, with zero flash of default colors. We still silently re-validate in the
+  // background below, but never block or revert to default while that happens.
   const [brand, setBrand] = useState<Brand>(cachedAtStart || DEFAULT_BRAND)
-  const [ready, setReady] = useState<boolean>(!!cachedAtStart && isCacheFresh())
+  const [ready, setReady] = useState<boolean>(!!cachedAtStart)
 
   useEffect(() => {
-    if (cachedAtStart && isCacheFresh()) {
-      setReady(true)
-      return
-    }
-
     async function resolveBrand() {
       let resolved: Brand = DEFAULT_BRAND
 
