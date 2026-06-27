@@ -24,6 +24,32 @@ export default function Home() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
+  const [stats, setStats] = useState<any>(null)
+  useEffect(() => {
+    fetch('/api/landing-stats').then(r => r.json()).then(d => { if (!d.error) setStats(d) }).catch(() => {})
+  }, [])
+
+  function fmtDuration(totalSeconds: number): string {
+    const h = Math.floor(totalSeconds / 3600)
+    const m = Math.round((totalSeconds % 3600) / 60)
+    if (h > 0) return `${h}h ${m}m`
+    const s = Math.round(totalSeconds % 60)
+    return m > 0 ? `${m}m ${s}s` : `${s}s`
+  }
+
+  function Stars({ rating }: { rating: number }) {
+    const rounded = Math.round(rating)
+    return (
+      <span style={{ display: 'inline-flex', gap: 1 }}>
+        {[1,2,3,4,5].map(i => (
+          <svg key={i} width="13" height="13" viewBox="0 0 24 24" fill={i <= rounded ? '#FD6A02' : '#E3E7E9'}>
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01z" />
+          </svg>
+        ))}
+      </span>
+    )
+  }
+
   const BG = '#F3F5F6', SURFACE = '#FFFFFF', BORDER = '#E3E7E9', INK = '#11151A', ACCENT = '#FD6A02', ACCENT_SOFT = '#FFF1E6', MUTED = '#6B7780'
 
   return (
@@ -55,6 +81,48 @@ export default function Home() {
           <p style={{ fontSize: 16.5, color: MUTED, maxWidth: 480, margin: '0 auto' }}>Pick your starting point — a PDF or a voice recording — and walk away with a finished Word report in minutes.</p>
         </div>
       </section>
+
+      {/* LIVE STATS */}
+      {stats && (stats.pdf.total_reports > 0 || stats.audio.total_reports > 0) && (
+        <section className="rise-2" style={{ maxWidth: 1000, margin: '0 auto', padding: isMobile ? '0 6vw 50px' : '0 6vw 70px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: isMobile ? 10 : 28, marginBottom: 28 }}>
+            {stats.pdf.rating_count > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: MUTED }}>
+                <Stars rating={stats.pdf.avg_rating} /> <strong style={{ color: INK }}>{stats.pdf.avg_rating}/5</strong> from {stats.pdf.total_reports} PDF conversions
+              </div>
+            )}
+            {stats.audio.rating_count > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: MUTED }}>
+                <Stars rating={stats.audio.avg_rating} /> <strong style={{ color: INK }}>{stats.audio.avg_rating}/5</strong> from {stats.audio.total_reports} Audio conversions
+              </div>
+            )}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
+            <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 24 }}>
+              <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>PDF to Word</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+                {[[stats.pdf.total_reports, 'reports converted'],[stats.pdf.total_rooms, 'rooms converted'],[fmtDuration(stats.pdf.avg_conversion_seconds), 'avg conversion time']].map(([big, small]: any) => (
+                  <div key={small}>
+                    <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 800, letterSpacing: -0.5, marginBottom: 2 }}>{big}</p>
+                    <p style={{ fontSize: 11.5, color: MUTED, lineHeight: 1.3 }}>{small}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 24 }}>
+              <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>Audio to Word</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+                {[[stats.audio.total_reports, 'reports converted'],[fmtDuration(stats.audio.total_audio_seconds), 'audio uploaded'],[fmtDuration(stats.audio.total_convert_seconds), 'converted in']].map(([big, small]: any) => (
+                  <div key={small}>
+                    <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 800, letterSpacing: -0.5, marginBottom: 2 }}>{big}</p>
+                    <p style={{ fontSize: 11.5, color: MUTED, lineHeight: 1.3 }}>{small}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* TOOL CARDS */}
       <section style={{ maxWidth: 1000, margin: '0 auto', padding: isMobile ? '0 6vw 70px' : '0 6vw 100px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 22 }}>
