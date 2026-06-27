@@ -66,6 +66,17 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   const [brand, setBrand] = useState<Brand>(cachedAtStart || DEFAULT_BRAND)
   const [ready, setReady] = useState<boolean>(!!cachedAtStart)
 
+  // Masks the brief flash of default (orange) branding before the real cached/resolved brand
+  // takes effect, by greying out the whole page for a fixed short window on every fresh load -
+  // pure CSS, no server-side brand detection needed. Whatever colour briefly shows underneath
+  // is desaturated to grey, so the flash becomes invisible, then everything fades into the
+  // correct colour once the window ends.
+  const [revealed, setRevealed] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setRevealed(true), 500)
+    return () => clearTimeout(t)
+  }, [])
+
   useEffect(() => {
     async function resolveBrand() {
       let resolved: Brand = DEFAULT_BRAND
@@ -144,7 +155,12 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <BrandContext.Provider value={brand}>
-      {children}
+      <div style={{
+        filter: revealed ? 'grayscale(0)' : 'grayscale(1)',
+        transition: 'filter 0.3s ease',
+      }}>
+        {children}
+      </div>
     </BrandContext.Provider>
   )
 }
