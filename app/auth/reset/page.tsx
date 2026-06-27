@@ -87,12 +87,14 @@ export default function ResetPassword() {
     }}>
       <div style={{ background: '#fff', borderRadius: 16, padding: 40, width: '100%', maxWidth: 400, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          {brand.logo_url ? (
+          {revealed && brand.logo_url ? (
             <img src={brand.logo_url} alt={brand.display_name} style={{ height: 48, width: 'auto', margin: '0 auto 12px', display: 'block' }} />
-          ) : (
+          ) : revealed ? (
             <div style={{ width: 48, height: 48, background: T, borderRadius: 12, margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="28" height="28" viewBox="0 0 120 120" fill="none"><rect width="120" height="120" rx="26" fill="rgba(255,255,255,0.2)"/><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
+          ) : (
+            <div style={{ height: 48, margin: '0 auto 12px' }} />
           )}
           <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: '#1a1a2e' }}>Set new password</h1>
         </div>
