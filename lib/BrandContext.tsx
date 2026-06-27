@@ -120,6 +120,10 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
         sessionStorage.setItem(CACHE_TIME_KEY, Date.now().toString())
       } catch (e) { /* ignore */ }
 
+      if (typeof document !== 'undefined' && resolved.display_name) {
+        document.title = resolved.display_name
+      }
+
       if (resolved.favicon_url && typeof document !== 'undefined') {
         const existingIcons = document.querySelectorAll("link[rel='icon'], link[rel='shortcut icon']")
         existingIcons.forEach(el => el.remove())
@@ -137,6 +141,13 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
     }
 
     resolveBrand()
+  }, [])
+
+  // Apply cached title immediately too, for instant correctness on repeat visits
+  useEffect(() => {
+    if (cachedAtStart?.display_name && typeof document !== 'undefined') {
+      document.title = cachedAtStart.display_name
+    }
   }, [])
 
   // Apply cached favicon immediately too, for instant correctness on repeat visits
