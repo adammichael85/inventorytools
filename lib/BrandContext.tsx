@@ -147,16 +147,6 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   return (
     <BrandContext.Provider value={brand}>
       {children}
-      {!ready && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(245,245,245,0.97)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          zIndex: 99999,
-        }} />
-      )}
     </BrandContext.Provider>
   )
 }
