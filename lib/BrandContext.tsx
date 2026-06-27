@@ -1,5 +1,6 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export type Brand = {
@@ -71,11 +72,14 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   // pure CSS, no server-side brand detection needed. Whatever colour briefly shows underneath
   // is desaturated to grey, so the flash becomes invisible, then everything fades into the
   // correct colour once the window ends.
+  const pathname = usePathname()
+  const shouldMask = pathname?.startsWith('/dashboard') ?? false
   const [revealed, setRevealed] = useState(false)
   useEffect(() => {
+    if (!shouldMask) { setRevealed(true); return }
     const t = setTimeout(() => setRevealed(true), 500)
     return () => clearTimeout(t)
-  }, [])
+  }, [shouldMask])
 
   useEffect(() => {
     async function resolveBrand() {
@@ -156,7 +160,7 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   return (
     <BrandContext.Provider value={brand}>
       <div style={{
-        filter: revealed ? 'grayscale(0)' : 'grayscale(1)',
+        filter: shouldMask && !revealed ? 'grayscale(1)' : 'grayscale(0)',
         transition: 'filter 0.3s ease',
       }}>
         {children}
