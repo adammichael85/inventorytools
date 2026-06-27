@@ -69,7 +69,10 @@ export async function POST(req: NextRequest) {
 
           if (brandRow?.send_domain) {
             redirectDomain = brandRow.send_domain
-            redirectPath = brandRow.company_name === 'InventoryTools' ? '/auth/reset' : '/oj-login'
+            // Always use /auth/reset for every brand - it already resolves the correct branding
+            // via the logged-in recovery session, not the hostname. /oj-login is a sign-in page
+            // with no "set new password" form, so it must never be used as a reset destination.
+            redirectPath = '/auth/reset'
           }
         }
       }
