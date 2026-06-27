@@ -50,6 +50,25 @@ export default function Home() {
     )
   }
 
+  function CountUp({ value, formatter }: { value: number, formatter?: (n: number) => string }) {
+    const [display, setDisplay] = useState(0)
+    useEffect(() => {
+      let start: number | null = null
+      let raf: number
+      const duration = 1100
+      function step(timestamp: number) {
+        if (start === null) start = timestamp
+        const progress = Math.min((timestamp - start) / duration, 1)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        setDisplay(Math.round(eased * value))
+        if (progress < 1) raf = requestAnimationFrame(step)
+      }
+      raf = requestAnimationFrame(step)
+      return () => cancelAnimationFrame(raf)
+    }, [value])
+    return <>{formatter ? formatter(display) : display}</>
+  }
+
   const BG = '#F3F5F6', SURFACE = '#FFFFFF', BORDER = '#E3E7E9', INK = '#11151A', ACCENT = '#FD6A02', ACCENT_SOFT = '#FFF1E6', MUTED = '#6B7780'
 
   return (
@@ -101,9 +120,9 @@ export default function Home() {
             <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 24 }}>
               <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>PDF to Word</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
-                {[[stats.pdf.total_reports, 'reports converted'],[stats.pdf.total_rooms, 'rooms converted'],[fmtDuration(stats.pdf.avg_conversion_seconds), 'avg conversion time']].map(([big, small]: any) => (
+                {[[stats.pdf.total_reports, 'reports converted', undefined],[stats.pdf.total_rooms, 'rooms converted', undefined],[stats.pdf.avg_conversion_seconds, 'avg conversion time', fmtDuration]].map(([val, small, formatter]: any) => (
                   <div key={small}>
-                    <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 800, letterSpacing: -0.5, marginBottom: 2 }}>{big}</p>
+                    <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 800, letterSpacing: -0.5, marginBottom: 2 }}><CountUp value={val} formatter={formatter} /></p>
                     <p style={{ fontSize: 11.5, color: MUTED, lineHeight: 1.3 }}>{small}</p>
                   </div>
                 ))}
@@ -112,9 +131,9 @@ export default function Home() {
             <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 24 }}>
               <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, color: ACCENT, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>Audio to Word</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
-                {[[stats.audio.total_reports, 'reports converted'],[fmtDuration(stats.audio.total_audio_seconds), 'audio uploaded'],[fmtDuration(stats.audio.total_convert_seconds), 'converted in']].map(([big, small]: any) => (
+                {[[stats.audio.total_reports, 'reports converted', undefined],[stats.audio.total_audio_seconds, 'audio uploaded', fmtDuration],[stats.audio.total_convert_seconds, 'converted in', fmtDuration]].map(([val, small, formatter]: any) => (
                   <div key={small}>
-                    <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 800, letterSpacing: -0.5, marginBottom: 2 }}>{big}</p>
+                    <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 800, letterSpacing: -0.5, marginBottom: 2 }}><CountUp value={val} formatter={formatter} /></p>
                     <p style={{ fontSize: 11.5, color: MUTED, lineHeight: 1.3 }}>{small}</p>
                   </div>
                 ))}
