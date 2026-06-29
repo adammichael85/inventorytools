@@ -60,6 +60,19 @@ export async function POST(req: NextRequest) {
     } else {
       console.log(`Top-up confirmed: ${companyName} +£${topupAmountPounds.toFixed(2)} → new balance £${newBalance.toFixed(2)}`)
     }
+
+    const invoiceNumber = 'TU-' + paymentIntent.id.slice(-8).toUpperCase()
+    const { error: txnError } = await supabase.from('transactions').insert({
+      user_id: metadata.user_id || null,
+      company_name: companyName,
+      amount: topupAmountPounds,
+      description: 'Balance top-up',
+      stripe_payment_id: paymentIntent.id,
+      invoice_number: invoiceNumber,
+    })
+    if (txnError) {
+      console.error('Webhook: failed to insert transaction record:', txnError.message)
+    }
   }
 
   return NextResponse.json({ received: true })

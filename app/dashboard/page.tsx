@@ -2050,6 +2050,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               </div>
 
               {userRole === 'admin' && (
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20, alignItems: 'start' }}>
                 <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                   <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Invoice history</h3>
@@ -2075,10 +2076,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     </table>
                   )}
                 </div>
-              )}
 
-              {userRole === 'admin' && (
-                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden', marginTop: 20 }}>
+                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
                   <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}` }}>
                     <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px' }}>Usage invoices</h3>
                     <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Download a report of completed conversions and their cost for your own accounting records.</p>
@@ -2142,6 +2141,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                       )
                     })()}
                   </div>
+                </div>
                 </div>
               )}
             </div>
