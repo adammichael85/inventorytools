@@ -1153,6 +1153,31 @@ export default function Dashboard() {
     }
   }
 
+  async function downloadTransactionInvoicePDF(t: any) {
+    try {
+      const { jsPDF } = await import('jspdf')
+      const doc = new jsPDF()
+      doc.setFontSize(18)
+      doc.setFont('helvetica', 'bold')
+      doc.text(brand.display_name || 'InventoryTools', 14, 20)
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'normal')
+      doc.text('Invoice', 14, 28)
+      doc.setFontSize(9)
+      doc.setTextColor(120)
+      doc.text(`Invoice #: ${t.invoice_number || '—'}`, 14, 38)
+      doc.text(`Date: ${new Date(t.created_at).toLocaleDateString('en-GB')}`, 14, 44)
+      doc.text(`Description: ${t.description || 'Balance top-up'}`, 14, 50)
+      doc.setTextColor(0)
+      doc.setFontSize(13)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`Amount: £${Number(t.amount).toFixed(2)}`, 14, 62)
+      doc.save(`invoice-${t.invoice_number || t.id}.pdf`)
+    } catch (e) {
+      alert('Failed to generate invoice PDF')
+    }
+  }
+
   async function generateAccuracyReport(conv: any) {
     setGeneratingReport(true)
     setShowAccuracyConfirm(null)
@@ -2069,7 +2094,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                             <td style={{ padding: '12px 20px', fontSize: 13, fontFamily: 'monospace' }}>{t.invoice_number || '—'}</td>
                             <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{t.description || 'Balance top-up'}</td>
                             <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£{Number(t.amount).toFixed(2)}</td>
-                            <td style={{ padding: '12px 20px' }}><button style={{ fontSize: 12, color: TEAL, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Download</button></td>
+                            <td style={{ padding: '12px 20px' }}><button onClick={() => downloadTransactionInvoicePDF(t)} style={{ padding: '8px 16px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>↓ Download</button></td>
                           </tr>
                         ))}
                       </tbody>
