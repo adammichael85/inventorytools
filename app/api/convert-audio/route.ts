@@ -431,6 +431,7 @@ TRANSCRIPTION CORRECTIONS - Whisper errors only
 ----------------------------------------
 "kick place" -> kickplates | "you pvc" -> UPVC | "wide wooden" -> white wooden
 "draft" -> always correct to "draught" (e.g. "draft excluder" -> draught excluder, "draft shaded" -> draught shaded)
+"toilet window seal" / "toilet window sill" -> tiled window seal (Whisper mishears "tiled" as "toilet" in this specific phrase)
 "guard pipes" -> gutter pipes
 "ZAPPIGLO" / "Zappiglo" -> Zappi GLO (with space, capital GLO)
 "shaver centre point" -> shavers only point
@@ -705,7 +706,13 @@ ${roomTranscript}`
           // non-deterministic failure to find the room in the transcript. Retry rather than silently
           // dropping the room (this was the root cause of a whole Bathroom vanishing on one run with
           // no prompt change at all - same input, different output).
-          const missingFixtures = findMissingFixtures(roomTranscript, rows)
+          // Only check for missing fixtures on rooms that are actually bathroom-type by name -
+          // checking this on every room caused false positives (e.g. "toilet" appearing incidentally
+          // in a Kitchen transcript via a Whisper mishearing, which can never legitimately appear in
+          // Kitchen output, so the check could never pass and burned all 3 retries - each retry on a
+          // large room can take 70-100+ seconds, which was blowing through the function's 300s timeout).
+          const isBathroomTypeRoom = /bath|shower|\bwc\b|toilet|en-?suite/i.test(roomName)
+          const missingFixtures = isBathroomTypeRoom ? findMissingFixtures(roomTranscript, rows) : []
           if (rows.length > 0 && missingFixtures.length === 0) break
           if (missingFixtures.length > 0) {
             console.warn(`Room ${roomName} attempt ${attempt}: transcript mentions [${missingFixtures.join(', ')}] but output is missing them - retrying`)

@@ -1007,6 +1007,8 @@ export default function Dashboard() {
   const [accessToken, setAccessToken] = useState('')
   const [credits, setCredits] = useState(0)
   const [userName, setUserName] = useState('')
+  const [companyAddress, setCompanyAddress] = useState('')
+  const [companyPhone, setCompanyPhone] = useState('')
   const [userRole, setUserRole] = useState('user')
   const [pdfEnabled, setPdfEnabled] = useState(true)
   const [audioEnabled, setAudioEnabled] = useState(true)
@@ -1331,9 +1333,11 @@ export default function Dashboard() {
         }
       })
       supabase.from('user_stats').select('*').eq('user_id', session.user.id).single().then(({ data: stats }) => { if (stats) setUserStats(stats) })
-      // Load transaction/invoice history for this company
-      supabase.from('profiles').select('company_name').eq('id', session.user.id).single().then(({ data: me }) => {
+      // Load transaction/invoice history for this company, plus company address/phone for invoice headers
+      supabase.from('profiles').select('company_name, company_address, company_phone').eq('id', session.user.id).single().then(({ data: me }) => {
         if (me?.company_name) {
+          setCompanyAddress(me.company_address || '')
+          setCompanyPhone(me.company_phone || '')
           supabase.from('transactions').select('*').eq('company_name', me.company_name).order('created_at', { ascending: false }).then(({ data: txns }) => {
             if (txns) setTransactions(txns)
           })
