@@ -48,6 +48,22 @@ export async function POST(req: NextRequest) {
     })
     if (error) throw new Error(error.message)
 
+    // Ensure a companies row exists for this company (first signup for a new company)
+    const { data: existingCompany } = await supabase
+      .from('companies')
+      .select('company_name')
+      .eq('company_name', companyName)
+      .maybeSingle()
+
+    if (!existingCompany) {
+      const { error: companyInsertError } = await supabase
+        .from('companies')
+        .insert({ company_name: companyName, balance: 0 })
+      if (companyInsertError) {
+        console.error('Failed to create companies row for', companyName, companyInsertError.message)
+      }
+    }
+
     // Only mark the invite as used once the profile has actually been created successfully
     if (body.invite_token) {
       await supabase.from('invites').update({ used: true }).eq('token', body.invite_token)

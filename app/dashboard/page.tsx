@@ -6,6 +6,10 @@ import { convertPDF, convertPDFVision, convertWordDoc } from './convert-action'
 import { PDFDocument } from 'pdf-lib'
 import { supabase } from '@/lib/supabase'
 import { useBrand } from '@/lib/BrandContext'
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 const BORDER = '#E3E7E9'
 const BG = '#F3F5F6'
@@ -903,6 +907,59 @@ function DeleteAccountButton({ supabase, profile, userEmail }: any) {
   return null
 }
 
+function TopupCheckoutForm({ amount, primaryColor, borderColor, mutedColor, onSuccess, onCancel }: { amount: number, primaryColor: string, borderColor: string, mutedColor: string, onSuccess: () => void, onCancel: () => void }) {
+  const stripe = useStripe()
+  const elements = useElements()
+  const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!stripe || !elements) return
+    setLoading(true)
+    setErrorMsg('')
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      redirect: 'if_required',
+    })
+    if (error) {
+      setErrorMsg(error.message || 'Payment failed. Please try again.')
+      setLoading(false)
+      return
+    }
+    if (paymentIntent && paymentIntent.status === 'succeeded') {
+      onSuccess()
+    } else {
+      setErrorMsg('Payment did not complete. Please try again.')
+      setLoading(false)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <PaymentElement />
+      {errorMsg && (
+        <p style={{ fontSize: 12, color: '#DC2626', marginTop: 10 }}>{errorMsg}</p>
+      )}
+      <button
+        type="submit"
+        disabled={!stripe || loading}
+        style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: loading ? mutedColor : primaryColor, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', marginTop: 16 }}
+      >
+        {loading ? 'Processing…' : `Pay £${amount.toFixed(2)} securely`}
+      </button>
+      <button
+        type="button"
+        onClick={onCancel}
+        disabled={loading}
+        style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${borderColor}`, background: 'transparent', color: mutedColor, fontFamily: 'inherit', fontSize: 13, cursor: loading ? 'default' : 'pointer', marginTop: 8 }}
+      >
+        Cancel
+      </button>
+    </form>
+  )
+}
+
 export default function Dashboard() {
   const brand = useBrand()
   const TEAL = brand.primary_color
@@ -940,6 +997,12 @@ export default function Dashboard() {
   const [cleanPdfResult, setCleanPdfResult] = useState<{ base64: string, filename: string } | null>(null)
   const [topupAmount, setTopupAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState('')
+  const [topupStep, setTopupStep] = useState<'select' | 'pay'>('select')
+  const [topupClientSecret, setTopupClientSecret] = useState('')
+  const [topupCustomerSession, setTopupCustomerSession] = useState('')
+  const [topupLoading, setTopupLoading] = useState(false)
+  const [topupError, setTopupError] = useState('')
+  const [topupSuccess, setTopupSuccess] = useState(false)
   const [userEmail, setUserEmail] = useState('')
   const [accessToken, setAccessToken] = useState('')
   const [credits, setCredits] = useState(0)
@@ -2519,7 +2582,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       )}
 
       {/* TOPUP MODAL */}
-      {showTopup && (() => { const finalAmount = topupAmount || (customAmount ? parseFloat(customAmount) : null); return (
+      {showTopup && (() => { const finalAmount = topupAmount || (customAmount ? parseFloat(customAmount) : null); const closeTopup = () => { setShowTopup(false); setTopupStep('select'); setTopupClientSecret(''); setTopupCustomerSession(''); setTopupError(''); setTopupSuccess(false) }; return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
             <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 440, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
               <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -2527,28 +2590,78 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                   <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>Top up balance</p>
                   <p style={{ fontSize: 12, color: HINT, margin: 0 }}>Balance never expires · Non-refundable</p>
                 </div>
-                <button onClick={() => setShowTopup(false)} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
+                <button onClick={closeTopup} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
               </div>
-              <div style={{ padding: '16px 24px', borderBottom: `1px solid ${BORDER}` }}>
-                <p style={{ fontSize: 12, color: HINT, margin: '0 0 4px' }}>Pricing varies by property size · Balance never expires</p>
-              </div>
-              <div style={{ padding: '18px 24px' }}>
-                <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 10 }}>Quick select:</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
-                  {[20,30,40,50,100,150,200].map(amt => (
-                    <button key={amt} onClick={() => { setTopupAmount(amt); setCustomAmount('') }} style={{ padding: '8px 16px', borderRadius: 8, border: `1.5px solid ${topupAmount === amt ? TEAL : BORDER}`, background: topupAmount === amt ? TEAL : 'transparent', color: topupAmount === amt ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>£{amt}</button>
-                  ))}
+              {topupStep === 'select' ? (
+                <>
+                  <div style={{ padding: '16px 24px', borderBottom: `1px solid ${BORDER}` }}>
+                    <p style={{ fontSize: 12, color: HINT, margin: '0 0 4px' }}>Pricing varies by property size · Balance never expires</p>
+                  </div>
+                  <div style={{ padding: '18px 24px' }}>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 10 }}>Quick select:</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+                      {[20,30,40,50,100,150,200].map(amt => (
+                        <button key={amt} onClick={() => { setTopupAmount(amt); setCustomAmount('') }} style={{ padding: '8px 16px', borderRadius: 8, border: `1.5px solid ${topupAmount === amt ? TEAL : BORDER}`, background: topupAmount === amt ? TEAL : 'transparent', color: topupAmount === amt ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>£{amt}</button>
+                      ))}
+                    </div>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 8 }}>Or enter custom amount (minimum £20):</p>
+                    <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${BORDER}`, borderRadius: 8, overflow: 'hidden', marginBottom: 20 }}>
+                      <span style={{ padding: '10px 12px', background: BG, color: MUTED, fontSize: 14, fontWeight: 600, borderRight: `1px solid ${BORDER}` }}>£</span>
+                      <input type="number" min="20" placeholder="20.00" value={customAmount} onChange={e => { setCustomAmount(e.target.value); setTopupAmount(null) }} style={{ flex: 1, padding: '10px 12px', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 14 }} />
+                    </div>
+                    {topupError && <p style={{ fontSize: 12, color: '#DC2626', marginBottom: 12 }}>{topupError}</p>}
+                    <button
+                      disabled={!finalAmount || finalAmount < 20 || topupLoading}
+                      onClick={async () => {
+                        setTopupError('')
+                        setTopupLoading(true)
+                        try {
+                          const sess = await supabase.auth.getSession()
+                          const uid = sess.data.session?.user.id
+                          if (!uid) throw new Error('Not logged in')
+                          const res = await fetch('/api/create-payment-intent', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ user_id: uid, amount: finalAmount }),
+                          })
+                          const data = await res.json()
+                          if (!res.ok) throw new Error(data.error || 'Failed to start payment')
+                          setTopupClientSecret(data.clientSecret)
+                          setTopupCustomerSession(data.customerSessionClientSecret)
+                          setTopupStep('pay')
+                        } catch (e: any) {
+                          setTopupError(e.message || 'Something went wrong')
+                        } finally {
+                          setTopupLoading(false)
+                        }
+                      }}
+                      style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: finalAmount && finalAmount >= 20 ? TEAL : BORDER, color: finalAmount && finalAmount >= 20 ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: finalAmount && finalAmount >= 20 ? 'pointer' : 'default' }}>
+                      {topupLoading ? 'Loading…' : finalAmount && finalAmount >= 20 ? `Top up £${finalAmount.toFixed(2)} →` : 'Select or enter an amount'}
+                    </button>
+                    <p style={{ fontSize: 11, color: HINT, textAlign: 'center', marginTop: 10 }}>Secured by Stripe · Funds added after successful payment</p>
+                  </div>
+                </>
+              ) : (
+                <div style={{ padding: '18px 24px' }}>
+                  {topupSuccess ? (
+                    <p style={{ fontSize: 13, color: TEAL, textAlign: 'center', marginTop: 12, fontWeight: 600 }}>Payment received — updating your balance…</p>
+                  ) : topupClientSecret ? (
+                    <Elements stripe={stripePromise} options={{ clientSecret: topupClientSecret, customerSessionClientSecret: topupCustomerSession }}>
+                      <TopupCheckoutForm
+                        amount={finalAmount || 0}
+                        primaryColor={TEAL}
+                        borderColor={BORDER}
+                        mutedColor={MUTED}
+                        onCancel={() => { setTopupStep('select'); setTopupClientSecret(''); setTopupCustomerSession('') }}
+                        onSuccess={() => {
+                          setTopupSuccess(true)
+                          setTimeout(() => { window.location.reload() }, 1500)
+                        }}
+                      />
+                    </Elements>
+                  ) : null}
                 </div>
-                <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 8 }}>Or enter custom amount (minimum £20):</p>
-                <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${BORDER}`, borderRadius: 8, overflow: 'hidden', marginBottom: 20 }}>
-                  <span style={{ padding: '10px 12px', background: BG, color: MUTED, fontSize: 14, fontWeight: 600, borderRight: `1px solid ${BORDER}` }}>£</span>
-                  <input type="number" min="20" placeholder="20.00" value={customAmount} onChange={e => { setCustomAmount(e.target.value); setTopupAmount(null) }} style={{ flex: 1, padding: '10px 12px', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 14 }} />
-                </div>
-                <button disabled={!finalAmount || finalAmount < 20} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: finalAmount && finalAmount >= 20 ? TEAL : BORDER, color: finalAmount && finalAmount >= 20 ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: finalAmount && finalAmount >= 20 ? 'pointer' : 'default' }}>
-                  {finalAmount && finalAmount >= 20 ? `Top up £${finalAmount.toFixed(2)} →` : 'Select or enter an amount'}
-                </button>
-                <p style={{ fontSize: 11, color: HINT, textAlign: 'center', marginTop: 10 }}>Secured by Stripe · Funds added instantly after payment</p>
-              </div>
+              )}
             </div>
           </div>
         ) })()}
