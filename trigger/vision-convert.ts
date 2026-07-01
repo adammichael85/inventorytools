@@ -157,8 +157,9 @@ async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: s
 export const visionConvertTask = task({
   id: "vision-convert",
   maxDuration: 3600,
-  run: async (payload: { pdfPath: string; jobId: string; userId: string }) => {
-    const { pdfPath, jobId, userId } = payload;
+  run: async (payload: { pdfPath: string; jobId: string; userId: string; convertedBy?: string }) => {
+    const { pdfPath, jobId, userId, convertedBy } = payload;
+    const jobStartedAt = Date.now();
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -339,7 +340,6 @@ export const visionConvertTask = task({
 
       // Save to conversions table server-side so the result appears on the dashboard
       // even if the user closed the modal before the job finished
-      const startedAt = Date.now()
       try {
         const saveRes = await fetch(`https://www.inventorytools.co.uk/api/save-conversion`, {
           method: 'POST',
@@ -348,9 +348,10 @@ export const visionConvertTask = task({
             user_id: userId,
             address: address,
             rooms: allRooms.length,
-            duration_seconds: Math.round((Date.now() - startedAt) / 1000),
+            duration_seconds: Math.round((Date.now() - jobStartedAt) / 1000),
             converted_json: { rooms: allRooms },
             pdf_path: pdfPath,
+            converted_by: convertedBy || '',
             type: 'pdf',
             cost: 4.00,
           })

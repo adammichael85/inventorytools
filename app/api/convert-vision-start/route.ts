@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export async function POST(req: NextRequest) {
   try {
-    const { pdfPath, userId } = await req.json()
+    const { pdfPath, userId, convertedBy } = await req.json()
     if (!pdfPath) return NextResponse.json({ error: "No pdfPath" }, { status: 400 })
     if (!userId) return NextResponse.json({ error: "No userId" }, { status: 400 })
 
@@ -32,7 +32,8 @@ export async function POST(req: NextRequest) {
     await tasks.trigger<typeof visionConvertTask>("vision-convert", {
       pdfPath,
       jobId,
-      userId
+      userId,
+      convertedBy: convertedBy || ''
     })
 
     return NextResponse.json({ jobId })
