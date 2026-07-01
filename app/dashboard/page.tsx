@@ -1039,10 +1039,11 @@ export default function Dashboard() {
           return { ...job, message: data.message || job.message, progress: data.progress || job.progress, status: data.status || job.status }
         } catch { return job }
       }))
-      // Remove completed/errored jobs after a short delay so user sees the final state
-      setBackgroundJobs(updated.filter(j => j.status === 'running'))
-      // Refresh conversions list when any job completes
-      if (updated.some(j => j.status === 'complete')) {
+      // Show completed jobs briefly then remove them
+      const hasCompleted = updated.some(j => j.status === 'complete')
+      setBackgroundJobs(updated.filter(j => j.status === 'running' || j.status === 'complete'))
+      if (hasCompleted) {
+        // Refresh conversions list
         supabase.auth.getSession().then(({ data: { session } }) => {
           if (session) {
             let q = supabase.from('conversions').select('*').order('created_at', { ascending: false }).limit(50)
@@ -1050,6 +1051,10 @@ export default function Dashboard() {
             q.then(({ data: convs }) => { if (convs) setConversions(convs) })
           }
         })
+        // Remove completed jobs after 5 seconds
+        setTimeout(() => {
+          setBackgroundJobs(prev => prev.filter(j => j.status === 'running'))
+        }, 5000)
       }
     }, 3000)
     return () => clearInterval(interval)
@@ -1366,14 +1371,14 @@ export default function Dashboard() {
           // On load, check for any vision jobs still running for this user and restore them
           // to the background jobs bar so they survive page refreshes
           supabase.from('vision_jobs')
-            .select('id, message, progress, status')
+            .select('id, message, progress, status, address')
             .eq('user_id', session.user.id)
             .in('status', ['queued', 'running'])
             .then(({ data: activeJobs }) => {
               if (activeJobs && activeJobs.length > 0) {
                 setBackgroundJobs(activeJobs.map((j: any) => ({
                   jobId: j.id,
-                  filename: 'PDF conversion',
+                  filename: j.address || 'PDF conversion',
                   message: j.message || 'Processing...',
                   progress: j.progress || 0,
                   status: 'running'
@@ -2686,16 +2691,20 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       {backgroundJobs.length > 0 && (
         <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 320, maxWidth: 480 }}>
           {backgroundJobs.map(job => (
-            <div key={job.jobId} style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 12, padding: '12px 16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div key={job.jobId} style={{ background: '#fff', border: `1px solid ${job.status === 'complete' ? TEAL : BORDER}`, borderRadius: 12, padding: '12px 16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ width: 14, height: 14, borderRadius: '50%', border: `2px solid rgba(29,158,117,0.2)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                  {job.status === 'complete'
+                    ? <div style={{ width: 14, height: 14, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg></div>
+                    : <div style={{ width: 14, height: 14, borderRadius: '50%', border: `2px solid rgba(29,158,117,0.2)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                  }
                   <span style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>{job.filename}</span>
                 </div>
-                <span style={{ fontSize: 11, color: MUTED }}>{job.message}</span>
+                {job.progress > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: TEAL }}>{job.progress}%</span>}
               </div>
+              <p style={{ fontSize: 11, color: MUTED, margin: '0 0 8px', paddingLeft: 22 }}>{job.status === 'complete' ? '✓ Complete — refresh to see your report' : job.message}</p>
               <div style={{ height: 3, borderRadius: 20, background: 'rgba(29,158,117,0.15)', overflow: 'hidden' }}>
-                <div style={{ height: '100%', borderRadius: 20, background: TEAL, width: job.progress > 0 ? `${job.progress}%` : '100%', animation: job.progress === 0 ? 'progress 2s ease-in-out infinite' : 'none', transition: 'width 0.5s ease' }} />
+                <div style={{ height: '100%', borderRadius: 20, background: TEAL, width: job.status === 'complete' ? '100%' : job.progress > 0 ? `${job.progress}%` : '100%', animation: job.progress === 0 && job.status !== 'complete' ? 'progress 2s ease-in-out infinite' : 'none', transition: 'width 0.5s ease' }} />
               </div>
             </div>
           ))}
