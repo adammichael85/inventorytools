@@ -2535,8 +2535,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                       </>
                     ) : (
                       <>
-                        <button onClick={() => startConvert('text')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Text) — £4.00</button>
-                        <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Vision) — £4.00</button>
+                        <button onClick={() => startConvert('text')} style={{ display: 'none' }}>Convert (Text) — £4.00</button>
+                        <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert Now — £4.00</button>
                         <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Text: fast extraction · Vision: reads PDF visually (better for complex layouts)</p>
                       </>
                     )}
