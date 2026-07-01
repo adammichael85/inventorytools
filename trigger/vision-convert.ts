@@ -337,6 +337,34 @@ export const visionConvertTask = task({
       await updateJob("complete", 100, `Complete — ${allRooms.length} rooms converted`, allRooms, address);
       logger.log("Vision conversion complete", { rooms: allRooms.length });
 
+      // Save to conversions table server-side so the result appears on the dashboard
+      // even if the user closed the modal before the job finished
+      const startedAt = Date.now()
+      try {
+        const saveRes = await fetch(`https://www.inventorytools.co.uk/api/save-conversion`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            address: address,
+            rooms: allRooms.length,
+            duration_seconds: Math.round((Date.now() - startedAt) / 1000),
+            converted_json: { rooms: allRooms },
+            pdf_path: pdfPath,
+            type: 'pdf',
+            cost: 4.00,
+          })
+        })
+        const saveData = await saveRes.json()
+        if (saveData.error) {
+          logger.error('save-conversion failed', { error: saveData.error })
+        } else {
+          logger.log('Conversion saved to database', { balance: saveData.balance })
+        }
+      } catch (saveErr: any) {
+        logger.error('save-conversion threw', { error: saveErr.message })
+      }
+
       return { success: true, rooms: allRooms.length };
 
     } catch (err: any) {
