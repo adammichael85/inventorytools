@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { user_id, file_base64 } = body
-    if (!user_id || !file_base64) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+    const { user_id, storage_path } = body
+    if (!user_id || !storage_path) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,9 +42,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Insufficient balance. This tool costs £0.50 per file.' }, { status: 402 })
     }
 
-    // Write input PDF to /tmp
-    const pdfBuffer = Buffer.from(file_base64, 'base64')
+    // Download the PDF from Supabase Storage (avoids 4.5MB Vercel body limit)
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from('documents')
+      .download(storage_path)
+    if (downloadError || !fileData) throw new Error('Could not read uploaded file: ' + downloadError?.message)
+    const pdfBuffer = Buffer.from(await fileData.arrayBuffer())
     fs.writeFileSync(tmpIn, pdfBuffer)
+
+    // Clean up the temp storage file (fire and forget - non-critical)
+    supabase.storage.from('documents').remove([storage_path]).catch(() => {})
 
     // Run qpdf --decrypt using the bundled Linux binary
     // The binary + shared libs are committed to bin/qpdf-linux/ and work on Vercel (AWS Lambda x86_64)
