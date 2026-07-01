@@ -51,6 +51,12 @@ export async function POST(req: NextRequest) {
     const qpdfBin = path.join(process.cwd(), 'bin', 'qpdf-linux', 'bin', 'qpdf')
     const libDir = path.join(process.cwd(), 'bin', 'qpdf-linux', 'lib')
 
+    // Ensure binary is executable (some deployment platforms strip execute permissions)
+    try { fs.chmodSync(qpdfBin, 0o755) } catch {}
+
+    console.log('qpdf binary path:', qpdfBin, '| exists:', fs.existsSync(qpdfBin))
+    console.log('lib dir:', libDir, '| exists:', fs.existsSync(libDir))
+
     try {
       await execFileAsync(qpdfBin, ['--decrypt', tmpIn, tmpOut], {
         env: { ...process.env, LD_LIBRARY_PATH: libDir },
