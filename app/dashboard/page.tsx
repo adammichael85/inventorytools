@@ -1651,6 +1651,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
     }
     setShowConvert(false)
     setConvertState('idle')
+    setProcessingRooms([])
     // Refresh conversions list when modal closes
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
