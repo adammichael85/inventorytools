@@ -1362,6 +1362,24 @@ export default function Dashboard() {
               }
             }
           })
+
+          // On load, check for any vision jobs still running for this user and restore them
+          // to the background jobs bar so they survive page refreshes
+          supabase.from('vision_jobs')
+            .select('id, message, progress, status')
+            .eq('user_id', session.user.id)
+            .in('status', ['queued', 'running'])
+            .then(({ data: activeJobs }) => {
+              if (activeJobs && activeJobs.length > 0) {
+                setBackgroundJobs(activeJobs.map((j: any) => ({
+                  jobId: j.id,
+                  filename: 'PDF conversion',
+                  message: j.message || 'Processing...',
+                  progress: j.progress || 0,
+                  status: 'running'
+                })))
+              }
+            })
         }
       })
       supabase.from('user_stats').select('*').eq('user_id', session.user.id).single().then(({ data: stats }) => { if (stats) setUserStats(stats) })
