@@ -2624,8 +2624,8 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#d45500' }}>⏱ {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</span>
                   </div>
                   <p style={{ fontSize: 11, color: '#d45500', margin: '0 0 12px' }}>{selectedFile?.name}</p>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: '0 0 4px', letterSpacing: 0.3 }}>THIS IS RUNNING IN THE BACKGROUND — YOU CAN USE OTHER TABS FREELY.</p>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: 0, letterSpacing: 0.3 }}>DO NOT CLOSE THIS TAB UNTIL THE CONVERSION IS COMPLETE.</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: '0 0 4px', letterSpacing: 0.3 }}>THIS IS RUNNING IN THE BACKGROUND — YOU CAN CLOSE THIS AND CONTINUE USING THE DASHBOARD.</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: 0, letterSpacing: 0.3 }}>YOUR CONVERSION WILL APPEAR AUTOMATICALLY WHEN COMPLETE.</p>
                 </div>
                 <div style={{ height: 4, borderRadius: 20, background: 'rgba(29,158,117,0.2)', overflow: 'hidden', marginBottom: 14 }}>
                   <div style={{ height: '100%', borderRadius: 20, background: TEAL, animation: 'progress 2s ease-in-out infinite' }} />
