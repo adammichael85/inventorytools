@@ -1471,7 +1471,7 @@ export default function Dashboard() {
         const startRes = await fetch('/api/convert-vision-start', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pdfPath, userId: sess?.user?.id })
+          body: JSON.stringify({ pdfPath, userId: sess?.user?.id, convertedBy: userName || userEmail || sess?.user?.email || '' })
         })
         const startData = await startRes.json()
         if (!startRes.ok) throw new Error(startData.error || 'Failed to start vision job')
