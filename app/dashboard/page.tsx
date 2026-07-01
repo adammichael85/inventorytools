@@ -1024,6 +1024,8 @@ export default function Dashboard() {
   const elapsedRef = React.useRef(0)
   const activeVisionJobRef = React.useRef<{ jobId: string, filename: string } | null>(null)
   const [backgroundJobs, setBackgroundJobs] = React.useState<{ jobId: string, filename: string, message: string, progress: number, status: string }[]>([])
+  const [mounted, setMounted] = React.useState(false)
+  React.useEffect(() => { setMounted(true) }, [])
 
   // Poll background vision jobs every 3 seconds and remove them when complete
   React.useEffect(() => {
@@ -2663,7 +2665,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       )}
 
       {/* BACKGROUND JOBS PROGRESS BAR */}
-      {typeof window !== 'undefined' && backgroundJobs.length > 0 && (
+      {mounted && backgroundJobs.length > 0 && (
         <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 320, maxWidth: 480 }}>
           {backgroundJobs.map(job => (
             <div key={job.jobId} style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 12, padding: '12px 16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}>
