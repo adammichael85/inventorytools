@@ -1525,7 +1525,9 @@ export default function Dashboard() {
       setDocxUrl(url)
       setDocxName(name)
 supabase.auth.getSession().then(({ data: { session } }) => {
-  if (session) {
+  // Vision conversions are saved server-side by the Trigger job on completion,
+  // so skip the client-side save to avoid double-saving and double-charging
+  if (session && method !== 'vision') {
     fetch('/api/save-conversion', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
