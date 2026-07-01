@@ -1614,6 +1614,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
   }
 
   function closeConvert() {
+    console.log('[closeConvert] convertState:', convertState, '| activeVisionJobRef:', activeVisionJobRef.current)
     // If a vision job is running, push it to the background jobs list so the user can track it
     if (convertState === 'processing' && activeVisionJobRef.current) {
       const job = activeVisionJobRef.current
