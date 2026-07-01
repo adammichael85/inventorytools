@@ -1920,13 +1920,21 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                       setCleanPdfState('processing')
                       setCleanPdfError('')
                       try {
-                        const base64 = await fileToBase64(cleanPdfFile)
                         const { data: { session } } = await supabase.auth.getSession()
                         if (!session) throw new Error('Not signed in')
+
+                        // Upload to Supabase Storage first to avoid Vercel 4.5MB body limit
+                        // Path must start with user_id to match existing RLS policy (foldername[1] = auth.uid())
+                        const storagePath = `${session.user.id}/clean-pdf-tmp/${Date.now()}-${cleanPdfFile.name}`
+                        const { error: uploadError } = await supabase.storage
+                          .from('documents')
+                          .upload(storagePath, cleanPdfFile, { contentType: 'application/pdf', upsert: true })
+                        if (uploadError) throw new Error('Upload failed: ' + uploadError.message)
+
                         const res = await fetch('/api/clean-pdf', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ user_id: session.user.id, file_base64: base64 })
+                          body: JSON.stringify({ user_id: session.user.id, storage_path: storagePath })
                         })
                         const d = await res.json()
                         if (d.error) {
