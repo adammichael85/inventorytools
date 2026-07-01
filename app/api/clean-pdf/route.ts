@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { PDFDocument } from 'pdf-lib'
+import { execFile } from 'child_process'
+import { promisify } from 'util'
+import path from 'path'
+import fs from 'fs'
+import os from 'os'
+
+const execFileAsync = promisify(execFile)
 
 export async function POST(req: NextRequest) {
+  const tmpIn = path.join(os.tmpdir(), `qpdf-in-${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`)
+  const tmpOut = path.join(os.tmpdir(), `qpdf-out-${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`)
+
   try {
     const body = await req.json()
     const { user_id, file_base64 } = body
@@ -33,28 +42,53 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Insufficient balance. This tool costs £0.50 per file.' }, { status: 402 })
     }
 
-    // Clean/unlock the PDF
+    // Write input PDF to /tmp
     const pdfBuffer = Buffer.from(file_base64, 'base64')
-    const sourceDoc = await PDFDocument.load(pdfBuffer, { ignoreEncryption: true })
-    const cleanDoc = await PDFDocument.create()
-    const copiedPages = await cleanDoc.copyPages(sourceDoc, sourceDoc.getPageIndices())
-    copiedPages.forEach(page => cleanDoc.addPage(page))
-    const cleanedBytes = await cleanDoc.save()
-    const cleanedBase64 = Buffer.from(cleanedBytes).toString('base64')
+    fs.writeFileSync(tmpIn, pdfBuffer)
+
+    // Run qpdf --decrypt using the bundled Linux binary
+    // The binary + shared libs are committed to bin/qpdf-linux/ and work on Vercel (AWS Lambda x86_64)
+    const qpdfBin = path.join(process.cwd(), 'bin', 'qpdf-linux', 'bin', 'qpdf')
+    const libDir = path.join(process.cwd(), 'bin', 'qpdf-linux', 'lib')
+
+    try {
+      await execFileAsync(qpdfBin, ['--decrypt', tmpIn, tmpOut], {
+        env: { ...process.env, LD_LIBRARY_PATH: libDir },
+        timeout: 30000,
+      })
+    } catch (qpdfErr: any) {
+      // qpdf exits with code 3 for warnings (still produces valid output) - treat as success
+      // Exit code 2 = error, exit code 1 = usage error
+      if (qpdfErr.code === 2 || qpdfErr.code === 1) {
+        throw new Error('Could not decrypt this PDF. It may use an unsupported encryption type or require a password.')
+      }
+      // code 3 = warning only, output file is still written - continue
+    }
+
+    if (!fs.existsSync(tmpOut)) {
+      throw new Error('qpdf did not produce an output file. The PDF may require a password to decrypt.')
+    }
+
+    const cleanedBytes = fs.readFileSync(tmpOut)
+    const cleanedBase64 = cleanedBytes.toString('base64')
 
     // Deduct cost from company balance
     const newBalance = Math.max(0, Number(company.balance) - CLEAN_COST)
     await supabase.from('companies').update({ balance: newBalance }).eq('company_name', profile.company_name)
 
-    // Log as a conversion-like record for tracking (optional, lightweight)
+    // Log for tracking
     await supabase.from('pdf_clean_jobs').insert({
       user_id,
       company_name: profile.company_name,
       cost: CLEAN_COST,
-    }).then(() => {}, () => {}) // ignore errors if table doesn't exist yet, non-critical
+    }).then(() => {}, () => {})
 
     return NextResponse.json({ ok: true, cleaned_base64: cleanedBase64, balance: newBalance })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
+  } finally {
+    // Always clean up temp files
+    try { fs.unlinkSync(tmpIn) } catch {}
+    try { fs.unlinkSync(tmpOut) } catch {}
   }
 }
