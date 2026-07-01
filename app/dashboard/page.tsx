@@ -1022,6 +1022,36 @@ export default function Dashboard() {
   const [processingRooms, setProcessingRooms] = useState<{name:string,state:string}[]>([])
   const [elapsed, setElapsed] = useState(0)
   const elapsedRef = React.useRef(0)
+  const activeVisionJobRef = React.useRef<{ jobId: string, filename: string } | null>(null)
+  const [backgroundJobs, setBackgroundJobs] = React.useState<{ jobId: string, filename: string, message: string, progress: number, status: string }[]>([])
+
+  // Poll background vision jobs every 3 seconds and remove them when complete
+  React.useEffect(() => {
+    if (backgroundJobs.length === 0) return
+    const interval = setInterval(async () => {
+      const updated = await Promise.all(backgroundJobs.map(async job => {
+        if (job.status !== 'running') return job
+        try {
+          const res = await fetch('/api/convert-vision-status?jobId=' + job.jobId)
+          const data = await res.json()
+          return { ...job, message: data.message || job.message, progress: data.progress || job.progress, status: data.status || job.status }
+        } catch { return job }
+      }))
+      // Remove completed/errored jobs after a short delay so user sees the final state
+      setBackgroundJobs(updated.filter(j => j.status === 'running'))
+      // Refresh conversions list when any job completes
+      if (updated.some(j => j.status === 'complete')) {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) {
+            let q = supabase.from('conversions').select('*').order('created_at', { ascending: false }).limit(50)
+            if (userRole !== 'admin') q = q.eq('user_id', session.user.id)
+            q.then(({ data: convs }) => { if (convs) setConversions(convs) })
+          }
+        })
+      }
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [backgroundJobs])
   const [convertError, setConvertError] = useState('')
   const [conversions, setConversions] = useState<any[]>([])
   const [userStats, setUserStats] = useState<any>(null)
@@ -1421,6 +1451,7 @@ export default function Dashboard() {
         const startData = await startRes.json()
         if (!startRes.ok) throw new Error(startData.error || 'Failed to start vision job')
         const jobId = startData.jobId
+        activeVisionJobRef.current = { jobId, filename: selectedFile?.name || 'PDF' }
 
         // Poll for progress
         let jobDone = false
@@ -1433,6 +1464,7 @@ export default function Dashboard() {
           if (pollData.status === 'complete') {
             jobDone = true
             jobResult = pollData
+            activeVisionJobRef.current = null
           } else if (pollData.status === 'error') {
             throw new Error(pollData.message || 'Vision job failed')
           } else {
@@ -1582,6 +1614,15 @@ supabase.auth.getSession().then(({ data: { session } }) => {
   }
 
   function closeConvert() {
+    // If a vision job is running, push it to the background jobs list so the user can track it
+    if (convertState === 'processing' && activeVisionJobRef.current) {
+      const job = activeVisionJobRef.current
+      setBackgroundJobs(prev => {
+        if (prev.find(j => j.jobId === job.jobId)) return prev
+        return [...prev, { jobId: job.jobId, filename: job.filename, message: 'Processing...', progress: 0, status: 'running' }]
+      })
+      activeVisionJobRef.current = null
+    }
     setShowConvert(false)
     setConvertState('idle')
     // Refresh conversions list when modal closes
@@ -2617,6 +2658,26 @@ supabase.auth.getSession().then(({ data: { session } }) => {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* BACKGROUND JOBS PROGRESS BAR */}
+      {backgroundJobs.length > 0 && (
+        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 320, maxWidth: 480 }}>
+          {backgroundJobs.map(job => (
+            <div key={job.jobId} style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 12, padding: '12px 16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 14, height: 14, borderRadius: '50%', border: `2px solid rgba(29,158,117,0.2)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>{job.filename}</span>
+                </div>
+                <span style={{ fontSize: 11, color: MUTED }}>{job.message}</span>
+              </div>
+              <div style={{ height: 3, borderRadius: 20, background: 'rgba(29,158,117,0.15)', overflow: 'hidden' }}>
+                <div style={{ height: '100%', borderRadius: 20, background: TEAL, width: job.progress > 0 ? `${job.progress}%` : '100%', animation: job.progress === 0 ? 'progress 2s ease-in-out infinite' : 'none', transition: 'width 0.5s ease' }} />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
