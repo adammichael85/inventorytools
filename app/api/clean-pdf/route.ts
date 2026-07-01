@@ -65,15 +65,20 @@ export async function POST(req: NextRequest) {
     console.log('lib dir:', libDir, '| exists:', fs.existsSync(libDir))
 
     try {
-      await execFileAsync(qpdfBin, ['--decrypt', tmpIn, tmpOut], {
+      // --password='' tries the empty string as owner password, which works for owner-password-only PDFs
+      // (the most common type from inventory report software that restricts printing/copying but not viewing)
+      await execFileAsync(qpdfBin, ['--decrypt', '--password=', tmpIn, tmpOut], {
         env: { ...process.env, LD_LIBRARY_PATH: libDir },
         timeout: 30000,
       })
     } catch (qpdfErr: any) {
+      console.error('qpdf exit code:', qpdfErr.code)
+      console.error('qpdf stdout:', qpdfErr.stdout)
+      console.error('qpdf stderr:', qpdfErr.stderr)
       // qpdf exits with code 3 for warnings (still produces valid output) - treat as success
       // Exit code 2 = error, exit code 1 = usage error
       if (qpdfErr.code === 2 || qpdfErr.code === 1) {
-        throw new Error('Could not decrypt this PDF. It may use an unsupported encryption type or require a password.')
+        throw new Error(`qpdf error (code ${qpdfErr.code}): ${qpdfErr.stderr || qpdfErr.stdout || 'unknown error'}`)
       }
       // code 3 = warning only, output file is still written - continue
     }
