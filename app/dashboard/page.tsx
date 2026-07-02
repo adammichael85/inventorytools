@@ -1909,7 +1909,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
       }
     }
   } catch(e) { console.error('Regen failed', e) }
-}} style={{ background: 'none', border: 'none', cursor: c.converted_json ? 'pointer' : 'default', padding: 4, opacity: c.converted_json ? 1 : 0.3 }} title={c.converted_json ? 'Regenerate Word doc' : 'No data available'}>
+}} style={{ background: 'none', border: 'none', cursor: c.converted_json ? 'pointer' : 'default', padding: 4, opacity: c.converted_json ? 1 : 0.3 }}>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={MUTED} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg></button>
                             )}
                             {c.type !== 'audio' && <button title={c.accuracy_report ? 'View accuracy report' : (c.extracted_text || c.converted_json ? 'Generate accuracy report' : 'No source data')} onClick={() => c.accuracy_report ? setViewingReport(c) : c.extracted_text || c.converted_json ? setShowAccuracyConfirm(c) : null} style={{ background: 'none', border: 'none', cursor: c.extracted_text || c.converted_json || c.accuracy_report ? 'pointer' : 'default', padding: 4, opacity: c.extracted_text || c.accuracy_report ? 1 : 0.3 }}>
