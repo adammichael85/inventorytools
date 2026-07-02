@@ -981,6 +981,7 @@ export default function Dashboard() {
   const [audioFurnished, setAudioFurnished] = React.useState('')
   const [audioRoomOrder, setAudioRoomOrder] = React.useState('')
   const [audioConvertState, setAudioConvertState] = React.useState<'idle'|'selected'|'processing'|'done'|'error'>('idle')
+  const [leadersStyle, setLeadersStyle] = React.useState(false)
   const [audioElapsed, setAudioElapsed] = React.useState(0)
   const audioElapsedRef = React.useRef(0)
   const [audioError, setAudioError] = React.useState('')
@@ -1471,7 +1472,7 @@ export default function Dashboard() {
         const startRes = await fetch('/api/convert-vision-start', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pdfPath, userId: sess?.user?.id, convertedBy: userName || userEmail || sess?.user?.email || '' })
+          body: JSON.stringify({ pdfPath, userId: sess?.user?.id, convertedBy: userName || userEmail || sess?.user?.email || '', promptStyle: leadersStyle ? 'leaders' : 'standard' })
         })
         const startData = await startRes.json()
         if (!startRes.ok) throw new Error(startData.error || 'Failed to start vision job')
@@ -2606,6 +2607,10 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     ) : (
                       <>
                         <button onClick={() => startConvert('text')} style={{ display: 'none' }}>Convert (Text) — £4.00</button>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: MUTED, cursor: 'pointer', padding: '6px 0' }}>
+                          <input type="checkbox" checked={leadersStyle} onChange={e => setLeadersStyle(e.target.checked)} style={{ width: 15, height: 15, cursor: 'pointer' }} />
+                          Leaders-style PDF (multi-column layout)
+                        </label>
                         <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert Now — £4.00</button>
                         <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Text: fast extraction · Vision: reads PDF visually (better for complex layouts)</p>
                       </>

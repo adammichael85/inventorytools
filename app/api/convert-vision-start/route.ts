@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export async function POST(req: NextRequest) {
   try {
-    const { pdfPath, userId, convertedBy } = await req.json()
+    const { pdfPath, userId, convertedBy, promptStyle } = await req.json()
     if (!pdfPath) return NextResponse.json({ error: "No pdfPath" }, { status: 400 })
     if (!userId) return NextResponse.json({ error: "No userId" }, { status: 400 })
 
@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
       pdfPath,
       jobId,
       userId,
-      convertedBy: convertedBy || ''
+      convertedBy: convertedBy || '',
+      promptStyle: promptStyle || 'standard'
     })
 
     return NextResponse.json({ jobId })

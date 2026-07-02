@@ -92,6 +92,78 @@ This applies independently in both the Description column and the Condition colu
 Return ONLY raw JSON:
 {"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}`;
 
+
+const LEADERS_PASS1_SYSTEM = `You are reading a UK property inventory PDF.
+
+Your job is to identify every room/area section in this PDF and return their page ranges. Also extract the property address from the cover page or header.
+
+INCLUDE ALL sections without exception: All rooms (Kitchen, Living Room, Bedroom 1-10, Bathroom etc.), AND also: Property Information, Weather/Cleaning Standard, Utilities, Smoke Detectors, Carbon Monoxide Detectors, Keys, External Surfaces, External Features, Boundaries, Hallway/Stairs & Landing, any sub-areas.
+
+IMPORTANT: Be generous with page ranges. If unsure where a section ends, extend endPage by 2-3 extra pages.
+
+CONTINUATION PAGES: If a page is labelled "(Cont.)" after a section name, extend that section's endPage rather than creating a new entry.
+
+Return ONLY raw JSON, no markdown, no explanation:
+{"address":"36 Colney Heath Lane, St Albans, AL4 0TU","rooms":[{"room":"Utilities","startPage":2,"endPage":3},{"room":"Kitchen","startPage":5,"endPage":12}]}`;
+
+const LEADERS_PASS2_SYSTEM = `You are converting a section of a UK property inventory PDF into structured JSON.
+
+The source PDF uses multi-column specialist tables (Doors, Windows, Ceilings, Floors, Walls, Fixtures & Fittings, External Features, Boundaries, Utilities, Detectors, Keys, Cupboards, Kitchen Appliances). Do NOT copy the PDF column names into the output. Extract the actual inventory information and normalise it.
+
+OUTPUT FORMAT — return ONLY this JSON structure:
+{"rows":[{"item":"Front Door","description":"Wooden stained. Colour: light brown.","condition":"Good"}]}
+
+ABSOLUTE RULE: The output item field must be a PHYSICAL THING (e.g. Front Door, Handle, Ceiling, Laminate flooring, Smoke Detector). NEVER use PDF column names like "Door Type", "Door Finish", "Frame Type", "Window Type", "Ceiling Finish", "Floor Finish", "Wall Colour" as item values.
+
+CORE RULES:
+- Split every physical object into its own row — never group multiple objects in one row
+- Description: type, finish, material, colour, quantity, brand, location, tested status, safety notes
+- Condition: condition words, defects, marks, damage, cleanliness issues, working status faults
+- NEVER ignore the Comments column — move every comment to the correct item description or condition
+- NEVER turn Ref codes (R1.D1, R1.CE1, BO1.i etc.) or photo codes into inventory items
+- Move Qty to description. Move Colour to description. Move Brand to description. Move Location to description. Move Tested to description.
+
+SECTION-SPECIFIC RULES:
+
+UTILITIES: Extract meter readings, serial numbers, locations into description.
+
+SMOKE/CO DETECTORS: One row per detector. Location and installed status in description. Working/tested status in condition.
+
+KEYS: Combine all key types into one row with all quantities in description.
+
+EXTERNAL SURFACES: Split each surface type into its own row. Apply comments to each relevant surface. Include location in description.
+
+EXTERNAL FEATURES: Split each listed item into its own row. Extract quantities from comments. Items hidden in comments (e.g. "X3 wheelie bins") must become their own inventory rows.
+
+BOUNDARIES: One row per boundary type. Quantity and colour in description.
+
+DOORS: Create separate rows for: the door itself, door frame, and each door feature (Handle, Mortice lock, Letterbox, Part glass etc.). "Morticelock" must become "Mortice lock".
+
+WINDOWS: Create separate rows for: window, window sill, and each window feature (Handle, Window locks, Blinds, Shutters etc.). Glass type, frame type, opener count in description.
+
+CEILINGS: Row for ceiling itself. Separate rows for each fitting. "Bulbs Not Working: 2" goes in condition of the light fitting.
+
+FLOORS: Row for flooring. Separate rows for floor items (carpet, doormat, tiles etc.).
+
+WALLS: Always at least two rows — Walls and Skirting boards. Wall defects from comments go in condition.
+
+FIXTURES & FITTINGS: Split every listed item into its own row. Include quantity in description. Apply light/socket testing notes to the relevant item description.
+
+FURNISHINGS: If Comments say "X2 chairs", create a row with item "Chairs" and description "Quantity: X2." Never output "See Notes" as an item.
+
+CUPBOARDS: Rows for cupboard floor/walls/ceiling. Each cupboard content becomes its own row with "Located inside cupboard." in description.
+
+KITCHEN APPLIANCES: One row per appliance. Brand, quantity, colour, tested status in description. Defects go in condition. Never drop "Tested: No".
+
+BATHROOMS: Split every sanitary item into its own row (Toilet with seat, Sink, Enclosed shower, Shower screen, Towel rail heated, Toilet roll holder, Mirror, Light cord).
+
+QUANTITY RULE: Move quantities to description as "Quantity: X". Never invent quantities if blank.
+COLOUR RULE: Move colours to description as "Colour: white." Never put colour alone in condition.
+CONDITION INHERITANCE: If one source row lists multiple components with one shared condition, every generated row inherits that condition.
+SPELLING FIXES: "Morticelock" to "Mortice lock". "UPvc" to "UPVC".
+COPY EXACTLY: Preserve original inventory wording. Do not rewrite or summarise.
+
+Return ONLY raw JSON: {"rows":[...]}`;
 async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: string, maxTokens: number, retries = 3): Promise<string> {
   for (let attempt = 1; attempt <= retries; attempt++) {
     const r = await fetch("https://api.openai.com/v1/responses", {
@@ -157,8 +229,8 @@ async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: s
 export const visionConvertTask = task({
   id: "vision-convert",
   maxDuration: 3600,
-  run: async (payload: { pdfPath: string; jobId: string; userId: string; convertedBy?: string }) => {
-    const { pdfPath, jobId, userId, convertedBy } = payload;
+  run: async (payload: { pdfPath: string; jobId: string; userId: string; convertedBy?: string; promptStyle?: string }) => {
+    const { pdfPath, jobId, userId, convertedBy, promptStyle } = payload;
     const jobStartedAt = Date.now();
 
     const supabase = createClient(
@@ -229,9 +301,12 @@ export const visionConvertTask = task({
       await updateJob("running", 5, "Identifying rooms...");
 
       // Pass 1: Get room list (using the page-numbered version for accurate page anchoring)
+      const activePass1System = promptStyle === 'leaders' ? LEADERS_PASS1_SYSTEM : PASS1_SYSTEM;
+      const activePass2System = promptStyle === 'leaders' ? LEADERS_PASS2_SYSTEM : PASS2_SYSTEM;
+
       const pass1Text = await callVisionAPI(
         stampedBase64,
-        PASS1_SYSTEM,
+        activePass1System,
         "Identify all rooms and their page ranges. Each page has a visible 'Page X of Y' label in red in the bottom right corner - use this exact label to determine page numbers, do not count pages yourself. Return raw JSON only.",
         16000
       );
@@ -279,7 +354,7 @@ export const visionConvertTask = task({
 
           const pass2Text = await callVisionAPI(
             roomBase64,
-            PASS2_SYSTEM,
+            activePass2System,
             `This section is: ${roomInfo.room}\n\nExtract ALL inventory rows. Return raw JSON only.`,
             28000
           );
