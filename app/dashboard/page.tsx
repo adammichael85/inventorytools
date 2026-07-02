@@ -1872,7 +1872,46 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9,15 12,18 15,15"/></svg>
                               </button>
                             ) : (
-                              <span style={{ fontSize: 11, color: HINT, padding: 4 }}>—</span>
+                              <button title="Regenerate Word doc" onClick={async () => {
+  if (!c.converted_json) return;
+  try {
+    if (!(window as any).docx) {
+      await new Promise<void>((resolve, reject) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/docx@9.0.0/build/index.umd.js'; s.onload = () => resolve(); s.onerror = reject; document.head.appendChild(s) })
+    }
+    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, VerticalAlign } = (window as any).docx
+    const border = { style: BorderStyle.SINGLE, size: 4, color: '000000' }
+    const cellBorders = { top: border, bottom: border, left: border, right: border }
+    const COL_ITEM = 2499, COL_DESC = 3972, COL_COND = 3115
+    const makeCell = (text: string, colWidth: number) => new TableCell({ borders: cellBorders, width: { size: colWidth, type: WidthType.DXA }, verticalAlign: VerticalAlign.TOP, children: (text || '').split(/\n| \| /).map(function(line: string){return new Paragraph({children:[new TextRun({text:line.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,'').replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/[\u2013\u2014]/g,'-').replace(/[^\x09\x0A\x0D\x20-\xFF]/g,''),font:'Arial',size:20,color:'000000'})]})}) })
+    const rooms = (c.converted_json as any).rooms || []
+    const children: any[] = []
+    for (let i = 0; i < rooms.length; i++) {
+      const room = rooms[i]
+      if (i > 0) children.push(new Paragraph({ children: [new TextRun({ text: '', font: 'Arial', size: 20 })], spacing: { after: 120 } }))
+      children.push(new Paragraph({ children: [new TextRun({ text: room.roomName, font: 'Arial', size: 28, bold: true })] }))
+      children.push(new Table({ width: { size: COL_ITEM + COL_DESC + COL_COND, type: WidthType.DXA }, rows: [new TableRow({ children: [makeCell('ITEM', COL_ITEM), makeCell('DESCRIPTION', COL_DESC), makeCell('CONDITION', COL_COND)] }), ...room.rows.map((row: any) => new TableRow({ children: [makeCell(row.item, COL_ITEM), makeCell(row.description, COL_DESC), makeCell(row.condition, COL_COND)] }))] }))
+    }
+    const doc = new Document({ sections: [{ properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } }, children }] })
+    const b64 = await Packer.toBase64String(doc)
+    const byteArray = Uint8Array.from(atob(b64), (ch: string) => ch.charCodeAt(0))
+    const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session) {
+      const ts = Date.now()
+      const addrClean = (c.address || '').replace(/[^a-zA-Z0-9 _-]/g, '').trim()
+      const fn = session.user.id + '/' + ts + '_' + addrClean + '.docx'
+      const { data: up } = await supabase.storage.from('documents').upload(fn, blob, { contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+      if (up?.path) {
+        await supabase.from('conversions').update({ file_path: up.path }).eq('id', c.id)
+        const blobUrl = URL.createObjectURL(blob)
+        const a = document.createElement('a'); a.href = blobUrl; a.download = formatDocxName(c.address || '') + '.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(blobUrl)
+        setConversions((prev: any[]) => prev.map((x: any) => x.id === c.id ? { ...x, file_path: up.path } : x))
+      }
+    }
+  } catch(e) { console.error('Regen failed', e) }
+}} style={{ background: 'none', border: 'none', cursor: c.converted_json ? 'pointer' : 'default', padding: 4, opacity: c.converted_json ? 1 : 0.3 }} title={c.converted_json ? 'Regenerate Word doc' : 'No data available'}>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={MUTED} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+</button>
                             )}
                             {c.type !== 'audio' && <button title={c.accuracy_report ? 'View accuracy report' : (c.extracted_text || c.converted_json ? 'Generate accuracy report' : 'No source data')} onClick={() => c.accuracy_report ? setViewingReport(c) : c.extracted_text || c.converted_json ? setShowAccuracyConfirm(c) : null} style={{ background: 'none', border: 'none', cursor: c.extracted_text || c.converted_json || c.accuracy_report ? 'pointer' : 'default', padding: 4, opacity: c.extracted_text || c.accuracy_report ? 1 : 0.3 }}>
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c.accuracy_report ? TEAL : MUTED} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="12" x2="8" y2="17"/><line x1="12" y1="8" x2="12" y2="17"/><line x1="16" y1="15" x2="16" y2="17"/></svg>
