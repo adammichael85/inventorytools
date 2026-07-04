@@ -8,22 +8,32 @@ export async function GET() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    const { data: rows, error } = await supabase
-      .from('conversions')
-      .select('type, rooms, duration_seconds, audio_length_seconds, rating')
+    // Pull aggregated totals from user_stats (pre-computed, fast)
+    const { data: statsRows, error: statsError } = await supabase
+      .from('user_stats')
+      .select('total_conversions, total_rooms, total_duration_seconds')
 
-    if (error || !rows) {
+    // Pull only type + rating + audio fields from conversions for the split
+    const { data: convRows, error: convError } = await supabase
+      .from('conversions')
+      .select('type, rating, rooms, duration_seconds, audio_length_seconds')
+
+    if (statsError || convError || !statsRows || !convRows) {
       return NextResponse.json({ error: 'Could not load stats' }, { status: 500 })
     }
 
-    const pdfRows = rows.filter((r: any) => r.type !== 'audio')
-    const audioRows = rows.filter((r: any) => r.type === 'audio')
+    const pdfRows = convRows.filter((r: any) => r.type !== 'audio')
+    const audioRows = convRows.filter((r: any) => r.type === 'audio')
 
     const pdfRatings = pdfRows.filter((r: any) => r.rating).map((r: any) => r.rating)
     const audioRatings = audioRows.filter((r: any) => r.rating).map((r: any) => r.rating)
 
     const avg = (arr: number[]) => arr.length > 0 ? arr.reduce((s, v) => s + v, 0) / arr.length : 0
     const sum = (arr: number[]) => arr.reduce((s, v) => s + v, 0)
+
+    // Global totals from user_stats
+    const totalReports = sum(statsRows.map((r: any) => r.total_conversions || 0))
+    const totalRooms = sum(statsRows.map((r: any) => r.total_rooms || 0))
 
     const pdfDurations = pdfRows.map((r: any) => r.duration_seconds || 0).filter((v: number) => v > 0)
     const pdfTotalRooms = sum(pdfRows.map((r: any) => r.rooms || 0))
@@ -33,6 +43,10 @@ export async function GET() {
     const audioTotalConvertSeconds = sum(audioRows.map((r: any) => r.duration_seconds || 0))
 
     return NextResponse.json({
+      totals: {
+        total_reports: totalReports,
+        total_rooms: totalRooms,
+      },
       pdf: {
         total_reports: pdfRows.length,
         total_rooms: pdfTotalRooms,
