@@ -1446,10 +1446,11 @@ export default function Dashboard() {
 
   async function startConvert(method: 'text' | 'vision' | 'worddoc' = 'text') {
     if (!selectedFile) return
-    // Prevent converting the same file while it's already running in the background
-    const alreadyRunning = backgroundJobs.some(j => j.status === 'running' || j.status === 'word-sync')
+    // Prevent converting the exact same filename while it's already running in the background
+    const filename = selectedFile.name
+    const alreadyRunning = backgroundJobs.some(j => (j.status === 'running' || j.status === 'word-sync') && j.filename === filename)
     if (alreadyRunning) {
-      setConvertError('A conversion is already running in the background. Please wait for it to complete before starting another.')
+      setConvertError('This file is already being converted in the background. Please wait for it to complete.')
       setConvertState('error')
       return
     }
