@@ -2645,12 +2645,57 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                     ) : (
                       <>
                         <button onClick={() => startConvert('text')} style={{ display: 'none' }}>Convert (Text) — £4.00</button>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: MUTED, cursor: 'pointer', padding: '6px 0' }}>
-                          <input type="checkbox" checked={leadersStyle} onChange={e => setLeadersStyle(e.target.checked)} style={{ width: 15, height: 15, cursor: 'pointer' }} />
-                          Leaders-style PDF (multi-column layout)
-                        </label>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                          {[
+                            {
+                              value: false,
+                              label: 'Standard',
+                              desc: 'Classic 3-column inventory (Item / Description / Condition)',
+                              svg: (
+                                <svg width="100%" height="52" viewBox="0 0 160 52" xmlns="http://www.w3.org/2000/svg">
+                                  <rect x="2" y="2" width="156" height="48" rx="3" fill="none" stroke="#E3E7E9" strokeWidth="1"/>
+                                  {[0,1,2,3].map((i: number) => (
+                                    <g key={i}>
+                                      <rect x="4" y={4+i*11} width="38" height="8" rx="1" fill={i===0?"#11151A":"#E3E7E9"} opacity={i===0?0.8:1}/>
+                                      <rect x="46" y={4+i*11} width="62" height="8" rx="1" fill={i===0?"#11151A":"#E3E7E9"} opacity={i===0?0.8:1}/>
+                                      <rect x="112" y={4+i*11} width="44" height="8" rx="1" fill={i===0?"#11151A":"#E3E7E9"} opacity={i===0?0.8:1}/>
+                                    </g>
+                                  ))}
+                                </svg>
+                              )
+                            },
+                            {
+                              value: true,
+                              label: 'Complex / Leaders',
+                              desc: 'Multi-column with mixed items, conditions and sub-rows',
+                              svg: (
+                                <svg width="100%" height="52" viewBox="0 0 160 52" xmlns="http://www.w3.org/2000/svg">
+                                  <rect x="2" y="2" width="156" height="48" rx="3" fill="none" stroke="#E3E7E9" strokeWidth="1"/>
+                                  {[0,1,2,3].map((i: number) => (
+                                    <g key={i}>
+                                      <rect x="4" y={4+i*11} width="22" height="8" rx="1" fill={i===0?"#11151A":"#E3E7E9"} opacity={i===0?0.8:1}/>
+                                      <rect x="30" y={4+i*11} width="30" height="8" rx="1" fill={i===0?"#11151A":"#E3E7E9"} opacity={i===0?0.8:1}/>
+                                      <rect x="64" y={4+i*11} width="30" height="8" rx="1" fill={i===0?"#11151A":"#E3E7E9"} opacity={i===0?0.8:1}/>
+                                      <rect x="98" y={4+i*11} width="24" height="8" rx="1" fill={i===0?"#11151A":"#E3E7E9"} opacity={i===0?0.8:1}/>
+                                      <rect x="126" y={4+i*11} width="30" height="8" rx="1" fill={i===0?"#11151A":"#E3E7E9"} opacity={i===0?0.8:1}/>
+                                    </g>
+                                  ))}
+                                </svg>
+                              )
+                            }
+                          ].map(({ value, label, desc, svg }: any) => (
+                            <div
+                              key={String(value)}
+                              onClick={() => setLeadersStyle(value)}
+                              style={{ border: `2px solid ${leadersStyle === value ? TEAL : BORDER}`, borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: leadersStyle === value ? TEAL_LIGHT : '#fff', transition: 'all 0.15s' }}
+                            >
+                              <div style={{ marginBottom: 6 }}>{svg}</div>
+                              <p style={{ fontSize: 12, fontWeight: 700, color: leadersStyle === value ? TEAL_DARK : TEXT, margin: '0 0 3px' }}>{label}</p>
+                              <p style={{ fontSize: 11, color: MUTED, margin: 0, lineHeight: 1.4 }}>{desc}</p>
+                            </div>
+                          ))}
+                        </div>
                         <button onClick={() => startConvert('vision')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert Now — £4.00</button>
-                        <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Text: fast extraction · Vision: reads PDF visually (better for complex layouts)</p>
                       </>
                     )}
                   </div>
