@@ -1625,17 +1625,17 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   if (false && latest && p?.auto_accuracy_report && !latest.accuracy_report && (latest.extracted_text || latest.converted_json) && latest.type !== 'audio') {
                     generateAccuracyReport(latest)
                   }
+                  // Remove word-sync background job card now that conversions list is updated
+                  if (wordJobIdRef.current) {
+                    setBackgroundJobs(prev => prev.filter(j => j.jobId !== wordJobIdRef.current))
+                    wordJobIdRef.current = null
+                  }
                 }
               })
             })
           }
         })
       })
-      // Clean up word-sync background job if modal was closed mid-conversion
-      if (wordJobIdRef.current) {
-        setBackgroundJobs(prev => prev.filter(j => j.jobId !== wordJobIdRef.current))
-        wordJobIdRef.current = null
-      }
       setConvertState('done')
       clearInterval(timer)
 
