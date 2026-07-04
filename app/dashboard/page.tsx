@@ -1044,7 +1044,7 @@ export default function Dashboard() {
       }))
       // Show completed jobs briefly then remove them
       const hasCompleted = updated.some(j => j.status === 'complete')
-      setBackgroundJobs(updated.filter(j => j.status === 'running' || j.status === 'complete'))
+      setBackgroundJobs(updated.filter(j => j.status === 'running' || j.status === 'complete' || j.status === 'word-sync'))
       if (hasCompleted) {
         // Refresh conversions list
         supabase.auth.getSession().then(({ data: { session } }) => {
