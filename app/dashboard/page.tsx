@@ -2666,7 +2666,7 @@ supabase.auth.getSession().then(({ data: { session } }) => {
                             },
                             {
                               value: true,
-                              label: 'Complex / Leaders',
+                              label: 'Complex layout',
                               desc: 'Multi-column with mixed items, conditions and sub-rows',
                               svg: (
                                 <svg width="100%" height="52" viewBox="0 0 160 52" xmlns="http://www.w3.org/2000/svg">
