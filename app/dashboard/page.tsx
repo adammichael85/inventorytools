@@ -1626,12 +1626,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   if (false && latest && p?.auto_accuracy_report && !latest.accuracy_report && (latest.extracted_text || latest.converted_json) && latest.type !== 'audio') {
                     generateAccuracyReport(latest)
                   }
-                  // Remove word-sync background job card now that conversions list is updated
-                  if (wordJobIdRef.current) {
-                    console.log('[word-sync] cleanup firing')
-                    setBackgroundJobs(prev => prev.filter(j => j.jobId !== wordJobIdRef.current))
-                    wordJobIdRef.current = null
-                  }
+                  // Remove all word-sync background job cards now that conversions list is updated
+                  setBackgroundJobs(prev => prev.filter(j => j.status !== 'word-sync'))
+                  wordJobIdRef.current = null
                 }
               })
             })
