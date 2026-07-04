@@ -2673,7 +2673,29 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     {selectedFile?.name.toLowerCase().endsWith('.docx') ? (
                       <>
                         <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '12px 14px', marginBottom: 2 }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: '#15803D', margin: '0 0 4px' }}>📝 Word to Word conversion</p>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: '#15803D', margin: '0 0 10px' }}>📝 Word to Word conversion</p>
+                          <svg width="100%" height="54" viewBox="0 0 320 54" xmlns="http://www.w3.org/2000/svg" style={{ marginBottom: 10, display: 'block' }}>
+                            {/* Input Word doc - mixed layout */}
+                            <rect x="0" y="2" width="130" height="50" rx="4" fill="#fff" stroke="#BBF7D0" strokeWidth="1.5"/>
+                            {[0,1,2,3].map((i: number) => (
+                              <g key={i}>
+                                <rect x="6" y={7+i*11} width={i===0?30:i===1?55:i===2?40:50} height="7" rx="1.5" fill={i===0?"#374151":"#D1FAE5"}/>
+                                <rect x={i===0?40:i===1?65:i===2?50:60} y={7+i*11} width={i===0?60:i===1?40:i===2?60:45} height="7" rx="1.5" fill="#D1FAE5" opacity="0.7"/>
+                                {i>0 && <rect x="110" y={7+i*11} width="16" height="7" rx="1.5" fill="#D1FAE5" opacity="0.5"/>}
+                              </g>
+                            ))}
+                            {/* Arrow */}
+                            <text x="148" y="31" fontSize="18" fill="#15803D" textAnchor="middle">→</text>
+                            {/* Output 3-column table */}
+                            <rect x="166" y="2" width="154" height="50" rx="4" fill="#fff" stroke="#BBF7D0" strokeWidth="1.5"/>
+                            {[0,1,2,3].map((i: number) => (
+                              <g key={i}>
+                                <rect x="170" y={7+i*11} width="38" height="7" rx="1.5" fill={i===0?"#15803D":"#D1FAE5"} opacity={i===0?0.9:1}/>
+                                <rect x="212" y={7+i*11} width="58" height="7" rx="1.5" fill={i===0?"#15803D":"#D1FAE5"} opacity={i===0?0.9:0.7}/>
+                                <rect x="274" y={7+i*11} width="42" height="7" rx="1.5" fill={i===0?"#15803D":"#D1FAE5"} opacity={i===0?0.9:0.5}/>
+                              </g>
+                            ))}
+                          </svg>
                           <p style={{ fontSize: 12, color: '#166534', margin: 0, lineHeight: 1.6 }}>Reads your Word.doc report structure directly.<br/><br/>Ideal for converting another company's inventory into the standard Item, Description, Condition format. Fast, accurate, and works best with low MB sized Word.doc files.<br/><br/>The smaller the file the better. Images take up a lot of file space. Consider compressing your Word doc if the file is large.</p>
                         </div>
                         <button onClick={() => startConvert('worddoc')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert Now — £4.00</button>
