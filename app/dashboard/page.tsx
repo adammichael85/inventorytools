@@ -2562,7 +2562,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 480, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
             <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Convert PDF to Word</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£4.00 · £{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining</p></div>
+              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{selectedFile?.name.toLowerCase().endsWith('.docx') ? '📝 Convert Word to Word' : '📄 Convert PDF to Word'}</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£4.00 · £{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining</p></div>
               <button onClick={closeConvert} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
             </div>
 
@@ -2664,8 +2664,11 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {selectedFile?.name.toLowerCase().endsWith('.docx') ? (
                       <>
-                        <button onClick={() => startConvert('worddoc')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert (Word Doc) — £4.00</button>
-                        <p style={{ fontSize: 11, color: HINT, margin: 0, textAlign: 'center' }}>Reads Word document table structure directly</p>
+                        <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '12px 14px', marginBottom: 2 }}>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: '#15803D', margin: '0 0 4px' }}>📝 Word to Word conversion</p>
+                          <p style={{ fontSize: 12, color: '#166534', margin: 0, lineHeight: 1.5 }}>Reads your Word document's table structure directly — no AI vision needed. Ideal for converting another company's inventory into your own format. Fast, accurate, and works best with clean 3-column layouts.</p>
+                        </div>
+                        <button onClick={() => startConvert('worddoc')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert Now — £4.00</button>
                       </>
                     ) : (
                       <>
