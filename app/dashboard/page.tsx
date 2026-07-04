@@ -1024,6 +1024,7 @@ export default function Dashboard() {
   const [elapsed, setElapsed] = useState(0)
   const elapsedRef = React.useRef(0)
   const activeVisionJobRef = React.useRef<{ jobId: string, filename: string } | null>(null)
+  const wordJobIdRef = React.useRef<string | null>(null)
   const [backgroundJobs, setBackgroundJobs] = React.useState<{ jobId: string, filename: string, message: string, progress: number, status: string }[]>([])
   const [mounted, setMounted] = React.useState(false)
   React.useEffect(() => { setMounted(true) }, [])
@@ -1033,6 +1034,7 @@ export default function Dashboard() {
     if (backgroundJobs.length === 0) return
     const interval = setInterval(async () => {
       const updated = await Promise.all(backgroundJobs.map(async job => {
+        // word-sync jobs are client-side only - don't poll them, they self-remove when done
         if (job.status !== 'running') return job
         try {
           const res = await fetch('/api/convert-vision-status?jobId=' + job.jobId)
@@ -1582,11 +1584,11 @@ export default function Dashboard() {
       const name = formatDocxName(data.address || '') + '.docx'
       setDocxUrl(url)
       setDocxName(name)
-supabase.auth.getSession().then(({ data: { session } }) => {
+supabase.auth.getSession().then(async ({ data: { session } }) => {
   // Vision conversions are saved server-side by the Trigger job on completion,
   // so skip the client-side save to avoid double-saving and double-charging
   if (session && method !== 'vision') {
-    fetch('/api/save-conversion', {
+    await fetch('/api/save-conversion', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1629,11 +1631,21 @@ supabase.auth.getSession().then(({ data: { session } }) => {
           }
         })
       })
+      // Clean up word-sync background job if modal was closed mid-conversion
+      if (wordJobIdRef.current) {
+        setBackgroundJobs(prev => prev.filter(j => j.jobId !== wordJobIdRef.current))
+        wordJobIdRef.current = null
+      }
       setConvertState('done')
       clearInterval(timer)
 
     } catch (err: any) {
       clearInterval(timer)
+      // Clean up word-sync background job on error too
+      if (wordJobIdRef.current) {
+        setBackgroundJobs(prev => prev.filter(j => j.jobId !== wordJobIdRef.current))
+        wordJobIdRef.current = null
+      }
       setConvertError(typeof err === 'string' ? err : err.message || err.toString() || JSON.stringify(err) || 'Unknown error')
       setConvertState('error')
     }
@@ -1641,6 +1653,18 @@ supabase.auth.getSession().then(({ data: { session } }) => {
 
   function closeConvert() {
     console.log('[closeConvert] convertState:', convertState, '| activeVisionJobRef:', activeVisionJobRef.current)
+    // If a word-to-word conversion is running, add a background job card
+    if (convertState === 'processing' && wordJobIdRef.current === null && selectedFile && !activeVisionJobRef.current) {
+      const wordJobId = 'word_' + Date.now()
+      wordJobIdRef.current = wordJobId
+      setBackgroundJobs(prev => [...prev, {
+        jobId: wordJobId,
+        filename: selectedFile.name.replace(/\.docx$/i, ''),
+        message: 'Converting Word document...',
+        progress: 0,
+        status: 'word-sync'
+      }])
+    }
     // If a vision job is running, push it to the background jobs list so the user can track it
     if (convertState === 'processing' && activeVisionJobRef.current) {
       const job = activeVisionJobRef.current
