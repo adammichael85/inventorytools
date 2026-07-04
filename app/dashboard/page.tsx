@@ -1618,6 +1618,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               let pdfRefreshQuery = supabase.from('conversions').select('*').order('created_at', { ascending: false }).limit(50)
               if (userRole !== 'admin') pdfRefreshQuery = pdfRefreshQuery.eq('user_id', data.session.user.id)
               pdfRefreshQuery.then(({ data: convs }) => {
+                console.log('[pdfRefresh] convs:', convs?.length, '| wordJobIdRef:', wordJobIdRef.current)
                 if (convs) {
                   setConversions(convs)
                   const latest = convs[0]
@@ -1627,6 +1628,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   }
                   // Remove word-sync background job card now that conversions list is updated
                   if (wordJobIdRef.current) {
+                    console.log('[word-sync] cleanup firing')
                     setBackgroundJobs(prev => prev.filter(j => j.jobId !== wordJobIdRef.current))
                     wordJobIdRef.current = null
                   }
@@ -1636,11 +1638,13 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           }
         })
       })
+      console.log('[startConvert] completed, wordJobIdRef:', wordJobIdRef.current)
       setConvertState('done')
       clearInterval(timer)
 
     } catch (err: any) {
       clearInterval(timer)
+      console.log('[startConvert] error, wordJobIdRef:', wordJobIdRef.current)
       // Clean up word-sync background job on error too
       if (wordJobIdRef.current) {
         setBackgroundJobs(prev => prev.filter(j => j.jobId !== wordJobIdRef.current))
