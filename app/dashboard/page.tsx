@@ -2666,7 +2666,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       <>
                         <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '12px 14px', marginBottom: 2 }}>
                           <p style={{ fontSize: 13, fontWeight: 600, color: '#15803D', margin: '0 0 4px' }}>📝 Word to Word conversion</p>
-                          <p style={{ fontSize: 12, color: '#166534', margin: 0, lineHeight: 1.5 }}>Reads your Word document's table structure directly — no AI vision needed. Ideal for converting another company's inventory into your own format. Fast, accurate, and works best with clean 3-column layouts.</p>
+                          <p style={{ fontSize: 12, color: '#166534', margin: 0, lineHeight: 1.6 }}>Reads your Word.doc report structure directly.<br/><br/>Ideal for converting another company's inventory into the standard Item, Description, Condition format. Fast, accurate, and works best with low MB sized Word.doc files.<br/><br/>The smaller the file the better. Images take up a lot of file space. Consider compressing your Word doc if the file is large.</p>
                         </div>
                         <button onClick={() => startConvert('worddoc')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert Now — £4.00</button>
                       </>
