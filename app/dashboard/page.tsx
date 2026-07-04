@@ -1446,6 +1446,13 @@ export default function Dashboard() {
 
   async function startConvert(method: 'text' | 'vision' | 'worddoc' = 'text') {
     if (!selectedFile) return
+    // Prevent converting the same file while it's already running in the background
+    const alreadyRunning = backgroundJobs.some(j => j.status === 'running' || j.status === 'word-sync')
+    if (alreadyRunning) {
+      setConvertError('A conversion is already running in the background. Please wait for it to complete before starting another.')
+      setConvertState('error')
+      return
+    }
     setConvertState('processing')
     setConvertError('')
     setElapsed(0)
@@ -2808,7 +2815,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
       {backgroundJobs.length > 0 && (
         <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 320, maxWidth: 480 }}>
           {backgroundJobs.map(job => (
-            <div key={job.jobId} style={{ background: '#fff', border: `1px solid ${job.status === 'complete' ? TEAL : BORDER}`, borderRadius: 12, padding: '12px 16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}>
+            <div key={job.jobId} onClick={() => { if (job.status !== 'complete') { setShowConvert(true); setConvertState('processing') } }} style={{ background: '#fff', border: `1px solid ${job.status === 'complete' ? TEAL : BORDER}`, borderRadius: 12, padding: '12px 16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', cursor: job.status !== 'complete' ? 'pointer' : 'default' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {job.status === 'complete'
@@ -2819,7 +2826,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 </div>
                 {job.progress > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: TEAL }}>{job.progress}%</span>}
               </div>
-              <p style={{ fontSize: 11, color: MUTED, margin: '0 0 8px', paddingLeft: 22 }}>{job.status === 'complete' ? '✓ Complete — refresh to see your report' : job.message}</p>
+              <p style={{ fontSize: 11, color: MUTED, margin: '0 0 4px', paddingLeft: 22 }}>{job.status === 'complete' ? '✓ Complete — refresh to see your report' : job.message}</p>
+              {job.status !== 'complete' && <p style={{ fontSize: 10, color: TEAL, margin: '0 0 6px', paddingLeft: 22, fontWeight: 500 }}>Tap to view progress</p>}
               <div style={{ height: 3, borderRadius: 20, background: 'rgba(29,158,117,0.15)', overflow: 'hidden' }}>
                 <div style={{ height: '100%', borderRadius: 20, background: TEAL, width: job.status === 'complete' ? '100%' : job.progress > 0 ? `${job.progress}%` : '100%', animation: job.progress === 0 && job.status !== 'complete' ? 'progress 2s ease-in-out infinite' : 'none', transition: 'width 0.5s ease' }} />
               </div>
