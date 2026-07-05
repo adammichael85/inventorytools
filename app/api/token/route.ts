@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ key: process.env.ANTHROPIC_API_KEY })
   } catch (err: any) {
-    console.error('[API Error]', path, err)
+    console.error('[API Error]', err)
     return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 })
   }
 }

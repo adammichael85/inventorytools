@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, balance: newBalance })
   } catch (err: any) {
-    console.error('[API Error]', path, err)
+    console.error('[API Error]', err)
     return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 })
   }
 }

@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     if (!res.ok) return NextResponse.json({ error: data.message }, { status: 500 })
     return NextResponse.json({ ok: true })
   } catch (err: any) {
-    console.error('[API Error]', path, err)
+    console.error('[API Error]', err)
     return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 })
   }
 }

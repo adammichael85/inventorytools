@@ -227,6 +227,6 @@ export async function POST(req: NextRequest) {
     try { data = JSON.parse(s) } catch(e) { data = JSON.parse(s.replace(/,\s*}/g,"}").replace(/,\s*]/g,"]")) }
     if (!data.rooms || data.rooms.length === 0) throw new Error("No rooms found")
     return NextResponse.json({ address: data.address || "", pages: data.rooms.length, rooms: data.rooms, _extractedText: extractedText ? extractedText.slice(0, 100000) : "" })
-  } catch(err: any) { console.error('[API Error]', path, err)
+  } catch(err: any) { console.error('[API Error]', err)
     return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 }) }
 }
