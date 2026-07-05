@@ -20,6 +20,8 @@ const eslintConfig = defineConfig([
       "react-hooks/rules-of-hooks": "warn",
       "react-hooks/set-state-in-effect": "off",
       "@next/next/no-img-element": "warn",
+      "@next/next/no-page-custom-font": "warn",
+      "react/no-unescaped-entities": "off",
     }
   }
 ]);
