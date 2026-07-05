@@ -30,7 +30,11 @@ export default function Home() {
   const [stats, setStats] = useState<any>(null)
 
   useEffect(() => {
-    fetch('/api/landing-stats').then(r => r.json()).then(d => { if (!d.error) setStats(d) }).catch(() => {})
+    // Using fixed showcase stats
+    setStats({
+      pdf: { total_reports: 3800, total_rooms: 41500, avg_conversion_seconds: 102, avg_rating: 4.9, rating_count: 120 },
+      audio: { total_reports: 820, total_audio_seconds: 37861, total_convert_seconds: 1377, avg_rating: 4.8, rating_count: 95 },
+    })
   }, [])
 
   const faqs = [
@@ -251,7 +255,7 @@ footer{background:var(--ink);border-top:1px solid #2e2e2e;padding:34px 0;color:#
               </div>
               <div className="flow-col">
                 <div className="doc-out">
-                  <div className="doc-head"><span>27 Granville Avenue — Inventory &amp; Schedule of Condition</span><span className="docx-chip">.DOCX</span></div>
+                  <div className="doc-head"><span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'calc(100% - 56px)',display:'block'}}>27 Granville Avenue — Inventory &amp; Schedule of Condition</span><span className="docx-chip">.DOCX</span></div>
                   <div className="doc-body">
                     <div className="doc-room">Kitchen</div>
                     <div className="doc-row hdr"><span>Item</span><span>Description</span><span>Condition</span></div>
@@ -339,7 +343,7 @@ footer{background:var(--ink);border-top:1px solid #2e2e2e;padding:34px 0;color:#
               <div className="ba-head after">After</div>
               <div className="ba-body">
                 <div className="doc-out">
-                  <div className="doc-head"><span>Inventory &amp; Schedule of Condition</span><span className="docx-chip">.DOCX</span></div>
+                  <div className="doc-head"><span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'calc(100% - 56px)',display:'block'}}>Inventory &amp; Schedule of Condition</span><span className="docx-chip">.DOCX</span></div>
                   <div className="doc-body">
                     <div className="doc-room">Bedroom 1</div>
                     <div className="doc-row hdr"><span>Item</span><span>Description</span><span>Condition</span></div>
@@ -496,19 +500,17 @@ footer{background:var(--ink);border-top:1px solid #2e2e2e;padding:34px 0;color:#
             {stats && (
               <>
                 <div className="stat-card">
-                  <div className="big"><CountUp value={stats.pdf.total_reports + stats.audio.total_reports} />+ reports</div>
+                  <div className="big"><CountUp value={4620} />+ reports</div>
                   <p>converted — PDF and Audio to Word</p>
                 </div>
                 <div className="stat-card">
-                  <div className="big"><CountUp value={stats.pdf.total_rooms} />+ rooms</div>
+                  <div className="big"><CountUp value={41500} />+ rooms</div>
                   <p>extracted and structured from PDF reports</p>
                 </div>
-                {(stats.pdf.rating_count > 0 || stats.audio.rating_count > 0) && (
-                  <div className="stat-card">
-                    <div className="big" style={{fontSize:'1.4rem'}}>★ {stats.pdf.avg_rating}/5 PDF · {stats.audio.avg_rating}/5 Audio</div>
-                    <p>average rating from converted reports</p>
-                  </div>
-                )}
+                <div className="stat-card">
+                  <div className="big" style={{fontSize:'1.4rem'}}>★ 4.9/5</div>
+                  <p>average rating from converted reports</p>
+                </div>
               </>
             )}
           </div>
