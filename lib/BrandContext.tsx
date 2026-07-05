@@ -76,8 +76,7 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   const shouldMask = pathname?.startsWith('/dashboard') ?? false
   const [revealed, setRevealed] = useState(false)
   useEffect(() => {
-    if (!shouldMask) { setRevealed(true); return }
-    const t = setTimeout(() => setRevealed(true), 500)
+    const t = setTimeout(() => setRevealed(true), shouldMask ? 500 : 0)
     return () => clearTimeout(t)
   }, [shouldMask])
 
