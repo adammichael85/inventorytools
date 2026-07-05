@@ -175,10 +175,10 @@ td:first-child,th:first-child{text-align:left;font-weight:600;color:var(--ink)}t
 .faq-q .pm{color:var(--orange);font-size:1.3rem;font-weight:700;transition:transform .2s;flex-shrink:0}
 .faq-item.open .pm{transform:rotate(45deg)}
 .faq-a{overflow:hidden;transition:max-height .3s ease}.faq-a p{padding:0 22px 20px;font-size:.94rem}
-.final{background:var(--ink);color:#d8d6d2;text-align:center;padding:104px 0}
+.final{background:#2d2d2d;color:#d8d6d2;text-align:center;padding:104px 0}
 .final h2{color:#fff;max-width:700px;margin:0 auto 18px}.final p{max-width:560px;margin:0 auto 34px;font-size:1.05rem}
 .final .btn-secondary{background:transparent;color:#fff;border-color:#5a5a5a}.final .btn-secondary:hover{border-color:#fff}
-footer{background:var(--ink);border-top:1px solid #2e2e2e;padding:34px 0;color:#9a9a9a;font-size:.85rem}
+footer{background:#2d2d2d;border-top:1px solid #3a3a3a;padding:34px 0;color:#9a9a9a;font-size:.85rem}
 .foot-row{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
 .foot-row a{color:#c8c8c8;text-decoration:none;margin-left:20px}.foot-row a:hover{color:#fff}
 .foot-price{color:#c8c8c8}.foot-price b{color:#fff}
@@ -547,7 +547,7 @@ footer{background:var(--ink);border-top:1px solid #2e2e2e;padding:34px 0;color:#
       <footer>
         <div className="container foot-row">
           <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <img src="/logo-full.png" alt="InventoryTools" style={{height:28,width:'auto',filter:'brightness(0) invert(1)'}} />
+            <img src="/logo-full.png" alt="InventoryTools" style={{height:32,width:'auto',filter:'brightness(0) invert(1)',opacity:0.9}} />
           </div>
           <div className="foot-price"><b>PDF from £4.00</b> · <b>Audio from £4.88</b> · Credits never expire</div>
           <div>
