@@ -224,7 +224,7 @@ export default function Auth() {
           <div className="aw-two">
             <div className="aw-hero" style={{ background:`linear-gradient(140deg,${P} 0%,#c24a00 100%)` }}>
               <div>
-                <a className="aw-hero-logo" href="/"><span className="aw-logo-mark">✓</span><span className="aw-logo-text">inventorytools</span></a>
+                <a className="aw-hero-logo" href="/"><img src="/logo-full.png" alt="InventoryTools" style={{height:36,width:'auto',filter:'brightness(0) invert(1)'}} /></a>
                 <h1>You did the inspection.<br/>Don&apos;t type it twice.</h1>
                 <p>Convert PDF reports and dictated inspection audio into clean, editable Word inventory documents — in minutes.</p>
                 {stats && (

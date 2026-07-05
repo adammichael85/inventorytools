@@ -189,8 +189,7 @@ footer{background:var(--ink);border-top:1px solid #2e2e2e;padding:34px 0;color:#
       <header>
         <div className="container nav">
           <a className="logo" href="#top" aria-label="InventoryTools home">
-            <span className="logo-mark">✓</span>
-            <span className="logo-text">inventory<span>tools</span></span>
+            <img src="/logo-full.png" alt="InventoryTools" style={{ height: 36, width: 'auto' }} />
           </a>
           <ul className="nav-links">
             <li><a href="#pdf-tool">PDF to Word</a></li>
@@ -544,8 +543,7 @@ footer{background:var(--ink);border-top:1px solid #2e2e2e;padding:34px 0;color:#
       <footer>
         <div className="container foot-row">
           <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <span className="logo-mark" style={{width:26,height:26,fontSize:'.85rem',borderRadius:7}}>✓</span>
-            <span style={{fontFamily:'Space Grotesk',fontWeight:700,color:'#fff'}}>inventory<span style={{color:'var(--orange)'}}>tools</span></span>
+            <img src="/logo-full.png" alt="InventoryTools" style={{height:28,width:'auto',filter:'brightness(0) invert(1)'}} />
           </div>
           <div className="foot-price"><b>PDF from £4.00</b> · <b>Audio from £4.88</b> · Credits never expire</div>
           <div>
