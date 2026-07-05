@@ -275,64 +275,232 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
 
 function LegalPage({ TEAL, TEAL_LIGHT, BORDER, SURFACE, BG, HINT, MUTED, TEXT, brand }: any) {
   const productName = brand.display_name || 'InventoryTools'
-  const supportEmail = brand.company_name === 'InventoryTools' ? 'support@inventorytools.co.uk' : ('support@' + (brand.domain || 'inventorytools.co.uk'))
+  const supportEmail = brand.company_name === 'InventoryTools' ? 'admin@inventorytools.co.uk' : ('support@' + (brand.domain || 'inventorytools.co.uk'))
   const sections = [
     {
       title: 'Privacy Policy',
-      content: `${productName} collects and processes the following personal data:
+      content: `${productName} collects and processes personal data to provide document and audio conversion services, manage user accounts, process payments, improve security, and operate the ${productName} platform.
 
-• Account information: name, email address, company name, position, address and phone number provided at signup
-• Conversion data: property addresses, room counts and conversion times
-• Usage data: login times, session duration
+The personal data we may collect includes:
 
-Your data is stored securely on Supabase servers located in the EU. We do not sell, share or transfer your personal data to third parties except as required to operate the service (Supabase for database storage, Vercel for hosting, OpenAI for document processing).
+- Account information: name, email address, company name, position, business address and phone number provided at signup
+- Billing and credit information: payment status, credit purchases, conversion credit balance and transaction references
+- Conversion data: property addresses, room counts, conversion times, uploaded file names, output document names and conversion history
+- Uploaded content: inventory PDFs, Word documents, audio recordings of property walkthroughs, and the converted Word documents uploaded or generated through the service
+- Usage data: login times, session duration, account activity, IP address, browser/device information and security logs
+- Support data: information you provide when contacting us for help or reporting an issue
 
-You have the right to access, correct or delete your personal data at any time. To exercise these rights, contact us at ${supportEmail}.
+${productName} processes this data for the following purposes:
 
-Data is retained for the duration of your account. Upon account deletion, all personal data is permanently removed within 30 days.`
+- To create and manage user accounts
+- To provide PDF, Word and audio-to-Word document conversion services
+- To store and deliver converted documents to the account holder
+- To manage credits, usage history and billing records
+- To provide customer support
+- To maintain security, prevent misuse and protect user accounts
+- To improve reliability, performance and accuracy of the service
+- To comply with legal, tax, accounting and regulatory obligations
+
+Our lawful bases for processing personal data are:
+
+- Contract performance — to provide the ${productName} service you have requested
+- Legitimate interests — to secure the platform, prevent misuse, improve the service and manage business operations
+- Legal obligation — where we must keep records or comply with applicable law
+- Consent — where we rely on optional cookies, analytics or marketing communications
+
+${productName} acts as the data controller for account information, billing information, usage data and support data.
+
+Where customers upload inventory documents or audio recordings containing personal data about tenants, occupiers, landlords, property contacts or other individuals, the customer is responsible for ensuring they have the lawful right to upload and process that data. In that situation, the customer will usually be the data controller and ${productName} will process the uploaded data only to provide the conversion service.
+
+We use trusted third-party service providers to operate ${productName}, including:
+
+- Supabase — database, authentication and private document/audio storage
+- Vercel — website and application hosting
+- Trigger.dev — background processing of uploaded documents and audio during conversion
+- OpenAI — document and audio processing and AI conversion services
+- Resend — transactional email (account confirmation, password reset, invoices, team invites)
+- Stripe — payment processing
+
+Payment card details are processed by Stripe. ${productName} does not store full payment card numbers.
+
+These providers may process personal data only as necessary to provide their services to ${productName}. We do not sell personal data.
+
+Uploaded files and converted documents are stored in private Supabase Storage and are accessible only to the relevant account holder through authenticated access controls. Documents are not made public.
+
+Data may be processed outside the United Kingdom where our service providers or their sub-processors operate internationally. Where this happens, we rely on appropriate safeguards such as data processing agreements, standard contractual clauses or equivalent protections required under data protection law.
+
+Data sent to OpenAI through the API is used to provide the conversion service. ${productName} does not intentionally use uploaded customer documents or audio to train public AI models.
+
+Data is retained as follows:
+
+- Account profiles: retained until account deletion
+- Billing and transaction records: retained for as long as required for legal, accounting and tax purposes
+- Conversion history: retained until manually deleted by the user or account deletion
+- Uploaded files (PDF, Word, audio) and converted Word documents: retained in private storage until manually deleted by the user or account deletion
+- Support messages: retained as long as needed to resolve the issue and maintain business records
+- Security logs: retained only as long as reasonably necessary for security and abuse prevention
+- Backups: retained for a limited period and then automatically purged
+
+Upon account deletion, personal data and stored files are permanently removed within 30 days, except where we are required to retain limited records for legal, tax, accounting, fraud prevention or dispute purposes.
+
+You have the following data protection rights:
+
+- Right of access
+- Right to rectification
+- Right to erasure
+- Right to restriction of processing
+- Right to data portability
+- Right to object
+- Right to withdraw consent where processing is based on consent
+- Right to complain to the Information Commissioner's Office
+
+To exercise your rights or ask a privacy question, contact ${supportEmail}.
+
+You also have the right to complain to the Information Commissioner's Office, the UK data protection regulator: ico.org.uk
+
+Our ICO registration is currently in application and pending with the Information Commissioner's Office (ICO).
+
+${productName} may use essential cookies or similar technologies for login sessions, authentication, account security and service operation. If optional analytics or marketing cookies are introduced, we will update this policy and request consent where required.
+
+This Privacy Policy may be updated from time to time. The latest version will always be available on ${brand.domain || 'inventorytools.co.uk'}.`
     },
     {
       title: 'Terms of Service',
-      content: `By using ${productName} you agree to these terms:
+      content: `By creating an account or using ${productName}, you agree to these Terms of Service.
 
-• The service converts inventory PDFs and Word documents into formatted Word documents
-• Credits are purchased in advance and deducted per conversion
-• Credits do not expire and are non-refundable once used
-• You are responsible for ensuring you have the right to process any documents you upload
-• We do not store the content of your converted documents beyond what is necessary to deliver the service
-• We reserve the right to suspend accounts that misuse the service
-• The service is provided "as is" without warranty of any kind`
+${productName} provides an online conversion service for property inventory documents and audio. The service converts inventory PDFs, Word documents and audio recordings of property walkthroughs into formatted Word documents.
+
+You are responsible for ensuring that you have the right to upload, process and convert any documents or audio recordings submitted to ${productName}. This includes ensuring that any personal data contained in uploaded files — including voices captured in audio recordings — has been collected and shared lawfully.
+
+You must not upload files that contain unlawful material, unnecessary sensitive personal data, criminal offence data, passwords, payment card details, national insurance numbers, identity documents or other information that is not required for the purpose of creating an inventory report.
+
+Credits are purchased in advance and deducted per conversion. Credits do not expire unless stated otherwise. Credits are non-refundable once used to process a conversion.
+
+Unused credits may be refunded at our discretion, subject to any payment processing fees, account status and evidence of misuse. We reserve the right to refuse refunds where credits have been used, abused or obtained fraudulently.
+
+${productName} aims to produce accurate formatted Word documents, but AI conversion is not guaranteed to be perfect. You are responsible for reviewing each converted document before relying on it, sending it to a client, sending it to a tenant, uploading it to another system or using it for business purposes.
+
+${productName} does not provide legal, tenancy, deposit, compliance or professional property advice. The service is a document formatting and conversion tool only.
+
+We do not store the content of converted documents beyond what is necessary to provide the service, maintain user access to conversion history, support account functionality and meet security or legal obligations.
+
+You must not misuse ${productName}. Prohibited use includes:
+
+- Attempting to access another user's account or documents
+- Uploading malicious files or harmful code
+- Attempting to bypass credit limits, security controls or payment systems
+- Using the service for unlawful, abusive or fraudulent purposes
+- Reselling, copying or reverse-engineering the service without permission
+- Uploading documents or audio you do not have the right to process
+
+We may suspend or terminate accounts that misuse the service, breach these terms, create security risks, fail payment checks or use the platform in a way that may harm ${productName} or other users.
+
+The service is provided on an "as is" and "as available" basis. We do not guarantee uninterrupted availability, error-free operation, perfect conversion accuracy or compatibility with every PDF, Word document or audio recording.
+
+${productName} is not liable for indirect losses, loss of profit, loss of business, loss of data, reputational damage, missed deadlines or losses caused by a user failing to review converted documents.
+
+Nothing in these terms limits liability where it would be unlawful to do so.
+
+We may update these terms from time to time. Continued use of ${productName} after changes are published means you accept the updated terms.
+
+For support, account questions or legal notices, contact ${supportEmail}.`
     },
     {
       title: 'GDPR Compliance',
-      content: `${productName} is committed to GDPR compliance:
+      content: `${productName} is designed to support UK GDPR compliance by applying appropriate data protection, access control, retention and security measures.
 
-• Legal basis for processing: contract performance and legitimate interests
-• Data controller: InventoryTools Ltd (inventorytools.co.uk) on behalf of ${productName}
-• Data processor: Supabase Inc (database), Vercel Inc (hosting), OpenAI Inc (document processing)
-• Data retention: account data retained until account deletion
-• Your rights: access, rectification, erasure, restriction, portability, objection
-• To exercise your rights: ${supportEmail}
-• Supervisory authority: Information Commissioner's Office (ICO), ico.org.uk`
+Data protection contact: ${supportEmail}
+
+${productName} does not currently have a Data Protection Officer because one is not required for the nature and scale of the service. A data protection contact is provided for privacy questions and data rights requests.
+
+${productName} acts as a data controller for:
+
+- User account information
+- Billing and credit information
+- Login and usage data
+- Support communications
+- Security and abuse prevention records
+
+${productName} may act as a data processor where customers upload inventory documents or audio recordings containing personal data about tenants, occupiers, landlords, property contacts or other individuals. In those cases, the customer is responsible for the lawful basis for uploading and processing that data.
+
+Legal bases for processing:
+
+- Contract performance — to provide the ${productName} service
+- Legitimate interests — to secure, maintain and improve the platform
+- Legal obligation — to keep required business, tax and compliance records
+- Consent — for optional cookies, analytics or marketing where applicable
+
+Data controller: InventoryTools (inventorytools.co.uk)
+
+Sub-processors used to provide the service may include:
+
+- Supabase — database, authentication and private file storage
+- Vercel — hosting and deployment
+- Trigger.dev — background processing of documents and audio during conversion
+- OpenAI — AI document and audio processing
+- Resend — transactional email
+- Stripe — payment processing
+
+${productName} aims to keep customer data secure by applying:
+
+- Authentication controls
+- Private user-specific file access
+- Row Level Security in the database
+- Encrypted data transmission using HTTPS/TLS
+- Environment-based API key storage
+- Session expiry controls
+- Access restrictions to user documents
+- Regular security reviews
+
+Users can request access, correction, deletion or restriction of their personal data by contacting ${supportEmail}.
+
+Where a request relates to personal data inside an uploaded inventory document or audio recording, ${productName} may need to refer the request to the relevant customer or account holder if that customer is the data controller.
+
+Personal data is retained only for as long as necessary to provide the service, comply with legal obligations, resolve disputes, maintain security and support account functionality.
+
+Upon account deletion, account data and stored files are permanently removed within 30 days, except where limited records must be retained for legal, tax, accounting, fraud prevention or dispute purposes.
+
+Our ICO registration is currently in application and pending with the Information Commissioner's Office (ICO).
+
+Users may complain to the Information Commissioner's Office if they are unhappy with how their personal data is handled: ico.org.uk`
     },
     {
       title: 'Security',
-      content: `We take security seriously:
+      content: `We take security seriously and apply technical and organisational measures to protect user accounts, uploaded files and converted documents.
 
-• All data is encrypted in transit using TLS 1.3
-• Database access is protected by Row Level Security — users can only access their own data
-• API keys are stored as environment variables and never exposed to the client
-• Authentication is handled by Supabase Auth with secure session tokens
-• Sessions expire after 20 minutes of inactivity
-• We perform regular security reviews of our infrastructure`
+Security measures include:
+
+- Data encrypted in transit using HTTPS/TLS
+- Database access protected by Row Level Security so users can only access their own data
+- Uploaded files and converted documents stored in private Supabase Storage
+- API keys stored as environment variables and never exposed to the client
+- Authentication handled by Supabase Auth with secure session tokens
+- Session expiry controls to reduce unauthorised access risk
+- Access controls limiting documents to the relevant authenticated account holder
+- Regular reviews of infrastructure, permissions and security configuration
+
+No online service can guarantee complete security. Users are responsible for keeping their login details secure, using strong passwords and ensuring that only authorised people access their ${productName} account.
+
+If you believe your account or data may have been compromised, contact ${supportEmail}.`
     },
     {
       title: 'Data Retention',
-      content: `• Account profiles: retained until account deletion
-• Conversion history: retained until manually deleted or account deletion
-• Word documents: stored in private Supabase Storage, accessible only to the account holder
-• Upon account deletion: all data permanently removed within 30 days
-• Backups: retained for 7 days then automatically purged`
+      content: `${productName} keeps personal data only for as long as necessary to provide the service, maintain account functionality, comply with legal obligations, resolve disputes, prevent misuse and support security.
+
+Retention periods include:
+
+- Account profiles: retained until account deletion
+- Billing and transaction records: retained for as long as required for legal, accounting and tax purposes
+- Conversion history: retained until manually deleted by the user or account deletion
+- Uploaded files (PDF, Word, audio): stored in private Supabase Storage until manually deleted by the user or account deletion
+- Converted Word documents: stored in private Supabase Storage until manually deleted by the user or account deletion
+- Support messages: retained as long as necessary to handle the issue and maintain business records
+- Security logs: retained only as long as reasonably necessary for security, fraud prevention and abuse monitoring
+- Backups: retained for a limited period and then automatically purged
+
+Upon account deletion, account data, conversion history and stored files are permanently removed within 30 days, except where limited information must be retained for legal, tax, accounting, fraud prevention, security or dispute purposes.
+
+Users can request deletion of their account or personal data by contacting ${supportEmail}.`
     },
   ]
 
