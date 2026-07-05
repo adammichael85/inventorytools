@@ -75,6 +75,10 @@ export default function Auth() {
   const [pendingLoginUserId, setPendingLoginUserId] = useState('')
   const [revealed, setRevealed] = useState(false)
   const [stats, setStats] = useState<any>(null)
+  const [showForgot, setShowForgot] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotSent, setForgotSent] = useState(false)
+  const [forgotLoading, setForgotLoading] = useState(false)
   const [loginAttempts, setLoginAttempts] = useState(0)
   const [cooldownUntil, setCooldownUntil] = useState(0)
   const [cooldownLeft, setCooldownLeft] = useState(0)
@@ -162,6 +166,15 @@ export default function Auth() {
     window.location.href = '/dashboard'
   }
 
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault()
+    setForgotLoading(true)
+    const redirectUrl = `${window.location.origin}/auth/reset`
+    await supabase.auth.resetPasswordForEmail(forgotEmail, { redirectTo: redirectUrl })
+    setForgotSent(true)
+    setForgotLoading(false)
+  }
+
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault(); setError(''); setMessage('')
     // Check cooldown
@@ -230,7 +243,7 @@ export default function Auth() {
         <form onSubmit={handleSignIn}>
           <div className="aw-field"><label>Email address</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" required /></div>
           <div className="aw-field"><label>Password</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required /></div>
-          <div style={{textAlign:'right',marginBottom:6}}><a href="/auth/reset" style={{fontSize:'.8rem',color:P,fontWeight:600,textDecoration:'none'}}>Forgot password?</a></div>
+          <div style={{textAlign:'right',marginBottom:6}}><button type="button" onClick={()=>{setShowForgot(true);setForgotEmail(email);setForgotSent(false)}} style={{fontSize:'.8rem',color:P,fontWeight:600,background:'none',border:'none',cursor:'pointer',padding:0}}>Forgot password?</button></div>
           <HCaptcha ref={captchaRef} sitekey="a316dd3a-5010-4d00-89ea-4506c7eed068" onVerify={token => setCaptchaToken(token)} onExpire={() => setCaptchaToken(null)} theme="light" size="normal" />
           <button className="aw-btn aw-btn-p" type="submit" disabled={loading||cooldownUntil>Date.now()||!captchaToken}>{loading?'Signing in…':cooldownUntil>Date.now()?`Wait ${cooldownLeft}s…`:'Sign in'}</button>
           {isDefault && <p className="aw-link">No account? <button type="button" onClick={()=>{setTab('signup');setError('');setMessage('')}}>Sign up</button></p>}
@@ -283,6 +296,33 @@ export default function Auth() {
           </div>
         ) : (
           <div className="aw-centered">{Form}</div>
+        )}
+        {showForgot && (
+          <div className="aw-overlay">
+            <div className="aw-warn" style={{'--p':P} as React.CSSProperties}>
+              {forgotSent ? (
+                <>
+                  <h3>Check your email</h3>
+                  <p>We've sent a password reset link to <strong>{forgotEmail}</strong>. Check your inbox and spam folder.</p>
+                  <div className="aw-warn-btns" style={{marginTop:20}}>
+                    <button className="aw-warn-btn" style={{background:P,color:'#fff'}} onClick={()=>setShowForgot(false)}>Done</button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3>Reset your password</h3>
+                  <p>Enter your email address and we'll send you a reset link.</p>
+                  <form onSubmit={handleForgot} style={{marginTop:16}}>
+                    <div className="aw-field"><label>Email address</label><input type="email" value={forgotEmail} onChange={e=>setForgotEmail(e.target.value)} placeholder="you@example.com" required autoFocus /></div>
+                    <div className="aw-warn-btns" style={{marginTop:16}}>
+                      <button type="submit" className="aw-warn-btn" style={{background:P,color:'#fff'}} disabled={forgotLoading}>{forgotLoading?'Sending…':'Send reset link'}</button>
+                      <button type="button" className="aw-warn-btn" style={{background:'#f6f5f3',color:'#1a1a1a'}} onClick={()=>setShowForgot(false)}>Cancel</button>
+                    </div>
+                  </form>
+                </>
+              )}
+            </div>
+          </div>
         )}
         {showSessionWarning && (
           <div className="aw-overlay">
