@@ -887,7 +887,7 @@ function DeleteAccountButton({ supabase, profile, userEmail }: any) {
           if (!session) return
           const res = await fetch('/api/delete-account', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
             body: JSON.stringify({ user_id: session.user.id })
           })
           if (res.ok) {
@@ -1228,7 +1228,7 @@ export default function Dashboard() {
     try {
       const res = await fetch('/api/accuracy-report', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
         body: JSON.stringify({ conversion_id: conv.id, user_id: session.user.id })
       })
       const d = await res.json()
@@ -1481,7 +1481,7 @@ export default function Dashboard() {
         setProcessingRooms([{ name: 'Starting background conversion...', state: 'active' }])
         const startRes = await fetch('/api/convert-vision-start', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sess?.access_token}` },
           body: JSON.stringify({ pdfPath, userId: sess?.user?.id, convertedBy: userName || userEmail || sess?.user?.email || '', promptStyle: leadersStyle ? 'leaders' : 'standard' })
         })
         const startData = await startRes.json()

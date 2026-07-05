@@ -4,7 +4,14 @@ import { createClient } from '@supabase/supabase-js'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const supabase = createClient(
+    // Verify caller owns the user_id they claim
+    const authHeader = req.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '').trim()
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const anonClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const { data: { user: authUser } } = await anonClient.auth.getUser(token)
+    if (!authUser || authUser.id !== body.user_id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )

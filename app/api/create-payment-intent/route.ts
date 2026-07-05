@@ -7,6 +7,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { user_id, amount } = body
 
+  // Verify the caller is authenticated and owns the user_id they claim
+  const authHeader = req.headers.get('authorization')
+  const token = authHeader?.replace('Bearer ', '').trim()
+  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const anonClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { data: { user: authUser } } = await anonClient.auth.getUser(token)
+    if (!authUser || authUser.id !== user_id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
     if (!user_id || !amount || Number(amount) < 20) {
       return NextResponse.json({ error: 'Invalid user_id or amount (minimum £20)' }, { status: 400 })
     }

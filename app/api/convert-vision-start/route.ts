@@ -11,7 +11,15 @@ export async function POST(req: NextRequest) {
     if (!pdfPath) return NextResponse.json({ error: "No pdfPath" }, { status: 400 })
     if (!userId) return NextResponse.json({ error: "No userId" }, { status: 400 })
 
-    const jobId = `vision_${userId}_${Date.now()}`
+    // Verify caller is authenticated and owns this userId
+    const authHeader = req.headers.get('authorization')
+    const authToken = authHeader?.replace('Bearer ', '').trim()
+    if (!authToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authVerifyClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const { data: { user: authUser } } = await authVerifyClient.auth.getUser(authToken)
+    if (!authUser || authUser.id !== userId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+        const jobId = `vision_${userId}_${Date.now()}`
 
     // Create initial job record
     const supabase = createClient(

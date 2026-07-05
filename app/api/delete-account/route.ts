@@ -6,7 +6,15 @@ export async function POST(req: NextRequest) {
     const { user_id } = await req.json()
     if (!user_id) return NextResponse.json({ error: 'Missing user_id' }, { status: 400 })
 
-    const supabase = createClient(
+    // Verify caller is authenticated and owns this user_id
+    const authHeader = req.headers.get('authorization')
+    const authToken = authHeader?.replace('Bearer ', '').trim()
+    if (!authToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authVerifyClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const { data: { user: authUser } } = await authVerifyClient.auth.getUser(authToken)
+    if (!authUser || authUser.id !== user_id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+        const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
