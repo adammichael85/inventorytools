@@ -1,12 +1,57 @@
 'use client'
-import React from 'react'
-import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
+const css = `
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+.aw *{box-sizing:border-box;margin:0;padding:0}
+.aw{min-height:100vh;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+.aw-two{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+.aw-hero{display:flex;flex-direction:column;justify-content:space-between;padding:48px;position:relative;overflow:hidden}
+.aw-hero-logo{display:flex;align-items:center;gap:10px;margin-bottom:52px;text-decoration:none}
+.aw-logo-mark{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.1rem;font-family:'Space Grotesk'}
+.aw-logo-text{font-family:'Space Grotesk';font-weight:700;font-size:1.1rem;color:#fff}
+.aw-hero h1{font-family:'Space Grotesk';font-size:clamp(1.8rem,2.8vw,2.5rem);font-weight:700;color:#fff;line-height:1.15;letter-spacing:-.02em;margin-bottom:16px}
+.aw-hero p{font-size:.97rem;color:rgba(255,255,255,.8);line-height:1.65;margin-bottom:36px;max-width:380px}
+.aw-stats{display:flex;flex-direction:column;gap:11px}
+.aw-stat{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:16px 20px}
+.aw-stat .n{font-family:'Space Grotesk';font-size:1.5rem;font-weight:700;color:#fff}
+.aw-stat .l{font-size:.8rem;color:rgba(255,255,255,.72);margin-top:3px}
+.aw-right{display:flex;align-items:center;justify-content:center;background:#f6f5f3;padding:48px 40px}
+.aw-card{background:#fff;border:1px solid #ecebe8;border-radius:20px;padding:38px;width:100%;max-width:420px;box-shadow:0 8px 30px rgba(26,26,26,.07)}
+.aw-logo-center{text-align:center;margin-bottom:24px}.aw-logo-center img{height:42px;width:auto}
+.aw-tabs{display:flex;background:#f6f5f3;border-radius:12px;padding:4px;gap:4px;margin-bottom:26px}
+.aw-tab{flex:1;border:none;background:transparent;font-family:'Inter';font-weight:600;font-size:.9rem;padding:9px;border-radius:9px;cursor:pointer;color:#8a8a8a;transition:all .15s}
+.aw-tab.on{background:#fff;color:#1a1a1a;box-shadow:0 2px 8px rgba(26,26,26,.08)}
+.aw-field{margin-bottom:14px}
+.aw-field label{display:block;font-size:.83rem;font-weight:600;color:#1a1a1a;margin-bottom:5px}
+.aw-field input,.aw-field select{width:100%;border:1.5px solid #ecebe8;border-radius:10px;padding:10px 13px;font-family:'Inter';font-size:.93rem;color:#1a1a1a;background:#fff;outline:none;transition:border-color .15s}
+.aw-field input:focus,.aw-field select:focus{border-color:var(--p,#fd6a02)}
+.aw-field select{appearance:none;cursor:pointer}
+.aw-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.aw-btn{width:100%;border:none;border-radius:12px;padding:13px;font-family:'Inter';font-weight:700;font-size:.97rem;cursor:pointer;margin-top:8px;transition:all .15s}
+.aw-btn-p{background:var(--p,#fd6a02);color:#fff}
+.aw-btn-p:hover:not(:disabled){filter:brightness(.92);transform:translateY(-1px);box-shadow:0 6px 18px rgba(253,106,2,.25)}
+.aw-btn-p:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.aw-err{background:#fbeaea;border:1px solid #fca5a5;border-radius:10px;padding:11px 14px;font-size:.85rem;color:#b91c1c;margin-bottom:14px}
+.aw-ok{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:11px 14px;font-size:.85rem;color:#15803d;margin-bottom:14px}
+.aw-info{background:#fff1e6;border:1px solid #fed7aa;border-radius:10px;padding:11px 14px;font-size:.85rem;color:#9a3412;margin-bottom:14px}
+.aw-link{text-align:center;font-size:.83rem;color:#8a8a8a;margin-top:16px}
+.aw-link a,.aw-link button{color:var(--p,#fd6a02);font-weight:600;background:none;border:none;cursor:pointer;font-size:.83rem;font-family:'Inter'}
+.aw-centered{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f6f5f3;padding:24px}
+.aw-overlay{position:fixed;inset:0;background:rgba(26,26,26,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
+.aw-warn{background:#fff;border-radius:20px;padding:36px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(26,26,26,.15)}
+.aw-warn h3{font-family:'Space Grotesk';font-size:1.25rem;font-weight:700;color:#1a1a1a;margin-bottom:10px}
+.aw-warn p{font-size:.9rem;color:#4a4a4a;line-height:1.6;margin-bottom:22px}
+.aw-warn-btns{display:flex;flex-direction:column;gap:8px}
+.aw-warn-btn{width:100%;border:none;border-radius:10px;padding:12px;font-family:'Inter';font-weight:600;font-size:.93rem;cursor:pointer}
+.aw-foot{font-size:.78rem;color:rgba(255,255,255,.45);position:relative;z-index:1;margin-top:32px}
+@media(max-width:820px){.aw-two{grid-template-columns:1fr}.aw-hero{display:none}.aw-right{padding:32px 20px;min-height:100vh}}
+`
+
 export default function Auth() {
-  const [tab, setTab] = useState<'signin' | 'signup'>('signin')
+  const [tab, setTab] = useState<'signin'|'signup'>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [firstName, setFirstName] = useState('')
@@ -27,411 +72,190 @@ export default function Auth() {
   const [showSessionWarning, setShowSessionWarning] = useState(false)
   const [existingSessionDevice, setExistingSessionDevice] = useState('')
   const [pendingLoginUserId, setPendingLoginUserId] = useState('')
+  const [revealed, setRevealed] = useState(false)
+  const [stats, setStats] = useState<any>(null)
 
   type Brand = { display_name: string; logo_url: string | null; primary_color: string; primary_color_light: string | null; primary_color_dark: string | null }
-  const DEFAULT_BRAND: Brand = { display_name: 'InventoryTools', logo_url: '/logo-full.png', primary_color: '#FD6A02', primary_color_light: '#fff0e6', primary_color_dark: '#c24a00' }
+  const DEFAULT_BRAND: Brand = { display_name: 'InventoryTools', logo_url: null, primary_color: '#FD6A02', primary_color_light: '#fff0e6', primary_color_dark: '#c24a00' }
   const [brand, setBrand] = useState<Brand>(DEFAULT_BRAND)
   const [brandReady, setBrandReady] = useState(true)
+  const router = useRouter()
+  const isDefault = brand.display_name === DEFAULT_BRAND.display_name
+  const P = brand.primary_color
 
-  React.useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.search.includes('reason=inactivity')) {
-      setInactiveMsg(true)
-    }
+  useEffect(() => {
+    const t = setTimeout(() => setRevealed(true), 800)
+    return () => clearTimeout(t)
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/landing-stats').then(r => r.json()).then(d => { if (!d.error) setStats(d) }).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (window.location.search.includes('reason=inactivity')) setInactiveMsg(true)
     const params = new URLSearchParams(window.location.search)
     const invite = params.get('invite')
-    if (invite) {
-      setInviteToken(invite)
-      setTab('signup')
-      setCheckingInvite(true)
-      setBrandReady(false)
-      fetch('/api/validate-invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: invite })
-      }).then(r => r.json()).then(data => {
+    if (!invite) return
+    setInviteToken(invite); setTab('signup'); setCheckingInvite(true); setBrandReady(false)
+    fetch('/api/validate-invite', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: invite }) })
+      .then(r => r.json()).then(data => {
         setCheckingInvite(false)
         if (data.error) {
           setInviteError(data.error)
           if (data.company_name) {
-            supabase
-              .from('brands')
-              .select('display_name, logo_url, primary_color, primary_color_light, primary_color_dark')
-              .eq('company_name', data.company_name)
-              .maybeSingle()
-              .then(({ data: brandRow }) => {
-                if (brandRow) {
-                  setBrand({
-                    display_name: brandRow.display_name || DEFAULT_BRAND.display_name,
-                    logo_url: brandRow.logo_url || null,
-                    primary_color: brandRow.primary_color || DEFAULT_BRAND.primary_color,
-                    primary_color_light: brandRow.primary_color_light || DEFAULT_BRAND.primary_color_light,
-                    primary_color_dark: brandRow.primary_color_dark || DEFAULT_BRAND.primary_color_dark,
-                  })
-                }
+            supabase.from('brands').select('display_name,logo_url,primary_color,primary_color_light,primary_color_dark').eq('company_name', data.company_name).maybeSingle()
+              .then(({ data: b }) => {
+                if (b) setBrand({ display_name: b.display_name||DEFAULT_BRAND.display_name, logo_url: b.logo_url||null, primary_color: b.primary_color||DEFAULT_BRAND.primary_color, primary_color_light: b.primary_color_light||null, primary_color_dark: b.primary_color_dark||null })
                 setBrandReady(true)
               })
-          } else {
-            setBrandReady(true)
-          }
+          } else setBrandReady(true)
         } else {
-          setEmail(data.email)
-          setInviteCompanyName(data.company_name)
-          setCompany(data.company_name)
-          setAddress(data.company_address || '')
-          setPhone(data.company_phone || '')
-
-          supabase
-            .from('brands')
-            .select('display_name, logo_url, primary_color, primary_color_light, primary_color_dark')
-            .eq('company_name', data.company_name)
-            .maybeSingle()
-            .then(({ data: brandRow }) => {
-              if (brandRow) {
-                setBrand({
-                  display_name: brandRow.display_name || DEFAULT_BRAND.display_name,
-                  logo_url: brandRow.logo_url || null,
-                  primary_color: brandRow.primary_color || DEFAULT_BRAND.primary_color,
-                  primary_color_light: brandRow.primary_color_light || DEFAULT_BRAND.primary_color_light,
-                  primary_color_dark: brandRow.primary_color_dark || DEFAULT_BRAND.primary_color_dark,
-                })
-              }
+          setEmail(data.email||''); setInviteCompanyName(data.company_name||''); setCompany(data.company_name||''); setAddress(data.company_address||''); setPhone(data.company_phone||'')
+          supabase.from('brands').select('display_name,logo_url,primary_color,primary_color_light,primary_color_dark').eq('company_name', data.company_name).maybeSingle()
+            .then(({ data: b }) => {
+              if (b) setBrand({ display_name: b.display_name||DEFAULT_BRAND.display_name, logo_url: b.logo_url||null, primary_color: b.primary_color||DEFAULT_BRAND.primary_color, primary_color_light: b.primary_color_light||null, primary_color_dark: b.primary_color_dark||null })
               setBrandReady(true)
             })
         }
       })
-    }
   }, [])
-  const router = useRouter()
 
-  function getDeviceLabel() {
+  function getDevice() {
     if (typeof navigator === 'undefined') return 'Unknown device'
     const ua = navigator.userAgent
-    let browser = 'Unknown browser'
-    if (ua.includes('Edg/')) browser = 'Edge'
-    else if (ua.includes('Chrome/') && !ua.includes('Chromium')) browser = 'Chrome'
-    else if (ua.includes('Safari/') && !ua.includes('Chrome')) browser = 'Safari'
-    else if (ua.includes('Firefox/')) browser = 'Firefox'
-    let os = 'Unknown OS'
-    if (ua.includes('Windows')) os = 'Windows'
-    else if (ua.includes('Mac OS')) os = 'Mac'
-    else if (ua.includes('iPhone')) os = 'iPhone'
-    else if (ua.includes('iPad')) os = 'iPad'
-    else if (ua.includes('Android')) os = 'Android'
-    else if (ua.includes('Linux')) os = 'Linux'
-    return `${browser} on ${os}`
+    const b = ua.includes('Edg/')? 'Edge' : ua.includes('Chrome/')&&!ua.includes('Chromium')? 'Chrome' : ua.includes('Safari/')&&!ua.includes('Chrome')? 'Safari' : ua.includes('Firefox/')? 'Firefox' : 'Browser'
+    const o = ua.includes('iPhone')? 'iPhone' : ua.includes('iPad')? 'iPad' : ua.includes('Android')? 'Android' : ua.includes('Mac OS')? 'Mac' : ua.includes('Windows')? 'Windows' : 'Device'
+    return `${b} on ${o}`
   }
 
   async function completeLogin(userId: string) {
     const sessionToken = crypto.randomUUID()
-    const deviceLabel = getDeviceLabel()
     sessionStorage.setItem('deviceSessionToken', sessionToken)
-    await fetch('/api/session-check', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'start_session', userId, sessionToken, deviceLabel })
-    })
-
-    // Resolve and cache the brand BEFORE redirecting, so the dashboard never shows default colours
+    await fetch('/api/session-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'start_session', userId, sessionToken, deviceLabel: getDevice() }) })
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_name')
-        .eq('id', userId)
-        .single()
-
+      const { data: profile } = await supabase.from('profiles').select('company_name').eq('id', userId).single()
       if (profile?.company_name) {
-        const { data: brandRow } = await supabase
-          .from('brands')
-          .select('*')
-          .eq('company_name', profile.company_name)
-          .maybeSingle()
-
-        if (brandRow) {
-          sessionStorage.setItem('cachedBrand', JSON.stringify(brandRow))
-          sessionStorage.setItem('cachedBrandTime', Date.now().toString())
-        }
+        const { data: brandRow } = await supabase.from('brands').select('*').eq('company_name', profile.company_name).maybeSingle()
+        if (brandRow) { sessionStorage.setItem('cachedBrand', JSON.stringify(brandRow)); sessionStorage.setItem('cachedBrandTime', Date.now().toString()) }
       }
-    } catch (e) { /* if this fails, BrandContext will resolve it normally on dashboard load */ }
-
-    window.scrollTo(0,0)
+    } catch {}
     sessionStorage.setItem('freshLogin', '1')
     window.location.href = '/dashboard'
   }
 
-  async function handleSignIn() {
-    setLoading(true)
-    setError('')
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) { setError(error.message); setLoading(false); return }
-
+  async function handleSignIn(e: React.FormEvent) {
+    e.preventDefault(); setError(''); setMessage(''); setLoading(true)
+    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password })
+    if (err) { setError(err.message); setLoading(false); return }
     const userId = data.user?.id
     if (!userId) { setLoading(false); return }
-
-    // Check for an existing active session on another device
-    const checkRes = await fetch('/api/session-check', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'check_existing', userId })
-    })
-    const checkData = await checkRes.json()
-
-    if (checkData.hasActiveSession) {
-      setPendingLoginUserId(userId)
-      setExistingSessionDevice(checkData.device || 'another device')
-      setShowSessionWarning(true)
-      setLoading(false)
-      return
-    }
-
+    const check = await fetch('/api/session-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'check_existing', userId }) })
+    const checkData = await check.json()
+    if (checkData.hasActiveSession) { setPendingLoginUserId(userId); setExistingSessionDevice(checkData.device||'another device'); setShowSessionWarning(true); setLoading(false); return }
     await completeLogin(userId)
   }
 
-  async function handleSignUp() {
-    setLoading(true)
-    setError('')
-    const { data, error } = await supabase.auth.signUp({
-      email, password,
-      options: { data: { full_name: firstName + ' ' + lastName, company_name: company } }
-    })
-    if (error) { setError(error.message); setLoading(false); return }
+  async function handleSignUp(e: React.FormEvent) {
+    e.preventDefault(); setError(''); setMessage(''); setLoading(true)
+    const { data, error: err } = await supabase.auth.signUp({ email, password, options: { data: { full_name: firstName+' '+lastName, company_name: company } } })
+    if (err) { setError(err.message); setLoading(false); return }
     if (data.user) {
-      const profileRes = await fetch('/api/create-profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: data.user.id,
-          full_name: firstName + ' ' + lastName,
-          company_name: company,
-          company_type: companyType,
-          company_position: position,
-          company_address: address,
-          company_phone: phone,
-          invite_token: inviteToken || undefined,
-        })
-      })
-      const profileData = await profileRes.json()
-      console.log('Profile save result:', profileData)
+      await fetch('/api/create-profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: data.user.id, full_name: firstName+' '+lastName, company_name: company, company_type: companyType, company_position: position, company_address: address, company_phone: phone, invite_token: inviteToken||undefined }) })
     }
-    setMessage('Check your email to confirm your account!\n\nPlease check your junk/spam folder if you do not see it in your inbox.')
+    setMessage('Check your email to confirm your account! Please check your spam folder too.')
     setLoading(false)
   }
 
-  const T = brand.primary_color
-  const TL = brand.primary_color_light || brand.primary_color
-  const TD = brand.primary_color_dark || brand.primary_color
-  const B = '#E3E7E9'
-  const BG = '#F3F5F6'
-  const TX = '#11151A'
-  const M = '#6B7780'
-  const H = '#9BA3A8'
+  const cardStyle = { '--p': P } as React.CSSProperties
 
-  const input = { width: '100%', padding: '11px 14px', borderRadius: 9, border: `1px solid ${B}`, fontFamily: 'inherit', fontSize: 14, outline: 'none', background: '#fff', boxSizing: 'border-box' as const }
+  const Form = (
+    <div className="aw-card" style={cardStyle}>
+      {brand.logo_url && <div className="aw-logo-center"><img src={brand.logo_url} alt={brand.display_name} /></div>}
+      {!isDefault && (<><h2 style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1.35rem',color:'#1a1a1a',textAlign:'center',marginBottom:6}}>Welcome back</h2><p style={{fontSize:'.88rem',color:'#8a8a8a',textAlign:'center',marginBottom:22}}>Sign in to your {brand.display_name} account</p></>)}
+      {inactiveMsg && <div className="aw-info">⏱ Signed out due to inactivity. Please sign in again.</div>}
+      {inviteError && <div className="aw-err">{inviteError}</div>}
+      {!inviteToken && (
+        <div className="aw-tabs">
+          <button className={`aw-tab${tab==='signin'?' on':''}`} onClick={()=>{setTab('signin');setError('');setMessage('')}} type="button">Sign in</button>
+          <button className={`aw-tab${tab==='signup'?' on':''}`} onClick={()=>{setTab('signup');setError('');setMessage('')}} type="button">Create account</button>
+        </div>
+      )}
+      {error && <div className="aw-err">{error}</div>}
+      {message && <div className="aw-ok">{message}</div>}
+      {checkingInvite ? (
+        <p style={{textAlign:'center',color:'#8a8a8a',padding:'20px 0',fontSize:'.9rem'}}>Validating invite link…</p>
+      ) : tab === 'signin' ? (
+        <form onSubmit={handleSignIn}>
+          <div className="aw-field"><label>Email address</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" required /></div>
+          <div className="aw-field"><label>Password</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required /></div>
+          <div style={{textAlign:'right',marginBottom:6}}><a href="/auth/reset" style={{fontSize:'.8rem',color:P,fontWeight:600,textDecoration:'none'}}>Forgot password?</a></div>
+          <button className="aw-btn aw-btn-p" type="submit" disabled={loading}>{loading?'Signing in…':'Sign in'}</button>
+          {isDefault && <p className="aw-link">No account? <button type="button" onClick={()=>{setTab('signup');setError('');setMessage('')}}>Sign up</button></p>}
+          {!isDefault && <p className="aw-link" style={{marginTop:14}}>Need access? Contact your account administrator for an invite.</p>}
+        </form>
+      ) : (
+        <form onSubmit={handleSignUp}>
+          {inviteToken && !inviteError && <p style={{fontSize:'.88rem',color:'#4a4a4a',marginBottom:18,lineHeight:1.5}}>You&apos;ve been invited to join <strong>{inviteCompanyName}</strong>. Set your name and password to finish setting up your account.</p>}
+          <div className="aw-row">
+            <div className="aw-field"><label>First name *</label><input type="text" value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="Adam" required /></div>
+            <div className="aw-field"><label>Last name *</label><input type="text" value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="Smith" required /></div>
+          </div>
+          <div className="aw-field"><label>Email address *</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" required disabled={!!inviteToken} style={inviteToken?{background:'#f6f5f3',color:'#8a8a8a'}:{}} /></div>
+          <div className="aw-field"><label>Password *</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Choose a strong password" required /></div>
+          {!inviteToken && (<><div className="aw-field"><label>Company name *</label><input type="text" value={company} onChange={e=>setCompany(e.target.value)} placeholder="ABC Inventories Ltd" required /></div>
+          <div className="aw-field"><label>Company type</label><select value={companyType} onChange={e=>setCompanyType(e.target.value)}><option value="">Select type…</option><option value="inventory_company">Inventory company</option><option value="letting_agent">Letting agent</option><option value="property_manager">Property manager</option><option value="other">Other</option></select></div></>)}
+          <div className="aw-field"><label>Your position *</label><input type="text" value={position} onChange={e=>setPosition(e.target.value)} placeholder="e.g. Inventory Clerk" required /></div>
+          <div className="aw-field"><label>Company address</label><input type="text" value={address} onChange={e=>setAddress(e.target.value)} placeholder="Optional" /></div>
+          <div className="aw-field"><label>Phone number</label><input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Optional" /></div>
+          <button className="aw-btn aw-btn-p" type="submit" disabled={loading||!!inviteError||checkingInvite}>{loading?'Creating account…':inviteToken?'Join team':'Create account'}</button>
+          {!inviteToken && <p className="aw-link">Already have an account? <button type="button" onClick={()=>{setTab('signin');setError('');setMessage('')}}>Sign in</button></p>}
+        </form>
+      )}
+    </div>
+  )
 
   return (
-    <main style={{ fontFamily: "'General Sans', sans-serif", minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <style>{`@media(max-width:768px){:root{--auth-cols:1fr}.auth-left{display:none!important}.name-grid{grid-template-columns:1fr!important}}`}</style>
-      <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-      <nav style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${B}`, padding: '0 5vw', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          {brand.logo_url ? (
-            <img src={brand.logo_url} alt={brand.display_name} style={{ height: 32, width: 'auto' }} />
-          ) : (
-            <>
-              <div style={{ width: 34, height: 34, background: T, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="34" height="34" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="120" height="120" rx="26" fill="#FD6A02"/>
-                <rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
-                <rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
-                <rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/>
-                <rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/>
-                <rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/>
-                <rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/>
-                <rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/>
-                <rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/>
-                <path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: css }} />
+      <div className="aw" style={{ filter:revealed?'none':'grayscale(.9) blur(6px)', transition:'filter 0.4s ease' }}>
+        {isDefault ? (
+          <div className="aw-two">
+            <div className="aw-hero" style={{ background:`linear-gradient(140deg,${P} 0%,#c24a00 100%)` }}>
+              <div>
+                <a className="aw-hero-logo" href="/"><span className="aw-logo-mark">✓</span><span className="aw-logo-text">inventorytools</span></a>
+                <h1>You did the inspection.<br/>Don&apos;t type it twice.</h1>
+                <p>Convert PDF reports and dictated inspection audio into clean, editable Word inventory documents — in minutes.</p>
+                {stats && (
+                  <div className="aw-stats">
+                    <div className="aw-stat"><div className="n">{stats.pdf.total_reports + stats.audio.total_reports}+ reports</div><div className="l">converted — PDF and Audio to Word</div></div>
+                    <div className="aw-stat"><div className="n">{stats.pdf.total_rooms}+ rooms</div><div className="l">extracted and structured</div></div>
+                    {stats.pdf.rating_count > 0 && <div className="aw-stat"><div className="n">★ {stats.pdf.avg_rating}/5</div><div className="l">average rating from PDF conversions</div></div>}
+                  </div>
+                )}
               </div>
-              <span style={{ fontSize: 15, fontWeight: 700, color: TX }}>inventory<span style={{ color: T }}>tools</span>.co.uk</span>
-            </>
-          )}
-        </Link>
-        <div style={{ fontSize: 13, color: M }}>
-          {tab === 'signup' ? <>Already have an account? <button onClick={() => setTab('signin')} style={{ color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Sign in</button></> : <>No account? <button onClick={() => setTab('signup')} style={{ color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Sign up</button></>}
-        </div>
-      </nav>
-
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: inviteToken ? '1fr' : 'var(--auth-cols, 1fr 1fr)', background: brand.display_name === DEFAULT_BRAND.display_name ? BG : 'transparent' }}>
-        {!inviteToken && (
-        brand.display_name === DEFAULT_BRAND.display_name ? (
-        <div style={{ padding: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div style={{ background: '#fff', border: `1px solid ${B}`, borderRadius: 20, padding: 36 }}>
-            <h2 style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, color: T, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>Two tools · one login</h2>
-            <h2 style={{ fontSize: 28, fontWeight: 800, color: TX, lineHeight: 1.2, letterSpacing: -0.6, marginBottom: 14 }}>Reports done in minutes.</h2>
-            <p style={{ fontSize: 14.5, color: M, lineHeight: 1.7, marginBottom: 30 }}>PDF to Word: upload any inventory PDF and get a perfectly formatted Word document in minutes. Audio to Word: upload a voice recording and get a structured Word doc automatically. Both tools. One login.</p>
-            {[['⏱', 'Convert old or other companies\' inventories in minutes', 'vs. 45–90 mins with a typist'], ['💷', 'Word & PDF to Word from £4.00 · Audio to Word from £4.88*', 'Priced by property size. No monthly fees.'], ['✓', 'Save up to 60% vs. manual audio typists', 'Audio to Word SAVES you money on EVERY report!']].map(([icon, title, sub]) => (
-              <div key={title} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: TL, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{icon}</div>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: TX, marginBottom: 2 }}>{title}</p>
-                  <p style={{ fontSize: 12, color: M }}>{sub}</p>
-                </div>
-              </div>
-            ))}
+              <p className="aw-foot">PDF from £4.00 · Audio from £4.88 · Credits never expire</p>
+            </div>
+            <div className="aw-right">{Form}</div>
           </div>
-        </div>
         ) : (
-        <div style={{ background: T, padding: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontSize: 36, fontWeight: 700, color: '#fff', lineHeight: 1.2, letterSpacing: -0.5, marginBottom: 16 }}>Two tools. One login. Reports done in minutes.</h2>
-            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 40 }}>PDF to Word: upload any inventory PDF and get a perfectly formatted Word document in minutes. Audio to Word: upload a voice recording and get a structured Word doc automatically. Both tools. One login.</p>
-            {[['⏱', 'Convert old or other companies\' inventories in minutes', 'vs. 45–90 mins with a typist'], ['💷', 'Word & PDF to Word from £4.00 · Audio to Word from £4.88*', 'Priced by property size. No monthly fees.'], ['✓', 'Save up to 60% vs. manual audio typists', 'Audio to Word SAVES you money on EVERY report!']].map(([icon, title, sub]) => (
-              <div key={title} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{icon}</div>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#fff', marginBottom: 2 }}>{title}</p>
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        )
+          <div className="aw-centered">{Form}</div>
         )}
-
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 5vw', background: brand.display_name === DEFAULT_BRAND.display_name ? 'transparent' : BG, overflowY: 'auto' }}>
-          <div style={{ width: '100%', maxWidth: 420 }}>
-            <div style={{ display: 'flex', background: '#fff', border: `1px solid ${B}`, borderRadius: 12, padding: 4, marginBottom: 28 }}>
-              {(['signin', 'signup'] as const).map(t => (
-                <button key={t} onClick={() => { setTab(t); setError(''); setMessage('') }} style={{ flex: 1, padding: 9, borderRadius: 9, border: 'none', background: tab === t ? T : 'transparent', color: tab === t ? '#fff' : M, fontFamily: 'inherit', fontSize: 14, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}>
-                  {t === 'signin' ? 'Sign in' : 'Create account'}
-                </button>
-              ))}
+        {showSessionWarning && (
+          <div className="aw-overlay">
+            <div className="aw-warn" style={{ '--p':P } as React.CSSProperties}>
+              <h3>Already signed in elsewhere</h3>
+              <p>Your account is active on <strong>{existingSessionDevice}</strong>. Continuing here will sign out that session.</p>
+              <div className="aw-warn-btns">
+                <button className="aw-warn-btn" style={{background:P,color:'#fff'}} onClick={async()=>{setShowSessionWarning(false);setLoading(true);await completeLogin(pendingLoginUserId)}}>Continue — sign in here</button>
+                <button className="aw-warn-btn" style={{background:'#f6f5f3',color:'#1a1a1a'}} onClick={()=>{setShowSessionWarning(false);setPendingLoginUserId('');setLoading(false)}}>Cancel</button>
+              </div>
             </div>
-
-            {inactiveMsg && <div style={{ background: '#FFF8E1', border: '1px solid #FFD54F', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#7B5E00', marginBottom: 16 }}>⏱ You have been logged out due to inactivity. Please sign in again.</div>}
-            {error && <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#DC2626', marginBottom: 16 }}>{error}</div>}
-            {message && <div style={{ background: TL, border: '1px solid #A7F3D0', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: TD, marginBottom: 16 }}>{message}</div>}
-
-            {tab === 'signin' && (
-              <div>
-                <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.4, marginBottom: 6 }}>Welcome back</h2>
-                <p style={{ fontSize: 14, color: M, marginBottom: 24 }}>Sign in to your InventoryTools account.</p>
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>Email address</label>
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@company.com" style={input} />
-                </div>
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>Password</label>
-                  <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" style={input} />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 22 }}>
-                  <button onClick={async () => {
-                    if (!email) { setMessage('Enter your email address first'); return }
-                    if (!email) { setMessage('Enter your email address first'); return }
-                    const res = await fetch('/api/forgot-password', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ email })
-                    })
-                    setMessage('If an account exists, a password reset email has been sent.\n\nPlease check your junk/spam folder if you do not see it in your inbox.')
-
-                  }} style={{ fontSize: 13, color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>Forgot password?</button>
-                </div>
-                <button onClick={handleSignIn} disabled={loading} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: loading ? H : T, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', marginBottom: 16 }}>
-                  {loading ? 'Signing in...' : 'Sign in'}
-                </button>
-                <p style={{ textAlign: 'center', fontSize: 13, color: M }}>No account? <button onClick={() => setTab('signup')} style={{ color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Create one →</button></p>
-              </div>
-            )}
-
-            {tab === 'signup' && (
-              <div>
-                {checkingInvite ? (
-                  <p style={{ fontSize: 14, color: M }}>Checking invite link...</p>
-                ) : inviteError ? (
-                  <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
-                    <p style={{ fontSize: 13, color: '#DC2626', margin: 0 }}>{inviteError}</p>
-                  </div>
-                ) : inviteToken ? (
-                  <>
-                    <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.4, marginBottom: 6 }}>Join {inviteCompanyName}</h2>
-                    <p style={{ fontSize: 14, color: M, marginBottom: 24 }}>You've been invited to join {inviteCompanyName} on {brand.display_name}. Set a password to finish creating your account.</p>
-                  </>
-                ) : (
-                  <>
-                    <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.4, marginBottom: 6 }}>Create your account</h2>
-                    <p style={{ fontSize: 14, color: M, marginBottom: 24 }}>Set up your InventoryTools account.</p>
-                  </>
-                )}
-                <div className="name-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>First name</label>
-                    <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Jane" style={input} />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>Last name</label>
-                    <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Smith" style={input} />
-                  </div>
-                </div>
-                {[
-                  ['Work email', 'email', email, (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value), 'jane@company.com', !!inviteToken],
-                  ['Password', 'password', password, (e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value), '••••••••', false],
-                  ['Company name', 'text', company, (e: React.ChangeEvent<HTMLInputElement>) => setCompany(e.target.value), 'ABC Inventories Ltd', !!inviteToken],
-                ].map(([label, type, value, onChange, placeholder, disabled]) => (
-                  <div key={label as string} style={{ marginBottom: 14 }}>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>{label as string}</label>
-                    <input type={type as string} value={value as string} disabled={disabled as boolean} onChange={onChange as React.ChangeEventHandler<HTMLInputElement>} placeholder={placeholder as string} style={disabled ? {...input, background: BG, color: M} : input} />
-                  </div>
-                ))}
-                {!inviteToken && (
-                  <div style={{ marginBottom: 14 }}>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>Company type</label>
-                    <select value={companyType} onChange={e => setCompanyType(e.target.value)} style={{ ...input, appearance: 'none' as const }}>
-                      <option value="">Select company type...</option>
-                      <option value="inventory_company">Inventory Company</option>
-                      <option value="typing_company">Typing Company</option>
-                      <option value="estate_agent">Estate Agent</option>
-                    </select>
-                  </div>
-                )}
-                {[
-                  ['Your position', 'text', position, (e: React.ChangeEvent<HTMLInputElement>) => setPosition(e.target.value), 'Inventory Clerk', false],
-                  ['Company address', 'text', address, (e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value), '123 High Street, London', !!inviteToken],
-                  ['Company phone', 'tel', phone, (e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value), '01234 567890', !!inviteToken],
-                ].map(([label, type, value, onChange, placeholder, disabled]) => (
-                  <div key={label as string} style={{ marginBottom: 14 }}>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7 }}>{label as string}</label>
-                    <input type={type as string} value={value as string} disabled={disabled as boolean} onChange={onChange as React.ChangeEventHandler<HTMLInputElement>} placeholder={placeholder as string} style={disabled ? {...input, background: BG, color: M} : input} />
-                  </div>
-                ))}
-                <button onClick={handleSignUp} disabled={loading || !!inviteError || checkingInvite} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: loading ? H : T, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer', marginBottom: 12, marginTop: 4 }}>
-                  {loading ? 'Creating account...' : inviteToken ? 'Join team' : 'Create account'}
-                </button>
-                <p style={{ fontSize: 12, color: H, lineHeight: 1.6, textAlign: 'center' }}>By creating an account you agree to our <a href="#" style={{ color: M }}>Terms</a> and <a href="#" style={{ color: M }}>Privacy Policy</a>.</p>
-                <p style={{ textAlign: 'center', fontSize: 13, color: M, marginTop: 12 }}>Already have an account? <button onClick={() => setTab('signin')} style={{ color: T, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Sign in →</button></p>
-              </div>
-            )}
           </div>
-        </div>
+        )}
+        {!brandReady && <div style={{position:'fixed',inset:0,background:'rgba(246,245,243,.97)',backdropFilter:'blur(12px)',zIndex:99999}} />}
       </div>
-
-      {showSessionWarning && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 420, padding: 28, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-            <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px' }}>Active session detected</h3>
-            <p style={{ fontSize: 14, color: M, lineHeight: 1.6, marginBottom: 24 }}>You're already signed in on <strong style={{ color: TX }}>{existingSessionDevice}</strong>. Each account can only be active on one device at a time. Do you want to log that device out and continue here?</p>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => { setShowSessionWarning(false); setPendingLoginUserId(''); setLoading(false) }} style={{ flex: 1, padding: 12, borderRadius: 10, border: `1px solid ${B}`, background: 'transparent', color: M, fontFamily: 'inherit', fontSize: 14, cursor: 'pointer' }}>Cancel</button>
-              <button onClick={async () => { setShowSessionWarning(false); setLoading(true); await completeLogin(pendingLoginUserId) }} style={{ flex: 1, padding: 12, borderRadius: 10, border: 'none', background: T, color: '#fff', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Log out other device</button>
-            </div>
-          </div>
-        </div>
-      )}
-      {!brandReady && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(245,245,245,0.97)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 99999 }} />
-      )}
-    </main>
+    </>
   )
 }
