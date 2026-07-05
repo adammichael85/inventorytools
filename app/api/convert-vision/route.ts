@@ -255,6 +255,7 @@ export async function POST(req: NextRequest) {
 
   } catch (err: any) {
     console.error("Vision two-pass error:", err.message)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('[API Error]', path, err)
+    return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 })
   }
 }

@@ -217,6 +217,7 @@ IMPORTANT FORMATTING RULES:
     await supabase.from('conversions').update({ accuracy_report: report }).eq('id', conversion_id)
     return NextResponse.json({ ok: true, report })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('[API Error]', path, err)
+    return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 })
   }
 }

@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ jobId })
 
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('[API Error]', path, err)
+    return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 })
   }
 }

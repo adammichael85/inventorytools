@@ -115,7 +115,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, cleaned_base64: cleanedBase64, balance: newBalance })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('[API Error]', path, err)
+    return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 })
   } finally {
     // Always clean up temp files
     try { fs.unlinkSync(tmpIn) } catch {}

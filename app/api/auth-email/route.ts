@@ -148,6 +148,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({})
   } catch (err: any) {
     console.log('Auth hook error:', err.message)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('[API Error]', path, err)
+    return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 })
   }
 }
