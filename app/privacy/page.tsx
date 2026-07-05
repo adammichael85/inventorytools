@@ -3,13 +3,14 @@ export default function PrivacyPolicy() {
     <div style={{ fontFamily: "'Inter', sans-serif", maxWidth: 760, margin: '0 auto', padding: '64px 24px 96px', color: '#1a1a1a', lineHeight: 1.7 }}>
       <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 700, marginBottom: 8 }}>Privacy Policy</h1>
       <p style={{ color: '#8a8a8a', marginBottom: 48 }}>Last updated: July 2026</p>
+
       <section style={{ marginBottom: 40 }}>
         <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>1. Who we are</h2>
-        <p>InventoryTools is operated by Adam Michael, trading as InventoryTools (sole trader). Our registered address is:</p>
-        <p style={{ margin: '12px 0', padding: '12px 16px', background: '#f6f5f3', borderRadius: 8, fontFamily: 'monospace', fontSize: '0.9rem' }}>[ADDRESS — to be completed]</p>
-        <p>Contact us about privacy: <a href="mailto:admin@inventorytools.co.uk" style={{ color: '#fd6a02' }}>admin@inventorytools.co.uk</a></p>
-        <p style={{ marginTop: 12 }}>ICO Registration Number: <strong>[ICO NUMBER — register at ico.org.uk]</strong></p>
+        <p>InventoryTools is operated by Adam Michael, trading as InventoryTools (sole trader), United Kingdom.</p>
+        <p style={{ marginTop: 12 }}>ICO Registration: <strong>Application pending — number will be published here once confirmed.</strong></p>
+        <p style={{ marginTop: 12 }}>For all privacy-related enquiries, please contact us at: <a href="mailto:admin@inventorytools.co.uk" style={{ color: '#fd6a02' }}>admin@inventorytools.co.uk</a></p>
       </section>
+
       <section style={{ marginBottom: 40 }}>
         <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>2. What data we collect</h2>
         <ul style={{ paddingLeft: 24, marginTop: 12 }}>
@@ -20,6 +21,7 @@ export default function PrivacyPolicy() {
           <li style={{ marginBottom: 8 }}><strong>Technical data:</strong> IP address, browser type, device information, and session data.</li>
         </ul>
       </section>
+
       <section style={{ marginBottom: 40 }}>
         <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>3. How we use your data</h2>
         <ul style={{ paddingLeft: 24 }}>
@@ -32,6 +34,7 @@ export default function PrivacyPolicy() {
         </ul>
         <p style={{ marginTop: 12 }}>We do not use your inventory report content for any purpose other than performing the conversion you requested. We do not sell your data to third parties.</p>
       </section>
+
       <section style={{ marginBottom: 40 }}>
         <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>4. Legal basis for processing</h2>
         <ul style={{ paddingLeft: 24 }}>
@@ -40,6 +43,7 @@ export default function PrivacyPolicy() {
           <li style={{ marginBottom: 8 }}><strong>Legal obligation:</strong> retaining transaction records for tax and accounting purposes.</li>
         </ul>
       </section>
+
       <section style={{ marginBottom: 40 }}>
         <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>5. Third-party processors</h2>
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 16, fontSize: '0.9rem' }}>
@@ -56,6 +60,7 @@ export default function PrivacyPolicy() {
         </table>
         <p style={{ marginTop: 16, fontSize: '0.9rem', color: '#4a4a4a' }}>Data transferred to processors in the USA is covered by Standard Contractual Clauses or equivalent mechanisms under UK GDPR.</p>
       </section>
+
       <section style={{ marginBottom: 40 }}>
         <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>6. Data retention</h2>
         <ul style={{ paddingLeft: 24 }}>
@@ -64,24 +69,30 @@ export default function PrivacyPolicy() {
           <li style={{ marginBottom: 8 }}><strong>Account deletion:</strong> your profile, conversions, and uploaded files are permanently deleted. Transaction records are retained for legal compliance.</li>
         </ul>
       </section>
+
       <section style={{ marginBottom: 40 }}>
         <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>7. Your rights</h2>
         <p>Under UK GDPR you have the right to access, rectify, erase, restrict, object to, and port your personal data. You can delete your account at any time via Account Settings. To exercise any other right, contact <a href="mailto:admin@inventorytools.co.uk" style={{ color: '#fd6a02' }}>admin@inventorytools.co.uk</a>. You may also complain to the ICO at <a href="https://ico.org.uk" style={{ color: '#fd6a02' }}>ico.org.uk</a>.</p>
       </section>
+
       <section style={{ marginBottom: 40 }}>
         <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>8. Security</h2>
         <p>We implement appropriate technical and organisational measures including encrypted connections, access controls, database row-level security, and authentication token verification on all sensitive operations.</p>
       </section>
+
       <section style={{ marginBottom: 40 }}>
         <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>9. Cookies</h2>
         <p>We use session cookies for authentication only. We do not use tracking, advertising, or analytics cookies.</p>
       </section>
+
       <section style={{ marginBottom: 40 }}>
-        <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>10. Changes</h2>
-        <p>We may update this policy from time to time. We will notify registered users of material changes by email.</p>
+        <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>10. Contact & changes</h2>
+        <p>For any privacy questions: <a href="mailto:admin@inventorytools.co.uk" style={{ color: '#fd6a02' }}>admin@inventorytools.co.uk</a></p>
+        <p style={{ marginTop: 8 }}>We may update this policy from time to time and will notify registered users of material changes by email.</p>
       </section>
+
       <div style={{ borderTop: '1px solid #ecebe8', paddingTop: 24, marginTop: 48, fontSize: '0.9rem', color: '#8a8a8a' }}>
-        <p>InventoryTools · admin@inventorytools.co.uk · <a href="/" style={{ color: '#fd6a02' }}>inventorytools.co.uk</a></p>
+        <p>InventoryTools · <a href="mailto:admin@inventorytools.co.uk" style={{ color: '#fd6a02' }}>admin@inventorytools.co.uk</a> · <a href="/" style={{ color: '#fd6a02' }}>inventorytools.co.uk</a></p>
       </div>
     </div>
   )
