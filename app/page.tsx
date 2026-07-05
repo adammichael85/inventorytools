@@ -547,7 +547,7 @@ footer{background:#2d2d2d;border-top:1px solid #3a3a3a;padding:34px 0;color:#9a9
       <footer>
         <div className="container foot-row">
           <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <img src="/logo-full.png" alt="InventoryTools" style={{height:32,width:'auto',filter:'brightness(0) invert(1)',opacity:0.9}} />
+            <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1rem',color:'#fff'}}>inventory<span style={{color:'#fd6a02'}}>tools</span></span>
           </div>
           <div className="foot-price"><b>PDF from £4.00</b> · <b>Audio from £4.88</b> · Credits never expire</div>
           <div>
