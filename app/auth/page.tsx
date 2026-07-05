@@ -1,7 +1,8 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
@@ -77,6 +78,8 @@ export default function Auth() {
   const [loginAttempts, setLoginAttempts] = useState(0)
   const [cooldownUntil, setCooldownUntil] = useState(0)
   const [cooldownLeft, setCooldownLeft] = useState(0)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const captchaRef = useRef<HCaptcha>(null)
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -167,9 +170,11 @@ export default function Auth() {
       return
     }
     setLoading(true)
-    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken: captchaToken || undefined } })
     if (err) {
       // Normalize error messages — never reveal whether the email exists
+      captchaRef.current?.resetCaptcha()
+      setCaptchaToken(null)
       const newAttempts = loginAttempts + 1
       setLoginAttempts(newAttempts)
       if (newAttempts >= 5) {
@@ -194,7 +199,7 @@ export default function Auth() {
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault(); setError(''); setMessage(''); setLoading(true)
-    const { data, error: err } = await supabase.auth.signUp({ email, password, options: { data: { full_name: firstName+' '+lastName, company_name: company } } })
+    const { data, error: err } = await supabase.auth.signUp({ email, password, options: { data: { full_name: firstName+' '+lastName, company_name: company }, captchaToken: captchaToken || undefined } })
     if (err) { setError(err.message); setLoading(false); return }
     if (data.user) {
       await fetch('/api/create-profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: data.user.id, full_name: firstName+' '+lastName, company_name: company, company_type: companyType, company_position: position, company_address: address, company_phone: phone, invite_token: inviteToken||undefined }) })
@@ -226,7 +231,8 @@ export default function Auth() {
           <div className="aw-field"><label>Email address</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" required /></div>
           <div className="aw-field"><label>Password</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required /></div>
           <div style={{textAlign:'right',marginBottom:6}}><a href="/auth/reset" style={{fontSize:'.8rem',color:P,fontWeight:600,textDecoration:'none'}}>Forgot password?</a></div>
-          <button className="aw-btn aw-btn-p" type="submit" disabled={loading||cooldownUntil>Date.now()}>{loading?'Signing in…':cooldownUntil>Date.now()?`Wait ${cooldownLeft}s…`:'Sign in'}</button>
+          <HCaptcha ref={captchaRef} sitekey="a316dd3a-5010-4d00-89ea-4506c7eed068" onVerify={token => setCaptchaToken(token)} onExpire={() => setCaptchaToken(null)} theme="light" size="normal" />
+          <button className="aw-btn aw-btn-p" type="submit" disabled={loading||cooldownUntil>Date.now()||!captchaToken}>{loading?'Signing in…':cooldownUntil>Date.now()?`Wait ${cooldownLeft}s…`:'Sign in'}</button>
           {isDefault && <p className="aw-link">No account? <button type="button" onClick={()=>{setTab('signup');setError('');setMessage('')}}>Sign up</button></p>}
           {!isDefault && <p className="aw-link" style={{marginTop:14}}>Need access? Contact your account administrator for an invite.</p>}
         </form>
@@ -244,7 +250,8 @@ export default function Auth() {
           <div className="aw-field"><label>Your position *</label><input type="text" value={position} onChange={e=>setPosition(e.target.value)} placeholder="e.g. Inventory Clerk" required /></div>
           <div className="aw-field"><label>Company address</label><input type="text" value={address} onChange={e=>setAddress(e.target.value)} placeholder="Optional" /></div>
           <div className="aw-field"><label>Phone number</label><input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Optional" /></div>
-          <button className="aw-btn aw-btn-p" type="submit" disabled={loading||!!inviteError||checkingInvite}>{loading?'Creating account…':inviteToken?'Join team':'Create account'}</button>
+          <HCaptcha ref={captchaRef} sitekey="a316dd3a-5010-4d00-89ea-4506c7eed068" onVerify={token => setCaptchaToken(token)} onExpire={() => setCaptchaToken(null)} theme="light" size="normal" />
+          <button className="aw-btn aw-btn-p" type="submit" disabled={loading||!!inviteError||checkingInvite||!captchaToken}>{loading?'Creating account…':inviteToken?'Join team':'Create account'}</button>
           {!inviteToken && <p className="aw-link">Already have an account? <button type="button" onClick={()=>{setTab('signin');setError('');setMessage('')}}>Sign in</button></p>}
         </form>
       )}
