@@ -93,7 +93,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdr
 .mini-label{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .pdf-mess{display:flex;flex-direction:column;gap:5px}.pdf-mess span{height:7px;border-radius:3px;background:#e5e3df}
 .pdf-mess span:nth-child(1){width:82%}.pdf-mess span:nth-child(2){width:60%;background:var(--red-tint)}.pdf-mess span:nth-child(3){width:95%}.pdf-mess span:nth-child(4){width:45%;background:var(--red-tint)}.pdf-mess span:nth-child(5){width:70%}
-.wave{display:flex;align-items:center;gap:3px;height:38px}
+.wave{display:flex;align-items:center;gap:3px;height:38px;width:100%}.wave i{flex:1}
 .wave i{width:4px;background:var(--orange);border-radius:2px;display:block;animation:wave 1.1s ease-in-out infinite;height:100%}
 @keyframes wave{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
 .wave i:nth-child(2n){animation-delay:.15s}.wave i:nth-child(3n){animation-delay:.3s}.wave i:nth-child(4n){animation-delay:.45s}
@@ -143,7 +143,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdr
 .step-num{width:46px;height:46px;border-radius:50%;background:var(--orange);color:#fff;font-family:'Space Grotesk';font-weight:700;font-size:1.15rem;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
 .step h3{font-size:1.02rem;margin-bottom:6px}.step p{font-size:.88rem}.hiw-foot{text-align:center;margin-top:44px;font-weight:600;color:var(--ink)}
 .grid-3.tight .card{padding:22px}.grid-3.tight h3{font-size:1rem}.grid-3.tight p{font-size:.88rem}.grid-3.tight .icon-chip{width:38px;height:38px;font-size:1.05rem;margin-bottom:12px}
-.table-wrap{overflow-x:auto;border-radius:20px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.table-wrap{overflow-x:auto;border-radius:20px;border:1px solid var(--border);box-shadow:var(--shadow);position:relative}.table-scroll-hint{display:none;text-align:right;font-size:.75rem;color:var(--muted);font-weight:600;padding:6px 4px 0;letter-spacing:.03em}
 table{width:100%;border-collapse:collapse;background:#fff;min-width:760px}
 th,td{padding:15px 18px;text-align:center;font-size:.9rem;border-bottom:1px solid var(--bg-alt)}
 th{font-family:'Space Grotesk';font-weight:600;color:var(--ink);font-size:.92rem}
@@ -184,7 +184,7 @@ footer{background:var(--ink);border-top:1px solid #2e2e2e;padding:34px 0;color:#
 .foot-price{color:#c8c8c8}.foot-price b{color:#fff}
 @media(max-width:960px){.grid-3{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr;gap:40px}.steps{grid-template-columns:repeat(2,1fr);row-gap:34px}.flow{grid-template-columns:1fr;gap:14px}.flow-mid{flex-direction:row;justify-content:center}.ba-grid{grid-template-columns:1fr}.ba-mid{transform:rotate(90deg);padding:4px 0}}
 @media(max-width:720px){section{padding:48px 0}h2{font-size:1.6rem}.container{padding:0 18px}.nav-links,.nav-right .login{display:none}.nav-right .btn{display:none}.hamburger{display:block}.grid-3{grid-template-columns:1fr}.product-grid,.pricing-grid{grid-template-columns:1fr}.product.standout{order:-1}.steps{grid-template-columns:1fr}.hero{padding:40px 0 48px;text-align:center}.hero h1{font-size:1.85rem;letter-spacing:-.03em}.hero .sub{font-size:.95rem;margin-bottom:24px}.hero-ctas{flex-direction:column;align-items:stretch;gap:10px;margin-bottom:18px}.hero-ctas .btn{width:100%;justify-content:center;padding:13px 20px}.badges{gap:6px;margin-bottom:32px}.badge{font-size:.72rem;padding:5px 10px}.toggle-wrap{margin-bottom:16px}.toggle button{padding:8px 16px;font-size:.82rem}.demo-panel{padding:14px;border-radius:16px}.flow{gap:10px}.mini-card{padding:12px}.mini-label{font-size:.65rem}.doc-head{font-size:.7rem;padding:9px 12px}.doc-body{padding:10px 12px;font-size:.7rem}.doc-room{font-size:.8rem;margin-bottom:5px}.doc-row{grid-template-columns:1fr 1.4fr .9fr;gap:3px;padding:4px 0}.docx-chip{font-size:.58rem;padding:2px 6px}.flow-mid{flex-direction:row;justify-content:center;gap:12px;min-width:unset}.gear{width:44px;height:44px;font-size:1.2rem}.flow-mid small{font-size:.68rem}.section-head{margin-bottom:28px}.section-head p{font-size:.95rem}.eyebrow{font-size:.68rem}.split{grid-template-columns:1fr;gap:32px}.route{gap:12px}.route-icon{width:38px;height:38px;font-size:1.1rem}.pull{font-size:1rem;padding:6px 0 6px 16px}.solution-diagram{padding:20px;gap:10px}.product{padding:20px}.product h3{font-size:1.25rem;margin-bottom:10px}.product>p{font-size:.9rem;margin-bottom:16px}.product ul{margin-bottom:18px;gap:8px}.product li{font-size:.88rem}.product-foot{flex-direction:column;align-items:stretch;gap:10px}.product-foot .btn{width:100%;justify-content:center}.price{font-size:1.1rem}.only-line{font-size:.8rem}.ba-grid{grid-template-columns:1fr;gap:12px}.ba-mid{transform:rotate(90deg);padding:2px 0;font-size:1.5rem}.ba-head{padding:10px 14px;font-size:.72rem}.ba-body{padding:14px;gap:10px}.chips{gap:6px}.chip{font-size:.7rem;padding:4px 10px}.ba-cta{margin-top:28px}.tabs{width:100%;border-radius:12px;justify-content:stretch}.tabs button{flex:1;padding:9px 8px;font-size:.82rem}.step-num{width:38px;height:38px;font-size:1rem}.step h3{font-size:.95rem}.step p{font-size:.82rem}.hiw-foot{font-size:.88rem;margin-top:28px}.card{padding:18px}.icon-chip{width:36px;height:36px;font-size:1rem;margin-bottom:10px}.card h3{font-size:.95rem;margin-bottom:6px}.card p{font-size:.85rem}.table-wrap{border-radius:10px;font-size:.78rem}th,td{padding:9px 10px;font-size:.75rem}.table-line{font-size:.95rem;margin-top:24px}.receipt{padding:18px}.receipt-row{font-size:.85rem;padding:10px 0}.calc{padding:18px}.calc label{font-size:.88rem}.calc-out{font-size:1.2rem}.calc small{font-size:.72rem}.price-card{padding:24px}.price-big{font-size:1.7rem}.price-card p{font-size:.85rem}.reassure{gap:10px;font-size:.78rem}.trust-list li{font-size:.9rem}.stat-card{padding:18px}.stat-card .big{font-size:1.5rem}.faq-q{font-size:.9rem;padding:14px 16px}.faq-a p{padding:0 16px 16px;font-size:.88rem}.final{padding:56px 0}.final h2{font-size:1.5rem}.final p{font-size:.95rem}.final .btn{width:100%;justify-content:center;margin-bottom:10px}.hero-ctas .btn-secondary{margin-top:0}footer{padding:24px 0}.foot-row{flex-direction:column;text-align:center;gap:12px}.foot-row a{margin:0 8px}.foot-price{font-size:.78rem}}
-@media(prefers-reduced-motion:reduce){.wave i,.gear{animation:none}html{scroll-behavior:auto}}
+@media(max-width:720px){.table-scroll-hint{display:block}.wave i{max-width:none}}@media(prefers-reduced-motion:reduce){.wave i,.gear{animation:none}html{scroll-behavior:auto}}
 `
 
   return (
@@ -415,6 +415,7 @@ footer{background:var(--ink);border-top:1px solid #2e2e2e;padding:34px 0;color:#
               </tbody>
             </table>
           </div>
+          <p className="table-scroll-hint">← scroll to compare →</p>
           <p className="table-line">PDF converters change the format. <b>InventoryTools rebuilds the report.</b></p>
           <div className="section-head" style={{marginTop:96}}><span className="eyebrow">And for audio</span><h2>Not another transcription app.</h2></div>
           <div className="table-wrap">
@@ -432,6 +433,7 @@ footer{background:var(--ink);border-top:1px solid #2e2e2e;padding:34px 0;color:#
               </tbody>
             </table>
           </div>
+          <p className="table-scroll-hint">← scroll to compare →</p>
           <p className="table-line">Transcription apps give you words. <b>InventoryTools gives you the report.</b></p>
         </div>
       </section>
