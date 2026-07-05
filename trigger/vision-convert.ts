@@ -418,7 +418,7 @@ export const visionConvertTask = task({
       try {
         const saveRes = await fetch(`https://www.inventorytools.co.uk/api/save-conversion`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.INTERNAL_API_SECRET}` },
           body: JSON.stringify({
             user_id: userId,
             address: address,
