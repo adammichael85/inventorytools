@@ -74,6 +74,20 @@ export default function Auth() {
   const [pendingLoginUserId, setPendingLoginUserId] = useState('')
   const [revealed, setRevealed] = useState(false)
   const [stats, setStats] = useState<any>(null)
+  const [loginAttempts, setLoginAttempts] = useState(0)
+  const [cooldownUntil, setCooldownUntil] = useState(0)
+  const [cooldownLeft, setCooldownLeft] = useState(0)
+
+  // Cooldown countdown timer
+  useEffect(() => {
+    if (cooldownUntil === 0) return
+    const interval = setInterval(() => {
+      const left = Math.ceil((cooldownUntil - Date.now()) / 1000)
+      if (left <= 0) { setCooldownLeft(0); setCooldownUntil(0); setLoginAttempts(0) }
+      else setCooldownLeft(left)
+    }, 500)
+    return () => clearInterval(interval)
+  }, [cooldownUntil])
 
   type Brand = { display_name: string; logo_url: string | null; primary_color: string; primary_color_light: string | null; primary_color_dark: string | null }
   const DEFAULT_BRAND: Brand = { display_name: 'InventoryTools', logo_url: null, primary_color: '#FD6A02', primary_color_light: '#fff0e6', primary_color_dark: '#c24a00' }
@@ -146,9 +160,30 @@ export default function Auth() {
   }
 
   async function handleSignIn(e: React.FormEvent) {
-    e.preventDefault(); setError(''); setMessage(''); setLoading(true)
+    e.preventDefault(); setError(''); setMessage('')
+    // Check cooldown
+    if (cooldownUntil > Date.now()) {
+      setError(`Too many failed attempts. Please wait ${cooldownLeft} seconds before trying again.`)
+      return
+    }
+    setLoading(true)
     const { data, error: err } = await supabase.auth.signInWithPassword({ email, password })
-    if (err) { setError(err.message); setLoading(false); return }
+    if (err) {
+      // Normalize error messages — never reveal whether the email exists
+      const newAttempts = loginAttempts + 1
+      setLoginAttempts(newAttempts)
+      if (newAttempts >= 5) {
+        const until = Date.now() + 30000
+        setCooldownUntil(until)
+        setCooldownLeft(30)
+        setError('Too many failed attempts. Please wait 30 seconds before trying again.')
+      } else {
+        setError('Incorrect email or password.')
+      }
+      setLoading(false); return
+    }
+    // Reset attempts on success
+    setLoginAttempts(0); setCooldownUntil(0)
     const userId = data.user?.id
     if (!userId) { setLoading(false); return }
     const check = await fetch('/api/session-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'check_existing', userId }) })
@@ -191,7 +226,7 @@ export default function Auth() {
           <div className="aw-field"><label>Email address</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" required /></div>
           <div className="aw-field"><label>Password</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required /></div>
           <div style={{textAlign:'right',marginBottom:6}}><a href="/auth/reset" style={{fontSize:'.8rem',color:P,fontWeight:600,textDecoration:'none'}}>Forgot password?</a></div>
-          <button className="aw-btn aw-btn-p" type="submit" disabled={loading}>{loading?'Signing in…':'Sign in'}</button>
+          <button className="aw-btn aw-btn-p" type="submit" disabled={loading||cooldownUntil>Date.now()}>{loading?'Signing in…':cooldownUntil>Date.now()?`Wait ${cooldownLeft}s…`:'Sign in'}</button>
           {isDefault && <p className="aw-link">No account? <button type="button" onClick={()=>{setTab('signup');setError('');setMessage('')}}>Sign up</button></p>}
           {!isDefault && <p className="aw-link" style={{marginTop:14}}>Need access? Contact your account administrator for an invite.</p>}
         </form>
