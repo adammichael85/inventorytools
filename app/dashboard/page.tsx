@@ -1598,7 +1598,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
   if (session && method !== 'vision') {
     await fetch('/api/save-conversion', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
       body: JSON.stringify({
         user_id: session.user.id,
         address: data.address || selectedFile?.name || 'Unknown',
@@ -2075,7 +2075,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
                         const res = await fetch('/api/clean-pdf', {
                           method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
+                          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
                           body: JSON.stringify({ user_id: session.user.id, storage_path: storagePath })
                         })
                         const d = await res.json()
