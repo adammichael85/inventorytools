@@ -11,12 +11,20 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
-const BORDER = '#E3E7E9'
-const BG = '#F3F5F6'
+const BORDER = '#ecebe8'
+const BG = '#f6f5f3'
 const SURFACE = '#ffffff'
-const TEXT = '#11151A'
-const MUTED = '#6B7780'
-const HINT = '#9BA3A8'
+const TEXT = '#1a1a1a'
+const MUTED = '#4a4a4a'
+const HINT = '#8a8a8a'
+// Landing design tokens
+const BODY = '#4a4a4a'
+const RADIUS = 18
+const SHADOW = '0 8px 30px rgba(26,26,26,.07)'
+const GREEN = '#3e8e5a'
+const RED = '#d64545'
+const RED_TINT = '#fbeaea'
+const ORANGE_TINT = '#fff1e6'
 
 
 
@@ -1870,7 +1878,14 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
 
   return (
-    <div style={{ fontFamily: "'General Sans', sans-serif", display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', overflow: 'hidden', background: BG }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', overflow: 'hidden', background: BG }}>
+      <style>{`
+        .it-card{border-radius:18px;box-shadow:0 8px 30px rgba(26,26,26,.07);transition:box-shadow .2s ease,transform .2s ease}
+        .it-card:hover{box-shadow:0 14px 36px rgba(26,26,26,.11);transform:translateY(-3px)}
+        .it-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:#8a8a8a;font-weight:500;text-transform:uppercase;margin:0}
+        .it-num{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em}
+        .it-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:${TEAL};font-weight:500;text-transform:uppercase;margin:0}
+      `}</style>
       <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap" rel="stylesheet" />
 
       {/* SIDEBAR */}
@@ -1986,7 +2001,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         <div style={{ flex: 1, overflow: 'auto', padding: isMobile ? 16 : 28, paddingBottom: isMobile ? 100 : 28 }}>
           {page === 'dashboard' && (
             <div>
-              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden', marginBottom: 16 }}>
+              <div style={{ marginBottom: 16 }}>
                 <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}` }}>
                   <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Lifetime statistics <span style={{ fontSize: 12, fontWeight: 400, color: HINT }}>— includes deleted reports</span></p>
                 </div>
@@ -2015,9 +2030,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 return (
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : `repeat(${userRole === 'admin' ? (toolTab === 'audio' ? 6 : 5) : (toolTab === 'audio' ? 4 : 3)},minmax(0,1fr))`, gap: 16, marginBottom: 0 }}>
                 {(userRole === 'admin' ? [['Total reports', tabTotal.toString(), 'all time'],['Total spent', '£'+tabSpend.toFixed(2), toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : []), ['Est. saving', '£'+tabSaving.toFixed(2), 'vs. manual typing']] : [['Total reports', tabTotal.toString(), 'all time'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : [])]).map(([label,val,sub]) => (
-                  <div key={label} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '18px 20px' }}>
-                    <p style={{ fontSize: 12, fontWeight: 500, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>{label}</p>
-                    <p style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, color: TEXT, marginBottom: 4 }}>{val}</p>
+                  <div key={label} className="it-card" style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: RADIUS, padding: '20px 22px' }}>
+                    <p className="it-label" style={{ marginBottom: 10 }}>{label}</p>
+                    <p className="it-num" style={{ fontSize: 30, fontWeight: 700, color: TEXT, marginBottom: 4 }}>{val}</p>
                     <p style={{ fontSize: 12, color: HINT }}>{sub}</p>
                   </div>
                 ))}
