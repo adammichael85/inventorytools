@@ -130,6 +130,13 @@ OUTPUT raw JSON only: {"address":"","pages":1,"rooms":[{"roomName":"","rows":[{"
 export async function POST(req: NextRequest) {
   try {
     const { extractedText, base64, mediaType } = await req.json()
+    // Validate file type via magic bytes if base64 is provided
+    if (base64) {
+      const headerBytes = Buffer.from(base64.slice(0, 8), 'base64')
+      const isPDF = headerBytes[0] === 0x25 && headerBytes[1] === 0x50 && headerBytes[2] === 0x44 && headerBytes[3] === 0x46
+      const isDocx = headerBytes[0] === 0x50 && headerBytes[1] === 0x4B
+      if (!isPDF && !isDocx) return NextResponse.json({ error: 'Invalid file type. Only PDF and Word documents are accepted.' }, { status: 400 })
+    }
     let responseText = ""
     console.log('EXTRACTED TEXT LENGTH:', extractedText?.length || 0)
     if (extractedText && extractedText.length > 100) {

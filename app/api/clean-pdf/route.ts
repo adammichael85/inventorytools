@@ -56,6 +56,10 @@ export async function POST(req: NextRequest) {
       .download(storage_path)
     if (downloadError || !fileData) throw new Error('Could not read uploaded file: ' + downloadError?.message)
     const pdfBuffer = Buffer.from(await fileData.arrayBuffer())
+    // Validate magic bytes - must be a real PDF (%PDF)
+    if (pdfBuffer[0] !== 0x25 || pdfBuffer[1] !== 0x50 || pdfBuffer[2] !== 0x44 || pdfBuffer[3] !== 0x46) {
+      return NextResponse.json({ error: 'Invalid file. Only PDF files are accepted.' }, { status: 400 })
+    }
     fs.writeFileSync(tmpIn, pdfBuffer)
 
     // Clean up the temp storage file (fire and forget - non-critical)
