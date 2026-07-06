@@ -1949,7 +1949,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         <nav style={{ padding: '12px 10px', flex: 1 }}>
           {navItems.map(item => (
             <button key={item.id} onClick={() => { if (item.id === 'convert') { if (toolTab === 'audio' ? audioEnabled : pdfEnabled) setShowConvert(true) } else { setPage(item.id) } }}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px', borderRadius: 8, width: '100%', textAlign: 'left', border: 'none', background: page === item.id ? TEAL_LIGHT : 'transparent', color: page === item.id ? TEAL_DARK : MUTED, fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 2 }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px', borderRadius: 8, width: '100%', textAlign: 'left', border: 'none', background: page === item.id ? TEAL_LIGHT : 'transparent', color: page === item.id ? TEAL_DARK : MUTED, fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', marginBottom: 2 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={item.icon}/></svg>
               {item.label}
               {item.badge && <span style={{ marginLeft: 'auto', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 20 }}>{item.badge}</span>}
