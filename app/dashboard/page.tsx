@@ -2091,7 +2091,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600, display: isMobile ? 'none' : 'table' }}>
                     <thead><tr style={{ background: BG }}>
-                      {(toolTab === 'audio' ? ['Property','Property Size','Furn/Unfurn','Audio Length','Conv. Time','Cost','By','Rating','Status',''] : ['Property','Rooms','Conv. Time','Cost','By','Rating','Status','']).filter(h => userRole === 'admin' || h !== 'Cost').map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase', letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
+                      {(toolTab === 'audio' ? ['Property','Property Size','Furn/Unfurn','Audio Length','Conv. Time','Cost','By','Rating','Status',''] : ['Property','Rooms','Conv. Time','Cost','By','Rating','Status','']).filter(h => userRole === 'admin' || h !== 'Cost').map(h => <th key={h} className="it-label" style={{ padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
                     </tr></thead>
                     <tbody>
                       {conversions.filter(c => toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio').slice(0, 14).map(c => (
