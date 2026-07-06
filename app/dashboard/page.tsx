@@ -1921,7 +1921,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
 
   return (
-    <div style={{ fontFamily: "'Space Grotesk', sans-serif", display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', overflow: 'hidden', background: BG }}>
+    <div style={{ fontFamily: "'IBM Plex Mono', monospace", display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', overflow: 'hidden', background: BG }}>
       <style>{`
         .it-card{border-radius:18px;box-shadow:0 8px 30px rgba(26,26,26,.07);transition:box-shadow .2s ease,transform .2s ease}
         .it-card:hover{box-shadow:0 14px 36px rgba(26,26,26,.11);transform:translateY(-3px)}
@@ -2011,9 +2011,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 borderBottom: (toolTab === tab.id && page !== 'cleanpdf') ? `2px solid ${tab.color}` : '2px solid transparent',
                 background: 'transparent',
                 color: (toolTab === tab.id && page !== 'cleanpdf') ? tab.color : MUTED,
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "'IBM Plex Mono', monospace",
                 fontSize: 13,
-                fontWeight: (toolTab === tab.id && page !== 'cleanpdf') ? 700 : 500,
+                fontWeight: (toolTab === tab.id && page !== 'cleanpdf') ? 600 : 500,
                 cursor: 'pointer',
                 transition: 'all 0.15s',
                 marginBottom: -1,
