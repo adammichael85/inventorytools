@@ -168,7 +168,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 12 }}>
-        <div style={{ background: TEAL, borderRadius: 14, padding: '20px 24px', color: '#fff' }}>
+        <div style={{ background: TEAL, borderRadius: 18, padding: '20px 24px', color: '#fff' }}>
           <p style={{ fontSize: 11, opacity: 0.75, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Conversions</p>
           <p style={{ fontSize: 40, fontWeight: 700, lineHeight: 1, marginBottom: 4 }}>{total}</p>
           <p style={{ fontSize: 12, opacity: 0.7, marginBottom: 16 }}>{periodLabels[period].toLowerCase()}</p>
@@ -181,7 +181,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
 
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
           <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Total spent</p>
-          <p style={{ fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{cost.toFixed(2)}</p>
+          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{cost.toFixed(2)}</p>
           <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>{toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'}</p>
           <div style={{ height: 3, background: BORDER, borderRadius: 2 }}>
             <div style={{ height: '100%', width: Math.min(100, total * 5) + '%', background: TEAL, borderRadius: 2 }} />
@@ -191,7 +191,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
 
         <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
           <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Est. saving*</p>
-          <p style={{ fontSize: 28, fontWeight: 700, color: TEAL, marginBottom: 4 }}>£{saving.toFixed(2)}</p>
+          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: TEAL, marginBottom: 4 }}>£{saving.toFixed(2)}</p>
           <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>vs. manual typing</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ flex: 1, height: 3, background: BORDER, borderRadius: 2 }}>
@@ -210,12 +210,12 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         ].map(([lbl, val]) => (
           <div key={lbl} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
             <p style={{ fontSize: 11, color: HINT, marginBottom: 8 }}>{lbl}</p>
-            <p style={{ fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: -0.5 }}>{val}</p>
+            <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: -0.5 }}>{val}</p>
           </div>
         ))}
       </div>
 
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: 20, marginBottom: 8 }}>
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 20, marginBottom: 8 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>Conversions — last 30 days</p>
           <span style={{ fontSize: 11, color: HINT }}>{last30.reduce((s,d)=>s+d.count,0)} total</span>
@@ -243,19 +243,19 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
               <p style={{ fontSize: 12, color: HINT, margin: 0 }}>Permanent record — includes deleted reports</p>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 12 }}>
-              <div style={{ background: TEAL, borderRadius: 14, padding: '20px 24px', color: '#fff' }}>
+              <div style={{ background: TEAL, borderRadius: 18, padding: '20px 24px', color: '#fff' }}>
                 <p style={{ fontSize: 11, opacity: 0.75, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Total conversions</p>
                 <p style={{ fontSize: 40, fontWeight: 700, lineHeight: 1, marginBottom: 4 }}>{ltTotal}</p>
                 <p style={{ fontSize: 12, opacity: 0.7 }}>all time</p>
               </div>
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
                 <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Total spent</p>
-                <p style={{ fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{ltCost.toFixed(2)}</p>
+                <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{ltCost.toFixed(2)}</p>
                 <p style={{ fontSize: 12, color: HINT }}>{toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'}</p>
               </div>
               <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
                 <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Est. saving*</p>
-                <p style={{ fontSize: 28, fontWeight: 700, color: TEAL, marginBottom: 4 }}>£{ltSaving.toFixed(2)}</p>
+                <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: TEAL, marginBottom: 4 }}>£{ltSaving.toFixed(2)}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
                   <div style={{ flex: 1, height: 3, background: BORDER, borderRadius: 2 }}>
                     <div style={{ height: '100%', width: ltSavingPct + '%', background: TEAL, borderRadius: 2 }} />
@@ -268,7 +268,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
               {[['Rooms processed', ltRooms.toString()],['Avg conv. time', fmtTime(ltAvg)],['Total conv. time', fmtTime(ltDuration)]].map(([lbl, val]) => (
                 <div key={lbl} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
                   <p style={{ fontSize: 11, color: HINT, marginBottom: 8 }}>{lbl}</p>
-                  <p style={{ fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: -0.5 }}>{val}</p>
+                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: -0.5 }}>{val}</p>
                 </div>
               ))}
             </div>
@@ -528,7 +528,7 @@ Users can request deletion of their account or personal data by contacting ${sup
 function LegalSection({ title, content, BORDER, SURFACE, HINT, TEXT, TEAL }: any) {
   const [open, setOpen] = React.useState(false)
   return (
-    <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, overflow: 'hidden' }}>
+    <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, overflow: 'hidden' }}>
       <button onClick={() => setOpen(!open)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: TEXT }}>{title}</span>
         <span style={{ fontSize: 18, color: HINT, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>›</span>
@@ -625,7 +625,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
       </div>
 
       {showInvite && isAdmin && (
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 20, marginBottom: 16 }}>
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 20, marginBottom: 16 }}>
           <p style={{ fontSize: 13, fontWeight: 600, margin: '0 0 12px' }}>Invite a team member</p>
           <p style={{ fontSize: 13, color: MUTED, margin: '0 0 16px' }}>Enter their email address. They'll receive an invite link by email — once they sign up, they'll be added to your company automatically as a standard user.</p>
           <div style={{ display: 'flex', gap: 10 }}>
@@ -639,7 +639,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
         </div>
       )}
 
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, overflow: 'hidden' }}>
         {loading ? (
           <div style={{ padding: 40, textAlign: 'center', color: MUTED, fontSize: 13 }}>Loading...</div>
         ) : members.length === 0 ? (
@@ -797,7 +797,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
     <div style={{ maxWidth: 1100 }}>
       <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Settings</h2>
 
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24, marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>Profile</p>
           <span style={{ fontSize: 11, background: profile.role === 'admin' ? '#fff0e6' : '#F7F9F8', color: profile.role === 'admin' ? '#c24a00' : MUTED, padding: '3px 10px', borderRadius: 20, fontWeight: 500, textTransform: 'uppercase' as const }}>{profile.role || 'user'}</span>
@@ -840,7 +840,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
 
       {profile.role === 'admin' && (
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24 }}>
           <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>📄 PDF to Word — typist cost settings</p>
           <p style={{ fontSize: 12, color: MUTED, margin: '0 0 16px' }}>Set what your team would normally pay a manual typist for PDF inventory reports. Used to calculate your real savings on the Statistics page.</p>
 
@@ -884,7 +884,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
           </div>
         </div>
 
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24 }}>
           <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>🎙️ Audio to Word — typist cost settings</p>
           <p style={{ fontSize: 12, color: MUTED, margin: '0 0 16px' }}>Set what your team would normally pay a manual typist for audio inventory reports. Used to calculate your real savings on the Statistics page.</p>
 
@@ -943,7 +943,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
       )}
 
       {profile.role === 'admin' && (
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
+        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24, marginBottom: 16 }}>
           <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>🔔 Low balance email alerts</p>
           <p style={{ fontSize: 12, color: MUTED, margin: '0 0 16px' }}>When your company balance drops below this amount, all admins will get an email letting them know it's time to top up. Set to 0 to disable.</p>
           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
@@ -973,7 +973,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24 }}>
         <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Auto-delete reports</p>
         <p style={{ fontSize: 12, color: MUTED, margin: '0 0 12px' }}>Automatically delete uploaded PDFs and conversion reports after the selected period. Default is 14 days for GDPR compliance.</p>
         <p style={{ fontSize: 13, color: MUTED, marginBottom: 8 }}>Automatically delete conversion reports and Word documents after a set period.</p>
@@ -997,7 +997,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
       </div>
 
       {false && (
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24, marginBottom: 16 }}>
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24, marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px' }}>Auto accuracy report</p>
@@ -1020,14 +1020,14 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(420px, 1fr))', gap: 16, marginBottom: 16 }}>
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
+      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24 }}>
         <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px' }}>Account</p>
         <p style={{ fontSize: 13, color: MUTED, marginBottom: 16 }}>Signed in as <strong style={{ color: TEXT }}>{userEmail}</strong></p>
         <button onClick={() => { if (window.confirm('Are you sure you want to sign out?')) { supabase.auth.signOut().then(() => { window.location.href = '/' }) } }} style={{ padding: '9px 20px', borderRadius: 9, border: `1px solid ${BORDER}`, background: 'transparent', color: TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Sign out</button>
       </div>
 
       {profile?.role === 'admin' && (
-        <div style={{ background: SURFACE, border: '1px solid #FECACA', borderRadius: 14, padding: 24 }}>
+        <div style={{ background: SURFACE, border: '1px solid #FECACA', borderRadius: 18, boxShadow: SHADOW, padding: 24 }}>
           <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 8px', color: '#DC2626' }}>Danger zone</p>
           <p style={{ fontSize: 13, color: MUTED, marginBottom: 16 }}>Permanently delete your company account. This will remove all users, conversions, files and data. This cannot be undone.</p>
           <DeleteAccountButton supabase={supabase} profile={profile} userEmail={userEmail} />
@@ -1927,6 +1927,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         .it-card:hover{box-shadow:0 14px 36px rgba(26,26,26,.11);transform:translateY(-3px)}
         .it-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:#8a8a8a;font-weight:500;text-transform:uppercase;margin:0}
         .it-num{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em}
+        h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#1a1a1a}
         .it-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:${TEAL};font-weight:500;text-transform:uppercase;margin:0}
       `}</style>
       <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap" rel="stylesheet" />
@@ -2368,7 +2369,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
           {page === 'reports' && (
             <div>
-              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, overflow: 'hidden' }}>
                 <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', gap: 12 }}>
                   <input placeholder="Search by address..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none' }} />
                   <button onClick={() => setShowDeleteAll(true)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #FECACA', background: '#FEF2F2', color: '#DC2626', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>Delete all</button>
@@ -2439,13 +2440,13 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
             <div>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Billing</h2>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20, marginBottom: 20 }}>
-                <div style={{ background: TEAL, borderRadius: 14, padding: 24, color: '#fff' }}>
+                <div style={{ background: TEAL, borderRadius: 18, boxShadow: SHADOW, padding: 24, color: '#fff' }}>
                   <p style={{ fontSize: 12, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Current balance</p>
-                  <p style={{ fontSize: 42, fontWeight: 700, letterSpacing: -1, lineHeight: 1, marginBottom: 6 }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 42, fontWeight: 700, letterSpacing: -1, lineHeight: 1, marginBottom: 6 }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                   <p style={{ fontSize: 14, opacity: 0.8, marginBottom: 20 }}>balance remaining</p>
                   <button onClick={() => setShowTopup(true)} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#fff', color: TEAL, fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Top up balance</button>
                 </div>
-                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
+                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24 }}>
                   {[['Reports converted',conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').length.toString()],['Total spent','£'+conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').reduce((s:number,c:any)=>s+(c.cost?Number(c.cost):(c.type==='audio'?4.88:4.00)),0).toFixed(2)],['Avg. conv. time',(()=>{const filtered=conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio');return filtered.length>0?(()=>{const avg=Math.round(filtered.reduce((s:number,r:any)=>s+(r.duration_seconds||0),0)/filtered.length);return avg>=60?Math.floor(avg/60)+'m '+(avg%60)+'s':avg+'s'})():'—'})()],['Est. saving vs. typist','£'+conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').reduce((s:number,c:any)=>{const isFurn=c.furnished==='furnished'||c.furnished==='part_furnished';const fallback:Record<string,number>={'room_only':10,'studio':15,'1bed':15,'2bed':20,'3bed':25,'4bed':35,'5bed':45,'6bed':50,'7bed':55,'8bed':60,'9bed':65,'10bed':70,'11bed':75,'12bed':80};const configured=audioTypistRates?(isFurn?audioTypistRates.furnished:audioTypistRates.unfurnished):null;const table=(configured&&Object.keys(configured).length>0)?configured:fallback;const market=c.type==='audio'?(c.property_size?(table[c.property_size]||12):12):(typistRateMode==='per_page'&&c.page_count?(typistPageRate||0.50)*c.page_count:(typistReportRate||12.00));return s+Math.max(0,market-(c.cost?Number(c.cost):(c.type==='audio'?4.88:4.00)))},0).toFixed(2)]].map(([l,v],i) => (
                     <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
                       <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600 }}>{v}</span>
@@ -2456,7 +2457,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
               {userRole === 'admin' && (
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20, alignItems: 'start' }}>
-                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, overflow: 'hidden' }}>
                   <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Invoice history</h3>
                   </div>
@@ -2482,7 +2483,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   )}
                 </div>
 
-                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, overflow: 'hidden' }}>
                   <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}` }}>
                     <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px' }}>Usage invoices</h3>
                     <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Download a report of completed conversions and their cost for your own accounting records.</p>
@@ -2681,7 +2682,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 8px', color: TEXT }}>Welcome to {brand.display_name}</h2>
               <p style={{ fontSize: 14, color: MUTED, margin: 0 }}>Before you get started, here's a quick overview</p>
             </div>
-            <div style={{ background: BG, borderRadius: 12, padding: 20, marginBottom: 20 }}>
+            <div style={{ background: BG, borderRadius: 18, boxShadow: SHADOW, padding: 20, marginBottom: 20 }}>
               <p style={{ fontSize: 13, fontWeight: 600, color: TEXT, margin: '0 0 12px' }}>How it works:</p>
               {[
                 ['📄', 'Upload any inventory PDF', 'Our AI converts it into a perfectly formatted Word document in 1–4 minutes'],
@@ -3016,7 +3017,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
             {convertState === 'done' && docxUrl && (
               <div style={{ padding: 24 }}>
-                <div style={{ background: TEAL_LIGHT, border: `1px solid ${TEAL}`, borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16 }}>
+                <div style={{ background: TEAL_LIGHT, border: `1px solid ${TEAL}`, borderRadius: 18, boxShadow: SHADOW, padding: 20, textAlign: 'center', marginBottom: 16 }}>
                   <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
                   <p style={{ fontSize: 15, fontWeight: 700, color: TEAL_DARK, marginBottom: 4 }}>Conversion complete!</p>
                   <p style={{ fontSize: 13, color: MUTED }}>{processingRooms.length} rooms in {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</p>
@@ -3313,7 +3314,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   <label style={labelStyle}>Audio files <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(upload one or more — any combination of files)</span></label>
                   <label htmlFor="audio-upload">
                     <div
-                      style={{ border: `2px dashed ${audioFiles.length > 0 ? AUDIO_BLUE : BORDER}`, borderRadius: 12, padding: 20, textAlign: 'center', cursor: 'pointer', background: audioFiles.length > 0 ? AUDIO_BLUE_LIGHT : BG, transition: 'all 0.15s' }}
+                      style={{ border: `2px dashed ${audioFiles.length > 0 ? AUDIO_BLUE : BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 20, textAlign: 'center', cursor: 'pointer', background: audioFiles.length > 0 ? AUDIO_BLUE_LIGHT : BG, transition: 'all 0.15s' }}
                       onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
                       onDrop={e => {
                         e.preventDefault(); e.stopPropagation()
