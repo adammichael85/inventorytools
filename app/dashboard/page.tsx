@@ -1948,7 +1948,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         <nav style={{ padding: '12px 10px', flex: 1 }}>
           {navItems.map(item => (
             <button key={item.id} onClick={() => { if (item.id === 'convert') { if (toolTab === 'audio' ? audioEnabled : pdfEnabled) setShowConvert(true) } else { setPage(item.id) } }}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px', borderRadius: 8, width: '100%', textAlign: 'left', border: 'none', background: page === item.id ? TEAL_LIGHT : 'transparent', color: page === item.id ? TEAL_DARK : MUTED, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer', marginBottom: 2 }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px', borderRadius: 8, width: '100%', textAlign: 'left', border: 'none', background: page === item.id ? TEAL_LIGHT : 'transparent', color: page === item.id ? TEAL_DARK : MUTED, fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 500, cursor: 'pointer', marginBottom: 2 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={item.icon}/></svg>
               {item.label}
               {item.badge && <span style={{ marginLeft: 'auto', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 20 }}>{item.badge}</span>}
@@ -1985,12 +1985,12 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               )
             )}
             <div>
-            <h1 style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3, margin: 0 }}>{page === 'dashboard' ? ((() => { const h = new Date().getHours(); return (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ' ' + (userName ? userName.split(' ')[0].charAt(0).toUpperCase() + userName.split(' ')[0].slice(1) : (userEmail.split('@')[0].charAt(0).toUpperCase() + userEmail.split('@')[0].slice(1))) + (isMobile ? '' : ' 👋') })()) : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
-            <p style={{ fontSize: 12, color: HINT, margin: 0 }}>{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, letterSpacing: -0.4, margin: 0 }}>{page === 'dashboard' ? ((() => { const h = new Date().getHours(); return (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ' ' + (userName ? userName.split(' ')[0].charAt(0).toUpperCase() + userName.split(' ')[0].slice(1) : (userEmail.split('@')[0].charAt(0).toUpperCase() + userEmail.split('@')[0].slice(1))) + (isMobile ? '' : ' 👋') })()) : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
+            <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: MUTED, margin: 0, letterSpacing: '0.03em' }}>{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {userRole === 'admin' && <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 600, color: TEAL_DARK }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})} remaining</div>}
+            {userRole === 'admin' && <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif", color: TEAL_DARK }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})} remaining</div>}
             <button onClick={() => { if (toolTab === 'audio') { if (audioEnabled) setShowAudioConvert(true) } else { if (pdfEnabled) setShowConvert(true) } }} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap' }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF'}</button>
           </div>
         </div>
@@ -2010,9 +2010,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 borderBottom: (toolTab === tab.id && page !== 'cleanpdf') ? `2px solid ${tab.color}` : '2px solid transparent',
                 background: 'transparent',
                 color: (toolTab === tab.id && page !== 'cleanpdf') ? tab.color : MUTED,
-                fontFamily: 'inherit',
+                fontFamily: "'Space Grotesk', sans-serif",
                 fontSize: 13,
-                fontWeight: (toolTab === tab.id && page !== 'cleanpdf') ? 600 : 400,
+                fontWeight: (toolTab === tab.id && page !== 'cleanpdf') ? 700 : 500,
                 cursor: 'pointer',
                 transition: 'all 0.15s',
                 marginBottom: -1,
@@ -2046,7 +2046,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
             <div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}` }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Lifetime statistics <span style={{ fontSize: 12, fontWeight: 400, color: HINT }}>— includes deleted reports</span></p>
+                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700, margin: 0 }}>Lifetime statistics <span style={{ fontSize: 12, fontWeight: 400, color: HINT, fontFamily: "'Inter', sans-serif" }}>— includes deleted reports</span></p>
                 </div>
                 <div style={{ padding: '16px 20px' }}>
               {(() => {
@@ -2120,7 +2120,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                               ))}
                             </div>
                           </td>
-                          <td style={{ padding: '12px 20px' }}><span style={{ background: '#E6F9F2', color: '#d45500', fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20 }}>Complete</span></td>
+                          <td style={{ padding: '12px 20px' }}><span style={{ background: TEAL_LIGHT, color: TEAL_DARK, fontSize: 11, fontWeight: 600, fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.05em', padding: '3px 9px', borderRadius: 20 }}>Complete</span></td>
                           <td style={{ padding: '12px 20px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             {c.file_path ? (
@@ -2199,7 +2199,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     <div style={{ padding: 18 }}>
                       {[['Reports converted',conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').length.toString()],['Total spent','£'+conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').reduce((s:number,c:any)=>s+(c.cost?Number(c.cost):4),0).toFixed(2)],['Conversion cost per report', toolTab === 'audio' ? 'Varies by size' : '£4.00'],['Est. saving vs. typist','£'+conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').reduce((s:number,c:any)=>{const isFurn=c.furnished==='furnished'||c.furnished==='part_furnished';const fallback:Record<string,number>={'room_only':10,'studio':15,'1bed':15,'2bed':20,'3bed':25,'4bed':35,'5bed':45,'6bed':50,'7bed':55,'8bed':60,'9bed':65,'10bed':70,'11bed':75,'12bed':80};const configured=audioTypistRates?(isFurn?audioTypistRates.furnished:audioTypistRates.unfurnished):null;const table=(configured&&Object.keys(configured).length>0)?configured:fallback;const market=c.type==='audio'?(c.property_size?(table[c.property_size]||12):12):(typistRateMode==='per_page'&&c.page_count?(typistPageRate||0.50)*c.page_count:(typistReportRate||12.00));return s+Math.max(0,market-(c.cost?Number(c.cost):4))},0).toFixed(2)]].map(([l,v],i) => (
                         <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
-                          <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
+                          <span className="it-label" style={{ color: MUTED }}>{l}</span><span className="it-num" style={{ fontWeight: 600, fontSize: 13, color: l.includes('saving') ? TEAL : TEXT }}>{v}</span>
                         </div>
                       ))}
                     </div>
