@@ -1936,14 +1936,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
       <aside style={{ width: isMobile ? 0 : 220, background: SURFACE, borderRight: isMobile ? 'none' : `1px solid ${BORDER}`, display: isMobile ? 'none' : 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0 }}>
         <div style={{ height: 64, padding: '0 18px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: brand.company_name === 'InventoryTools' ? 'flex-start' : 'center' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, textDecoration: 'none', width: '100%' }}>
-            {brand.company_name === 'InventoryTools' ? (
-              <>
-                <svg width="32" height="32" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}><rect width="120" height="120" rx="26" fill={TEAL}/><rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                <span style={{ fontSize: 13, fontWeight: 700, color: TEXT }}>inventory<span style={{ color: TEAL }}>tools</span></span>
-              </>
-            ) : (
-              <img src={brand.logo_url || ''} alt={brand.display_name} style={{ maxWidth: '100%', height: 'auto', maxHeight: 40 }} />
-            )}
+            <img src={brand.logo_url || '/logo-full.png'} alt={brand.display_name} style={{ maxWidth: '100%', height: 'auto', maxHeight: 34 }} />
           </Link>
         </div>
         <nav style={{ padding: '12px 10px', flex: 1 }}>
