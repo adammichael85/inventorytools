@@ -2185,17 +2185,17 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   </table>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
-                    <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Credits</h3></div>
+                  <div className="it-card" style={{ background: SURFACE, border: `1px solid ${BORDER}`, overflow: 'hidden' }}>
+                    <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 className="it-eyebrow">Credits</h3></div>
                     <div style={{ padding: 18 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span style={{ fontWeight: 600 }}>£{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining.</span></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span className="it-num" style={{ fontWeight: 600, fontSize: 18 }}>£{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits}</span><span style={{ fontSize: 12, color: MUTED, marginLeft: 4 }}>remaining</span></div>
                       {toolTab !== 'audio' && <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>Approx. <strong style={{ color: TEXT }}>{Math.floor(Number(credits) / 5)}</strong> conversions (accuracy report included with each)</p>}
                       <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>{toolTab === 'audio' ? 'Pricing varies by property size · Balance never expires.' : '£4.00 per conversion · Accuracy report included · Balance never expires.'}</p>
                       <button onClick={() => setShowTopup(true)} style={{ width: '100%', padding: 10, borderRadius: 9, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Top up balance</button>
                     </div>
                   </div>
-                  <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
-                    <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>This month</h3></div>
+                  <div className="it-card" style={{ background: SURFACE, border: `1px solid ${BORDER}`, overflow: 'hidden' }}>
+                    <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 className="it-eyebrow">This month</h3></div>
                     <div style={{ padding: 18 }}>
                       {[['Reports converted',conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').length.toString()],['Total spent','£'+conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').reduce((s:number,c:any)=>s+(c.cost?Number(c.cost):4),0).toFixed(2)],['Conversion cost per report', toolTab === 'audio' ? 'Varies by size' : '£4.00'],['Est. saving vs. typist','£'+conversions.filter((c:any)=>toolTab==='audio'?c.type==='audio':c.type!=='audio').reduce((s:number,c:any)=>{const isFurn=c.furnished==='furnished'||c.furnished==='part_furnished';const fallback:Record<string,number>={'room_only':10,'studio':15,'1bed':15,'2bed':20,'3bed':25,'4bed':35,'5bed':45,'6bed':50,'7bed':55,'8bed':60,'9bed':65,'10bed':70,'11bed':75,'12bed':80};const configured=audioTypistRates?(isFurn?audioTypistRates.furnished:audioTypistRates.unfurnished):null;const table=(configured&&Object.keys(configured).length>0)?configured:fallback;const market=c.type==='audio'?(c.property_size?(table[c.property_size]||12):12):(typistRateMode==='per_page'&&c.page_count?(typistPageRate||0.50)*c.page_count:(typistReportRate||12.00));return s+Math.max(0,market-(c.cost?Number(c.cost):4))},0).toFixed(2)]].map(([l,v],i) => (
                         <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
@@ -2204,8 +2204,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       ))}
                     </div>
                   </div>
-                  <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
-                    <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Activity</h3></div>
+                  <div className="it-card" style={{ background: SURFACE, border: `1px solid ${BORDER}`, overflow: 'hidden' }}>
+                    <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 className="it-eyebrow">Activity</h3></div>
                     <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
                       {conversions.slice(0,10).map((conv, i) => (
                         <div key={conv.id || i} style={{ display: 'flex', gap: 10 }}>
