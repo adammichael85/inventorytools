@@ -2663,14 +2663,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           <div style={{ background: '#fff', borderRadius: 20, padding: 36, width: '100%', maxWidth: 520, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ textAlign: 'center', marginBottom: 24 }}>
               <div style={{ margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                {brand.company_name === 'InventoryTools' ? (
-                  <>
-                    <svg width="44" height="44" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" rx="26" fill={TEAL}/><rect x="8" y="10" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="36" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="62" width="24" height="20" rx="5" fill="white" opacity="0.18"/><rect x="8" y="88" width="24" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="10" width="74" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="36" width="56" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="62" width="64" height="20" rx="5" fill="white" opacity="0.12"/><rect x="38" y="88" width="44" height="20" rx="5" fill="white" opacity="0.08"/><path d="M30 62 L50 84 L90 40" stroke="white" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    <span style={{ fontSize: 22, fontWeight: 700, color: TEXT }}>inventory<span style={{ color: TEAL }}>tools</span></span>
-                  </>
-                ) : (
-                  <img src={brand.logo_url || ''} alt={brand.display_name} style={{ height: 44, width: 'auto' }} />
-                )}
+                <img src={brand.logo_url || '/logo-full.png'} alt={brand.display_name} style={{ height: 40, width: 'auto', maxWidth: '100%' }} />
               </div>
               <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 8px', color: TEXT }}>Welcome to {brand.display_name}</h2>
               <p style={{ fontSize: 14, color: MUTED, margin: 0 }}>Before you get started, here's a quick overview</p>
