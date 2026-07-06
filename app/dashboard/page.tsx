@@ -1329,20 +1329,61 @@ export default function Dashboard() {
       const { from, to } = getUsageInvoiceDateRange()
       const total = items.reduce((s: number, c: any) => s + (c.cost ? Number(c.cost) : (c.type === 'audio' ? 4.88 : 4.00)), 0)
 
+      const hexToRgb = (hex: string): [number, number, number] => {
+        const h = (hex || '#fd6a02').replace('#', '')
+        const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h
+        const n = parseInt(full, 16)
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+      }
+      const loadImageData = (url: string): Promise<{ dataUrl: string; w: number; h: number }> =>
+        new Promise((resolve, reject) => {
+          const img = new Image()
+          img.crossOrigin = 'anonymous'
+          img.onload = () => {
+            const canvas = document.createElement('canvas')
+            canvas.width = img.naturalWidth
+            canvas.height = img.naturalHeight
+            const ctx = canvas.getContext('2d')
+            if (!ctx) return reject(new Error('no ctx'))
+            ctx.drawImage(img, 0, 0)
+            resolve({ dataUrl: canvas.toDataURL('image/png'), w: img.naturalWidth, h: img.naturalHeight })
+          }
+          img.onerror = reject
+          img.src = url
+        })
+
+      const accent = hexToRgb(brand.primary_color || '#fd6a02')
+      const logoUrl = brand.company_name === 'InventoryTools' ? '/logo-email-full.png' : (brand.logo_url || '/logo-email-full.png')
+
       const doc = new jsPDF()
-      doc.setFontSize(18)
+
+      let headerBottom = 22
+      try {
+        const logo = await loadImageData(logoUrl)
+        const dispW = 46
+        const dispH = dispW * (logo.h / logo.w)
+        doc.addImage(logo.dataUrl, 'PNG', 14, 14, dispW, dispH)
+        headerBottom = 14 + dispH + 8
+      } catch (e) {
+        doc.setFontSize(18)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(26, 26, 26)
+        doc.text(brand.display_name || 'InventoryTools', 14, 22)
+        headerBottom = 30
+      }
+
+      doc.setFontSize(13)
       doc.setFont('helvetica', 'bold')
-      doc.text(brand.display_name || 'InventoryTools', 14, 20)
-      doc.setFontSize(11)
-      doc.setFont('helvetica', 'normal')
-      doc.text('Usage Invoice', 14, 28)
+      doc.setTextColor(26, 26, 26)
+      doc.text('Usage Invoice', 14, headerBottom)
       doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
       doc.setTextColor(120)
-      doc.text(`Period: ${from.toLocaleDateString('en-GB')} - ${new Date(to.getTime() - 1).toLocaleDateString('en-GB')}`, 14, 35)
-      doc.text(`Generated: ${new Date().toLocaleDateString('en-GB')}`, 14, 40)
+      doc.text(`Period: ${from.toLocaleDateString('en-GB')} - ${new Date(to.getTime() - 1).toLocaleDateString('en-GB')}`, 14, headerBottom + 7)
+      doc.text(`Generated: ${new Date().toLocaleDateString('en-GB')}`, 14, headerBottom + 12)
 
       autoTable(doc, {
-        startY: 48,
+        startY: headerBottom + 20,
         head: [['Date', 'Property', 'Type', 'Cost']],
         body: items.map((c: any) => [
           new Date(c.created_at).toLocaleDateString('en-GB'),
@@ -1350,13 +1391,15 @@ export default function Dashboard() {
           c.type === 'audio' ? 'Audio' : 'PDF',
           '£' + (c.cost ? Number(c.cost).toFixed(2) : (c.type === 'audio' ? '4.88' : '4.00'))
         ]),
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: [21, 32, 69] },
+        styles: { fontSize: 9, cellPadding: 3, textColor: [40, 40, 40] },
+        headStyles: { fillColor: accent, textColor: [255, 255, 255], fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [246, 245, 243] },
       })
 
       const finalY = (doc as any).lastAutoTable.finalY || 60
-      doc.setFontSize(11)
+      doc.setFontSize(12)
       doc.setFont('helvetica', 'bold')
+      doc.setTextColor(accent[0], accent[1], accent[2])
       doc.text(`Total: £${total.toFixed(2)}`, 14, finalY + 12)
       doc.setFontSize(8)
       doc.setFont('helvetica', 'normal')
