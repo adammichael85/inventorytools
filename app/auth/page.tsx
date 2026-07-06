@@ -270,9 +270,9 @@ export default function Auth() {
       <div className="aw" style={{ filter:revealed?'none':'grayscale(.9) blur(6px)', transition:'filter 0.4s ease' }}>
         {isDefault ? (
           <div className="aw-two">
-            <div className="aw-hero" style={{ background:`linear-gradient(140deg,${P} 0%,#c24a00 100%)` }}>
+            <div className="aw-hero" style={{ background:`linear-gradient(140deg,#ff8a3d 0%,${P} 100%)` }}>
               <div>
-                <a className="aw-hero-logo" href="/"><img src="/logo-white.png" alt="InventoryTools" style={{height:36,width:'auto'}} /></a>
+                <a className="aw-hero-logo" href="/"><img src="/logo-full.png" alt="InventoryTools" style={{height:36,width:'auto'}} /></a>
                 <h1>You did the inspection.<br/>Don&apos;t type it twice.</h1>
                 <p>Convert PDF reports and dictated inspection audio into clean, editable Word inventory documents — in minutes.</p>
                 {stats && (
