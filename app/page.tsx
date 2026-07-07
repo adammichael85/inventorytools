@@ -72,7 +72,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdr
 .logo-mark{width:34px;height:34px;background:var(--orange);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.1rem;font-family:'Space Grotesk'}
 .logo-text{font-family:'Space Grotesk';font-weight:700;font-size:1.12rem;color:var(--ink)}.logo-text span{color:var(--orange)}
 .nav-links{display:flex;gap:28px;list-style:none}.nav-links a{text-decoration:none;color:var(--body);font-size:.93rem;font-weight:500}.nav-links a:hover{color:var(--ink)}
-.nav-right{display:flex;align-items:center;gap:18px}.nav-right .login{text-decoration:none;color:var(--body);font-weight:500;font-size:.93rem}.nav-right .btn{padding:8px 16px;font-size:.93rem;border-radius:9px}
+.nav-right{display:flex;align-items:center;gap:18px}.nav-right .login{text-decoration:none;color:var(--body);font-weight:500;font-size:.93rem}.nav-right .btn{padding:6px 14px;font-size:.93rem;border-radius:8px}
 .hamburger{display:none;background:none;border:none;font-size:1.6rem;cursor:pointer;color:var(--ink)}
 .mobile-menu{display:none;position:fixed;top:68px;left:0;right:0;background:#fff;border-bottom:1px solid var(--border);padding:18px 24px;box-shadow:0 12px 24px rgba(26,26,26,.08);z-index:99}
 .mobile-menu a{display:block;padding:11px 0;text-decoration:none;color:var(--ink);font-weight:600;border-bottom:1px solid var(--bg-alt)}

@@ -283,7 +283,11 @@ export default function Auth() {
                   </div>
                 )}
               </div>
-              <p className="aw-foot">PDF from £4.00 · Audio from £4.88 · Credits never expire</p>
+              <div className="aw-foot" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span>PDF conversion from £4.00</span>
+                <span>Audio conversion from £4.88</span>
+                <span>Credits never expire</span>
+              </div>
             </div>
             <div className="aw-right">{Form}</div>
           </div>

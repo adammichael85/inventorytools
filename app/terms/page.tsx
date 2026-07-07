@@ -1,12 +1,18 @@
 export default function TermsOfService() {
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", maxWidth: 760, margin: '0 auto', padding: '64px 24px 96px', color: '#1a1a1a', lineHeight: 1.7 }}>
+    <>
+      <div style={{ borderBottom: '1px solid #ecebe8', padding: '18px 24px' }}>
+        <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: '#1a1a1a', fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', fontWeight: 600 }}>
+          ← Back to InventoryTools
+        </a>
+      </div>
+      <div style={{ fontFamily: "'Inter', sans-serif", maxWidth: 760, margin: '0 auto', padding: '64px 24px 96px', color: '#1a1a1a', lineHeight: 1.7 }}>
       <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '2rem', fontWeight: 700, marginBottom: 8 }}>Terms of Service</h1>
       <p style={{ color: '#8a8a8a', marginBottom: 48 }}>Last updated: July 2026</p>
 
       <section style={{ marginBottom: 40 }}>
-        <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>1. About InventoryTools</h2>
-        <p>InventoryTools is operated by Adam Michael, trading as InventoryTools (sole trader), United Kingdom. By using InventoryTools you agree to these terms.</p>
+        <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.2rem', fontWeight: 700, marginBottom: 12 }}>1. Who we are</h2>
+        <p>InventoryTools is trading as InventoryTools (sole trader), United Kingdom. By using InventoryTools you agree to these terms.</p>
         <p style={{ marginTop: 12 }}>Contact: <a href="mailto:admin@inventorytools.co.uk" style={{ color: '#fd6a02' }}>admin@inventorytools.co.uk</a></p>
       </section>
 
@@ -84,6 +90,7 @@ export default function TermsOfService() {
       <div style={{ borderTop: '1px solid #ecebe8', paddingTop: 24, marginTop: 48, fontSize: '0.9rem', color: '#8a8a8a' }}>
         <p>InventoryTools · <a href="mailto:admin@inventorytools.co.uk" style={{ color: '#fd6a02' }}>admin@inventorytools.co.uk</a> · <a href="/" style={{ color: '#fd6a02' }}>inventorytools.co.uk</a></p>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

@@ -81,8 +81,7 @@ export default function ResetPassword() {
     if (password.length < 6) { setMessage('Password must be at least 6 characters'); return }
     setLoading(true)
     const { error } = await supabase.auth.updateUser({ password })
-    if (error) { setMessage(error.message) } else { setDone(true) }
-    setLoading(false)
+    if (error) { setMessage(error.message); setLoading(false) } else { window.location.href = '/auth' }
   }
 
   const T = brand.primary_color
@@ -90,7 +89,7 @@ export default function ResetPassword() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Helvetica Neue', Arial, sans-serif",
+      minHeight: '100vh', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', Arial, sans-serif",
       filter: revealed ? 'none' : 'grayscale(0.9) blur(8px)',
       transition: 'filter 0.4s ease',
     }}>
