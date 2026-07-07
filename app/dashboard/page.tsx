@@ -1245,6 +1245,9 @@ export default function Dashboard() {
   const [usageInvoicePeriod, setUsageInvoicePeriod] = useState<'today'|'week'|'month'|'custom'>('month')
   const [usageInvoiceFrom, setUsageInvoiceFrom] = useState('')
   const [usageInvoiceTo, setUsageInvoiceTo] = useState('')
+  const [topupHistoryPeriod, setTopupHistoryPeriod] = useState<'today'|'week'|'month'|'all'|'custom'>('all')
+  const [topupHistoryFrom, setTopupHistoryFrom] = useState('')
+  const [topupHistoryTo, setTopupHistoryTo] = useState('')
   const [generatingUsageInvoice, setGeneratingUsageInvoice] = useState(false)
   function fmtAddr(addr: string) {
     if (!addr) return addr
@@ -1312,6 +1315,31 @@ export default function Dashboard() {
     // custom
     const from = usageInvoiceFrom ? new Date(usageInvoiceFrom) : new Date(now.getFullYear(), now.getMonth(), 1)
     const to = usageInvoiceTo ? new Date(new Date(usageInvoiceTo).getTime() + 24*60*60*1000) : new Date()
+    return { from, to }
+  }
+
+  function getTopupHistoryDateRange(): { from: Date, to: Date } | null {
+    const now = new Date()
+    if (topupHistoryPeriod === 'all') return null
+    if (topupHistoryPeriod === 'today') {
+      const from = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const to = new Date(from); to.setDate(to.getDate() + 1)
+      return { from, to }
+    }
+    if (topupHistoryPeriod === 'week') {
+      const from = new Date(now); from.setDate(now.getDate() - now.getDay())
+      from.setHours(0,0,0,0)
+      const to = new Date(from); to.setDate(to.getDate() + 7)
+      return { from, to }
+    }
+    if (topupHistoryPeriod === 'month') {
+      const from = new Date(now.getFullYear(), now.getMonth(), 1)
+      const to = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+      return { from, to }
+    }
+    // custom
+    const from = topupHistoryFrom ? new Date(topupHistoryFrom) : new Date(now.getFullYear(), now.getMonth(), 1)
+    const to = topupHistoryTo ? new Date(new Date(topupHistoryTo).getTime() + 24*60*60*1000) : new Date()
     return { from, to }
   }
 
@@ -2582,18 +2610,41 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               {userRole === 'admin' && (
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20, alignItems: 'start' }}>
                 <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, overflow: 'hidden' }}>
-                  <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Invoice history</h3>
+                  <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}` }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px' }}>Top Up History</h3>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+                      {(['all','today','week','month','custom'] as const).map(pd => (
+                        <button key={pd} onClick={() => setTopupHistoryPeriod(pd)} style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${topupHistoryPeriod === pd ? TEAL : BORDER}`, background: topupHistoryPeriod === pd ? TEAL : 'transparent', color: topupHistoryPeriod === pd ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 12, fontWeight: 500, cursor: 'pointer', textTransform: 'capitalize' as const }}>
+                          {pd === 'all' ? 'All time' : pd === 'today' ? 'Today' : pd === 'week' ? 'This week' : pd === 'month' ? 'This month' : 'Custom range'}
+                        </button>
+                      ))}
+                    </div>
+                    {topupHistoryPeriod === 'custom' && (
+                      <div style={{ display: 'flex', gap: 12, marginTop: 12, flexWrap: 'wrap' as const }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: 12, color: MUTED, marginBottom: 5 }}>From</label>
+                          <input type="date" value={topupHistoryFrom} onChange={e => setTopupHistoryFrom(e.target.value)} style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13 }} />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: 12, color: MUTED, marginBottom: 5 }}>To</label>
+                          <input type="date" value={topupHistoryTo} onChange={e => setTopupHistoryTo(e.target.value)} style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13 }} />
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  {transactions.length === 0 ? (
-                    <div style={{ padding: 40, textAlign: 'center', color: MUTED, fontSize: 13 }}>No invoices yet. Top-ups will appear here once payments are processed.</div>
-                  ) : (
+                  {(() => {
+                    const range = getTopupHistoryDateRange()
+                    const filteredTxns = range ? transactions.filter(t => { const d = new Date(t.created_at); return d >= range.from && d < range.to }) : transactions
+                    if (filteredTxns.length === 0) {
+                      return <div style={{ padding: 40, textAlign: 'center', color: MUTED, fontSize: 13 }}>No top-ups in this period.</div>
+                    }
+                    return (
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                       <thead><tr style={{ background: BG }}>
                         {['Date','Invoice #','Description','Amount',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase' as const, letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
                       </tr></thead>
                       <tbody>
-                        {transactions.map(t => (
+                        {filteredTxns.map(t => (
                           <tr key={t.id} style={{ borderBottom: `1px solid ${BORDER}` }}>
                             <td style={{ padding: '12px 20px', fontSize: 13 }}>{new Date(t.created_at).toLocaleDateString('en-GB')}</td>
                             <td style={{ padding: '12px 20px', fontSize: 13, fontFamily: 'monospace' }}>{t.invoice_number || '—'}</td>
@@ -2604,7 +2655,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                         ))}
                       </tbody>
                     </table>
-                  )}
+                    )
+                  })()}
                 </div>
 
                 <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, overflow: 'hidden' }}>
