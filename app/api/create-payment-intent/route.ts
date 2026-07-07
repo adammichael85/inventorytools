@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
       amount: amountInPence,
       currency: 'gbp',
       customer: customerId,
-      automatic_payment_methods: { enabled: true },
+      payment_method_types: ['card'],
       metadata: {
         user_id,
         company_name: userProfile.company_name,
