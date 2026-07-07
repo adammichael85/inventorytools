@@ -1242,7 +1242,7 @@ export default function Dashboard() {
   const [conversions, setConversions] = useState<any[]>([])
   const [userStats, setUserStats] = useState<any>(null)
   const [transactions, setTransactions] = useState<any[]>([])
-  const [usageInvoicePeriod, setUsageInvoicePeriod] = useState<'today'|'week'|'month'|'custom'>('month')
+  const [usageInvoicePeriod, setUsageInvoicePeriod] = useState<'today'|'week'|'month'|'all'|'custom'>('month')
   const [usageInvoiceFrom, setUsageInvoiceFrom] = useState('')
   const [usageInvoiceTo, setUsageInvoiceTo] = useState('')
   const [topupHistoryPeriod, setTopupHistoryPeriod] = useState<'today'|'week'|'month'|'all'|'custom'>('all')
@@ -1296,6 +1296,9 @@ export default function Dashboard() {
 
   function getUsageInvoiceDateRange(): { from: Date, to: Date } {
     const now = new Date()
+    if (usageInvoicePeriod === 'all') {
+      return { from: new Date(2020, 0, 1), to: new Date(now.getTime() + 24*60*60*1000) }
+    }
     if (usageInvoicePeriod === 'today') {
       const from = new Date(now.getFullYear(), now.getMonth(), now.getDate())
       const to = new Date(from); to.setDate(to.getDate() + 1)
@@ -2611,7 +2614,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20, alignItems: 'start' }}>
                 <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, overflow: 'hidden' }}>
                   <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}` }}>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px' }}>Top Up History</h3>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px' }}>Top Up History</h3>
+                    <p style={{ fontSize: 12, color: MUTED, margin: '0 0 12px' }}>A record of all balance top-up payments made to your account.</p>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
                       {(['all','today','week','month','custom'] as const).map(pd => (
                         <button key={pd} onClick={() => setTopupHistoryPeriod(pd)} style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${topupHistoryPeriod === pd ? TEAL : BORDER}`, background: topupHistoryPeriod === pd ? TEAL : 'transparent', color: topupHistoryPeriod === pd ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 12, fontWeight: 500, cursor: 'pointer', textTransform: 'capitalize' as const }}>
@@ -2666,9 +2670,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   </div>
                   <div style={{ padding: 20 }}>
                     <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' as const }}>
-                      {(['today','week','month','custom'] as const).map(p => (
+                      {(['all','today','week','month','custom'] as const).map(p => (
                         <button key={p} onClick={() => setUsageInvoicePeriod(p)} style={{ padding: '7px 16px', borderRadius: 8, border: `1px solid ${usageInvoicePeriod === p ? TEAL : BORDER}`, background: usageInvoicePeriod === p ? TEAL : 'transparent', color: usageInvoicePeriod === p ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer', textTransform: 'capitalize' as const }}>
-                          {p === 'today' ? 'Today' : p === 'week' ? 'This week' : p === 'month' ? 'This month' : 'Custom range'}
+                          {p === 'all' ? 'All time' : p === 'today' ? 'Today' : p === 'week' ? 'This week' : p === 'month' ? 'This month' : 'Custom range'}
                         </button>
                       ))}
                     </div>
