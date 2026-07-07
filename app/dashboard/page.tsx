@@ -2262,7 +2262,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   <label htmlFor="clean-pdf-upload" style={{ display: 'block', cursor: 'pointer' }}>
                     <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 16, padding: '40px 24px', textAlign: 'center', background: SURFACE }}>
                       <div style={{ width: 52, height: 52, borderRadius: 12, background: '#E8EAF0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                       </div>
                       <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your PDF here</p>
                       <p style={{ fontSize: 13, color: HINT }}>or click to browse</p>
@@ -2281,7 +2281,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '12px 16px', marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 13, color: MUTED }}>Cost</span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: TEAL }}>Free</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: "#16A34A" }}>Free</span>
                   </div>
 
                   {cleanPdfError && <p style={{ fontSize: 13, color: '#DC2626', marginTop: 12 }}>{cleanPdfError}</p>}
