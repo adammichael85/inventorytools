@@ -1379,18 +1379,29 @@ export default function Dashboard() {
         headerBottom = 30
       }
 
-      doc.setFontSize(13)
+      doc.setFontSize(15)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(26, 26, 26)
       doc.text('Usage Invoice', 14, headerBottom)
-      doc.setFontSize(9)
+      doc.setDrawColor(accent[0], accent[1], accent[2])
+      doc.setLineWidth(1.2)
+      doc.line(14, headerBottom + 3, 44, headerBottom + 3)
+
+      const panelY = headerBottom + 10
+      doc.setFillColor(246, 245, 243)
+      doc.roundedRect(14, panelY, 182, 20, 3, 3, 'F')
+      doc.setFontSize(8.5)
       doc.setFont('helvetica', 'normal')
-      doc.setTextColor(120)
-      doc.text(`Period: ${from.toLocaleDateString('en-GB')} - ${new Date(to.getTime() - 1).toLocaleDateString('en-GB')}`, 14, headerBottom + 7)
-      doc.text(`Generated: ${new Date().toLocaleDateString('en-GB')}`, 14, headerBottom + 12)
+      doc.setTextColor(138, 138, 138)
+      doc.text('Period', 20, panelY + 8)
+      doc.text('Generated', 105, panelY + 8)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(26, 26, 26)
+      doc.text(`${from.toLocaleDateString('en-GB')} - ${new Date(to.getTime() - 1).toLocaleDateString('en-GB')}`, 20, panelY + 15)
+      doc.text(new Date().toLocaleDateString('en-GB'), 105, panelY + 15)
 
       autoTable(doc, {
-        startY: headerBottom + 20,
+        startY: panelY + 28,
         head: [['Date', 'Property', 'Type', 'Cost']],
         body: items.map((c: any) => [
           new Date(c.created_at).toLocaleDateString('en-GB'),
@@ -1404,14 +1415,17 @@ export default function Dashboard() {
       })
 
       const finalY = (doc as any).lastAutoTable.finalY || 60
-      doc.setFontSize(12)
+      doc.setDrawColor(236, 235, 232)
+      doc.setLineWidth(0.4)
+      doc.line(14, finalY + 6, 196, finalY + 6)
+      doc.setFontSize(16)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(accent[0], accent[1], accent[2])
-      doc.text(`Total: £${total.toFixed(2)}`, 14, finalY + 12)
-      doc.setFontSize(8)
+      doc.text(`Total: £${total.toFixed(2)}`, 14, finalY + 18)
+      doc.setFontSize(8.5)
       doc.setFont('helvetica', 'normal')
-      doc.setTextColor(150)
-      doc.text(`${items.length} report${items.length === 1 ? '' : 's'} in this period`, 14, finalY + 18)
+      doc.setTextColor(138, 138, 138)
+      doc.text(`${items.length} report${items.length === 1 ? '' : 's'} in this period`, 14, finalY + 24)
 
       doc.save(`usage-invoice-${from.toISOString().slice(0,10)}-to-${new Date(to.getTime()-1).toISOString().slice(0,10)}.pdf`)
     } catch (e) {
@@ -1450,6 +1464,7 @@ export default function Dashboard() {
 
       const accent = hexToRgb(brand.primary_color || '#fd6a02')
       const logoUrl = brand.company_name === 'InventoryTools' ? '/logo-email-full.png' : (brand.logo_url || '/logo-email-full.png')
+      const showPaymentMethod = brand.company_name === 'InventoryTools' && t.card_brand && t.card_last4
 
       const doc = new jsPDF()
 
@@ -1468,21 +1483,57 @@ export default function Dashboard() {
         headerBottom = 30
       }
 
-      doc.setFontSize(13)
+      doc.setFontSize(15)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(26, 26, 26)
       doc.text('Invoice', 14, headerBottom)
-      doc.setFontSize(9)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(120)
-      doc.text(`Invoice #: ${t.invoice_number || '—'}`, 14, headerBottom + 10)
-      doc.text(`Date: ${new Date(t.created_at).toLocaleDateString('en-GB')}`, 14, headerBottom + 16)
-      doc.text(`Description: ${t.description || 'Balance top-up'}`, 14, headerBottom + 22)
+      doc.setDrawColor(accent[0], accent[1], accent[2])
+      doc.setLineWidth(1.2)
+      doc.line(14, headerBottom + 3, 44, headerBottom + 3)
 
-      doc.setFontSize(14)
+      const panelY = headerBottom + 10
+      const panelH = showPaymentMethod ? 32 : 24
+      doc.setFillColor(246, 245, 243)
+      doc.roundedRect(14, panelY, 182, panelH, 3, 3, 'F')
+      doc.setFontSize(8.5)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(138, 138, 138)
+      doc.text('Invoice #', 20, panelY + 8)
+      doc.text('Date', 105, panelY + 8)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(26, 26, 26)
+      doc.text(t.invoice_number || '—', 20, panelY + 14)
+      doc.text(new Date(t.created_at).toLocaleDateString('en-GB'), 105, panelY + 14)
+
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(138, 138, 138)
+      doc.text('Description', 20, panelY + 22)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(26, 26, 26)
+      doc.text(t.description || 'Balance top-up', 20, panelY + 28)
+
+      if (showPaymentMethod) {
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(138, 138, 138)
+        doc.text('Payment method', 105, panelY + 22)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(26, 26, 26)
+        doc.text(`${t.card_brand} \u2022\u2022\u2022\u2022 ${t.card_last4}`, 105, panelY + 28)
+      }
+
+      const afterPanelY = panelY + panelH + 14
+      doc.setDrawColor(236, 235, 232)
+      doc.setLineWidth(0.4)
+      doc.line(14, afterPanelY, 196, afterPanelY)
+
+      doc.setFontSize(22)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(accent[0], accent[1], accent[2])
-      doc.text(`Amount: £${Number(t.amount).toFixed(2)}`, 14, headerBottom + 36)
+      doc.text(`£${Number(t.amount).toFixed(2)}`, 14, afterPanelY + 16)
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(138, 138, 138)
+      doc.text('Amount paid', 14, afterPanelY + 22)
 
       doc.save(`invoice-${t.invoice_number || t.id}.pdf`)
     } catch (e) {
