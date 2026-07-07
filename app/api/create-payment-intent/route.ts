@@ -55,6 +55,28 @@ export async function POST(req: NextRequest) {
         .from('companies')
         .update({ stripe_customer_id: customerId })
         .eq('company_name', userProfile.company_name)
+    } else {
+      // Verify the stored customer actually exists under the CURRENT Stripe key/mode.
+      // A customer ID created under test mode (or a different Stripe account) will not
+      // resolve under a live-mode key, and vice versa — Stripe throws a "No such customer"
+      // resource_missing error in that case. Self-heal by creating a fresh customer.
+      try {
+        await stripe.customers.retrieve(customerId)
+      } catch (verifyErr: any) {
+        if (verifyErr?.code === 'resource_missing') {
+          const customer = await stripe.customers.create({
+            name: userProfile.company_name,
+            metadata: { company_name: userProfile.company_name },
+          })
+          customerId = customer.id
+          await supabase
+            .from('companies')
+            .update({ stripe_customer_id: customerId })
+            .eq('company_name', userProfile.company_name)
+        } else {
+          throw verifyErr
+        }
+      }
     }
 
     const amountInPence = Math.round(Number(amount) * 100)
