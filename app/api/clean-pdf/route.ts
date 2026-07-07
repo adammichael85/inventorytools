@@ -45,10 +45,7 @@ export async function POST(req: NextRequest) {
       .single()
     if (companyError || !company) throw new Error('Could not find company balance')
 
-    const CLEAN_COST = 0.50
-    if (Number(company.balance) < CLEAN_COST) {
-      return NextResponse.json({ error: 'Insufficient balance. This tool costs £0.50 per file.' }, { status: 402 })
-    }
+    const CLEAN_COST = 0 // Clean PDF is free — no balance check needed
 
     // Download the PDF from Supabase Storage (avoids 4.5MB Vercel body limit)
     const { data: fileData, error: downloadError } = await supabase.storage
@@ -102,9 +99,8 @@ export async function POST(req: NextRequest) {
     const cleanedBytes = fs.readFileSync(tmpOut)
     const cleanedBase64 = cleanedBytes.toString('base64')
 
-    // Deduct cost from company balance
-    const newBalance = Math.max(0, Number(company.balance) - CLEAN_COST)
-    await supabase.from('companies').update({ balance: newBalance }).eq('company_name', profile.company_name)
+    // Free tool — no balance deduction, but keep newBalance for the response shape
+    const newBalance = Number(company.balance)
 
     // Log for tracking
     await supabase.from('pdf_clean_jobs').insert({

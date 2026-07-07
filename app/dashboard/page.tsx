@@ -2277,13 +2277,13 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
                   <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '12px 16px', marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 13, color: MUTED }}>Cost</span>
-                    <span style={{ fontSize: 14, fontWeight: 700 }}>£0.50</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: TEAL }}>Free</span>
                   </div>
 
                   {cleanPdfError && <p style={{ fontSize: 13, color: '#DC2626', marginTop: 12 }}>{cleanPdfError}</p>}
 
                   <button
-                    disabled={!cleanPdfFile || credits < 0.50}
+                    disabled={!cleanPdfFile}
                     onClick={async () => {
                       if (!cleanPdfFile) return
                       setCleanPdfState('processing')
@@ -2320,9 +2320,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                         setCleanPdfState('idle')
                       }
                     }}
-                    style={{ width: '100%', marginTop: 20, padding: 14, borderRadius: 12, border: 'none', background: (!cleanPdfFile || credits < 0.50) ? BORDER : TEAL, color: (!cleanPdfFile || credits < 0.50) ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: (!cleanPdfFile || credits < 0.50) ? 'default' : 'pointer' }}
+                    style={{ width: '100%', marginTop: 20, padding: 14, borderRadius: 12, border: 'none', background: !cleanPdfFile ? BORDER : TEAL, color: !cleanPdfFile ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: !cleanPdfFile ? 'default' : 'pointer' }}
                   >
-                    Clean PDF — £0.50
+                    Clean PDF — Free
                   </button>
                   <p style={{ fontSize: 12, color: HINT, textAlign: 'center', marginTop: 12 }}>{credits.toFixed ? credits.toFixed(2) : credits} balance remaining</p>
                 </div>
