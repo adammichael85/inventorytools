@@ -1424,22 +1424,66 @@ export default function Dashboard() {
   async function downloadTransactionInvoicePDF(t: any) {
     try {
       const { jsPDF } = await import('jspdf')
+
+      const hexToRgb = (hex: string): [number, number, number] => {
+        const h = (hex || '#fd6a02').replace('#', '')
+        const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h
+        const n = parseInt(full, 16)
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+      }
+      const loadImageData = (url: string): Promise<{ dataUrl: string; w: number; h: number }> =>
+        new Promise((resolve, reject) => {
+          const img = new Image()
+          img.crossOrigin = 'anonymous'
+          img.onload = () => {
+            const canvas = document.createElement('canvas')
+            canvas.width = img.naturalWidth
+            canvas.height = img.naturalHeight
+            const ctx = canvas.getContext('2d')
+            if (!ctx) return reject(new Error('no ctx'))
+            ctx.drawImage(img, 0, 0)
+            resolve({ dataUrl: canvas.toDataURL('image/png'), w: img.naturalWidth, h: img.naturalHeight })
+          }
+          img.onerror = reject
+          img.src = url
+        })
+
+      const accent = hexToRgb(brand.primary_color || '#fd6a02')
+      const logoUrl = brand.company_name === 'InventoryTools' ? '/logo-email-full.png' : (brand.logo_url || '/logo-email-full.png')
+
       const doc = new jsPDF()
-      doc.setFontSize(18)
-      doc.setFont('helvetica', 'bold')
-      doc.text(brand.display_name || 'InventoryTools', 14, 20)
-      doc.setFontSize(11)
-      doc.setFont('helvetica', 'normal')
-      doc.text('Invoice', 14, 28)
-      doc.setFontSize(9)
-      doc.setTextColor(120)
-      doc.text(`Invoice #: ${t.invoice_number || '—'}`, 14, 38)
-      doc.text(`Date: ${new Date(t.created_at).toLocaleDateString('en-GB')}`, 14, 44)
-      doc.text(`Description: ${t.description || 'Balance top-up'}`, 14, 50)
-      doc.setTextColor(0)
+
+      let headerBottom = 22
+      try {
+        const logo = await loadImageData(logoUrl)
+        const dispW = 46
+        const dispH = dispW * (logo.h / logo.w)
+        doc.addImage(logo.dataUrl, 'PNG', 14, 14, dispW, dispH)
+        headerBottom = 14 + dispH + 8
+      } catch (e) {
+        doc.setFontSize(18)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(26, 26, 26)
+        doc.text(brand.display_name || 'InventoryTools', 14, 22)
+        headerBottom = 30
+      }
+
       doc.setFontSize(13)
       doc.setFont('helvetica', 'bold')
-      doc.text(`Amount: £${Number(t.amount).toFixed(2)}`, 14, 62)
+      doc.setTextColor(26, 26, 26)
+      doc.text('Invoice', 14, headerBottom)
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(120)
+      doc.text(`Invoice #: ${t.invoice_number || '—'}`, 14, headerBottom + 10)
+      doc.text(`Date: ${new Date(t.created_at).toLocaleDateString('en-GB')}`, 14, headerBottom + 16)
+      doc.text(`Description: ${t.description || 'Balance top-up'}`, 14, headerBottom + 22)
+
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(accent[0], accent[1], accent[2])
+      doc.text(`Amount: £${Number(t.amount).toFixed(2)}`, 14, headerBottom + 36)
+
       doc.save(`invoice-${t.invoice_number || t.id}.pdf`)
     } catch (e) {
       alert('Failed to generate invoice PDF')
