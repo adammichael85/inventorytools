@@ -24,6 +24,7 @@ const css = `
 .aw-tabs{display:flex;background:#f6f5f3;border-radius:12px;padding:4px;gap:4px;margin-bottom:26px}
 .aw-tab{flex:1;border:none;background:transparent;font-family:'Inter';font-weight:600;font-size:.9rem;padding:9px;border-radius:9px;cursor:pointer;color:#8a8a8a;transition:all .15s}
 .aw-tab.on{background:#fff;color:#1a1a1a;box-shadow:0 2px 8px rgba(26,26,26,.08)}
+.aw *{font-family:'Inter',sans-serif}.aw h1,.aw h2,.aw h3{font-family:'Space Grotesk',sans-serif}.aw-overlay *{font-family:'Inter',sans-serif}.aw-overlay h1,.aw-overlay h2,.aw-overlay h3{font-family:'Space Grotesk',sans-serif}
 .aw-field{margin-bottom:14px}
 .aw-field label{display:block;font-size:.83rem;font-weight:600;color:#1a1a1a;margin-bottom:5px}
 .aw-field input,.aw-field select{width:100%;border:1.5px solid #ecebe8;border-radius:10px;padding:10px 13px;font-family:'Inter';font-size:.93rem;color:#1a1a1a;background:#fff;outline:none;transition:border-color .15s}
