@@ -2250,7 +2250,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><polyline points="21,3 21,8 16,8"/></svg>
                 </div>
                 <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px' }}>Clean &amp; Unlock PDF</h2>
-                <p style={{ fontSize: 14, color: MUTED, margin: 0, lineHeight: 1.6 }}>Some PDFs have a security/encryption wrapper applied — even with no password, this can stop our AI from reading the file properly during conversion, causing rooms or rows to be missed. This tool removes that restriction and gives you back a clean copy you can convert normally. If a conversion fails or comes back incomplete, try cleaning the file here first.</p>
+                <p style={{ fontSize: 14, color: MUTED, margin: '0 0 12px', lineHeight: 1.6 }}>Some PDFs have a security/encryption wrapper applied — even with no password, this can stop our AI from reading the file properly during conversion, causing rooms or rows to be missed.</p>
+                <p style={{ fontSize: 14, color: MUTED, margin: '0 0 12px', lineHeight: 1.6 }}>This tool removes that restriction and gives you back a clean copy you can convert normally.</p>
+                <p style={{ fontSize: 14, color: MUTED, margin: 0, lineHeight: 1.6 }}>If a conversion fails or comes back incomplete, try cleaning the file here first.</p>
               </div>
 
               {cleanPdfState === 'idle' && (
