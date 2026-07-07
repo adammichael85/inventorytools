@@ -20,7 +20,7 @@ const css = `
 .aw-stat .l{font-size:.8rem;color:rgba(255,255,255,.72);margin-top:3px}
 .aw-right{display:flex;align-items:center;justify-content:center;background:#f6f5f3;padding:48px 40px}
 .aw-card{background:#fff;border:1px solid #ecebe8;border-radius:20px;padding:38px;width:100%;max-width:420px;box-shadow:0 8px 30px rgba(26,26,26,.07)}
-.aw-logo-center{text-align:center;margin-bottom:24px}.aw-logo-center img{height:42px;width:auto}
+.aw-logo-center{text-align:center;margin-bottom:24px}.aw-logo-center img{height:36px;width:auto}
 .aw-tabs{display:flex;background:#f6f5f3;border-radius:12px;padding:4px;gap:4px;margin-bottom:26px}
 .aw-tab{flex:1;border:none;background:transparent;font-family:'Inter';font-weight:600;font-size:.9rem;padding:9px;border-radius:9px;cursor:pointer;color:#8a8a8a;transition:all .15s}
 .aw-tab.on{background:#fff;color:#1a1a1a;box-shadow:0 2px 8px rgba(26,26,26,.08)}
@@ -272,7 +272,7 @@ export default function Auth() {
           <div className="aw-two">
             <div className="aw-hero" style={{ background:`linear-gradient(140deg,#ff8a3d 0%,${P} 100%)` }}>
               <div>
-                <a className="aw-hero-logo" href="/"><img src="/logo-full.png" alt="InventoryTools" style={{height:36,width:'auto'}} /></a>
+                <a className="aw-hero-logo" href="/"><img src="/logo-full.png" alt="InventoryTools" style={{height:31,width:'auto'}} /></a>
                 <h1>You did the inspection.<br/>Don&apos;t type it twice.</h1>
                 <p>Convert PDF reports and dictated inspection audio into clean, editable Word inventory documents — in minutes.</p>
                 {stats && (

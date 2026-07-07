@@ -193,7 +193,7 @@ footer{background:#2d2d2d;border-top:1px solid #3a3a3a;padding:34px 0;color:#9a9
       <header>
         <div className="container nav">
           <a className="logo" href="#top" aria-label="InventoryTools home">
-            <img src="/logo-full.png" alt="InventoryTools" style={{ height: 36, width: 'auto' }} />
+            <img src="/logo-full.png" alt="InventoryTools" style={{ height: 31, width: 'auto' }} />
           </a>
           <ul className="nav-links">
             <li><a href="#pdf-tool">PDF to Word</a></li>

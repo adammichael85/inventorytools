@@ -14,9 +14,9 @@ const DEFAULT_BRAND = {
 }
 
 function logoHeader(brand: typeof DEFAULT_BRAND) {
-  const logoUrl = `https://inventorytools.co.uk${brand.logo_url}`
+  const logoUrl = `https://www.${brand.send_domain}${brand.logo_url}`
   return `<div style="background:#ffffff;padding:32px 40px;text-align:center;border-bottom:1px solid #f0f0f0;">
-    <img src="${logoUrl}" width="180" alt="${brand.display_name}" style="display:block;margin:0 auto;height:auto;">
+    <img src="${logoUrl}" width="153" alt="${brand.display_name}" style="display:block;margin:0 auto;height:auto;">
   </div>`
 }
 
