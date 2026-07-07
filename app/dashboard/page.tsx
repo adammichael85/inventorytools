@@ -2536,7 +2536,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           {page === 'billing' && (
             <div>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Billing</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20, marginBottom: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: 20, marginBottom: 20 }}>
                 <div style={{ background: TEAL, borderRadius: 18, boxShadow: SHADOW, padding: 24, color: '#fff' }}>
                   <p style={{ fontSize: 12, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Current balance</p>
                   <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 42, fontWeight: 700, letterSpacing: -1, lineHeight: 1, marginBottom: 6 }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
@@ -2544,11 +2544,38 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   <button onClick={() => setShowTopup(true)} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#fff', color: TEAL, fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Top up balance</button>
                 </div>
                 <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24 }}>
-                  {[['Reports converted',conversions.length.toString()],['Total spent','£'+conversions.reduce((s:number,c:any)=>s+(c.cost?Number(c.cost):(c.type==='audio'?4.88:4.00)),0).toFixed(2)],['Avg. conv. time',(()=>{return conversions.length>0?(()=>{const avg=Math.round(conversions.reduce((s:number,r:any)=>s+(r.duration_seconds||0),0)/conversions.length);return avg>=60?Math.floor(avg/60)+'m '+(avg%60)+'s':avg+'s'})():'—'})()],['Est. saving vs. typist','£'+conversions.reduce((s:number,c:any)=>{const isFurn=c.furnished==='furnished'||c.furnished==='part_furnished';const fallback:Record<string,number>={'room_only':10,'studio':15,'1bed':15,'2bed':20,'3bed':25,'4bed':35,'5bed':45,'6bed':50,'7bed':55,'8bed':60,'9bed':65,'10bed':70,'11bed':75,'12bed':80};const configured=audioTypistRates?(isFurn?audioTypistRates.furnished:audioTypistRates.unfurnished):null;const table=(configured&&Object.keys(configured).length>0)?configured:fallback;const market=c.type==='audio'?(c.property_size?(table[c.property_size]||12):12):(typistRateMode==='per_page'&&c.page_count?(typistPageRate||0.50)*c.page_count:(typistReportRate||12.00));return s+Math.max(0,market-(c.cost?Number(c.cost):(c.type==='audio'?4.88:4.00)))},0).toFixed(2)]].map(([l,v],i) => (
-                    <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
-                      <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600 }}>{v}</span>
-                    </div>
-                  ))}
+                  <p style={{ fontSize: 12, fontWeight: 700, color: MUTED, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>PDF to Word</p>
+                  {(() => {
+                    const filtered = conversions.filter((c:any) => c.type !== 'audio')
+                    const stats: [string, string][] = [
+                      ['Reports converted', filtered.length.toString()],
+                      ['Total spent', '£'+filtered.reduce((s:number,c:any)=>s+(c.cost?Number(c.cost):4.00),0).toFixed(2)],
+                      ['Avg. conv. time', filtered.length>0?(()=>{const avg=Math.round(filtered.reduce((s:number,r:any)=>s+(r.duration_seconds||0),0)/filtered.length);return avg>=60?Math.floor(avg/60)+'m '+(avg%60)+'s':avg+'s'})():'—'],
+                      ['Est. saving vs. typist', '£'+filtered.reduce((s:number,c:any)=>{const isFurn=c.furnished==='furnished'||c.furnished==='part_furnished';const fallback:Record<string,number>={'room_only':10,'studio':15,'1bed':15,'2bed':20,'3bed':25,'4bed':35,'5bed':45,'6bed':50,'7bed':55,'8bed':60,'9bed':65,'10bed':70,'11bed':75,'12bed':80};const configured=audioTypistRates?(isFurn?audioTypistRates.furnished:audioTypistRates.unfurnished):null;const table=(configured&&Object.keys(configured).length>0)?configured:fallback;const market=c.type==='audio'?(c.property_size?(table[c.property_size]||12):12):(typistRateMode==='per_page'&&c.page_count?(typistPageRate||0.50)*c.page_count:(typistReportRate||12.00));return s+Math.max(0,market-(c.cost?Number(c.cost):4.00))},0).toFixed(2)],
+                    ]
+                    return stats.map(([l,v],i) => (
+                      <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
+                        <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600 }}>{v}</span>
+                      </div>
+                    ))
+                  })()}
+                </div>
+                <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24 }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: MUTED, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>Audio to Word</p>
+                  {(() => {
+                    const filtered = conversions.filter((c:any) => c.type === 'audio')
+                    const stats: [string, string][] = [
+                      ['Reports converted', filtered.length.toString()],
+                      ['Total spent', '£'+filtered.reduce((s:number,c:any)=>s+(c.cost?Number(c.cost):4.88),0).toFixed(2)],
+                      ['Avg. conv. time', filtered.length>0?(()=>{const avg=Math.round(filtered.reduce((s:number,r:any)=>s+(r.duration_seconds||0),0)/filtered.length);return avg>=60?Math.floor(avg/60)+'m '+(avg%60)+'s':avg+'s'})():'—'],
+                      ['Est. saving vs. typist', '£'+filtered.reduce((s:number,c:any)=>{const isFurn=c.furnished==='furnished'||c.furnished==='part_furnished';const fallback:Record<string,number>={'room_only':10,'studio':15,'1bed':15,'2bed':20,'3bed':25,'4bed':35,'5bed':45,'6bed':50,'7bed':55,'8bed':60,'9bed':65,'10bed':70,'11bed':75,'12bed':80};const configured=audioTypistRates?(isFurn?audioTypistRates.furnished:audioTypistRates.unfurnished):null;const table=(configured&&Object.keys(configured).length>0)?configured:fallback;const market=c.type==='audio'?(c.property_size?(table[c.property_size]||12):12):(typistRateMode==='per_page'&&c.page_count?(typistPageRate||0.50)*c.page_count:(typistReportRate||12.00));return s+Math.max(0,market-(c.cost?Number(c.cost):4.88))},0).toFixed(2)],
+                    ]
+                    return stats.map(([l,v],i) => (
+                      <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${BORDER}` : 'none', fontSize: 13 }}>
+                        <span style={{ color: MUTED }}>{l}</span><span style={{ fontWeight: 600 }}>{v}</span>
+                      </div>
+                    ))
+                  })()}
                 </div>
               </div>
 
