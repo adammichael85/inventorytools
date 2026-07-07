@@ -3109,10 +3109,11 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                         try {
                           const sess = await supabase.auth.getSession()
                           const uid = sess.data.session?.user.id
-                          if (!uid) throw new Error('Not logged in')
+                          const accessToken = sess.data.session?.access_token
+                          if (!uid || !accessToken) throw new Error('Not logged in')
                           const res = await fetch('/api/create-payment-intent', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
                             body: JSON.stringify({ user_id: uid, amount: finalAmount }),
                           })
                           const data = await res.json()
