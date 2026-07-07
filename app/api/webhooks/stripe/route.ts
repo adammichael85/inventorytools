@@ -31,6 +31,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true })
     }
 
+    // Capture card brand/last4 for the receipt. Best-effort only — never let this
+    // block the balance update, which is the critical path.
+    let cardBrand: string | null = null
+    let cardLast4: string | null = null
+    try {
+      if (paymentIntent.latest_charge) {
+        const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string)
+        const card = charge.payment_method_details?.card
+        if (card) {
+          cardBrand = card.brand ? card.brand.charAt(0).toUpperCase() + card.brand.slice(1) : null
+          cardLast4 = card.last4 || null
+        }
+      }
+    } catch (cardErr: any) {
+      console.error('Webhook: could not retrieve card details (non-critical):', cardErr.message)
+    }
+
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -69,6 +86,8 @@ export async function POST(req: NextRequest) {
       description: 'Balance top-up',
       stripe_payment_id: paymentIntent.id,
       invoice_number: invoiceNumber,
+      card_brand: cardBrand,
+      card_last4: cardLast4,
     })
     if (txnError) {
       console.error('Webhook: failed to insert transaction record:', txnError.message)
