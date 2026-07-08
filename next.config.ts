@@ -2,11 +2,11 @@ import type { NextConfig } from "next";
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://hcaptcha.com https://newassets.hcaptcha.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://hcaptcha.com https://newassets.hcaptcha.com https://js.hcaptcha.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
-  "connect-src 'self' https://api.stripe.com https://*.supabase.co https://auth.inventorytools.co.uk https://hcaptcha.com",
+  "connect-src 'self' https://api.stripe.com https://*.supabase.co https://auth.inventorytools.co.uk https://hcaptcha.com https://*.hcaptcha.com",
   "frame-src https://js.stripe.com https://hcaptcha.com https://newassets.hcaptcha.com",
   "object-src 'none'",
   "base-uri 'self'",
