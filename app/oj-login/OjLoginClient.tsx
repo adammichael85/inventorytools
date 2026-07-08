@@ -26,6 +26,12 @@ export default function OjLoginClient() {
   const [pendingLoginUserId, setPendingLoginUserId] = useState('')
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const captchaRef = useRef<HCaptcha>(null)
+  const [showForgotModal, setShowForgotModal] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotSent, setForgotSent] = useState(false)
+  const [forgotLoading, setForgotLoading] = useState(false)
+  const [forgotCaptchaToken, setForgotCaptchaToken] = useState<string | null>(null)
+  const forgotCaptchaRef = useRef<HCaptcha>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -118,16 +124,18 @@ export default function OjLoginClient() {
   }
 
   async function handleForgotPassword() {
-    if (!email) { setMessage('Enter your email address first'); return }
-    if (!captchaToken) { setMessage('Please complete the "I am human" check first.'); return }
+    if (!forgotEmail) return
+    if (!forgotCaptchaToken) return
+    setForgotLoading(true)
     await fetch('/api/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, captchaToken })
+      body: JSON.stringify({ email: forgotEmail, captchaToken: forgotCaptchaToken })
     })
-    captchaRef.current?.resetCaptcha()
-    setCaptchaToken(null)
-    setMessage('If an account exists, a password reset email has been sent.\n\nPlease check your junk/spam folder if you do not see it in your inbox.')
+    forgotCaptchaRef.current?.resetCaptcha()
+    setForgotCaptchaToken(null)
+    setForgotSent(true)
+    setForgotLoading(false)
   }
 
   const input = { width: '100%', padding: '11px 14px', borderRadius: 9, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 14, outline: 'none', background: '#fff', boxSizing: 'border-box' as const }
@@ -157,7 +165,7 @@ export default function OjLoginClient() {
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" style={input} onKeyDown={e => { if (e.key === 'Enter') handleSignIn() }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 22 }}>
-            <button onClick={handleForgotPassword} style={{ fontSize: 13, color: NAVY, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>Forgot password?</button>
+            <button onClick={() => { setShowForgotModal(true); setForgotEmail(email); setForgotSent(false) }} style={{ fontSize: 13, color: NAVY, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>Forgot password?</button>
           </div>
           <div style={{ marginBottom: 16 }}><HCaptcha ref={captchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setCaptchaToken} onExpire={()=>setCaptchaToken(null)} /></div>
           <button onClick={handleSignIn} disabled={loading || !captchaToken} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: (loading || !captchaToken) ? HINT : NAVY, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: (loading || !captchaToken) ? 'default' : 'pointer' }}>
@@ -167,6 +175,32 @@ export default function OjLoginClient() {
 
         <p style={{ textAlign: 'center', fontSize: 12, color: HINT, marginTop: 24 }}>Need access? Contact your account administrator for an invite.</p>
       </div>
+
+      {showForgotModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(21,32,69,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 420, padding: 28, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            {forgotSent ? (
+              <>
+                <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px', color: TEXT }}>Check your email</h3>
+                <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.6, marginBottom: 24 }}>We've sent a password reset link to <strong style={{ color: TEXT }}>{forgotEmail}</strong>. Check your inbox and spam folder.</p>
+                <button onClick={() => setShowForgotModal(false)} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: NAVY, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Done</button>
+              </>
+            ) : (
+              <>
+                <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px', color: TEXT }}>Reset your password</h3>
+                <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.6, marginBottom: 20 }}>Enter your email address and we'll send you a reset link.</p>
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 7, color: TEXT }}>Email address</label>
+                  <input type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} placeholder="you@example.com" autoFocus style={{ width: '100%', padding: '11px 14px', borderRadius: 9, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 14, outline: 'none', background: '#fff', boxSizing: 'border-box' as const }} />
+                </div>
+                <div style={{ marginBottom: 20 }}><HCaptcha ref={forgotCaptchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setForgotCaptchaToken} onExpire={() => setForgotCaptchaToken(null)} /></div>
+                <button onClick={handleForgotPassword} disabled={forgotLoading || !forgotEmail || !forgotCaptchaToken} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: (forgotLoading || !forgotEmail || !forgotCaptchaToken) ? HINT : NAVY, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: (forgotLoading || !forgotEmail || !forgotCaptchaToken) ? 'default' : 'pointer', marginBottom: 10 }}>{forgotLoading ? 'Sending…' : 'Send reset link'}</button>
+                <button onClick={() => setShowForgotModal(false)} style={{ width: '100%', padding: 13, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: TEXT, fontFamily: 'inherit', fontSize: 15, fontWeight: 500, cursor: 'pointer' }}>Cancel</button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {showSessionWarning && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(21,32,69,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
