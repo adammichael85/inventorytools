@@ -2061,7 +2061,6 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#1a1a1a}
         .it-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:${TEAL};font-weight:500;text-transform:uppercase;margin:0}
       `}</style>
-      <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap" rel="stylesheet" />
 
       {/* SIDEBAR */}
       <aside style={{ width: isMobile ? 0 : 220, background: SURFACE, borderRight: isMobile ? 'none' : `1px solid ${BORDER}`, display: isMobile ? 'none' : 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0 }}>
