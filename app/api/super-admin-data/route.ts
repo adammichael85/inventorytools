@@ -44,7 +44,13 @@ export async function GET(req: NextRequest) {
       company_name: c.user_id ? (profileMap[c.user_id]?.company_name || 'Unknown / deleted user') : 'Unknown / deleted user',
     }))
 
-    return NextResponse.json({ conversions: enriched })
+    const { data: transactions, error: txError } = await supabase
+      .from('transactions')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (txError) throw new Error(txError.message)
+
+    return NextResponse.json({ conversions: enriched, transactions: transactions || [] })
   } catch (err: any) {
     console.error('[super-admin-data]', err)
     return NextResponse.json({ error: err.message || 'Failed to load data' }, { status: 500 })
