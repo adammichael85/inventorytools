@@ -145,6 +145,15 @@ export async function POST(req: NextRequest) {
     const data = await res.json()
     console.log('Resend response:', JSON.stringify(data))
 
+    // Track read status for password reset emails
+    if (emailType === 'recovery' && data.id) {
+      await supabase.from('email_events').insert({
+        resend_email_id: data.id,
+        email,
+        purpose: 'password_reset',
+      }).then(() => {}, (e) => console.error('email_events insert failed:', e.message))
+    }
+
     return NextResponse.json({})
   } catch (err: any) {
     console.log('Auth hook error:', err.message)

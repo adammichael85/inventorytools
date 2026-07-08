@@ -143,6 +143,15 @@ export async function POST(req: NextRequest) {
     const resendData = await resendRes.json()
     console.log('Resend response:', JSON.stringify(resendData))
 
+    // Track read status for password reset emails
+    if (resendData.id) {
+      await supabase.from('email_events').insert({
+        resend_email_id: resendData.id,
+        email,
+        purpose: 'password_reset',
+      }).then(() => {}, (e: any) => console.error('email_events insert failed:', e.message))
+    }
+
     return NextResponse.json({ ok: true })
   } catch (err: any) {
     console.log('Error:', err.message)
