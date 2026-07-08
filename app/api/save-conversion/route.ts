@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
       audio_length_seconds: body.audio_length_seconds || null,
       page_count: body.page_count || null,
       cost: body.cost ? Number(body.cost) : 4.00,
+      actual_api_cost: body.actual_api_cost != null ? Number(body.actual_api_cost) : null,
     })
     if (convError) throw new Error(convError.message)
 

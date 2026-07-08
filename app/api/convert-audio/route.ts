@@ -678,6 +678,8 @@ TRANSCRIPTION:
 ${roomTranscript}`
 
       let rows: any[] = []
+      let roomInputTokens = 0
+      let roomOutputTokens = 0
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           const response = await openai.chat.completions.create({
@@ -688,6 +690,9 @@ ${roomTranscript}`
               { role: 'user', content: userMessage }
             ]
           })
+          // Accumulate usage from every attempt — retries still cost money even if the result is discarded
+          roomInputTokens += response.usage?.prompt_tokens || 0
+          roomOutputTokens += response.usage?.completion_tokens || 0
           const raw = response.choices[0].message.content || ''
           console.log(`Room ${roomName} raw (first 300):`, raw.slice(0, 300))
           const cleaned = raw.replace(/```json/g, '').replace(/```/g, '').trim()
@@ -729,15 +734,23 @@ ${roomTranscript}`
         console.error(`Room ${roomName}: 0 rows after 3 attempts - this room may be missing from the final document`)
       }
 
-      return { roomName, rows }
+      return { roomName, rows, inputTokens: roomInputTokens, outputTokens: roomOutputTokens }
     }))
     const result = roomResults
+
+    // GPT-5.5 pricing (verified July 2026): $5.00 / 1M input tokens, $30.00 / 1M output tokens
+    const totalInputTokens = result.reduce((sum: number, r: any) => sum + (r.inputTokens || 0), 0)
+    const totalOutputTokens = result.reduce((sum: number, r: any) => sum + (r.outputTokens || 0), 0)
+    const actualApiCost = (totalInputTokens / 1_000_000) * 5.00 + (totalOutputTokens / 1_000_000) * 30.00
 
     return NextResponse.json({
       rooms: result,
       address,
       transcript: stitchedTranscript,
       audio_length_seconds: totalSeconds,
+      actual_api_cost: actualApiCost,
+      input_tokens: totalInputTokens,
+      output_tokens: totalOutputTokens,
     })
 
   } catch (err: any) {
