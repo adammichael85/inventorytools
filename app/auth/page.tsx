@@ -219,6 +219,15 @@ export default function Auth() {
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault(); setError(''); setMessage(''); setLoading(true)
+    try {
+      const limitCheck = await fetch('/api/check-signup-limit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) })
+      const limitData = await limitCheck.json()
+      if (!limitData.allowed) {
+        setError('Too many signup attempts. Please try again later.')
+        setLoading(false)
+        return
+      }
+    } catch (e) { /* fail open if the check itself errors */ }
     const { data, error: err } = await supabase.auth.signUp({ email, password, options: { data: { full_name: firstName+' '+lastName, company_name: company }, captchaToken: captchaToken || undefined } })
     captchaRef.current?.resetCaptcha()
     setCaptchaToken(null)
