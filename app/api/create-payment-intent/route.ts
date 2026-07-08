@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { stripe } from '@/lib/stripe'
+import { checkRateLimit } from '@/lib/rateLimit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,6 +15,12 @@ export async function POST(req: NextRequest) {
   const anonClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
   const { data: { user: authUser } } = await anonClient.auth.getUser(token)
     if (!authUser || authUser.id !== user_id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    // Rate limit: max 10 payment intent attempts per user per 10 minutes
+    const rateLimit = await checkRateLimit(`payment-intent:${user_id}`, 10, 600)
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: 'Too many attempts. Please wait a few minutes and try again.' }, { status: 429 })
+    }
 
     if (!user_id || !amount || Number(amount) < 20) {
       return NextResponse.json({ error: 'Invalid user_id or amount (minimum £20)' }, { status: 400 })
