@@ -3281,14 +3281,14 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                         <button key={amt} onClick={() => { setTopupAmount(amt); setCustomAmount('') }} style={{ padding: '8px 16px', borderRadius: 8, border: `1.5px solid ${topupAmount === amt ? TEAL : BORDER}`, background: topupAmount === amt ? TEAL : 'transparent', color: topupAmount === amt ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>£{amt}</button>
                       ))}
                     </div>
-                    <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 8 }}>Or enter custom amount (minimum £20):</p>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 8 }}>Or enter custom amount (minimum £5):</p>
                     <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${BORDER}`, borderRadius: 8, overflow: 'hidden', marginBottom: 20 }}>
                       <span style={{ padding: '10px 12px', background: BG, color: MUTED, fontSize: 14, fontWeight: 600, borderRight: `1px solid ${BORDER}` }}>£</span>
-                      <input type="number" min="20" placeholder="20.00" value={customAmount} onChange={e => { setCustomAmount(e.target.value); setTopupAmount(null) }} style={{ flex: 1, padding: '10px 12px', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 14 }} />
+                      <input type="number" min="5" placeholder="5.00" value={customAmount} onChange={e => { setCustomAmount(e.target.value); setTopupAmount(null) }} style={{ flex: 1, padding: '10px 12px', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 14 }} />
                     </div>
                     {topupError && <p style={{ fontSize: 12, color: '#DC2626', marginBottom: 12 }}>{topupError}</p>}
                     <button
-                      disabled={!finalAmount || finalAmount < 20 || topupLoading}
+                      disabled={!finalAmount || finalAmount < 5 || topupLoading}
                       onClick={async () => {
                         setTopupError('')
                         setTopupLoading(true)
@@ -3313,8 +3313,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                           setTopupLoading(false)
                         }
                       }}
-                      style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: finalAmount && finalAmount >= 20 ? TEAL : BORDER, color: finalAmount && finalAmount >= 20 ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: finalAmount && finalAmount >= 20 ? 'pointer' : 'default' }}>
-                      {topupLoading ? 'Loading…' : finalAmount && finalAmount >= 20 ? `Top up £${finalAmount.toFixed(2)} →` : 'Select or enter an amount'}
+                      style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: finalAmount && finalAmount >= 5 ? TEAL : BORDER, color: finalAmount && finalAmount >= 5 ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: finalAmount && finalAmount >= 5 ? 'pointer' : 'default' }}>
+                      {topupLoading ? 'Loading…' : finalAmount && finalAmount >= 5 ? `Top up £${finalAmount.toFixed(2)} →` : 'Select or enter an amount'}
                     </button>
                     <p style={{ fontSize: 11, color: HINT, textAlign: 'center', marginTop: 10 }}>Secured by Stripe · Funds added after successful payment</p>
                   </div>

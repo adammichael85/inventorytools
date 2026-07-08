@@ -22,8 +22,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many attempts. Please wait a few minutes and try again.' }, { status: 429 })
     }
 
-    if (!user_id || !amount || Number(amount) < 20) {
-      return NextResponse.json({ error: 'Invalid user_id or amount (minimum £20)' }, { status: 400 })
+    if (!user_id || !amount || Number(amount) < 5) {
+      return NextResponse.json({ error: 'Invalid user_id or amount (minimum £5)' }, { status: 400 })
     }
 
     const supabase = createClient(
