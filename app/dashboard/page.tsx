@@ -692,7 +692,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 380, padding: 24 }}>
             <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px' }}>Permanently delete {confirmRemove.full_name || 'this member'}?</p>
-            <p style={{ fontSize: 13, color: MUTED, margin: '0 0 20px' }}>They will lose access to the company account and will need a new invite to rejoin.</p>
+            <p style={{ fontSize: 13, color: MUTED, margin: '0 0 20px' }}>This permanently deletes their account and cannot be undone. Their conversion history and reports will be preserved for your company's records.</p>
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setConfirmRemove(null)} style={{ flex: 1, padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
               <button onClick={() => removeMember(confirmRemove.id)} style={{ flex: 1, padding: 11, borderRadius: 10, border: 'none', background: '#DC2626', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Remove</button>
