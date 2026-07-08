@@ -1,8 +1,11 @@
 'use client'
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
+
+const HCAPTCHA_SITEKEY = 'a316dd3a-5010-4d00-89ea-4506c7eed068'
 
 const NAVY = '#152045'
 const NAVY_DARK = '#0F1733'
@@ -21,6 +24,8 @@ export default function OjLoginClient() {
   const [showSessionWarning, setShowSessionWarning] = useState(false)
   const [existingSessionDevice, setExistingSessionDevice] = useState('')
   const [pendingLoginUserId, setPendingLoginUserId] = useState('')
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const captchaRef = useRef<HCaptcha>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -86,7 +91,9 @@ export default function OjLoginClient() {
   async function handleSignIn() {
     setLoading(true)
     setError('')
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken: captchaToken || undefined } })
+    captchaRef.current?.resetCaptcha()
+    setCaptchaToken(null)
     if (error) { setError(error.message); setLoading(false); return }
 
     const userId = data.user?.id
@@ -149,7 +156,8 @@ export default function OjLoginClient() {
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 22 }}>
             <button onClick={handleForgotPassword} style={{ fontSize: 13, color: NAVY, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>Forgot password?</button>
           </div>
-          <button onClick={handleSignIn} disabled={loading} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: loading ? HINT : NAVY, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer' }}>
+          <div style={{ marginBottom: 16 }}><HCaptcha ref={captchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setCaptchaToken} onExpire={()=>setCaptchaToken(null)} /></div>
+          <button onClick={handleSignIn} disabled={loading || !captchaToken} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: (loading || !captchaToken) ? HINT : NAVY, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: (loading || !captchaToken) ? 'default' : 'pointer' }}>
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </div>
