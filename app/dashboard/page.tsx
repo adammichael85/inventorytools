@@ -3245,7 +3245,11 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
       {backgroundJobs.length > 0 && (
         <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 320, maxWidth: 480 }}>
           {backgroundJobs.map(job => (
-            <div key={job.jobId} onClick={() => { if (job.status !== 'complete') { setShowConvert(true); setConvertState('processing') } }} style={{ background: '#fff', border: `1px solid ${job.status === 'complete' ? TEAL : BORDER}`, borderRadius: 12, padding: '12px 16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', cursor: job.status !== 'complete' ? 'pointer' : 'default' }}>
+            <div key={job.jobId} onClick={() => {
+              const isAudioJob = job.jobId.startsWith('audio-')
+              if (isAudioJob) { setShowAudioConvert(true); return }
+              if (job.status !== 'complete') { setShowConvert(true); setConvertState('processing') }
+            }} style={{ background: '#fff', border: `1px solid ${job.status === 'error' ? '#DC2626' : job.status === 'complete' ? TEAL : BORDER}`, borderRadius: 12, padding: '12px 16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', cursor: 'pointer' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {job.status === 'complete'
@@ -3399,6 +3403,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
         function closeAudioModal() {
           setShowAudioConvert(false)
+          if (audioConvertState === 'processing') return // keep tracking the running job; just hide the modal
           setAudioFiles([])
           setAudioAddress('')
           setAudioPropertySize('')
@@ -3575,7 +3580,15 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     setAudioError('')
                     setAudioElapsed(0)
                     audioElapsedRef.current = 0
-                    const timer = setInterval(() => { audioElapsedRef.current += 1; setAudioElapsed(audioElapsedRef.current) }, 1000)
+                    const audioJobId = 'audio-' + Date.now()
+                    setBackgroundJobs(prev => [...prev, { jobId: audioJobId, filename: audioAddress || 'Audio conversion', message: 'Converting audio... 0s', progress: 0, status: 'audio-running' }])
+                    const timer = setInterval(() => {
+                      audioElapsedRef.current += 1
+                      setAudioElapsed(audioElapsedRef.current)
+                      const secs = audioElapsedRef.current
+                      const label = secs >= 60 ? Math.floor(secs / 60) + 'm ' + (secs % 60) + 's' : secs + 's'
+                      setBackgroundJobs(prev => prev.map(j => j.jobId === audioJobId ? { ...j, message: 'Converting audio... ' + label } : j))
+                    }, 1000)
                     try {
                       // Upload audio files to Supabase Storage first (bypass Vercel 4.5MB limit)
                       const { data: { session: uploadSession } } = await supabase.auth.getSession()
@@ -3683,10 +3696,13 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
                       clearInterval(timer)
                       setAudioConvertState('done')
+                      setBackgroundJobs(prev => prev.map(j => j.jobId === audioJobId ? { ...j, status: 'complete', message: '✓ Complete — click to download', progress: 100 } : j))
+                      setTimeout(() => { setBackgroundJobs(prev => prev.filter(j => j.jobId !== audioJobId)) }, 5000)
                     } catch (err: any) {
                       clearInterval(timer)
                       setAudioError(err.message || 'Conversion failed')
                       setAudioConvertState('error')
+                      setBackgroundJobs(prev => prev.map(j => j.jobId === audioJobId ? { ...j, status: 'error', message: '✕ Conversion failed — click to retry' } : j))
                     }
                   }}
                   >
