@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { checkRateLimit } from '@/lib/rateLimit'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 
@@ -41,6 +42,12 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json()
     console.log('Forgot password called for:', email)
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
+
+    // Rate limit: max 3 reset requests per email per 15 minutes, to stop email-bombing abuse
+    const rateLimit = await checkRateLimit(`forgot-password:${email.toLowerCase()}`, 3, 900)
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ ok: true }) // don't reveal rate-limiting to a potential attacker; just silently no-op
+    }
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
