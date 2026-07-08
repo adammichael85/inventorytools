@@ -3656,7 +3656,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                         // Save conversion record
                         await fetch('/api/save-conversion', {
                           method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
+                          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
                           body: JSON.stringify({
                             user_id: session.user.id,
                             address: audioAddress,
