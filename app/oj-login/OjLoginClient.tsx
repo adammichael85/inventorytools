@@ -119,11 +119,14 @@ export default function OjLoginClient() {
 
   async function handleForgotPassword() {
     if (!email) { setMessage('Enter your email address first'); return }
+    if (!captchaToken) { setMessage('Please complete the "I am human" check first.'); return }
     await fetch('/api/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email, captchaToken })
     })
+    captchaRef.current?.resetCaptcha()
+    setCaptchaToken(null)
     setMessage('If an account exists, a password reset email has been sent.\n\nPlease check your junk/spam folder if you do not see it in your inbox.')
   }
 
