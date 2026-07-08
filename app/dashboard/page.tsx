@@ -3243,7 +3243,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
       {/* BACKGROUND JOBS PROGRESS BAR */}
       {backgroundJobs.length > 0 && (
-        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 320, maxWidth: 480 }}>
+        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 8, width: 420 }}>
           {backgroundJobs.map(job => (
             <div key={job.jobId} onClick={() => {
               const isAudioJob = job.jobId.startsWith('audio-')
@@ -3256,7 +3256,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     ? <div style={{ width: 14, height: 14, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg></div>
                     : <div style={{ width: 14, height: 14, borderRadius: '50%', border: `2px solid rgba(29,158,117,0.2)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
                   }
-                  <span style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>{job.filename}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260, display: 'inline-block' }}>{job.filename}</span>
                 </div>
                 {job.progress > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: TEAL }}>{job.progress}%</span>}
               </div>
@@ -3439,21 +3439,21 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 {/* Property address */}
                 <div>
                   <label style={labelStyle}>Property address</label>
-                  <input value={audioAddress} onChange={e => setAudioAddress(e.target.value)} placeholder="e.g. 12 High Street, London, SW1A 1AA" style={inputStyle} />
+                  <input value={audioAddress} onChange={e => setAudioAddress(e.target.value)} placeholder="e.g. 12 High Street, London, SW1A 1AA" style={inputStyle} disabled={audioConvertState === 'processing'} />
                 </div>
 
                 {/* Property size + Furnished row */}
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
                   <div>
                     <label style={labelStyle}>Property size</label>
-                    <select value={audioPropertySize} onChange={e => setAudioPropertySize(e.target.value)} style={{ ...inputStyle, appearance: 'none' as const }}>
+                    <select value={audioPropertySize} onChange={e => setAudioPropertySize(e.target.value)} style={{ ...inputStyle, appearance: 'none' as const }} disabled={audioConvertState === 'processing'}>
                       <option value="">Select size...</option>
                       {PROPERTY_SIZES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                     </select>
                   </div>
                   <div>
                     <label style={labelStyle}>Furnished?</label>
-                    <select value={audioFurnished} onChange={e => setAudioFurnished(e.target.value)} style={{ ...inputStyle, appearance: 'none' as const }}>
+                    <select value={audioFurnished} onChange={e => setAudioFurnished(e.target.value)} style={{ ...inputStyle, appearance: 'none' as const }} disabled={audioConvertState === 'processing'}>
                       <option value="">Select...</option>
                       <option value="furnished">Furnished</option>
                       <option value="unfurnished">Unfurnished</option>
@@ -3478,6 +3478,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   <label style={labelStyle}>Room order <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(one room per line — audio file names must match these room names exactly. The order here is the order rooms will appear in the Word document.)</span></label>
                   <textarea
                     value={audioRoomOrder}
+                    disabled={audioConvertState === 'processing'}
                     onChange={e => {
                       const lines = e.target.value.split('\n')
                       const cased = lines.map((line, idx) => {
@@ -3500,10 +3501,11 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   <label style={labelStyle}>Audio files <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(upload one or more — any combination of files)</span></label>
                   <label htmlFor="audio-upload">
                     <div
-                      style={{ border: `2px dashed ${audioFiles.length > 0 ? AUDIO_BLUE : BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 20, textAlign: 'center', cursor: 'pointer', background: audioFiles.length > 0 ? AUDIO_BLUE_LIGHT : BG, transition: 'all 0.15s' }}
+                      style={{ border: `2px dashed ${audioFiles.length > 0 ? AUDIO_BLUE : BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 20, textAlign: 'center', cursor: audioConvertState === 'processing' ? 'default' : 'pointer', background: audioFiles.length > 0 ? AUDIO_BLUE_LIGHT : BG, transition: 'all 0.15s', opacity: audioConvertState === 'processing' ? 0.5 : 1, pointerEvents: audioConvertState === 'processing' ? 'none' : 'auto' }}
                       onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
                       onDrop={e => {
                         e.preventDefault(); e.stopPropagation()
+                        if (audioConvertState === 'processing') return
                         const dropped = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|webm)$/i.test(f.name))
                         if (dropped.length > 0) setAudioFiles(prev => [...prev, ...dropped])
                       }}
@@ -3515,7 +3517,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       <p style={{ fontSize: 11, color: HINT }}>Supports .mp3 .wav .m4a .ogg .webm · Multiple files allowed</p>
                     </div>
                   </label>
-                  <input id="audio-upload" type="file" accept=".mp3,.wav,.m4a,.ogg,.webm,audio/*" multiple style={{ display: 'none' }} onChange={e => { if (e.target.files) setAudioFiles(prev => [...prev, ...Array.from(e.target.files!)]) }} />
+                  <input id="audio-upload" type="file" accept=".mp3,.wav,.m4a,.ogg,.webm,audio/*" multiple style={{ display: 'none' }} disabled={audioConvertState === 'processing'} onChange={e => { if (e.target.files) setAudioFiles(prev => [...prev, ...Array.from(e.target.files!)]) }} />
 
                   {audioFiles.length > 0 && (
                     <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -3528,7 +3530,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                             <p style={{ fontSize: 12, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</p>
                             <p style={{ fontSize: 11, color: AUDIO_BLUE, margin: 0 }}>{(f.size / 1024 / 1024).toFixed(1)} MB</p>
                           </div>
-                          <button onClick={e => { e.preventDefault(); setAudioFiles(prev => prev.filter((_, idx) => idx !== i)) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: MUTED, fontSize: 16, padding: 2, flexShrink: 0 }}>×</button>
+                          {audioConvertState !== 'processing' && <button onClick={e => { e.preventDefault(); setAudioFiles(prev => prev.filter((_, idx) => idx !== i)) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: MUTED, fontSize: 16, padding: 2, flexShrink: 0 }}>×</button>}
                         </div>
                       ))}
                       <button onClick={e => { e.preventDefault(); setAudioFiles([]) }} style={{ fontSize: 11, color: MUTED, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '2px 0', fontFamily: 'inherit' }}>Clear all files</button>
