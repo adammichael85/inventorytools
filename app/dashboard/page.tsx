@@ -3277,7 +3277,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   <div style={{ padding: '18px 24px' }}>
                     <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 10 }}>Quick select:</p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
-                      {[20,30,40,50,100,150,200].map(amt => (
+                      {[5,10,20,30,40,50,100,150,200].map(amt => (
                         <button key={amt} onClick={() => { setTopupAmount(amt); setCustomAmount('') }} style={{ padding: '8px 16px', borderRadius: 8, border: `1.5px solid ${topupAmount === amt ? TEAL : BORDER}`, background: topupAmount === amt ? TEAL : 'transparent', color: topupAmount === amt ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>£{amt}</button>
                       ))}
                     </div>
