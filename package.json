@@ -39,5 +39,10 @@
     "eslint-config-next": "16.2.7",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "ws": "^8.21.0",
+    "cookie": "^2.0.1",
+    "@opentelemetry/core": "^2.9.0"
   }
 }
