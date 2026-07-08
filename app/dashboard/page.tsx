@@ -603,7 +603,15 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
   }
 
   async function removeMember(memberId: string) {
-    await supabase.rpc('remove_teammate', { target_user_id: memberId })
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const res = await fetch('/api/delete-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ user_id: memberId })
+    })
+    const d = await res.json()
+    if (d.error) { alert(d.error); return }
     setConfirmRemove(null)
     loadTeam()
   }
@@ -683,7 +691,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
       {confirmRemove && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 380, padding: 24 }}>
-            <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px' }}>Remove {confirmRemove.full_name || 'this member'}?</p>
+            <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 8px' }}>Permanently delete {confirmRemove.full_name || 'this member'}?</p>
             <p style={{ fontSize: 13, color: MUTED, margin: '0 0 20px' }}>They will lose access to the company account and will need a new invite to rejoin.</p>
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setConfirmRemove(null)} style={{ flex: 1, padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
