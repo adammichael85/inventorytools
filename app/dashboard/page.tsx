@@ -603,7 +603,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
   }
 
   async function removeMember(memberId: string) {
-    await supabase.from('profiles').update({ company_name: null }).eq('id', memberId)
+    await supabase.rpc('remove_teammate', { target_user_id: memberId })
     setConfirmRemove(null)
     loadTeam()
   }
