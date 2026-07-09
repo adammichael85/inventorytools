@@ -245,8 +245,9 @@ export const visionConvertTask = task({
       { global: { fetch: fetch }, realtime: { transport: ws as any } }
     );
 
+    let hasSetStartedAt = false
     async function updateJob(status: string, progress: number, message: string, rooms?: any[], address?: string, roomNames?: string[]) {
-      await supabase.from("vision_jobs").upsert({
+      const payload: any = {
         id: jobId,
         user_id: userId,
         status,
@@ -256,7 +257,15 @@ export const visionConvertTask = task({
         address: address || null,
         room_names: roomNames ? JSON.stringify(roomNames) : undefined,
         updated_at: new Date().toISOString()
-      });
+      };
+      // Only set started_at on the very first update — omitting it on later
+      // upserts leaves the existing DB value untouched, so it's a true anchor
+      // point for calculating real elapsed time even after a page refresh.
+      if (!hasSetStartedAt) {
+        payload.started_at = new Date().toISOString();
+        hasSetStartedAt = true;
+      }
+      await supabase.from("vision_jobs").upsert(payload);
     }
 
     try {

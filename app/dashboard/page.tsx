@@ -1207,6 +1207,20 @@ export default function Dashboard() {
   const [processingRooms, setProcessingRooms] = useState<{name:string,state:string}[]>([])
   const [elapsed, setElapsed] = useState(0)
   const elapsedRef = React.useRef(0)
+  const restoredJobStartedAtRef = React.useRef<number | null>(null)
+
+  // Keeps the elapsed-time counter ticking forward using a real wall-clock anchor
+  // (started_at), so a restored job's timer shows true elapsed time instead of
+  // resetting to 0 after a page refresh.
+  React.useEffect(() => {
+    if (convertState !== 'processing' || restoredJobStartedAtRef.current === null) return
+    const interval = setInterval(() => {
+      const secs = Math.floor((Date.now() - restoredJobStartedAtRef.current!) / 1000)
+      elapsedRef.current = secs
+      setElapsed(secs)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [convertState])
   const activeVisionJobRef = React.useRef<{ jobId: string, filename: string } | null>(null)
   const wordJobIdRef = React.useRef<string | null>(null)
   const [backgroundJobs, setBackgroundJobs] = React.useState<{ jobId: string, filename: string, message: string, progress: number, status: string }[]>([])
@@ -1732,14 +1746,19 @@ export default function Dashboard() {
           // On load, check for any vision jobs still running for this user and restore them
           // to the background jobs bar so they survive page refreshes
           supabase.from('vision_jobs')
-            .select('id, message, progress, status, address, room_names')
+            .select('id, message, progress, status, address, room_names, started_at')
             .eq('user_id', session.user.id)
             .in('status', ['queued', 'running'])
             .then(({ data: activeJobs }) => {
-              console.log('[DIAGNOSTIC] vision_jobs restore fired. activeJobs:', activeJobs)
               if (activeJobs && activeJobs.length > 0) {
-                console.log('[DIAGNOSTIC] first job room_names raw:', activeJobs[0].room_names)
-                console.log('[DIAGNOSTIC] first job message raw:', activeJobs[0].message)
+                const firstJob = activeJobs[0]
+                if (firstJob?.started_at) {
+                  const startedAtMs = new Date(firstJob.started_at).getTime()
+                  restoredJobStartedAtRef.current = startedAtMs
+                  const initialElapsed = Math.floor((Date.now() - startedAtMs) / 1000)
+                  elapsedRef.current = initialElapsed
+                  setElapsed(initialElapsed)
+                }
                 setBackgroundJobs(activeJobs.map((j: any) => ({
                   jobId: j.id,
                   filename: j.address || 'PDF conversion',
@@ -1749,7 +1768,6 @@ export default function Dashboard() {
                 })))
                 // Reconstruct the modal's room-by-room checklist so it matches the bar's
                 // real progress after a refresh, instead of showing stale/empty data.
-                const firstJob = activeJobs[0]
                 if (firstJob?.room_names) {
                   try {
                     const names: string[] = JSON.parse(firstJob.room_names)
