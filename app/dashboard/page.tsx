@@ -3243,7 +3243,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
       {/* BACKGROUND JOBS PROGRESS BAR */}
       {backgroundJobs.length > 0 && (
-        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 8, width: 420 }}>
+        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 8, width: 'min(90vw, 680px)' }}>
           {backgroundJobs.map(job => (
             <div key={job.jobId} onClick={() => {
               const isAudioJob = job.jobId.startsWith('audio-')
