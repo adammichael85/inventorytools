@@ -1209,19 +1209,20 @@ export default function Dashboard() {
   const elapsedRef = React.useRef(0)
   const restoredJobStartedAtRef = React.useRef<number | null>(null)
   const restoredJobIdRef = React.useRef<string | null>(null)
+  const [restoredJobComplete, setRestoredJobComplete] = useState(false)
 
   // Keeps the elapsed-time counter ticking forward using a real wall-clock anchor
   // (started_at), so a restored job's timer shows true elapsed time instead of
   // resetting to 0 after a page refresh.
   React.useEffect(() => {
-    if (convertState !== 'processing' || restoredJobStartedAtRef.current === null) return
+    if (convertState !== 'processing' || restoredJobStartedAtRef.current === null || restoredJobComplete) return
     const interval = setInterval(() => {
       const secs = Math.floor((Date.now() - restoredJobStartedAtRef.current!) / 1000)
       elapsedRef.current = secs
       setElapsed(secs)
     }, 1000)
     return () => clearInterval(interval)
-  }, [convertState])
+  }, [convertState, restoredJobComplete])
   const activeVisionJobRef = React.useRef<{ jobId: string, filename: string } | null>(null)
   const wordJobIdRef = React.useRef<string | null>(null)
   const [backgroundJobs, setBackgroundJobs] = React.useState<{ jobId: string, filename: string, message: string, progress: number, status: string }[]>([])
@@ -1245,16 +1246,12 @@ export default function Dashboard() {
       const hasCompleted = updated.some(j => j.status === 'complete')
       setBackgroundJobs(updated.filter(j => j.status === 'running' || j.status === 'complete' || j.status === 'word-sync'))
       // If the specific job the modal is showing (restored after a refresh) just
-      // completed, close the modal instead of leaving it stuck on "Processing..."
-      // with the timer ticking forever — the finished conversion already appears
-      // correctly in Reports/Recent Conversions.
-      if (restoredJobIdRef.current && convertState === 'processing') {
+      // completed, freeze the timer and swap the message — but leave the modal
+      // open, since the user may still want to see it before closing manually.
+      if (restoredJobIdRef.current && convertState === 'processing' && !restoredJobComplete) {
         const restoredJobNowComplete = updated.find(j => j.jobId === restoredJobIdRef.current && j.status === 'complete')
         if (restoredJobNowComplete) {
-          setShowConvert(false)
-          setConvertState('idle')
-          restoredJobStartedAtRef.current = null
-          restoredJobIdRef.current = null
+          setRestoredJobComplete(true)
         }
       }
       if (hasCompleted) {
@@ -2099,6 +2096,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
     setShowConvert(false)
     setConvertState('idle')
     setProcessingRooms([])
+    setRestoredJobComplete(false)
+    restoredJobStartedAtRef.current = null
+    restoredJobIdRef.current = null
     // Refresh conversions list when modal closes
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -3228,16 +3228,25 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               <div style={{ padding: 24 }}>
                 <div style={{ background: TEAL_LIGHT, borderRadius: 10, padding: '16px', marginBottom: 18, textAlign: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 12 }}>
-                    <div style={{ width: 18, height: 18, borderRadius: '50%', border: `2.5px solid rgba(253,106,2,0.25)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
-                    <p style={{ fontSize: 14, fontWeight: 600, color: TEAL_DARK, margin: 0 }}>Processing...</p>
+                    {restoredJobComplete
+                      ? <div style={{ width: 18, height: 18, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg></div>
+                      : <div style={{ width: 18, height: 18, borderRadius: '50%', border: `2.5px solid rgba(253,106,2,0.25)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                    }
+                    <p style={{ fontSize: 14, fontWeight: 600, color: TEAL_DARK, margin: 0 }}>{restoredJobComplete ? 'Complete!' : 'Processing...'}</p>
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#d45500' }}>⏱ {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</span>
                   </div>
                   <p style={{ fontSize: 11, color: '#d45500', margin: '0 0 12px' }}>{selectedFile?.name}</p>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: '0 0 4px', letterSpacing: 0.3 }}>THIS IS RUNNING IN THE BACKGROUND — YOU CAN CLOSE THIS AND CONTINUE USING THE DASHBOARD.</p>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: 0, letterSpacing: 0.3 }}>YOUR CONVERSION WILL APPEAR AUTOMATICALLY WHEN COMPLETE.</p>
+                  {restoredJobComplete ? (
+                    <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: 0, letterSpacing: 0.3 }}>CONVERSION COMPLETE — CHECK RECENT CONVERSIONS OR CLOSE THIS WHEN READY.</p>
+                  ) : (
+                    <>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: '0 0 4px', letterSpacing: 0.3 }}>THIS IS RUNNING IN THE BACKGROUND — YOU CAN CLOSE THIS AND CONTINUE USING THE DASHBOARD.</p>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: 0, letterSpacing: 0.3 }}>YOUR CONVERSION WILL APPEAR AUTOMATICALLY WHEN COMPLETE.</p>
+                    </>
+                  )}
                 </div>
                 <div style={{ height: 4, borderRadius: 20, background: 'rgba(29,158,117,0.2)', overflow: 'hidden', marginBottom: 14 }}>
-                  <div style={{ height: '100%', borderRadius: 20, background: TEAL, animation: 'progress 2s ease-in-out infinite' }} />
+                  <div style={{ height: '100%', borderRadius: 20, background: TEAL, width: restoredJobComplete ? '100%' : undefined, animation: restoredJobComplete ? 'none' : 'progress 2s ease-in-out infinite' }} />
                 </div>
                 {processingRooms.map((room, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 10, padding: '6px 0', borderBottom: `1px solid ${BORDER}`, opacity: room.state === 'pending' ? 0.35 : 1 }}>
