@@ -1239,6 +1239,18 @@ export default function Dashboard() {
         try {
           const res = await fetch('/api/convert-vision-status?jobId=' + job.jobId)
           const data = await res.json()
+          // Keep the modal's room checklist in sync with live progress every tick,
+          // not just at the moment of the initial page-load restore — otherwise
+          // it falls behind (or freezes) while the bar keeps updating correctly.
+          if (job.jobId === restoredJobIdRef.current && data.room_names && !restoredJobComplete) {
+            const names: string[] = data.room_names
+            const match = (data.message || '').match(/room (\d+)\/(\d+)/)
+            const currentIndex = match ? parseInt(match[1], 10) : 0
+            setProcessingRooms(names.map((name: string, idx: number) => ({
+              name,
+              state: idx < currentIndex - 1 ? 'done' : idx === currentIndex - 1 ? 'active' : 'pending'
+            })))
+          }
           return { ...job, message: data.message || job.message, progress: data.progress || job.progress, status: data.status || job.status }
         } catch { return job }
       }))
