@@ -2008,13 +2008,14 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
     } catch (err: any) {
       clearInterval(timer)
-      console.log('[startConvert] error, wordJobIdRef:', wordJobIdRef.current)
+      const realErrorMessage = typeof err === 'string' ? err : (err.message || err.toString() || JSON.stringify(err) || 'Unknown error')
+      console.error('[startConvert] real error (hidden from user):', realErrorMessage)
       // Clean up word-sync background job on error too
       if (wordJobIdRef.current) {
         setBackgroundJobs(prev => prev.filter(j => j.jobId !== wordJobIdRef.current))
         wordJobIdRef.current = null
       }
-      setConvertError(typeof err === 'string' ? err : err.message || err.toString() || JSON.stringify(err) || 'Unknown error')
+      setConvertError('Unable to process at this time. If the problem persists, please contact admin.')
       setConvertState('error')
     }
   }
@@ -3704,7 +3705,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       setTimeout(() => { setBackgroundJobs(prev => prev.filter(j => j.jobId !== audioJobId)) }, 5000)
                     } catch (err: any) {
                       clearInterval(timer)
-                      setAudioError(err.message || 'Conversion failed')
+                      const realErrorMessage = err.message || err.toString() || 'Unknown error'
+                      console.error('[audio convert] real error (hidden from user):', realErrorMessage)
+                      setAudioError('Unable to process at this time. If the problem persists, please contact admin.')
                       setAudioConvertState('error')
                       setBackgroundJobs(prev => prev.map(j => j.jobId === audioJobId ? { ...j, status: 'error', message: '✕ Conversion failed — click to retry' } : j))
                     }
