@@ -164,7 +164,9 @@ SPELLING FIXES: "Morticelock" to "Mortice lock". "UPvc" to "UPVC".
 COPY EXACTLY: Preserve original inventory wording. Do not rewrite or summarise.
 
 Return ONLY raw JSON: {"rows":[...]}`;
-async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: string, maxTokens: number, retries = 3): Promise<string> {
+async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: string, maxTokens: number, retries = 3): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
+  let inputTokens = 0
+  let outputTokens = 0
   for (let attempt = 1; attempt <= retries; attempt++) {
     const r = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
@@ -198,10 +200,12 @@ async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: s
           continue;
         }
       }
-      return ""; // give up after retries exhausted or non-retryable error
+      return { text: "", inputTokens, outputTokens }; // give up after retries exhausted or non-retryable error
     }
 
     const d = await r.json();
+    inputTokens += d.usage?.input_tokens || 0
+    outputTokens += d.usage?.output_tokens || 0
     let text = "";
     if (d.output_text) {
       text = d.output_text;
@@ -221,9 +225,9 @@ async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: s
       continue;
     }
 
-    return text;
+    return { text, inputTokens, outputTokens };
   }
-  return "";
+  return { text: "", inputTokens, outputTokens };
 }
 
 export const visionConvertTask = task({
@@ -232,6 +236,8 @@ export const visionConvertTask = task({
   run: async (payload: { pdfPath: string; jobId: string; userId: string; convertedBy?: string; promptStyle?: string }) => {
     const { pdfPath, jobId, userId, convertedBy, promptStyle } = payload;
     const jobStartedAt = Date.now();
+    let totalInputTokens = 0
+    let totalOutputTokens = 0
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -304,12 +310,15 @@ export const visionConvertTask = task({
       const activePass1System = promptStyle === 'leaders' ? LEADERS_PASS1_SYSTEM : PASS1_SYSTEM;
       const activePass2System = promptStyle === 'leaders' ? LEADERS_PASS2_SYSTEM : PASS2_SYSTEM;
 
-      const pass1Text = await callVisionAPI(
+      const pass1Result = await callVisionAPI(
         stampedBase64,
         activePass1System,
         "Identify all rooms and their page ranges. Each page has a visible 'Page X of Y' label in red in the bottom right corner - use this exact label to determine page numbers, do not count pages yourself. Return raw JSON only.",
         16000
       );
+      const pass1Text = pass1Result.text
+      totalInputTokens += pass1Result.inputTokens
+      totalOutputTokens += pass1Result.outputTokens
 
       const p1first = pass1Text.indexOf("{");
       const p1last = pass1Text.lastIndexOf("}");
@@ -352,12 +361,15 @@ export const visionConvertTask = task({
           const roomPdfBytes = await roomPdf.save();
           const roomBase64 = Buffer.from(roomPdfBytes).toString("base64");
 
-          const pass2Text = await callVisionAPI(
+          const pass2Result = await callVisionAPI(
             roomBase64,
             activePass2System,
             `This section is: ${roomInfo.room}\n\nExtract ALL inventory rows. Return raw JSON only.`,
             28000
           );
+          const pass2Text = pass2Result.text
+          totalInputTokens += pass2Result.inputTokens
+          totalOutputTokens += pass2Result.outputTokens
 
           if (!pass2Text) {
             logger.log(`ROOM SKIPPED - empty response: ${roomInfo.room}`);
@@ -429,6 +441,7 @@ export const visionConvertTask = task({
             converted_by: convertedBy || '',
             type: 'pdf',
             cost: 4.00,
+            actual_api_cost: Math.ceil(((totalInputTokens / 1_000_000) * 2.00 + (totalOutputTokens / 1_000_000) * 8.00) * 100) / 100,
           })
         })
         const saveData = await saveRes.json()

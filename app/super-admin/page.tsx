@@ -73,7 +73,7 @@ export default function SuperAdminPage() {
         </div>
         <div style={{ ...cardStyle, background: '#f6f5f3' }}>
           <p style={labelStyle}>Total OpenAI cost (real money out)</p>
-          <p style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>£{totalRealCost.toFixed(3)}</p>
+          <p style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>£{totalRealCost.toFixed(2)}</p>
         </div>
         <div style={{ ...cardStyle, background: realProfit < 0 ? '#FEE2E2' : '#F0FDF4' }}>
           <p style={labelStyle}>Real profit (top-ups − OpenAI cost)</p>
@@ -86,7 +86,7 @@ export default function SuperAdminPage() {
         {[
           ['Total reports', totalReports.toString()],
           ['Total charged (per-report)', '£' + totalCharged.toFixed(2)],
-          ['Total real cost (per-report)', '£' + totalRealCost.toFixed(3)],
+          ['Total real cost (per-report)', '£' + totalRealCost.toFixed(2)],
           ['Per-report margin', '£' + totalMargin.toFixed(2)],
         ].map(([label, value]) => (
           <div key={label} style={cardStyle}>

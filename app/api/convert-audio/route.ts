@@ -741,7 +741,7 @@ ${roomTranscript}`
     // GPT-5.5 pricing (verified July 2026): $5.00 / 1M input tokens, $30.00 / 1M output tokens
     const totalInputTokens = result.reduce((sum: number, r: any) => sum + (r.inputTokens || 0), 0)
     const totalOutputTokens = result.reduce((sum: number, r: any) => sum + (r.outputTokens || 0), 0)
-    const actualApiCost = (totalInputTokens / 1_000_000) * 5.00 + (totalOutputTokens / 1_000_000) * 30.00
+    const actualApiCost = Math.ceil(((totalInputTokens / 1_000_000) * 5.00 + (totalOutputTokens / 1_000_000) * 30.00) * 100) / 100
 
     return NextResponse.json({
       rooms: result,
