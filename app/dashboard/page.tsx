@@ -1208,6 +1208,7 @@ export default function Dashboard() {
   const [elapsed, setElapsed] = useState(0)
   const elapsedRef = React.useRef(0)
   const restoredJobStartedAtRef = React.useRef<number | null>(null)
+  const restoredJobIdRef = React.useRef<string | null>(null)
 
   // Keeps the elapsed-time counter ticking forward using a real wall-clock anchor
   // (started_at), so a restored job's timer shows true elapsed time instead of
@@ -1243,6 +1244,19 @@ export default function Dashboard() {
       // Show completed jobs briefly then remove them
       const hasCompleted = updated.some(j => j.status === 'complete')
       setBackgroundJobs(updated.filter(j => j.status === 'running' || j.status === 'complete' || j.status === 'word-sync'))
+      // If the specific job the modal is showing (restored after a refresh) just
+      // completed, close the modal instead of leaving it stuck on "Processing..."
+      // with the timer ticking forever — the finished conversion already appears
+      // correctly in Reports/Recent Conversions.
+      if (restoredJobIdRef.current && convertState === 'processing') {
+        const restoredJobNowComplete = updated.find(j => j.jobId === restoredJobIdRef.current && j.status === 'complete')
+        if (restoredJobNowComplete) {
+          setShowConvert(false)
+          setConvertState('idle')
+          restoredJobStartedAtRef.current = null
+          restoredJobIdRef.current = null
+        }
+      }
       if (hasCompleted) {
         // Refresh conversions list
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -1752,6 +1766,7 @@ export default function Dashboard() {
             .then(({ data: activeJobs }) => {
               if (activeJobs && activeJobs.length > 0) {
                 const firstJob = activeJobs[0]
+                restoredJobIdRef.current = firstJob.id
                 if (firstJob?.started_at) {
                   const startedAtMs = new Date(firstJob.started_at).getTime()
                   restoredJobStartedAtRef.current = startedAtMs
