@@ -1157,7 +1157,12 @@ export default function Dashboard() {
     return () => window.removeEventListener('resize', check)
   }, [])
   const [showMobileNav, setShowMobileNav] = React.useState(false)
-  const [toolTab, setToolTab] = React.useState<'pdf' | 'audio'>('pdf')
+  const [toolTab, setToolTab] = React.useState<'pdf' | 'audio'>(() => {
+    if (typeof window === 'undefined') return 'pdf'
+    const saved = sessionStorage.getItem('lastToolTab')
+    return (saved === 'audio' || saved === 'pdf') ? saved : 'pdf'
+  })
+  React.useEffect(() => { sessionStorage.setItem('lastToolTab', toolTab) }, [toolTab])
   const [showAudioConvert, setShowAudioConvert] = React.useState(false)
   const [audioFiles, setAudioFiles] = React.useState<File[]>([])
   const [audioAddress, setAudioAddress] = React.useState('')
@@ -1172,7 +1177,11 @@ export default function Dashboard() {
   const [audioDocxUrl, setAudioDocxUrl] = React.useState<string|null>(null)
   const [audioDocxName, setAudioDocxName] = React.useState('')
 
-  const [page, setPageState] = useState('dashboard')
+  const [page, setPageState] = useState(() => {
+    if (typeof window === 'undefined') return 'dashboard'
+    return sessionStorage.getItem('lastPage') || 'dashboard'
+  })
+  React.useEffect(() => { sessionStorage.setItem('lastPage', page) }, [page])
   function setPage(p: string) { setPageState(p); setTimeout(() => { const main = document.querySelector('main div[style*="overflow"]') as HTMLElement; if (main) main.scrollTop = 0 }, 0) }
   const [showConvert, setShowConvert] = useState(false)
   const [showTopup, setShowTopup] = useState(false)
