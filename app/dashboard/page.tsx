@@ -3256,7 +3256,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     ? <div style={{ width: 14, height: 14, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg></div>
                     : <div style={{ width: 14, height: 14, borderRadius: '50%', border: `2px solid rgba(29,158,117,0.2)`, borderTopColor: TEAL, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
                   }
-                  <span style={{ fontSize: 13, fontWeight: 600, color: TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260, display: 'inline-block' }}>{job.filename}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 500, display: 'inline-block' }}>{job.filename}</span>
                 </div>
                 {job.progress > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: TEAL }}>{job.progress}%</span>}
               </div>
