@@ -1732,11 +1732,14 @@ export default function Dashboard() {
           // On load, check for any vision jobs still running for this user and restore them
           // to the background jobs bar so they survive page refreshes
           supabase.from('vision_jobs')
-            .select('id, message, progress, status, address')
+            .select('id, message, progress, status, address, room_names')
             .eq('user_id', session.user.id)
             .in('status', ['queued', 'running'])
             .then(({ data: activeJobs }) => {
+              console.log('[DIAGNOSTIC] vision_jobs restore fired. activeJobs:', activeJobs)
               if (activeJobs && activeJobs.length > 0) {
+                console.log('[DIAGNOSTIC] first job room_names raw:', activeJobs[0].room_names)
+                console.log('[DIAGNOSTIC] first job message raw:', activeJobs[0].message)
                 setBackgroundJobs(activeJobs.map((j: any) => ({
                   jobId: j.id,
                   filename: j.address || 'PDF conversion',
@@ -1744,6 +1747,22 @@ export default function Dashboard() {
                   progress: j.progress || 0,
                   status: 'running'
                 })))
+                // Reconstruct the modal's room-by-room checklist so it matches the bar's
+                // real progress after a refresh, instead of showing stale/empty data.
+                const firstJob = activeJobs[0]
+                if (firstJob?.room_names) {
+                  try {
+                    const names: string[] = JSON.parse(firstJob.room_names)
+                    const match = (firstJob.message || '').match(/room (\d+)\/(\d+)/)
+                    const currentIndex = match ? parseInt(match[1], 10) : 0 // 1-indexed room currently being processed
+                    setProcessingRooms(names.map((name, idx) => ({
+                      name,
+                      state: idx < currentIndex - 1 ? 'done' : idx === currentIndex - 1 ? 'active' : 'pending'
+                    })))
+                  } catch (e) {
+                    console.error('Failed to restore room checklist:', e)
+                  }
+                }
               }
             })
         }
