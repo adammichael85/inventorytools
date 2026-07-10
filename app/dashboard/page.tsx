@@ -1866,13 +1866,13 @@ export default function Dashboard() {
                   elapsedRef.current = initialElapsed
                   setElapsed(initialElapsed)
                 }
-                setBackgroundJobs(activeJobs.map((j: any) => ({
+                setBackgroundJobs(prev => [...prev, ...activeJobs.map((j: any) => ({
                   jobId: j.id,
                   filename: j.address || 'PDF conversion',
                   message: j.message || 'Processing...',
                   progress: j.progress || 0,
                   status: 'running'
-                })))
+                }))])
                 // Reconstruct the modal's room-by-room checklist so it matches the bar's
                 // real progress after a refresh, instead of showing stale/empty data.
                 if (firstJob?.room_names) {
@@ -1886,6 +1886,41 @@ export default function Dashboard() {
                     })))
                   } catch (e) {
                     console.error('Failed to restore room checklist:', e)
+                  }
+                }
+              }
+            })
+
+          supabase.from('audio_jobs')
+            .select('id, message, progress, status, address, room_statuses, started_at')
+            .eq('user_id', session.user.id)
+            .in('status', ['queued', 'running'])
+            .then(({ data: activeAudioJobs }) => {
+              if (activeAudioJobs && activeAudioJobs.length > 0) {
+                const firstAudioJob = activeAudioJobs[0]
+                audioRestoredJobIdRef.current = firstAudioJob.id
+                if (firstAudioJob?.started_at) {
+                  const startedAtMs = new Date(firstAudioJob.started_at).getTime()
+                  audioRestoredJobStartedAtRef.current = startedAtMs
+                  const initialElapsed = Math.floor((Date.now() - startedAtMs) / 1000)
+                  audioElapsedRef.current = initialElapsed
+                  setAudioElapsed(initialElapsed)
+                }
+                setBackgroundJobs(prev => [...prev, ...activeAudioJobs.map((j: any) => ({
+                  jobId: j.id,
+                  filename: j.address || 'Audio conversion',
+                  message: j.message || 'Processing...',
+                  progress: j.progress || 0,
+                  status: 'running'
+                }))])
+                // Audio's checklist restores directly from the structured status map —
+                // no message-parsing needed, unlike PDF's index-based approach.
+                if (firstAudioJob?.room_statuses) {
+                  try {
+                    const statuses = JSON.parse(firstAudioJob.room_statuses)
+                    setAudioProcessingRooms(Object.entries(statuses).map(([name, state]) => ({ name, state: state as string })))
+                  } catch (e) {
+                    console.error('Failed to restore audio room checklist:', e)
                   }
                 }
               }
