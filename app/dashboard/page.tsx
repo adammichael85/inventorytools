@@ -1175,6 +1175,11 @@ export default function Dashboard() {
   const audioElapsedRef = React.useRef(0)
   const [audioError, setAudioError] = React.useState('')
   const [audioDocxUrl, setAudioDocxUrl] = React.useState<string|null>(null)
+  const [audioProcessingRooms, setAudioProcessingRooms] = React.useState<{name:string,state:string}[]>([])
+  const activeAudioJobRef = React.useRef<{ jobId: string, filename: string } | null>(null)
+  const audioRestoredJobStartedAtRef = React.useRef<number | null>(null)
+  const audioRestoredJobIdRef = React.useRef<string | null>(null)
+  const [audioRestoredJobComplete, setAudioRestoredJobComplete] = React.useState(false)
   const [audioDocxName, setAudioDocxName] = React.useState('')
 
   const [page, setPageState] = useState(() => {
@@ -3667,17 +3672,14 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     setAudioError('')
                     setAudioElapsed(0)
                     audioElapsedRef.current = 0
-                    const audioJobId = 'audio-' + Date.now()
-                    setBackgroundJobs(prev => [...prev, { jobId: audioJobId, filename: audioAddress || 'Audio conversion', message: 'Converting audio... 0s', progress: 0, status: 'audio-running' }])
-                    const timer = setInterval(() => {
+                    setAudioRestoredJobComplete(false)
+                    const initialRoomList = (audioRoomOrder || '').trim().split('\n').filter((r: string) => r.trim()).map((r: string) => r.trim())
+                    setAudioProcessingRooms(initialRoomList.map((name: string) => ({ name, state: 'pending' })))
+                    const localTimer = setInterval(() => {
                       audioElapsedRef.current += 1
                       setAudioElapsed(audioElapsedRef.current)
-                      const secs = audioElapsedRef.current
-                      const label = secs >= 60 ? Math.floor(secs / 60) + 'm ' + (secs % 60) + 's' : secs + 's'
-                      setBackgroundJobs(prev => prev.map(j => j.jobId === audioJobId ? { ...j, message: 'Converting audio... ' + label } : j))
                     }, 1000)
                     try {
-                      // Upload audio files to Supabase Storage first (bypass Vercel 4.5MB limit)
                       const { data: { session: uploadSession } } = await supabase.auth.getSession()
                       if (!uploadSession) throw new Error('Not authenticated')
                       const ts = Date.now()
@@ -3692,108 +3694,25 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                         fileNames.push(af.name)
                       }
 
-                      const res = await fetch('/api/convert-audio', {
+                      const startRes = await fetch('/api/convert-audio-start', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ filePaths, fileNames, roomOrder: audioRoomOrder, propertySize: audioPropertySize, furnished: audioFurnished, address: audioAddress })
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${uploadSession.access_token}` },
+                        body: JSON.stringify({ filePaths, fileNames, roomOrder: audioRoomOrder, propertySize: audioPropertySize, furnished: audioFurnished, address: audioAddress, userId: uploadSession.user.id, convertedBy: userName || uploadSession.user.email })
                       })
-                      const data = await res.json()
-                      if (!res.ok || data.error) throw new Error(data.error || 'Conversion failed')
+                      const startData = await startRes.json()
+                      if (!startRes.ok || startData.error) throw new Error(startData.error || 'Failed to start conversion')
 
-                      const rooms = (data.rooms || []).filter((r: any) => (r.rows || []).length > 0)
-
-                      // Build Word doc
-                      if (!(window as any).docx) {
-                        await new Promise<void>((resolve, reject) => {
-                          const s = document.createElement('script')
-                          s.src = 'https://cdn.jsdelivr.net/npm/docx@9.0.0/build/index.umd.js'
-                          s.onload = () => resolve(); s.onerror = reject
-                          document.head.appendChild(s)
-                        })
-                      }
-                      const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, VerticalAlign } = (window as any).docx
-                      const border = { style: BorderStyle.SINGLE, size: 4, color: '000000' }
-                      const cellBorders = { top: border, bottom: border, left: border, right: border }
-                      const COL_ITEM = 2499, COL_DESC = 3972, COL_COND = 3115
-                      const makeCell = (text: string, colWidth: number) => new TableCell({
-                        borders: cellBorders,
-                        width: { size: colWidth, type: WidthType.DXA },
-                        verticalAlign: VerticalAlign.TOP,
-                        children: (text || '').split(/\n| \| /).map((line: string) => new Paragraph({ children: [new TextRun({ text: line.trim().replace(/[ --]/g,'').replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-'), font: 'Arial', size: 20, color: '000000' })] }))
-                      })
-                      const children: any[] = []
-                      for (let i = 0; i < rooms.length; i++) {
-                        const room = rooms[i]
-                        if (i > 0) children.push(new Paragraph({ children: [new TextRun({ text: '', font: 'Arial', size: 20 })], spacing: { after: 120 } }))
-                        children.push(new Paragraph({ children: [new TextRun({ text: room.roomName, font: 'Arial', size: 28, bold: true })] }))
-                        children.push(new Table({
-                          width: { size: COL_ITEM + COL_DESC + COL_COND, type: WidthType.DXA },
-                          rows: [
-                            new TableRow({ children: [makeCell('ITEM', COL_ITEM), makeCell('DESCRIPTION', COL_DESC), makeCell('CONDITION', COL_COND)] }),
-                            ...room.rows.map((row: any) => new TableRow({ children: [makeCell(row.item, COL_ITEM), makeCell(row.description, COL_DESC), makeCell(row.condition, COL_COND)] }))
-                          ]
-                        }))
-                      }
-                      const doc = new Document({ sections: [{ properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } }, children }] })
-                      const b64 = await Packer.toBase64String(doc)
-                      const byteArray = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
-                      const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-                      const url = URL.createObjectURL(blob)
-                      const name = (audioAddress || 'inventory').replace(/[^a-zA-Z0-9 _-]/g, '').trim() + '.docx'
-                      setAudioDocxUrl(url)
-                      setAudioDocxName(name)
-
-                      // Upload Word doc to Supabase
-                      let storagePath = ''
-                      const { data: { session } } = await supabase.auth.getSession()
-                      if (session) {
-                        const ts = Date.now()
-                        const addrClean = audioAddress.replace(/[^a-zA-Z0-9 _-]/g, '').trim()
-                        const fn = session.user.id + '/' + ts + '_' + addrClean + '.docx'
-                        const up = await supabase.storage.from('documents').upload(fn, blob, { contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-                        if (up.data) storagePath = up.data.path
-
-                        // Save conversion record
-                        await fetch('/api/save-conversion', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-                          body: JSON.stringify({
-                            user_id: session.user.id,
-                            address: audioAddress,
-                            rooms: rooms.length,
-                            duration_seconds: audioElapsedRef.current,
-                            file_path: storagePath,
-                            converted_by: userName || session.user.email,
-                            type: 'audio',
-                            property_size: audioPropertySize,
-                            furnished: audioFurnished,
-                            audio_length_seconds: data.audio_length_seconds || 0,
-                            cost: price || 4.00,
-                            actual_api_cost: data.actual_api_cost || null,
-                            converted_json: { rooms: data.rooms, address: audioAddress },
-                            extracted_text: data.transcript || '',
-                          })
-                        })
-
-                        // Refresh balance + conversions
-                        supabase.from('profiles').select('company_name').eq('id', session.user.id).single().then(({ data: p }: any) => { if (p?.company_name) { supabase.from('companies').select('balance').eq('company_name', p.company_name).single().then(({ data: co }: any) => { if (co) setCredits(co.balance || 0) }) } })
-                        let audioRefreshQuery = supabase.from('conversions').select('*').order('created_at', { ascending: false }).limit(50)
-                        if (userRole !== 'admin') audioRefreshQuery = audioRefreshQuery.eq('user_id', session.user.id)
-                        audioRefreshQuery.then(({ data: convs }: any) => { if (convs) setConversions(convs) })
-                      }
-
-                      clearInterval(timer)
-                      setAudioConvertState('done')
-                      setBackgroundJobs(prev => prev.map(j => j.jobId === audioJobId ? { ...j, status: 'complete', message: '✓ Complete — click to download', progress: 100 } : j))
-                      setTimeout(() => { setBackgroundJobs(prev => prev.filter(j => j.jobId !== audioJobId)) }, 5000)
+                      clearInterval(localTimer)
+                      const jobId = startData.jobId
+                      activeAudioJobRef.current = { jobId, filename: audioAddress || 'Audio conversion' }
+                      setBackgroundJobs(prev => [...prev, { jobId, filename: audioAddress || 'Audio conversion', message: 'Starting...', progress: 0, status: 'running' }])
                     } catch (err: any) {
-                      clearInterval(timer)
+                      clearInterval(localTimer)
                       const realErrorMessage = err.message || err.toString() || 'Unknown error'
                       console.error('[audio convert] real error (hidden from user):', realErrorMessage)
                       fetch('/api/report-error', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'audio', errorMessage: realErrorMessage, address: audioAddress, userEmail }) }).catch(() => {})
                       setAudioError('Unable to process at this time. If the problem persists, please contact admin.')
                       setAudioConvertState('error')
-                      setBackgroundJobs(prev => prev.map(j => j.jobId === audioJobId ? { ...j, status: 'error', message: '✕ Conversion failed — click to retry' } : j))
                     }
                   }}
                   >
