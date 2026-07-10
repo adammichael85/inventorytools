@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Lightweight fixed-window rate limiter backed by Supabase.
-// Returns { allowed: true } if the request should proceed, or
-// { allowed: false, retryAfterSeconds } if the caller is over the limit.
+// Atomic rate limiter backed by a single Postgres function (check_rate_limit),
+// which performs the entire check-and-increment as one database statement —
+// eliminating the read-then-write race condition the previous version had.
+// Same signature as before, so no call sites need to change.
 export async function checkRateLimit(
   key: string,
   maxRequests: number,
@@ -13,33 +14,20 @@ export async function checkRateLimit(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  const now = new Date()
+  const { data, error } = await supabase.rpc('check_rate_limit', {
+    p_key: key,
+    p_max_requests: maxRequests,
+    p_window_seconds: windowSeconds,
+  })
 
-  const { data: existing } = await supabase
-    .from('rate_limits')
-    .select('count, window_start')
-    .eq('key', key)
-    .maybeSingle()
-
-  if (!existing) {
-    await supabase.from('rate_limits').insert({ key, count: 1, window_start: now.toISOString() })
-    return { allowed: true }
+  if (error || !data || data.length === 0) {
+    console.error('checkRateLimit RPC failed, failing open:', error?.message)
+    return { allowed: true } // never let a rate-limiter bug block legitimate traffic
   }
 
-  const windowStart = new Date(existing.window_start)
-  const elapsedSeconds = (now.getTime() - windowStart.getTime()) / 1000
-
-  if (elapsedSeconds > windowSeconds) {
-    // window expired, reset
-    await supabase.from('rate_limits').update({ count: 1, window_start: now.toISOString() }).eq('key', key)
-    return { allowed: true }
+  const result = data[0]
+  return {
+    allowed: result.allowed,
+    retryAfterSeconds: result.allowed ? undefined : result.retry_after_seconds,
   }
-
-  if (existing.count >= maxRequests) {
-    const retryAfterSeconds = Math.ceil(windowSeconds - elapsedSeconds)
-    return { allowed: false, retryAfterSeconds }
-  }
-
-  await supabase.from('rate_limits').update({ count: existing.count + 1 }).eq('key', key)
-  return { allowed: true }
 }
