@@ -27,7 +27,7 @@ export const audioConvertTask = task({
     )
 
     let hasSetStartedAt = false
-    async function updateJob(status: string, progress: number, message: string, roomStatuses?: Record<string, string>, roomNames?: string[]) {
+    async function updateJob(status: string, progress: number, message: string, roomStatuses?: Record<string, string>, roomNames?: string[], rooms?: any[]) {
       const payload: any = {
         id: jobId,
         user_id: userId,
@@ -37,6 +37,7 @@ export const audioConvertTask = task({
         address: address || null,
         room_names: roomNames ? JSON.stringify(roomNames) : undefined,
         room_statuses: roomStatuses ? JSON.stringify(roomStatuses) : undefined,
+        rooms: rooms ? JSON.stringify(rooms) : undefined,
         updated_at: new Date().toISOString()
       }
       if (!hasSetStartedAt) {
@@ -197,7 +198,7 @@ ${roomTranscript}`
       const totalOutputTokens = roomResults.reduce((sum: number, r: any) => sum + (r.outputTokens || 0), 0)
       const actualApiCost = Math.ceil(((totalInputTokens / 1_000_000) * 5.00 + (totalOutputTokens / 1_000_000) * 30.00) * 100) / 100
 
-      await updateJob("complete", 100, `Complete — ${roomList.length} rooms converted`, roomStatuses, roomList)
+      await updateJob("complete", 100, `Complete — ${roomList.length} rooms converted`, roomStatuses, roomList, roomResults)
       logger.log("Audio conversion complete", { rooms: roomList.length })
 
       try {
