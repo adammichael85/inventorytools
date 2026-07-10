@@ -3558,7 +3558,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   </div>
                 )}
 
-                {audioConvertState !== 'processing' && (<>
+                {audioConvertState !== 'processing' && audioConvertState !== 'done' && (<>
                 {/* Room order */}
                 <div>
                   <label style={labelStyle}>Room order <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(one room per line — audio file names must match these room names exactly. The order here is the order rooms will appear in the Word document.)</span></label>
