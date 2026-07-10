@@ -1144,6 +1144,52 @@ function TopupCheckoutForm({ amount, primaryColor, borderColor, mutedColor, onSu
   )
 }
 
+// Builds a downloadable Word document (.docx) client-side from structured room
+// data, using the same table format the live conversion flow always produced.
+// Shared by the audio background-job poll effect (built the moment a job
+// completes) and reusable for any future "regenerate" style download.
+async function buildAudioDocxBlob(rooms: any[], address: string): Promise<{ url: string, name: string }> {
+  if (!(window as any).docx) {
+    await new Promise<void>((resolve, reject) => {
+      const s = document.createElement('script')
+      s.src = 'https://cdn.jsdelivr.net/npm/docx@9.0.0/build/index.umd.js'
+      s.onload = () => resolve(); s.onerror = reject
+      document.head.appendChild(s)
+    })
+  }
+  const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, VerticalAlign } = (window as any).docx
+  const border = { style: BorderStyle.SINGLE, size: 4, color: '000000' }
+  const cellBorders = { top: border, bottom: border, left: border, right: border }
+  const COL_ITEM = 2499, COL_DESC = 3972, COL_COND = 3115
+  const makeCell = (text: string, colWidth: number) => new TableCell({
+    borders: cellBorders,
+    width: { size: colWidth, type: WidthType.DXA },
+    verticalAlign: VerticalAlign.TOP,
+    children: (text || '').split(/\n| \| /).map((line: string) => new Paragraph({ children: [new TextRun({ text: line.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,'').replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/[\u2013\u2014]/g,'-').replace(/[^\x09\x0A\x0D\x20-\xFF]/g,''), font: 'Arial', size: 20, color: '000000' })] }))
+  })
+  const children: any[] = []
+  const filteredRooms = (rooms || []).filter((r: any) => (r.rows || []).length > 0)
+  for (let i = 0; i < filteredRooms.length; i++) {
+    const room = filteredRooms[i]
+    if (i > 0) children.push(new Paragraph({ children: [new TextRun({ text: '', font: 'Arial', size: 20 })], spacing: { after: 120 } }))
+    children.push(new Paragraph({ children: [new TextRun({ text: room.roomName, font: 'Arial', size: 28, bold: true })] }))
+    children.push(new Table({
+      width: { size: COL_ITEM + COL_DESC + COL_COND, type: WidthType.DXA },
+      rows: [
+        new TableRow({ children: [makeCell('ITEM', COL_ITEM), makeCell('DESCRIPTION', COL_DESC), makeCell('CONDITION', COL_COND)] }),
+        ...room.rows.map((row: any) => new TableRow({ children: [makeCell(row.item, COL_ITEM), makeCell(row.description, COL_DESC), makeCell(row.condition, COL_COND)] }))
+      ]
+    }))
+  }
+  const doc = new Document({ sections: [{ properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } }, children }] })
+  const b64 = await Packer.toBase64String(doc)
+  const byteArray = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
+  const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+  const url = URL.createObjectURL(blob)
+  const name = (address || 'inventory').replace(/[^a-zA-Z0-9 _-]/g, '').trim() + '.docx'
+  return { url, name }
+}
+
 export default function Dashboard() {
   const brand = useBrand()
   const TEAL = brand.primary_color
