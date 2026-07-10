@@ -1226,6 +1226,19 @@ export default function Dashboard() {
   const audioRestoredJobStartedAtRef = React.useRef<number | null>(null)
   const audioRestoredJobIdRef = React.useRef<string | null>(null)
   const [audioRestoredJobComplete, setAudioRestoredJobComplete] = React.useState(false)
+
+  // Keeps audio's elapsed-time counter ticking forward using a real wall-clock
+  // anchor (started_at), so a restored job's timer shows true elapsed time
+  // instead of resetting to 0 after a page refresh.
+  React.useEffect(() => {
+    if (audioConvertState !== 'processing' || audioRestoredJobStartedAtRef.current === null || audioRestoredJobComplete) return
+    const interval = setInterval(() => {
+      const secs = Math.floor((Date.now() - audioRestoredJobStartedAtRef.current!) / 1000)
+      audioElapsedRef.current = secs
+      setAudioElapsed(secs)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [audioConvertState, audioRestoredJobComplete])
   const [audioDocxName, setAudioDocxName] = React.useState('')
 
   const [page, setPageState] = useState(() => {
