@@ -1328,9 +1328,15 @@ export default function Dashboard() {
               setAudioConvertState('done')
               activeAudioJobRef.current = null
             }
-            // Restored completion: freeze the timer, leave the modal open
+            // Restored completion: audio_jobs stores the completed room data directly
+            // (unlike PDF's more fragile setup), so a restored job can get a fully
+            // working download too, not just a "check Recent Conversions" message.
             if (data.status === 'complete' && job.jobId === audioRestoredJobIdRef.current && audioConvertState === 'processing' && !audioRestoredJobComplete) {
               setAudioRestoredJobComplete(true)
+              const { url, name } = await buildAudioDocxBlob(data.rooms, job.filename)
+              setAudioDocxUrl(url)
+              setAudioDocxName(name)
+              setAudioConvertState('done')
             }
           } else {
             // Keep the PDF/vision modal's room checklist in sync with live progress every
@@ -3747,12 +3753,22 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
                 {/* Processing state */}
                 {audioConvertState === 'processing' && (
-                  <div style={{ background: AUDIO_BLUE_LIGHT, borderRadius: 10, padding: 16, textAlign: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
-                      <div style={{ width: 18, height: 18, borderRadius: '50%', border: '2.5px solid #BFDBFE', borderTopColor: AUDIO_BLUE, animation: 'spin 0.8s linear infinite' }} />
-                      <p style={{ fontSize: 14, fontWeight: 600, color: AUDIO_BLUE_DARK, margin: 0 }}>Converting... {audioElapsed >= 60 ? Math.floor(audioElapsed/60) + 'm ' + (audioElapsed%60) + 's' : audioElapsed + 's'}</p>
+                  <div>
+                    <div style={{ background: AUDIO_BLUE_LIGHT, borderRadius: 10, padding: 16, textAlign: 'center', marginBottom: audioProcessingRooms.length > 0 ? 14 : 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
+                        <div style={{ width: 18, height: 18, borderRadius: '50%', border: '2.5px solid #BFDBFE', borderTopColor: AUDIO_BLUE, animation: 'spin 0.8s linear infinite' }} />
+                        <p style={{ fontSize: 14, fontWeight: 600, color: AUDIO_BLUE_DARK, margin: 0 }}>Converting... {audioElapsed >= 60 ? Math.floor(audioElapsed/60) + 'm ' + (audioElapsed%60) + 's' : audioElapsed + 's'}</p>
+                      </div>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: AUDIO_BLUE, margin: 0 }}>DO NOT CLOSE THIS TAB UNTIL COMPLETE</p>
                     </div>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: AUDIO_BLUE, margin: 0 }}>DO NOT CLOSE THIS TAB UNTIL COMPLETE</p>
+                    {audioProcessingRooms.map((room, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 10, padding: '6px 0', borderBottom: `1px solid ${BORDER}`, opacity: room.state === 'pending' ? 0.35 : 1 }}>
+                        {room.state === 'done' && <div style={{ width: 18, height: 18, borderRadius: '50%', background: AUDIO_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg></div>}
+                        {room.state === 'active' && <div style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid #BFDBFE`, borderTopColor: AUDIO_BLUE, animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />}
+                        {room.state === 'pending' && <div style={{ width: 6, height: 6, borderRadius: '50%', background: BORDER, margin: '0 6px', flexShrink: 0 }} />}
+                        <span style={{ fontSize: 13, fontWeight: room.state === 'active' ? 600 : 400, color: room.state === 'active' ? AUDIO_BLUE_DARK : TEXT }}>{room.name}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
 
