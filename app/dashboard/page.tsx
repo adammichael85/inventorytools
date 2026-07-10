@@ -1296,21 +1296,44 @@ export default function Dashboard() {
       const updated = await Promise.all(backgroundJobs.map(async job => {
         // word-sync jobs are client-side only - don't poll them, they self-remove when done
         if (job.status !== 'running') return job
+        const isAudioJob = job.jobId.startsWith('audio-')
         try {
-          const res = await fetch('/api/convert-vision-status?jobId=' + job.jobId)
+          const res = await fetch((isAudioJob ? '/api/convert-audio-status?jobId=' : '/api/convert-vision-status?jobId=') + job.jobId)
           const data = await res.json()
-          // Keep the modal's room checklist in sync with live progress every tick,
-          // not just at the moment of the initial page-load restore — otherwise
-          // it falls behind (or freezes) while the bar keeps updating correctly.
-          if (job.jobId === restoredJobIdRef.current && data.room_names && !restoredJobComplete) {
-            const names: string[] = data.room_names
-            const match = (data.message || '').match(/room (\d+)\/(\d+)/)
-            const currentIndex = match ? parseInt(match[1], 10) : 0
-            setProcessingRooms(names.map((name: string, idx: number) => ({
-              name,
-              state: idx < currentIndex - 1 ? 'done' : idx === currentIndex - 1 ? 'active' : 'pending'
-            })))
+
+          if (isAudioJob) {
+            // Keep audio's room checklist in sync every tick, whether this is the
+            // live conversion or one restored after a refresh.
+            if ((job.jobId === activeAudioJobRef.current?.jobId || job.jobId === audioRestoredJobIdRef.current) && data.room_statuses && !audioRestoredJobComplete) {
+              setAudioProcessingRooms(Object.entries(data.room_statuses).map(([name, state]) => ({ name, state: state as string })))
+            }
+            // Live completion: build the Word doc from server data and show the done view
+            if (data.status === 'complete' && job.jobId === activeAudioJobRef.current?.jobId) {
+              const { url, name } = await buildAudioDocxBlob(data.rooms, job.filename)
+              setAudioDocxUrl(url)
+              setAudioDocxName(name)
+              setAudioConvertState('done')
+              activeAudioJobRef.current = null
+            }
+            // Restored completion: freeze the timer, leave the modal open
+            if (data.status === 'complete' && job.jobId === audioRestoredJobIdRef.current && audioConvertState === 'processing' && !audioRestoredJobComplete) {
+              setAudioRestoredJobComplete(true)
+            }
+          } else {
+            // Keep the PDF/vision modal's room checklist in sync with live progress every
+            // tick, not just at the moment of the initial page-load restore — otherwise
+            // it falls behind (or freezes) while the bar keeps updating correctly.
+            if (job.jobId === restoredJobIdRef.current && data.room_names && !restoredJobComplete) {
+              const names: string[] = data.room_names
+              const match = (data.message || '').match(/room (\d+)\/(\d+)/)
+              const currentIndex = match ? parseInt(match[1], 10) : 0
+              setProcessingRooms(names.map((name: string, idx: number) => ({
+                name,
+                state: idx < currentIndex - 1 ? 'done' : idx === currentIndex - 1 ? 'active' : 'pending'
+              })))
+            }
           }
+
           return { ...job, message: data.message || job.message, progress: data.progress || job.progress, status: data.status || job.status }
         } catch { return job }
       }))
