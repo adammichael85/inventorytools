@@ -62,6 +62,10 @@ export default function SuperAdminPage() {
 
   return (
     <div style={{ fontFamily: "'IBM Plex Mono', monospace", padding: 32, maxWidth: 1400, margin: '0 auto' }}>
+      <button onClick={() => router.push('/dashboard')} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, color: '#8a8a8a', fontWeight: 600, marginBottom: 16, padding: 0 }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to Dashboard
+      </button>
       <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Super Admin — Platform Overview</h1>
       <p style={{ fontSize: 13, color: '#8a8a8a', marginBottom: 24 }}>Full detail across every company on the platform. Visible only to this account.</p>
 
