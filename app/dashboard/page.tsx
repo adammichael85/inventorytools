@@ -3460,7 +3460,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           {backgroundJobs.map(job => (
             <div key={job.jobId} onClick={() => {
               const isAudioJob = job.jobId.startsWith('audio-')
-              if (isAudioJob) { setShowAudioConvert(true); return }
+              if (isAudioJob) { setShowAudioConvert(true); if (job.status !== 'complete') setAudioConvertState('processing'); return }
               if (job.status !== 'complete') { setShowConvert(true); setConvertState('processing') }
             }} style={{ background: '#fff', border: `1px solid ${job.status === 'error' ? '#DC2626' : job.status === 'complete' ? TEAL : BORDER}`, borderRadius: 12, padding: '12px 16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', cursor: 'pointer' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
