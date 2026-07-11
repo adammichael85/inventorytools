@@ -1231,13 +1231,15 @@ export default function Dashboard() {
   // anchor (started_at), so a restored job's timer shows true elapsed time
   // instead of resetting to 0 after a page refresh.
   React.useEffect(() => {
+    console.log('[TIMER DIAGNOSTIC] effect (re)running. audioConvertState:', audioConvertState, 'startedAtRef:', audioRestoredJobStartedAtRef.current, 'complete:', audioRestoredJobComplete)
     if (audioConvertState !== 'processing' || audioRestoredJobStartedAtRef.current === null || audioRestoredJobComplete) return
     const interval = setInterval(() => {
       const secs = Math.floor((Date.now() - audioRestoredJobStartedAtRef.current!) / 1000)
+      console.log('[TIMER DIAGNOSTIC] tick. secs:', secs, 'startedAtRef:', audioRestoredJobStartedAtRef.current)
       audioElapsedRef.current = secs
       setAudioElapsed(secs)
     }, 1000)
-    return () => clearInterval(interval)
+    return () => { console.log('[TIMER DIAGNOSTIC] cleanup - interval cleared'); clearInterval(interval) }
   }, [audioConvertState, audioRestoredJobComplete])
   const [audioDocxName, setAudioDocxName] = React.useState('')
 
