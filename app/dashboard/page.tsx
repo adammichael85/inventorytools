@@ -1911,14 +1911,16 @@ export default function Dashboard() {
             })
 
           supabase.from('audio_jobs')
-            .select('id, message, progress, status, address, room_statuses, started_at')
+            .select('id, message, progress, status, address, room_statuses, started_at, property_size, furnished')
             .eq('user_id', session.user.id)
             .in('status', ['queued', 'running'])
-            .then(({ data: activeAudioJobs, error: audioRestoreError }) => {
-              console.log('[DIAGNOSTIC] audio_jobs restore fired. activeAudioJobs:', activeAudioJobs, 'error:', audioRestoreError)
+            .then(({ data: activeAudioJobs }) => {
               if (activeAudioJobs && activeAudioJobs.length > 0) {
                 const firstAudioJob = activeAudioJobs[0]
                 audioRestoredJobIdRef.current = firstAudioJob.id
+                setAudioAddress(firstAudioJob.address || '')
+                setAudioPropertySize(firstAudioJob.property_size || '')
+                setAudioFurnished(firstAudioJob.furnished || '')
                 if (firstAudioJob?.started_at) {
                   const startedAtMs = new Date(firstAudioJob.started_at).getTime()
                   audioRestoredJobStartedAtRef.current = startedAtMs
