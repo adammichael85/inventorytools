@@ -47,8 +47,7 @@ export async function POST(req: NextRequest) {
     // but without this check anyone could call this API directly, bypassing the widget
     // entirely by sending a fake or empty token.
     if (!captchaToken) {
-      console.log('[DEBUG] No captchaToken received in request body')
-      return NextResponse.json({ ok: true, debug: 'no_token' })
+      return NextResponse.json({ ok: true }) // silently no-op, don't reveal validation details to a potential attacker
     }
     try {
       const verifyRes = await fetch('https://hcaptcha.com/siteverify', {
@@ -60,13 +59,12 @@ export async function POST(req: NextRequest) {
         }),
       })
       const verifyData = await verifyRes.json()
-      console.log('[DEBUG] hCaptcha verify response:', JSON.stringify(verifyData), 'HCAPTCHA_SECRET set:', !!process.env.HCAPTCHA_SECRET)
       if (!verifyData.success) {
-        return NextResponse.json({ ok: true, debug: 'verify_failed', verifyData })
+        return NextResponse.json({ ok: true }) // silently no-op on failed verification
       }
-    } catch (e: any) {
-      console.error('[DEBUG] hCaptcha verification request failed:', e.message)
-      return NextResponse.json({ ok: true, debug: 'verify_error', message: e.message })
+    } catch (e) {
+      console.error('hCaptcha verification request failed:', e)
+      return NextResponse.json({ ok: true }) // fail closed - if verification itself errors, don't proceed
     }
 
     // Rate limit: max 3 reset requests per email per 15 minutes, to stop email-bombing abuse
