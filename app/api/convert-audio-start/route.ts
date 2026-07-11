@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const { data: { user: authUser } } = await authVerifyClient.auth.getUser(authToken)
     if (!authUser || authUser.id !== userId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-    const jobId = `audio_${userId}_${Date.now()}`
+    const jobId = `audio-${userId}-${Date.now()}`
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
