@@ -2,6 +2,7 @@ import { task, logger } from "@trigger.dev/sdk/v3"
 import { createClient } from "@supabase/supabase-js"
 import OpenAI, { toFile } from "openai"
 import { dedupeLines, findMissingFixtures, buildSystemPrompt } from "@/lib/audioPrompt"
+import ws from "ws"
 
 export const audioConvertTask = task({
   id: "audio-convert",
@@ -23,7 +24,8 @@ export const audioConvertTask = task({
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { global: { fetch: fetch }, realtime: { transport: ws as any } }
     )
 
     let hasSetStartedAt = false
