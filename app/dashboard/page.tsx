@@ -1223,7 +1223,7 @@ export default function Dashboard() {
   const [audioDocxUrl, setAudioDocxUrl] = React.useState<string|null>(null)
   const [audioProcessingRooms, setAudioProcessingRooms] = React.useState<{name:string,state:string}[]>([])
   const activeAudioJobRef = React.useRef<{ jobId: string, filename: string } | null>(null)
-  const audioRestoredJobStartedAtRef = React.useRef<number | null>(null)
+  const [audioRestoredJobStartedAt, setAudioRestoredJobStartedAt] = React.useState<number | null>(null)
   const audioRestoredJobIdRef = React.useRef<string | null>(null)
   const [audioRestoredJobComplete, setAudioRestoredJobComplete] = React.useState(false)
 
@@ -1231,16 +1231,14 @@ export default function Dashboard() {
   // anchor (started_at), so a restored job's timer shows true elapsed time
   // instead of resetting to 0 after a page refresh.
   React.useEffect(() => {
-    console.log('[TIMER DIAGNOSTIC] effect (re)running. audioConvertState:', audioConvertState, 'startedAtRef:', audioRestoredJobStartedAtRef.current, 'complete:', audioRestoredJobComplete)
-    if (audioConvertState !== 'processing' || audioRestoredJobStartedAtRef.current === null || audioRestoredJobComplete) return
+    if (audioConvertState !== 'processing' || audioRestoredJobStartedAt === null || audioRestoredJobComplete) return
     const interval = setInterval(() => {
-      const secs = Math.floor((Date.now() - audioRestoredJobStartedAtRef.current!) / 1000)
-      console.log('[TIMER DIAGNOSTIC] tick. secs:', secs, 'startedAtRef:', audioRestoredJobStartedAtRef.current)
+      const secs = Math.floor((Date.now() - audioRestoredJobStartedAt) / 1000)
       audioElapsedRef.current = secs
       setAudioElapsed(secs)
     }, 1000)
-    return () => { console.log('[TIMER DIAGNOSTIC] cleanup - interval cleared'); clearInterval(interval) }
-  }, [audioConvertState, audioRestoredJobComplete])
+    return () => clearInterval(interval)
+  }, [audioConvertState, audioRestoredJobComplete, audioRestoredJobStartedAt])
   const [audioDocxName, setAudioDocxName] = React.useState('')
 
   const [page, setPageState] = useState(() => {
@@ -1925,7 +1923,7 @@ export default function Dashboard() {
                 setAudioFurnished(firstAudioJob.furnished || '')
                 if (firstAudioJob?.started_at) {
                   const startedAtMs = new Date(firstAudioJob.started_at).getTime()
-                  audioRestoredJobStartedAtRef.current = startedAtMs
+                  setAudioRestoredJobStartedAt(startedAtMs)
                   const initialElapsed = Math.floor((Date.now() - startedAtMs) / 1000)
                   audioElapsedRef.current = initialElapsed
                   setAudioElapsed(initialElapsed)
@@ -3856,7 +3854,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       activeAudioJobRef.current = { jobId, filename: audioAddress || 'Audio conversion' }
                       // Reuse the same started-at anchor the restore path uses, so the one
                       // ticking effect correctly covers both a live conversion and a restored one.
-                      audioRestoredJobStartedAtRef.current = Date.now()
+                      setAudioRestoredJobStartedAt(Date.now())
                       setBackgroundJobs(prev => [...prev, { jobId, filename: audioAddress || 'Audio conversion', message: 'Starting...', progress: 0, status: 'running' }])
                     } catch (err: any) {
                       clearInterval(localTimer)
