@@ -39,9 +39,33 @@ function resetEmail(brand: typeof DEFAULT_BRAND, resetUrl: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json()
+    const { email, captchaToken } = await req.json()
     console.log('Forgot password called for:', email)
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
+
+    // Verify the hCaptcha token server-side. The frontend already requires solving it,
+    // but without this check anyone could call this API directly, bypassing the widget
+    // entirely by sending a fake or empty token.
+    if (!captchaToken) {
+      return NextResponse.json({ ok: true }) // silently no-op, don't reveal validation details to a potential attacker
+    }
+    try {
+      const verifyRes = await fetch('https://hcaptcha.com/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          secret: process.env.HCAPTCHA_SECRET!,
+          response: captchaToken,
+        }),
+      })
+      const verifyData = await verifyRes.json()
+      if (!verifyData.success) {
+        return NextResponse.json({ ok: true }) // silently no-op on failed verification
+      }
+    } catch (e) {
+      console.error('hCaptcha verification request failed:', e)
+      return NextResponse.json({ ok: true }) // fail closed - if verification itself errors, don't proceed
+    }
 
     // Rate limit: max 3 reset requests per email per 15 minutes, to stop email-bombing abuse
     const rateLimit = await checkRateLimit(`forgot-password:${email.toLowerCase()}`, 3, 900)
