@@ -1308,7 +1308,7 @@ export default function Dashboard() {
     const interval = setInterval(async () => {
       const updated = await Promise.all(backgroundJobs.map(async job => {
         // word-sync jobs are client-side only - don't poll them, they self-remove when done
-        if (job.status !== 'running') return job
+        if (job.status !== 'running' && job.status !== 'queued') return job
         const isAudioJob = job.jobId.startsWith('audio-')
         try {
           const res = await fetch((isAudioJob ? '/api/convert-audio-status?jobId=' : '/api/convert-vision-status?jobId=') + job.jobId)
