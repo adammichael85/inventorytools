@@ -29,7 +29,9 @@ export async function GET(req: NextRequest) {
       room_names: data.room_names ? JSON.parse(data.room_names) : null,
       room_statuses: data.room_statuses ? JSON.parse(data.room_statuses) : null,
       rooms: data.rooms ? JSON.parse(data.rooms) : null,
-      started_at: data.started_at
+      started_at: data.started_at,
+      property_size: data.property_size || null,
+      furnished: data.furnished || null
     })
 
   } catch (err: any) {

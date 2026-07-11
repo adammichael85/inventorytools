@@ -32,6 +32,8 @@ export async function POST(req: NextRequest) {
       progress: 0,
       message: "Queued...",
       address: address || null,
+      property_size: propertySize || null,
+      furnished: furnished || null,
       updated_at: new Date().toISOString()
     })
 
