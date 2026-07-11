@@ -1914,7 +1914,8 @@ export default function Dashboard() {
             .select('id, message, progress, status, address, room_statuses, started_at')
             .eq('user_id', session.user.id)
             .in('status', ['queued', 'running'])
-            .then(({ data: activeAudioJobs }) => {
+            .then(({ data: activeAudioJobs, error: audioRestoreError }) => {
+              console.log('[DIAGNOSTIC] audio_jobs restore fired. activeAudioJobs:', activeAudioJobs, 'error:', audioRestoreError)
               if (activeAudioJobs && activeAudioJobs.length > 0) {
                 const firstAudioJob = activeAudioJobs[0]
                 audioRestoredJobIdRef.current = firstAudioJob.id
@@ -3849,6 +3850,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       clearInterval(localTimer)
                       const jobId = startData.jobId
                       activeAudioJobRef.current = { jobId, filename: audioAddress || 'Audio conversion' }
+                      // Reuse the same started-at anchor the restore path uses, so the one
+                      // ticking effect correctly covers both a live conversion and a restored one.
+                      audioRestoredJobStartedAtRef.current = Date.now()
                       setBackgroundJobs(prev => [...prev, { jobId, filename: audioAddress || 'Audio conversion', message: 'Starting...', progress: 0, status: 'running' }])
                     } catch (err: any) {
                       clearInterval(localTimer)
