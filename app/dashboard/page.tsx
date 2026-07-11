@@ -3454,10 +3454,21 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         </div>
       )}
 
-      {/* BACKGROUND JOBS PROGRESS BAR */}
-      {backgroundJobs.length > 0 && (
+      {/* BACKGROUND JOBS PROGRESS BAR — hidden for a job while its own modal is open,
+          so the bar only appears once the user minimizes via X, matching the original UX */}
+      {backgroundJobs.filter(job => {
+        const isAudioJob = job.jobId.startsWith('audio-')
+        if (isAudioJob && showAudioConvert) return false
+        if (!isAudioJob && showConvert) return false
+        return true
+      }).length > 0 && (
         <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 8, width: 'min(90vw, 680px)' }}>
-          {backgroundJobs.map(job => (
+          {backgroundJobs.filter(job => {
+            const isAudioJob = job.jobId.startsWith('audio-')
+            if (isAudioJob && showAudioConvert) return false
+            if (!isAudioJob && showConvert) return false
+            return true
+          }).map(job => (
             <div key={job.jobId} onClick={() => {
               const isAudioJob = job.jobId.startsWith('audio-')
               if (isAudioJob) { setShowAudioConvert(true); if (job.status !== 'complete') setAudioConvertState('processing'); return }
