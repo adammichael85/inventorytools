@@ -1358,7 +1358,7 @@ export default function Dashboard() {
       }))
       // Show completed jobs briefly then remove them
       const hasCompleted = updated.some(j => j.status === 'complete')
-      setBackgroundJobs(updated.filter(j => j.status === 'running' || j.status === 'complete' || j.status === 'word-sync'))
+      setBackgroundJobs(updated.filter(j => j.status === 'running' || j.status === 'queued' || j.status === 'complete' || j.status === 'word-sync'))
       // If the specific job the modal is showing (restored after a refresh) just
       // completed, freeze the timer and swap the message — but leave the modal
       // open, since the user may still want to see it before closing manually.
