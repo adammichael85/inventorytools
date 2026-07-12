@@ -135,9 +135,12 @@ export const audioConvertTask = task({
       const reconciliationAudits: any[] = []
       let reconciliationInputTokens = 0
       let reconciliationOutputTokens = 0
+      let transcriptionCost = 0 // both whisper-1 and gpt-4o-transcribe are $0.006/min
 
       for (const r of transcriptionResults) {
         totalSeconds += r.duration
+        transcriptionCost += (r.duration / 60) * 0.006 // whisper-1, always runs
+        if (r.gpt4oText) transcriptionCost += (r.duration / 60) * 0.006 // gpt-4o-transcribe, only when it succeeded
 
         if (r.gpt4oText) {
           // Both transcripts available - run reconciliation
@@ -254,7 +257,9 @@ ${roomTranscript}`
 
       const totalInputTokens = roomResults.reduce((sum: number, r: any) => sum + (r.inputTokens || 0), 0)
       const totalOutputTokens = roomResults.reduce((sum: number, r: any) => sum + (r.outputTokens || 0), 0)
-      const actualApiCost = Math.ceil(((totalInputTokens / 1_000_000) * 5.00 + (totalOutputTokens / 1_000_000) * 30.00) * 100) / 100
+      const extractionCost = (totalInputTokens / 1_000_000) * 5.00 + (totalOutputTokens / 1_000_000) * 30.00
+      const reconciliationCost = (reconciliationInputTokens / 1_000_000) * 2.00 + (reconciliationOutputTokens / 1_000_000) * 8.00
+      const actualApiCost = Math.ceil((extractionCost + reconciliationCost + transcriptionCost) * 100) / 100
 
       // Save the transcript organised by room when files were genuinely matched one-to-one
       // with room names — otherwise every room would show the same full stitched transcript,
@@ -282,7 +287,7 @@ ${roomTranscript}`
             audio_length_seconds: totalSeconds,
             cost: 4.00,
             actual_api_cost: actualApiCost,
-            converted_json: { rooms: roomResults, address },
+            converted_json: { rooms: roomResults, address, reconciliation_audit: reconciliationAudits },
             extracted_text: perRoomTranscript,
           })
         })
