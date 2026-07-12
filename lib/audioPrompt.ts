@@ -201,6 +201,169 @@ Return ONLY a valid JSON object with this exact structure, no markdown, no expla
 
 Only include genuinely meaningful disagreements in the disagreements array — do not log trivial punctuation-only differences. confidence must be exactly one of: "high", "medium", "low". Only include items in review_required when both versions are plausible factual descriptions and the correct wording cannot safely be determined — never silently guess when two plausible inventory facts conflict.`
 
+export const FACT_RECONCILIATION_SYSTEM = `DUAL TRANSCRIPT EVIDENCE RECONCILIATION
+
+You will receive two independent transcriptions of the same property inventory audio:
+
+SOURCE A: Whisper-1
+SOURCE B: GPT-4o Transcribe
+
+Your task is to create a complete, evidence-controlled set of canonical inventory facts.
+
+Do not produce a continuous merged transcript.
+Do not create Item / Description / Condition rows yet.
+Do not treat either source as the primary transcript.
+
+STAGE 1 - ATOMIC FACT EXTRACTION
+
+Break each source into the smallest meaningful factual clauses while preserving:
+- Room
+- Spoken order
+- Item
+- Material
+- Colour
+- Quantity
+- Location
+- Description
+- Condition
+- Testing status
+- Negation
+- Corrections
+- Standalone location entries
+
+Examples of atomic facts:
+"TV aerial set to chimney"
+"Moss to roof tiles"
+"Cable running along skirting"
+"Concrete pillar"
+"Stone finial"
+"No cleat present"
+"Blind tested and working"
+
+STAGE 2 - ALIGNMENT
+
+Align facts from Source A and Source B according to:
+- Spoken order
+- Same item or subject
+- Similar wording
+- Similar surrounding phrases
+
+Do not force unrelated facts into the same alignment group.
+
+STAGE 3 - DECISION RULES
+
+1. When both sources agree in meaning, retain the agreed fact.
+
+2. When one source contains a complete standalone inventory fact absent from the other source, retain that fact as a SINGLE-SOURCE FACT unless it directly contradicts another fact.
+
+3. Never discard a complete factual clause solely because it appears in only one source.
+
+4. Distinguish a complete standalone fact from an additional modifier.
+A complete one-source fact may be retained.
+An additional material, colour, quantity, location, condition, testing result or adjective appearing in only one version of an otherwise matching phrase must be omitted or marked for review unless strongly supported.
+
+5. If one source contains a recognised property-inventory term and the other contains obvious nonsense or a malformed phrase, use the recognised term.
+
+Examples:
+cable running along skirting — not one long skirting
+threshold — not fresh hold
+doorstop — not gloss off
+ceiling — not sealing
+Formica — not four mica
+plinths — not plimps
+mixer tap — not mixes out
+scuffs — not scuttle
+
+6. If both alternatives are valid factual inventory descriptions, never silently choose.
+
+This includes disagreements involving:
+- Item identity
+- Material
+- Colour
+- Finish
+- Quantity
+- Brand
+- Location
+- Damage
+- Condition
+- Testing status
+- Negation
+- Safety wording
+- Which item a condition belongs to
+
+Mark the chosen wording using:
+[[REVIEW|chosen=...|alternative=...|reason=...]]
+
+7. If both sources agree but the wording is unusual, unknown, internally inconsistent or does not fit the room/item context, mark it for review.
+Agreement is not proof of accuracy.
+
+8. Explicit speaker corrections override earlier wording.
+
+Correction indicators include:
+- No
+- Actually
+- Sorry
+- Go back
+- Forget that
+- Change that
+- Put
+- Instead
+- What I just said
+
+Remove the rejected wording and retain only the final correction.
+
+9. Protect all negative phrases.
+
+Never remove or separate:
+- No
+- Not
+- None
+- Without
+- Missing
+- Absent
+- Unable
+
+10. If either source contains two or more consecutive unmatched factual clauses, preserve the complete unmatched block or mark it for review. Never silently omit the block.
+
+11. Every factual clause from both sources must be assigned exactly one final status:
+- USED
+- DUPLICATE
+- REJECTED_BY_EXPLICIT_CORRECTION
+- CONFLICT_REQUIRES_REVIEW
+- NON_FACTUAL_FILLER
+
+No factual clause may remain unaccounted for.
+
+OUTPUT FORMAT
+
+Return ONLY valid JSON, no markdown, no explanation, no backticks, in this exact structure:
+
+{
+  "facts": [
+    {
+      "sequence": 1,
+      "source_a": "",
+      "source_b": "",
+      "canonical": "",
+      "decision": "AGREED | SOURCE_A_ONLY | SOURCE_B_ONLY | CONFLICT | CORRECTION | DUPLICATE",
+      "status": "USED | DUPLICATE | REJECTED_BY_EXPLICIT_CORRECTION | CONFLICT_REQUIRES_REVIEW | NON_FACTUAL_FILLER",
+      "confidence": "HIGH | MEDIUM | LOW",
+      "review_required": false,
+      "review_alternative": "",
+      "reason": ""
+    }
+  ],
+  "audit": {
+    "source_a_factual_clauses": 0,
+    "source_b_factual_clauses": 0,
+    "used_or_accounted_for": 0,
+    "unaccounted_factual_clauses": 0,
+    "unmatched_consecutive_blocks": []
+  }
+}
+
+The output is invalid if unaccounted_factual_clauses is greater than zero. Every single atomic fact extracted from either source must appear in the facts array with a final status - if you find yourself about to finish without assigning a status to something, go back and add it rather than leaving it out.`
+
 export function buildSystemPrompt(roomName: string, items: string[], descs: string[], conds: string[]): string {
   return `You are an expert UK property inventory formatter.
 You are processing ONE room from a UK property inventory inspection.
