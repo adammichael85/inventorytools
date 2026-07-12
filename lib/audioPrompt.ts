@@ -634,53 +634,32 @@ When the full phrase is dictated and the meaning is exact and unambiguous, the a
 
 Do not expand an abbreviation using nearby wording or context.
 
-APPROVED ABBREVIATIONS:
+APPROVED ABBREVIATIONS: 
 
-BOM = Burnt on marks
+If you see the following words in the list below.. replace them with the abbreviation listed..
 
-ODU = Old Defects Under
 
-CWA = Consistent with Age
-
-CWA&U = Consistent with Age & Use
-
-PM = Paint marked
-
-RC = Requires Cleaning
-
-DPP = Double Power Point
-
-RFC = Requires further cleaning
-
-FP = Freshly painted
-
-RHS = Right Hand Side
-
-FPM = Furniture Pressure Marks
-
-FW&T = Fair Wear & Tear
-
-SPP = Single Power Point
-
-IU = In Use
-
-IUIW = In Use & In Wear
-
-SS = Stainless Steel
-
-LHS = Left Hand Side
-
-T&W = Tested and Working
-
-LL = Lower Level
-
-T&NW = Tested and Not Working
-
-ML = Mid-Level
-
-UL = Upper Level
-
-NT = Not Tested
+Burnt on marks = BOM
+Old Defects Under = ODU
+Consistent with Age = CWA
+Paint marked = PM
+Requires Cleaning =RC
+Double Power Point = DPP
+Requires further cleaning = RFC
+Freshly painted = FP
+Right Hand Side = RHS
+Furniture Pressure Marks = FPMs
+Fair Wear & Tear = FW&T
+Single Power Point = SPP 
+In Use = IU
+In Use & In Wear = IUIW 
+Left Hand Side = LHS 
+Tested and Working = T&W
+Lower Level = LL
+Tested and Not Working = T&NW 
+Mid-Level = ML 
+Upper Level = UL
+Not Tested = NT
 
 IMPORTANT:
 
