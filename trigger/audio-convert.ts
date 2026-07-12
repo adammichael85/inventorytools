@@ -1,7 +1,7 @@
 import { task, logger } from "@trigger.dev/sdk/v3"
 import { createClient } from "@supabase/supabase-js"
 import OpenAI, { toFile } from "openai"
-import { dedupeLines, findMissingFixtures, buildSystemPrompt, RECONCILIATION_SYSTEM } from "@/lib/audioPrompt"
+import { dedupeLines, findMissingFixtures, buildSystemPrompt, FACT_RECONCILIATION_SYSTEM } from "@/lib/audioPrompt"
 import ws from "ws"
 
 export const audioConvertTask = task({
@@ -147,33 +147,65 @@ export const audioConvertTask = task({
         gpt4oTextMap[r.i] = r.gpt4oText || r.whisperText // fall back to whisper if gpt-4o failed for this file
 
         if (r.gpt4oText) {
-          // Both transcripts available - run reconciliation
-          try {
-            const reconcileResponse = await openai.chat.completions.create({
-              model: 'gpt-4.1',
-              max_completion_tokens: 8000,
-              messages: [
-                { role: 'system', content: RECONCILIATION_SYSTEM },
-                { role: 'user', content: `TRANSCRIPT A (Whisper-1):\n${r.whisperText}\n\nTRANSCRIPT B (GPT-4o Transcribe):\n${r.gpt4oText}` }
-              ]
-            })
-            reconciliationInputTokens += reconcileResponse.usage?.prompt_tokens || 0
-            reconciliationOutputTokens += reconcileResponse.usage?.completion_tokens || 0
-            const raw = reconcileResponse.choices[0].message.content || ''
-            const cleaned = raw.replace(/```json/g, '').replace(/```/g, '').trim()
-            const parsed = JSON.parse(cleaned)
+          // Both transcripts available - run atomic-fact reconciliation, retrying if the
+          // model leaves any factual clause unaccounted for (a hard completeness guarantee,
+          // not just a prompt-level suggestion).
+          let reconciled = false
+          for (let attempt = 1; attempt <= 2 && !reconciled; attempt++) {
+            try {
+              const retryNote = attempt > 1
+                ? `\n\nIMPORTANT: Your previous attempt left factual clauses unaccounted for. Every single atomic fact from both sources MUST appear in the facts array with a final status. Re-extract completely and account for everything.`
+                : ''
+              const reconcileResponse = await openai.chat.completions.create({
+                model: 'gpt-4.1',
+                max_completion_tokens: 16000,
+                messages: [
+                  { role: 'system', content: FACT_RECONCILIATION_SYSTEM },
+                  { role: 'user', content: `TRANSCRIPT A (Whisper-1):\n${r.whisperText}\n\nTRANSCRIPT B (GPT-4o Transcribe):\n${r.gpt4oText}${retryNote}` }
+                ]
+              })
+              reconciliationInputTokens += reconcileResponse.usage?.prompt_tokens || 0
+              reconciliationOutputTokens += reconcileResponse.usage?.completion_tokens || 0
+              const raw = reconcileResponse.choices[0].message.content || ''
+              const cleaned = raw.replace(/```json/g, '').replace(/```/g, '').trim()
+              const parsed = JSON.parse(cleaned)
 
-            transcriptMap[r.i] = parsed.canonical_transcript || r.whisperText
-            transcripts[r.i] = transcriptMap[r.i]
-            reconciliationAudits.push({
-              fileIndex: r.i,
-              disagreements: parsed.disagreements || [],
-              review_required: parsed.review_required || []
-            })
-          } catch (e: any) {
-            logger.error('Reconciliation failed, falling back to whisper-only transcript', { error: e.message })
-            transcriptMap[r.i] = r.whisperText
-            transcripts[r.i] = r.whisperText
+              const unaccounted = parsed.audit?.unaccounted_factual_clauses || 0
+              if (unaccounted > 0 && attempt < 2) {
+                logger.error(`Reconciliation left ${unaccounted} facts unaccounted for, retrying`, { fileIndex: r.i })
+                continue // retry
+              }
+
+              const facts = Array.isArray(parsed.facts) ? parsed.facts : []
+              const canonicalParts: string[] = []
+              const conflicts: any[] = []
+              for (const fact of facts) {
+                if (fact.status === 'USED') {
+                  canonicalParts.push(fact.canonical)
+                } else if (fact.status === 'CONFLICT_REQUIRES_REVIEW') {
+                  canonicalParts.push(`${fact.canonical} [[REVIEW|chosen=${fact.canonical}|alternative=${fact.review_alternative || ''}|reason=${fact.reason || ''}]]`)
+                  conflicts.push(fact)
+                }
+                // DUPLICATE, REJECTED_BY_EXPLICIT_CORRECTION, NON_FACTUAL_FILLER are intentionally excluded
+              }
+
+              transcriptMap[r.i] = canonicalParts.join(' ') || r.whisperText
+              transcripts[r.i] = transcriptMap[r.i]
+              reconciliationAudits.push({
+                fileIndex: r.i,
+                unaccounted_factual_clauses: unaccounted,
+                conflicts,
+                totalFacts: facts.length
+              })
+              reconciled = true
+            } catch (e: any) {
+              logger.error('Reconciliation attempt failed', { fileIndex: r.i, attempt, error: e.message })
+              if (attempt === 2) {
+                transcriptMap[r.i] = r.whisperText
+                transcripts[r.i] = r.whisperText
+                reconciled = true
+              }
+            }
           }
         } else {
           // gpt-4o-transcribe unavailable for this file - use whisper directly, no reconciliation
