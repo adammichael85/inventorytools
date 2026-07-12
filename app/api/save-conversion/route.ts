@@ -37,6 +37,8 @@ export async function POST(req: NextRequest) {
       page_count: body.page_count || null,
       cost: body.cost ? Number(body.cost) : 4.00,
       actual_api_cost: body.actual_api_cost != null ? Number(body.actual_api_cost) : null,
+      whisper_transcript: body.whisper_transcript || null,
+      gpt4o_transcript: body.gpt4o_transcript || null,
     })
     if (convError) throw new Error(convError.message)
 

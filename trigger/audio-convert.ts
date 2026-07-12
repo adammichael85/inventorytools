@@ -305,7 +305,9 @@ ${roomTranscript}`
             audio_length_seconds: totalSeconds,
             cost: 4.00,
             actual_api_cost: actualApiCost,
-            converted_json: { rooms: roomResults, address, reconciliation_audit: reconciliationAudits, whisper_transcript: perRoomWhisperTranscript, gpt4o_transcript: perRoomGpt4oTranscript },
+            converted_json: { rooms: roomResults, address, reconciliation_audit: reconciliationAudits },
+            whisper_transcript: perRoomWhisperTranscript,
+            gpt4o_transcript: perRoomGpt4oTranscript,
             extracted_text: perRoomTranscript,
           })
         })
