@@ -1302,6 +1302,25 @@ export default function Dashboard() {
   const [mounted, setMounted] = React.useState(false)
   React.useEffect(() => { setMounted(true) }, [])
 
+  async function cancelJob(jobId: string | null | undefined, type: 'audio' | 'vision') {
+    if (!jobId) return
+    if (!confirm('Cancel this conversion? This cannot be undone.')) return
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      await fetch('/api/cancel-job', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ jobId, type })
+      })
+      setBackgroundJobs(prev => prev.map(j => j.jobId === jobId ? { ...j, status: 'cancelled', message: 'Cancelled' } : j))
+      if (type === 'audio') { setAudioConvertState('idle'); activeAudioJobRef.current = null }
+      else { setConvertState('idle'); activeVisionJobRef.current = null }
+    } catch (e) {
+      console.error('Cancel failed:', e)
+    }
+  }
+
   // Poll background vision jobs every 3 seconds and remove them when complete
   React.useEffect(() => {
     if (backgroundJobs.length === 0) return
@@ -3400,6 +3419,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 <div style={{ height: 4, borderRadius: 20, background: 'rgba(29,158,117,0.2)', overflow: 'hidden', marginBottom: 14 }}>
                   <div style={{ height: '100%', borderRadius: 20, background: TEAL, width: restoredJobComplete ? '100%' : undefined, animation: restoredJobComplete ? 'none' : 'progress 2s ease-in-out infinite' }} />
                 </div>
+                {!restoredJobComplete && <button onClick={() => cancelJob(activeVisionJobRef.current?.jobId || restoredJobIdRef.current, 'vision')} style={{ width: '100%', padding: 9, borderRadius: 8, border: '1px solid #DC2626', background: 'transparent', color: '#DC2626', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, cursor: 'pointer', marginBottom: 14 }}>Cancel conversion</button>}
                 {processingRooms.map((room, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 10, padding: '6px 0', borderBottom: `1px solid ${BORDER}`, opacity: room.state === 'pending' ? 0.35 : 1 }}>
                     {room.state === 'done' && <div style={{ width: 18, height: 18, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg></div>}
@@ -3486,6 +3506,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   <span style={{ fontSize: 13, fontWeight: 600, color: TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 500, display: 'inline-block' }}>{job.filename}</span>
                 </div>
                 {job.progress > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: TEAL }}>{job.progress}%</span>}
+                {job.status !== 'complete' && job.status !== 'cancelled' && job.status !== 'error' && (
+                  <button onClick={(e) => { e.stopPropagation(); cancelJob(job.jobId, job.jobId.startsWith('audio-') ? 'audio' : 'vision') }} style={{ width: 20, height: 20, borderRadius: 6, border: 'none', background: 'transparent', color: MUTED, fontSize: 14, cursor: 'pointer', flexShrink: 0, marginLeft: 8 }}>×</button>
+                )}
               </div>
               <p style={{ fontSize: 11, color: MUTED, margin: '0 0 4px', paddingLeft: 22 }}>{job.status === 'complete' ? '✓ Complete — refresh to see your report' : job.message}</p>
               {job.status !== 'complete' && <p style={{ fontSize: 10, color: TEAL, margin: '0 0 6px', paddingLeft: 22, fontWeight: 500 }}>Tap to view progress</p>}
@@ -3775,6 +3798,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       </div>
                       <p style={{ fontSize: 11, fontWeight: 700, color: AUDIO_BLUE, margin: 0 }}>DO NOT CLOSE THIS TAB UNTIL COMPLETE</p>
                     </div>
+                    <button onClick={() => cancelJob(activeAudioJobRef.current?.jobId || audioRestoredJobIdRef.current, 'audio')} style={{ width: '100%', padding: 9, borderRadius: 8, border: '1px solid #DC2626', background: 'transparent', color: '#DC2626', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, cursor: 'pointer', marginBottom: 14 }}>Cancel conversion</button>
                     {audioProcessingRooms.map((room, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 10, padding: '6px 0', borderBottom: `1px solid ${BORDER}`, opacity: room.state === 'pending' ? 0.35 : 1 }}>
                         {room.state === 'done' && <div style={{ width: 18, height: 18, borderRadius: '50%', background: AUDIO_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="2.5"><polyline points="2,5 4,7 8,3"/></svg></div>}
