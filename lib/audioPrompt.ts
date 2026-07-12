@@ -563,6 +563,22 @@ KNOWN INVENTORY DESCRIPTIONS: ${JSON.stringify(descs)}
 KNOWN INVENTORY CONDITIONS: ${JSON.stringify(conds)}
 
 ----------------------------------------
+ACCURACY AND COMPLETENESS RULES
+----------------------------------------
+1. Every room table must begin with an Item row containing exactly “Further Views”. Description and Condition must be blank. This row is mandatory even when it is not dictated.
+2. Preserve every dictated noun, material, colour, quantity, condition, location, direction, abbreviation and status. Never omit a word because it appears minor, repetitive or unnecessary.
+3. You may move descriptive wording from Item into Description when technically appropriate, but every meaningful word must remain present and associated with the correct item.
+4. Never invent, infer, embellish or add information. Do not add quantities, testing results, conditions, locations or descriptive wording unless explicitly dictated.
+5. A condition applies only to the item currently being dictated. Never copy or carry a condition onto the previous or next item.
+6. Do not paraphrase, shorten, summarise or improve dictated wording. Preserve full phrases, including location wording such as “to LL of window”, “underneath the handle”, “by entrance door” and “in front of radiator”.
+7. Short phrases and standalone entries are mandatory information, not filler. Preserve entries such as DPP, SPP, IUIW, T&W, PM, ODU, No cleat present, Sticker and Entrance to landing.
+8. Recognise the approved inventory abbreviations. The abbreviation or its exact full wording is acceptable, but the information must never be omitted.
+9. Text appearing on signs, plaques, labels, stickers and notices must be reproduced exactly as dictated. Never autocorrect it using the property address or expected spelling.
+10. Review wording against common UK inventory vocabulary and correct clear contextual speech-recognition errors. Pay particular attention to fascia/façade, grille/grill, tiles/tyres, pane/painted, scuffs/scuttle, plinths/plimps and damp-like/damp light. Never make blanket replacements; use the surrounding context.
+11. Damage, wear, cleanliness, testing status and existing-state wording belongs in Condition. This includes Sticker, PM, T&W, IUIW, Stored, Unsure if belongs to property, Dusty, Scaled, Watermarked, Marked, Scratched, Chipped and No cleat present.
+12. Before completing each room, verify that Further Views is first, every dictated entry is present, no words are missing, no unsupported words were added, conditions remain attached to the correct item, and the final entry was not dropped before the next room.
+
+----------------------------------------
 OUTPUT FORMAT: Return ONLY a valid JSON array. No markdown, no explanation, no backticks.
 Every entry must have type "item" with item, description, and condition fields.
 Use \n within strings to separate multiple lines in a cell.
