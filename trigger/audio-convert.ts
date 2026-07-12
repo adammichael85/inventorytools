@@ -139,7 +139,10 @@ export const audioConvertTask = task({
       let reconciliationOutputTokens = 0
       let transcriptionCost = 0 // both whisper-1 and gpt-4o-transcribe are $0.006/min
 
-      for (const r of transcriptionResults) {
+      let completedReconciliations = 0
+      await updateJob("running", 8, `Reconciling audio 0/${transcriptionResults.length}...`, undefined, roomList)
+
+      await Promise.all(transcriptionResults.map(async (r: any) => {
         totalSeconds += r.duration
         transcriptionCost += (r.duration / 60) * 0.006 // whisper-1, always runs
         if (r.gpt4oText) transcriptionCost += (r.duration / 60) * 0.006 // gpt-4o-transcribe, only when it succeeded
@@ -149,7 +152,7 @@ export const audioConvertTask = task({
         if (r.gpt4oText) {
           // Both transcripts available - run atomic-fact reconciliation, retrying if the
           // model leaves any factual clause unaccounted for (a hard completeness guarantee,
-          // not just a prompt-level suggestion).
+          // not just a prompt-level suggestion). All files run concurrently, not one at a time.
           let reconciled = false
           for (let attempt = 1; attempt <= 2 && !reconciled; attempt++) {
             try {
@@ -212,7 +215,10 @@ export const audioConvertTask = task({
           transcriptMap[r.i] = r.whisperText
           transcripts[r.i] = r.whisperText
         }
-      }
+
+        completedReconciliations++
+        await updateJob("running", 8 + Math.round((completedReconciliations / transcriptionResults.length) * 27), `Reconciling audio ${completedReconciliations}/${transcriptionResults.length}...`, undefined, roomList)
+      }))
 
       const stitchedTranscript = transcripts.join(' ')
 
