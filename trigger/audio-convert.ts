@@ -1,7 +1,7 @@
 import { task, logger } from "@trigger.dev/sdk/v3"
 import { createClient } from "@supabase/supabase-js"
 import OpenAI, { toFile } from "openai"
-import { dedupeLines, findMissingFixtures, buildSystemPrompt } from "@/lib/audioPrompt"
+import { dedupeLines, findMissingFixtures, buildSystemPrompt, RECONCILIATION_SYSTEM } from "@/lib/audioPrompt"
 import ws from "ws"
 
 export const audioConvertTask = task({
@@ -98,25 +98,81 @@ export const audioConvertTask = task({
         const mimeMap: Record<string, string> = { mp3: 'audio/mpeg', wav: 'audio/wav', m4a: 'audio/mp4', ogg: 'audio/ogg', webm: 'audio/webm' }
         const mime = mimeMap[ext] || 'audio/mpeg'
 
-        const audioFile = await toFile(Buffer.from(audioBuffer), fileName, { type: mime })
+        const whisperAudioFile = await toFile(Buffer.from(audioBuffer), fileName, { type: mime })
+        const gpt4oAudioFile = await toFile(Buffer.from(audioBuffer), fileName, { type: mime })
 
-        const transcription = await openai.audio.transcriptions.create({
-          model: 'whisper-1',
-          file: audioFile,
-          language: 'en',
-          response_format: 'verbose_json',
-        })
+        const [whisperTranscription, gpt4oTranscription] = await Promise.all([
+          openai.audio.transcriptions.create({
+            model: 'whisper-1',
+            file: whisperAudioFile,
+            language: 'en',
+            response_format: 'verbose_json',
+          }),
+          // gpt-4o-transcribe used only as a comparison transcript for reconciliation -
+          // if it fails (e.g. file exceeds its 25-min limit), fall back to whisper-only
+          // for this file rather than failing the whole conversion.
+          openai.audio.transcriptions.create({
+            model: 'gpt-4o-transcribe',
+            file: gpt4oAudioFile,
+            language: 'en',
+          }).catch((err: any) => {
+            logger.error(`gpt-4o-transcribe failed for ${fileName}, falling back to whisper-only`, { error: err.message })
+            return null
+          })
+        ])
 
         try { await supabase.storage.from('documents').remove([filePath]) } catch(e) {}
 
-        return { i, text: transcription.text, duration: Math.round((transcription as any).duration || 0) }
+        return {
+          i,
+          whisperText: whisperTranscription.text,
+          gpt4oText: gpt4oTranscription?.text || null,
+          duration: Math.round((whisperTranscription as any).duration || 0)
+        }
       }))
 
       const transcriptMap: Record<number, string> = {}
+      const reconciliationAudits: any[] = []
+      let reconciliationInputTokens = 0
+      let reconciliationOutputTokens = 0
+
       for (const r of transcriptionResults) {
-        transcriptMap[r.i] = r.text
-        transcripts[r.i] = r.text
         totalSeconds += r.duration
+
+        if (r.gpt4oText) {
+          // Both transcripts available - run reconciliation
+          try {
+            const reconcileResponse = await openai.chat.completions.create({
+              model: 'gpt-4.1',
+              max_completion_tokens: 8000,
+              messages: [
+                { role: 'system', content: RECONCILIATION_SYSTEM },
+                { role: 'user', content: `TRANSCRIPT A (Whisper-1):\n${r.whisperText}\n\nTRANSCRIPT B (GPT-4o Transcribe):\n${r.gpt4oText}` }
+              ]
+            })
+            reconciliationInputTokens += reconcileResponse.usage?.prompt_tokens || 0
+            reconciliationOutputTokens += reconcileResponse.usage?.completion_tokens || 0
+            const raw = reconcileResponse.choices[0].message.content || ''
+            const cleaned = raw.replace(/```json/g, '').replace(/```/g, '').trim()
+            const parsed = JSON.parse(cleaned)
+
+            transcriptMap[r.i] = parsed.canonical_transcript || r.whisperText
+            transcripts[r.i] = transcriptMap[r.i]
+            reconciliationAudits.push({
+              fileIndex: r.i,
+              disagreements: parsed.disagreements || [],
+              review_required: parsed.review_required || []
+            })
+          } catch (e: any) {
+            logger.error('Reconciliation failed, falling back to whisper-only transcript', { error: e.message })
+            transcriptMap[r.i] = r.whisperText
+            transcripts[r.i] = r.whisperText
+          }
+        } else {
+          // gpt-4o-transcribe unavailable for this file - use whisper directly, no reconciliation
+          transcriptMap[r.i] = r.whisperText
+          transcripts[r.i] = r.whisperText
+        }
       }
 
       const stitchedTranscript = transcripts.join(' ')
