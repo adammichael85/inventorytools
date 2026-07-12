@@ -291,8 +291,8 @@ This includes disagreements involving:
 - Safety wording
 - Which item a condition belongs to
 
-Mark the chosen wording using:
-[[REVIEW|chosen=...|alternative=...|reason=...]]
+Mark the chosen wording using this exact format (angle brackets, not square brackets, since square brackets can be confused with JSON array syntax when this appears inside a JSON string value):
+<<REVIEW|chosen=...|alternative=...|reason=...>>
 
 7. If both sources agree but the wording is unusual, unknown, internally inconsistent or does not fit the room/item context, mark it for review.
 Agreement is not proof of accuracy.

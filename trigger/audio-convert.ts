@@ -183,7 +183,7 @@ export const audioConvertTask = task({
                 if (fact.status === 'USED') {
                   canonicalParts.push(fact.canonical)
                 } else if (fact.status === 'CONFLICT_REQUIRES_REVIEW') {
-                  canonicalParts.push(`${fact.canonical} [[REVIEW|chosen=${fact.canonical}|alternative=${fact.review_alternative || ''}|reason=${fact.reason || ''}]]`)
+                  canonicalParts.push(`${fact.canonical} <<REVIEW|chosen=${fact.canonical}|alternative=${fact.review_alternative || ''}|reason=${fact.reason || ''}>>`)
                   conflicts.push(fact)
                 }
                 // DUPLICATE, REJECTED_BY_EXPLICIT_CORRECTION, NON_FACTUAL_FILLER are intentionally excluded
