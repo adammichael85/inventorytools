@@ -193,12 +193,19 @@ ${roomTranscript}`
         roomStatuses[roomName] = 'done'
         await updateJob("running", 10 + Math.round((completedCount / roomList.length) * 85), `Converting ${roomName}...`, { ...roomStatuses }, roomList)
 
-        return { roomName, rows, inputTokens: roomInputTokens, outputTokens: roomOutputTokens }
+        return { roomName, rows, inputTokens: roomInputTokens, outputTokens: roomOutputTokens, transcript: roomTranscript }
       }))
 
       const totalInputTokens = roomResults.reduce((sum: number, r: any) => sum + (r.inputTokens || 0), 0)
       const totalOutputTokens = roomResults.reduce((sum: number, r: any) => sum + (r.outputTokens || 0), 0)
       const actualApiCost = Math.ceil(((totalInputTokens / 1_000_000) * 5.00 + (totalOutputTokens / 1_000_000) * 30.00) * 100) / 100
+
+      // Save the transcript organised by room when files were genuinely matched one-to-one
+      // with room names — otherwise every room would show the same full stitched transcript,
+      // which would be misleading rather than useful.
+      const perRoomTranscript = isPerRoom
+        ? roomResults.map((r: any) => `=== ${r.roomName} ===\n${r.transcript}`).join('\n\n')
+        : `(Files were not matched one-to-one with room names, so the full combined transcript is shown below rather than a per-room breakdown)\n\n${stitchedTranscript}`
 
       await updateJob("complete", 100, `Complete — ${roomList.length} rooms converted`, roomStatuses, roomList, roomResults)
       logger.log("Audio conversion complete", { rooms: roomList.length })
@@ -220,7 +227,7 @@ ${roomTranscript}`
             cost: 4.00,
             actual_api_cost: actualApiCost,
             converted_json: { rooms: roomResults, address },
-            extracted_text: stitchedTranscript,
+            extracted_text: perRoomTranscript,
           })
         })
         const saveData = await saveRes.json()
