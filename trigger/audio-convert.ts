@@ -132,6 +132,8 @@ export const audioConvertTask = task({
       }))
 
       const transcriptMap: Record<number, string> = {}
+      const whisperTextMap: Record<number, string> = {}
+      const gpt4oTextMap: Record<number, string> = {}
       const reconciliationAudits: any[] = []
       let reconciliationInputTokens = 0
       let reconciliationOutputTokens = 0
@@ -141,6 +143,8 @@ export const audioConvertTask = task({
         totalSeconds += r.duration
         transcriptionCost += (r.duration / 60) * 0.006 // whisper-1, always runs
         if (r.gpt4oText) transcriptionCost += (r.duration / 60) * 0.006 // gpt-4o-transcribe, only when it succeeded
+        whisperTextMap[r.i] = r.whisperText
+        gpt4oTextMap[r.i] = r.gpt4oText || r.whisperText // fall back to whisper if gpt-4o failed for this file
 
         if (r.gpt4oText) {
           // Both transcripts available - run reconciliation
@@ -268,6 +272,20 @@ ${roomTranscript}`
         ? roomResults.map((r: any) => `=== ${r.roomName} ===\n${r.transcript}`).join('\n\n')
         : `(Files were not matched one-to-one with room names, so the full combined transcript is shown below rather than a per-room breakdown)\n\n${stitchedTranscript}`
 
+      // Same per-room formatting, but for the raw (pre-reconciliation) transcript from each
+      // individual model — so the original Whisper-only and GPT-4o-only versions are preserved
+      // alongside the merged canonical version, not discarded once reconciliation runs.
+      const stitchedWhisperTranscript = transcriptionResults.map((r: any) => r.whisperText).join(' ')
+      const stitchedGpt4oTranscript = transcriptionResults.map((r: any) => r.gpt4oText || r.whisperText).join(' ')
+
+      const perRoomWhisperTranscript = isPerRoom
+        ? roomList.map((roomName: string) => `=== ${roomName} ===\n${whisperTextMap[roomFileMap[roomName]]}`).join('\n\n')
+        : `(Files were not matched one-to-one with room names, so the full combined transcript is shown below rather than a per-room breakdown)\n\n${stitchedWhisperTranscript}`
+
+      const perRoomGpt4oTranscript = isPerRoom
+        ? roomList.map((roomName: string) => `=== ${roomName} ===\n${gpt4oTextMap[roomFileMap[roomName]]}`).join('\n\n')
+        : `(Files were not matched one-to-one with room names, so the full combined transcript is shown below rather than a per-room breakdown)\n\n${stitchedGpt4oTranscript}`
+
       await updateJob("complete", 100, `Complete — ${roomList.length} rooms converted`, roomStatuses, roomList, roomResults)
       logger.log("Audio conversion complete", { rooms: roomList.length })
 
@@ -287,7 +305,7 @@ ${roomTranscript}`
             audio_length_seconds: totalSeconds,
             cost: 4.00,
             actual_api_cost: actualApiCost,
-            converted_json: { rooms: roomResults, address, reconciliation_audit: reconciliationAudits },
+            converted_json: { rooms: roomResults, address, reconciliation_audit: reconciliationAudits, whisper_transcript: perRoomWhisperTranscript, gpt4o_transcript: perRoomGpt4oTranscript },
             extracted_text: perRoomTranscript,
           })
         })
