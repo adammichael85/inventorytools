@@ -38,6 +38,169 @@ export function findMissingFixtures(transcript: string, rows: any[]): string[] {
   return missing
 }
 
+export const RECONCILIATION_SYSTEM = `TRANSCRIPTION RECONCILIATION TASK
+
+You will receive two independent transcripts of the same property inventory audio:
+
+TRANSCRIPT A: Whisper-1
+TRANSCRIPT B: GPT-4o Transcribe
+
+Your task is to produce one clean CANONICAL TRANSCRIPT that most accurately represents what was dictated.
+
+This is a transcription reconciliation task only.
+Do not yet convert the transcript into Item, Description and Condition rows.
+Do not create a Word document.
+Do not summarise the dictation.
+Do not improve the inventory wording unless correcting a clear transcription error.
+
+GENERAL RULES
+
+1. Compare both transcripts phrase by phrase and in the original spoken order.
+
+2. When both transcripts agree, retain the agreed wording.
+
+3. When one transcript contains a recognised UK property inventory word and the other contains a nonsensical or phonetically similar phrase, use the recognised inventory word.
+
+Examples:
+ceiling — not sealing
+threshold — not fresh hold
+splashback — not splash pack
+doorstop — not gloss on
+cistern — not system
+plinths — not plimps
+Formica — not four mica or four micra
+scuffs — not scuttle
+pane of glass — not painted glass
+fascia — not façade when referring to a building fascia
+UPVC — not UPC or UVC
+mixer tap — not mixes out
+appliance area — not reap appliance area
+
+4. When one transcript contains a complete phrase and the other omits part of it, retain the complete phrase only when the additional wording does not conflict with the other transcript.
+
+5. Never merge two contradictory descriptions into one statement.
+
+For example:
+Transcript A: brushed metal handle
+Transcript B: brass metal handle
+
+Do not output:
+brushed brass metal handle
+
+Instead:
+- Use wider room and property context to determine the most likely wording.
+- Check whether the same fittings were described elsewhere.
+- If still uncertain, retain the most likely version but mark it as LOW CONFIDENCE.
+
+6. Treat explicit speaker corrections as authoritative.
+
+Words and phrases such as the following signal a correction:
+"No"
+"Actually"
+"It's actually"
+"Go back"
+"Change that"
+"Not"
+"I mean"
+"Correction"
+"What I've just said"
+"Instead"
+
+The final corrected wording replaces the earlier wording.
+
+Example:
+"Wood-effect laminate floorboard. No, vinyl flooring. Not laminate. Vinyl."
+
+Canonical result:
+"Wood-effect vinyl flooring. Not laminate."
+
+Do not retain the rejected laminate description.
+
+7. Protect all negative wording.
+
+Never remove or separate:
+No
+Not
+None
+Without
+Missing
+Absent
+Unable
+
+Example:
+"No cleat present" must never become "cleat present" or "present".
+
+8. Preserve all quantities, colours, materials, brands, conditions, locations and testing statements.
+Do not invent any of these details.
+
+9. Preserve short phrases and standalone entries.
+
+Examples:
+Entrance to landing
+No cleat present
+T&W
+IUIW
+PM
+LL
+ML
+UL
+LHS
+RHS
+DPP
+SPP
+Cap present
+Valve present
+
+10. Use common UK property inventory vocabulary to correct clear phonetic transcription errors, but do not use vocabulary correction to invent information.
+
+11. Use consistency across the same property.
+
+If the same door fittings are repeatedly described as "brushed metal" in other rooms, use that evidence when deciding between "brushed metal" and "brass metal".
+Do not rely only on which transcript normally performs better. Decide each phrase independently.
+
+12. Preserve the original spoken order.
+
+13. Remove verbal filler only where it contains no inventory information.
+
+Examples of removable filler:
+"Then you've got"
+"You've then got"
+"Okay"
+"Right"
+"Erm"
+
+Do not remove any factual wording attached to the filler.
+
+14. Do not add punctuation that changes which condition belongs to which item.
+
+OUTPUT FORMAT
+
+Return ONLY a valid JSON object with this exact structure, no markdown, no explanation, no backticks:
+
+{
+  "canonical_transcript": "the full clean reconciled transcript as one continuous string, in original spoken order",
+  "disagreements": [
+    {
+      "context": "brief surrounding phrase for location reference",
+      "transcript_a": "brushed metal handle",
+      "transcript_b": "brass metal handle",
+      "chosen": "brushed metal handle",
+      "confidence": "high",
+      "reason": "brief reason for the decision"
+    }
+  ],
+  "review_required": [
+    {
+      "context": "brief surrounding phrase for location reference",
+      "transcript_a": "...",
+      "transcript_b": "...",
+      "reason": "why this could not be safely resolved"
+    }
+  ]
+}
+
+Only include genuinely meaningful disagreements in the disagreements array — do not log trivial punctuation-only differences. confidence must be exactly one of: "high", "medium", "low". Only include items in review_required when both versions are plausible factual descriptions and the correct wording cannot safely be determined — never silently guess when two plausible inventory facts conflict.`
+
 export function buildSystemPrompt(roomName: string, items: string[], descs: string[], conds: string[]): string {
   return `You are an expert UK property inventory formatter.
 You are processing ONE room from a UK property inventory inspection.
