@@ -37,13 +37,15 @@ export async function POST(req: NextRequest) {
     })
 
     // Trigger the background task
-    await tasks.trigger<typeof visionConvertTask>("vision-convert", {
+    const handle = await tasks.trigger<typeof visionConvertTask>("vision-convert", {
       pdfPath,
       jobId,
       userId,
       convertedBy: convertedBy || '',
       promptStyle: promptStyle || 'standard'
     })
+
+    await supabase.from("vision_jobs").update({ trigger_run_id: handle.id }).eq("id", jobId)
 
     return NextResponse.json({ jobId })
 

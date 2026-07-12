@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       updated_at: new Date().toISOString()
     })
 
-    await tasks.trigger<typeof audioConvertTask>("audio-convert", {
+    const handle = await tasks.trigger<typeof audioConvertTask>("audio-convert", {
       filePaths,
       fileNames,
       roomOrder: roomOrder || '',
@@ -48,6 +48,8 @@ export async function POST(req: NextRequest) {
       userId,
       convertedBy: convertedBy || ''
     })
+
+    await supabase.from("audio_jobs").update({ trigger_run_id: handle.id }).eq("id", jobId)
 
     return NextResponse.json({ jobId })
 
