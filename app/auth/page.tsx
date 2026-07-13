@@ -244,7 +244,8 @@ export default function Auth() {
   const Form = (
     <div className="aw-card" style={cardStyle}>
       {brand.logo_url && <div className="aw-logo-center"><img src={brand.logo_url} alt={brand.display_name} /></div>}
-      {!isDefault && (<><h2 style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1.35rem',color:'#1a1a1a',textAlign:'center',marginBottom:6}}>Welcome back</h2><p style={{fontSize:'.88rem',color:'#8a8a8a',textAlign:'center',marginBottom:22}}>Sign in to your {brand.display_name} account</p></>)}
+      {!isDefault && tab === 'signin' && (<><h2 style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1.35rem',color:'#1a1a1a',textAlign:'center',marginBottom:6}}>Welcome back</h2><p style={{fontSize:'.88rem',color:'#8a8a8a',textAlign:'center',marginBottom:22}}>Sign in to your {brand.display_name} account</p></>)}
+      {!isDefault && tab === 'signup' && (<><h2 style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,fontSize:'1.35rem',color:'#1a1a1a',textAlign:'center',marginBottom:6}}>Create your account</h2><p style={{fontSize:'.88rem',color:'#8a8a8a',textAlign:'center',marginBottom:22}}>Join your team on {brand.display_name}</p></>)}
       {inactiveMsg && <div className="aw-info">⏱ Signed out due to inactivity. Please sign in again.</div>}
       {inviteError && <div className="aw-err">{inviteError}</div>}
       {!inviteToken && (
