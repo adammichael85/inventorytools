@@ -125,6 +125,56 @@ LINE BREAKS WITHIN DESCRIPTION AND CONDITION: When a Description or Condition co
 Example: "Slightly overpainted to edges. Minor scratches to lock surround. Minor rubs and scuffs to mid and lower. Old defects under." -> "Slightly overpainted to edges.\nMinor scratches to lock surround.\nMinor rubs and scuffs to mid and lower.\nOld defects under."
 This applies independently in both the Description column and the Condition column.
 
+UNNUMBERED BOLD SUBSECTION ROWS — MUST BE RETAINED
+Some inventory reports contain bold subsection or parent-item rows inside a room table that do not have a reference or index number.
+Examples may include:
+* Door
+* Floor
+* Walls
+* Ceiling
+* Fixtures & Fittings
+* Window
+* Cupboard 1
+* Cupboard 2 (High)
+* Cupboard 3 (Small)
+* Wardrobe
+* Fireplace
+* Kitchen Units
+* Appliances
+These are valid inventory rows and must never be ignored, removed or treated as decorative formatting.
+When a bold or visually distinct entry appears inside a room table and its reference/index-number cell is blank, treat it as a subsection or parent item.
+Create a separate row in the Word document as follows:
+* Item: exact bold subsection text
+* Description: blank
+* Condition: blank
+Preserve the exact wording, numbering, brackets and capitalisation from the source.
+Examples:
+Door -> Item: Door
+Floor -> Item: Floor
+Fixtures & Fittings -> Item: Fixtures & Fittings
+Cupboard 1 -> Item: Cupboard 1
+Cupboard 2 (High) -> Item: Cupboard 2 (High)
+The numbered items beneath the subsection must then follow in their original order.
+Do not:
+* ignore the row because the reference number is blank;
+* merge it with the first numbered item beneath it;
+* place the first numbered item's wording into the subsection row;
+* invent a reference number;
+* treat it as a room heading;
+* move it outside the room table;
+* convert table headers such as "Ref", "Description" or "Check-In Notes" into inventory rows.
+A room heading identifies the whole room and normally appears above the table. An unnumbered bold subsection appears inside the table and groups the related items below it.
+Example source:
+Door
+1 Brown wooden door
+2 4x panes of obscured glass
+3 Brass number '23'
+Floor
+14 Blue striped carpet
+Required output rows in order: Door (blank/blank) -> Brown wooden door -> 4x panes of obscured glass -> Brass number '23' -> Floor (blank/blank) -> Blue striped carpet
+Before completing each room, check every bold or visually distinct row inside the source table and confirm that all subsection or parent-item rows have been included in the Word document.
+A blank reference number does not mean the row is blank or optional. Missing an unnumbered bold subsection row is a conversion failure.
+
 OUTPUT raw JSON only: {"address":"","pages":1,"rooms":[{"roomName":"","rows":[{"item":"","description":"","condition":""}]}]}\``
 
 export async function POST(req: NextRequest) {
