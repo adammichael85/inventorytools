@@ -70,12 +70,17 @@ Format C - 3 columns (Item | Description | Condition):
 - Column 3 is condition → CONDITION
 
 Format D - 2 columns (Item/Description combined | Condition):
-- Column 1 contains a combined item and description together (e.g. "White wooden door", "Grey fitted carpet", "Chrome mixer tap with two twist controls").
-- Split this text: the core physical object/noun (e.g. Door, Carpet, Mixer tap) → ITEM. The descriptive qualifiers around it (material, colour, style, brand, fittings, quantity) → DESCRIPTION.
-- Do not put the entire combined text into ITEM and leave DESCRIPTION blank - always split it properly.
+- Column 1 contains a combined item and description together. This rule applies to EVERY row in this format, including long, unusual, or free-form phrases - not just simple common room nouns like Door or Ceiling. Garden, exterior, and unusual items must be split exactly the same way as indoor items - never leave these combined just because the phrasing is longer or less standard.
+- Split this text: identify the core physical object/noun being described, however far into the sentence it appears (Door, Carpet, Mixer tap, Path, Gate, Border, Bin, Fence, Bush, Bench, Planter, Shed, etc.) → ITEM. Every descriptive qualifier around it (material, colour, style, brand, fittings, quantity, location detail like "LHS"/"RHS", attached features) → DESCRIPTION.
+- Do not put the entire combined text into ITEM and leave DESCRIPTION blank - always split it properly, no matter how long or unusual the phrase is.
 - Example: "White wooden door" → ITEM: "Door", DESCRIPTION: "White wooden"
 - Example: "Grey fitted carpet" → ITEM: "Flooring", DESCRIPTION: "Grey fitted carpet"
 - Example: "Chrome mixer tap with two twist controls" → ITEM: "Mixer tap", DESCRIPTION: "Chrome, two twist controls"
+- Example: "Paved path leading up to front of property" → ITEM: "Path", DESCRIPTION: "Paved, leading up to front of property"
+- Example: "Wooden panelled side gate with ring pull handle" → ITEM: "Gate", DESCRIPTION: "Wooden panelled, side, with ring pull handle"
+- Example: "2 x circular borders with trees" → ITEM: "Borders", DESCRIPTION: "2 x circular, with trees"
+- Example: "Wooden fencing LHS with border to the base with shrubs" → ITEM: "Fencing", DESCRIPTION: "Wooden, LHS, with border to the base with shrubs"
+- Before finishing each room, re-check every row - if ITEM still contains a full sentence-like phrase with DESCRIPTION left blank, go back and split it properly.
 - Column 2 is condition → CONDITION
 
 Format E - 3 columns (Number | Description | Condition):
