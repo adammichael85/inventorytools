@@ -3293,7 +3293,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{selectedFile.name}</p>
+                    <p style={{ fontSize: 13, fontWeight: 600, margin: 0, wordBreak: 'break-all', overflowWrap: 'anywhere' }}>{selectedFile.name}</p>
                     <p style={{ fontSize: 11, color: HINT, margin: 0 }}>{(selectedFile.size / 1024 / 1024).toFixed(1)} MB</p>
                   </div>
                 </div>
@@ -3407,7 +3407,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     <p style={{ fontSize: 14, fontWeight: 600, color: TEAL_DARK, margin: 0 }}>{restoredJobComplete ? 'Complete!' : 'Processing...'}</p>
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#d45500' }}>⏱ {elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's' : elapsed + 's'}</span>
                   </div>
-                  <p style={{ fontSize: 11, color: '#d45500', margin: '0 0 12px' }}>{selectedFile?.name}</p>
+                  <p style={{ fontSize: 11, color: '#d45500', margin: '0 0 12px', wordBreak: 'break-all', overflowWrap: 'anywhere' }}>{selectedFile?.name}</p>
                   {restoredJobComplete ? (
                     <p style={{ fontSize: 11, fontWeight: 700, color: TEAL, margin: 0, letterSpacing: 0.3 }}>CONVERSION COMPLETE — CHECK RECENT CONVERSIONS OR CLOSE THIS WHEN READY.</p>
                   ) : (
