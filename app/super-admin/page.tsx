@@ -138,7 +138,7 @@ export default function SuperAdminPage() {
                     <td style={{ padding: '10px 14px', fontWeight: 600 }}>{realCost != null ? '£' + realCost.toFixed(2) : '—'}</td>
                     <td style={{ padding: '10px 14px', fontWeight: 600, color: margin != null ? (margin < 0 ? '#DC2626' : '#16A34A') : '#8a8a8a' }}>{margin != null ? '£' + margin.toFixed(2) : '—'}</td>
                     <td style={{ padding: '10px 14px' }}>{c.converted_by || '—'}</td>
-                    <td style={{ padding: '10px 14px' }}>{new Date(c.created_at).toLocaleDateString('en-GB')}</td>
+                    <td style={{ padding: '10px 14px' }}>{new Date(c.created_at).toLocaleDateString('en-GB')} {new Date(c.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</td>
                   </tr>
                 )
               })}
