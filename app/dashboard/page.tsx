@@ -2051,7 +2051,8 @@ export default function Dashboard() {
       if (method === 'vision') {
         // Upload PDF to Supabase first so Trigger.dev can fetch it
         const ts2 = Date.now()
-        const tempPath2 = sess?.user?.id + '/vision_temp_' + ts2 + '_' + (selectedFile?.name || 'upload.pdf')
+        const safeFileName2 = (selectedFile?.name || 'upload.pdf').replace(/[^a-zA-Z0-9._-]/g, '_')
+        const tempPath2 = sess?.user?.id + '/vision_temp_' + ts2 + '_' + safeFileName2
         const { data: upData, error: upErr } = await supabase.storage.from('documents').upload(tempPath2, selectedFile!, { contentType: 'application/pdf', upsert: true })
         if (upErr) throw new Error('Upload failed: ' + upErr.message)
         const pdfPath = upData.path
