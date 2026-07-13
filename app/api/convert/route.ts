@@ -70,7 +70,12 @@ Format C - 3 columns (Item | Description | Condition):
 - Column 3 is condition → CONDITION
 
 Format D - 2 columns (Item/Description combined | Condition):
-- Column 1 is combined item and description → put into ITEM, leave DESCRIPTION blank
+- Column 1 contains a combined item and description together (e.g. "White wooden door", "Grey fitted carpet", "Chrome mixer tap with two twist controls").
+- Split this text: the core physical object/noun (e.g. Door, Carpet, Mixer tap) → ITEM. The descriptive qualifiers around it (material, colour, style, brand, fittings, quantity) → DESCRIPTION.
+- Do not put the entire combined text into ITEM and leave DESCRIPTION blank - always split it properly.
+- Example: "White wooden door" → ITEM: "Door", DESCRIPTION: "White wooden"
+- Example: "Grey fitted carpet" → ITEM: "Flooring", DESCRIPTION: "Grey fitted carpet"
+- Example: "Chrome mixer tap with two twist controls" → ITEM: "Mixer tap", DESCRIPTION: "Chrome, two twist controls"
 - Column 2 is condition → CONDITION
 
 Format E - 3 columns (Number | Description | Condition):
