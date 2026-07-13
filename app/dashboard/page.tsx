@@ -2191,6 +2191,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         extracted_text: data._extractedText || '',
         converted_json: { rooms: data.rooms, address: data.address },
         pdf_path: pdfStoragePath || null,
+        actual_api_cost: data.actualApiCost != null ? Number(data.actualApiCost) : null,
       })
     })
   }
