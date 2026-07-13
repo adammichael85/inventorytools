@@ -138,6 +138,9 @@ export async function POST(req: NextRequest) {
       if (!isPDF && !isDocx) return NextResponse.json({ error: 'Invalid file type. Only PDF and Word documents are accepted.' }, { status: 400 })
     }
     let responseText = ""
+    let totalInputTokens = 0
+    let totalOutputTokens = 0
+    let usedClaude = false
     console.log('EXTRACTED TEXT LENGTH:', extractedText?.length || 0)
     if (extractedText && extractedText.length > 100) {
       const CHUNK_SIZE = 90000
@@ -149,6 +152,8 @@ export async function POST(req: NextRequest) {
         })
         const d = await r.json()
         responseText = d.choices?.[0]?.message?.content?.trim() || ""
+        totalInputTokens += d.usage?.prompt_tokens || 0
+        totalOutputTokens += d.usage?.completion_tokens || 0
         console.log("GPT response length:", responseText.length)
       } else {
         console.log('Large document - processing in chunks')
@@ -185,6 +190,8 @@ export async function POST(req: NextRequest) {
             body: JSON.stringify({ model: "gpt-4.1-2025-04-14", max_tokens: 32000, temperature: 0, messages: [{ role: "system", content: SYSTEM }, { role: "user", content: chunks[i] + "\n\nExtract ALL rooms from this section. Return raw JSON only." }] })
           })
           const d = await r.json()
+          totalInputTokens += d.usage?.prompt_tokens || 0
+          totalOutputTokens += d.usage?.completion_tokens || 0
           const chunkText = d.choices?.[0]?.message?.content?.trim() || ""
           console.log('Chunk', i + 1, 'response length:', chunkText.length)
           if (chunkText) {
@@ -211,6 +218,7 @@ export async function POST(req: NextRequest) {
         responseText = JSON.stringify({ address: docAddress, rooms: allRooms })
       }
     } else {
+      usedClaude = true
       const r = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY || "", "anthropic-version": "2023-06-01" },
@@ -218,6 +226,8 @@ export async function POST(req: NextRequest) {
       })
       const d = await r.json()
       responseText = (d.content || []).map((c: any) => c.text || "").join("").trim()
+      totalInputTokens += d.usage?.input_tokens || 0
+      totalOutputTokens += d.usage?.output_tokens || 0
     }
     const first = responseText.indexOf("{")
     const last = responseText.lastIndexOf("}")
@@ -226,7 +236,11 @@ export async function POST(req: NextRequest) {
     let data: any
     try { data = JSON.parse(s) } catch(e) { data = JSON.parse(s.replace(/,\s*}/g,"}").replace(/,\s*]/g,"]")) }
     if (!data.rooms || data.rooms.length === 0) throw new Error("No rooms found")
-    return NextResponse.json({ address: data.address || "", pages: data.rooms.length, rooms: data.rooms, _extractedText: extractedText ? extractedText.slice(0, 100000) : "" })
+    // GPT-4.1: $2/$8 per 1M tokens. Claude Sonnet 4.5: $3/$15 per 1M tokens.
+    const actualApiCost = usedClaude
+      ? Math.ceil(((totalInputTokens / 1_000_000) * 3.00 + (totalOutputTokens / 1_000_000) * 15.00) * 100) / 100
+      : Math.ceil(((totalInputTokens / 1_000_000) * 2.00 + (totalOutputTokens / 1_000_000) * 8.00) * 100) / 100
+    return NextResponse.json({ address: data.address || "", pages: data.rooms.length, rooms: data.rooms, _extractedText: extractedText ? extractedText.slice(0, 100000) : "", actualApiCost })
   } catch(err: any) { console.error('[API Error]', err)
     return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 }) }
 }
