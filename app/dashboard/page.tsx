@@ -2021,13 +2021,19 @@ export default function Dashboard() {
                   elapsedRef.current = initialElapsed
                   setElapsed(initialElapsed)
                 }
-                setBackgroundJobs(prev => [...prev, ...activeJobs.map((j: any) => ({
-                  jobId: j.id,
-                  filename: j.address || 'PDF conversion',
-                  message: j.message || 'Processing...',
-                  progress: j.progress || 0,
-                  status: 'running'
-                }))])
+                setBackgroundJobs(prev => {
+                  const existingIds = new Set(prev.map(p => p.jobId))
+                  const newOnes = activeJobs
+                    .filter((j: any) => !existingIds.has(j.id))
+                    .map((j: any) => ({
+                      jobId: j.id,
+                      filename: j.address || 'PDF conversion',
+                      message: j.message || 'Processing...',
+                      progress: j.progress || 0,
+                      status: 'running'
+                    }))
+                  return [...prev, ...newOnes]
+                })
                 // Reconstruct the modal's room-by-room checklist so it matches the bar's
                 // real progress after a refresh, instead of showing stale/empty data.
                 if (firstJob?.room_names) {
