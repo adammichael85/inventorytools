@@ -117,6 +117,22 @@ Format H - SRP Inventories landscape format, 5 columns (Ref | Name | Description
 - Preserve every condition statement on its own line where the source shows multiple semicolon-separated statements.
 - Preserve terms exactly: UPVC, ADT, Chubb, Ref, Yale, thermostat, trickle vents, securely mounted, tested and working, not tested, newly decorated, used condition, good order, intact. Do not modernise wording or change capitalisation unless clearly an OCR error.
 
+Format I - 5 columns (Number | Item | Description | Condition | Notes):
+- Completely ignore the Number column. Do not include the number anywhere in the converted Word document.
+- Transfer Item into the Item column.
+- Transfer Description into the Description column.
+- Transfer Condition into the Condition column.
+- Transfer all Notes content into the Condition column, directly after the existing Condition text.
+- Place each separate Notes entry on a new line.
+- Never create a separate Notes column.
+- Never place Notes in the Description column.
+- Never omit Notes, as they may contain important defects, damage, marks, cleanliness comments, testing results or other observations.
+- If the Condition column is blank, place the Notes content into Condition without adding or inventing any wording.
+- If Notes is blank, retain the original Condition only.
+- Apply this rule to all pages, including continuation pages where the headings are repeated.
+- Example: Number=5, Item="Front Door", Description="Grey painted frame / Grey painted panelled door / Chrome spy hole", Condition="Good", Notes="Small paint chips to panels" → ITEM: "Front Door", DESCRIPTION: "Grey painted frame\nGrey painted panelled door\nChrome spy hole", CONDITION: "Good\nSmall paint chips to panels"
+- The Notes information belongs to the same inventory row and must always be merged into that row's Condition cell.
+
 SRP ROOM DETECTION RULES (critical - this format is prone to missed rooms):
 - The room headings look like: "Exterior Front", "Exterior Front (Cont.)", "Entrance And Hallway", "Entrance And Hallway (Cont.)". The "(Cont.)" heading does NOT mean a new room - it means the same room continues. Never skip a room because its heading includes "(Cont.)". Never treat "Room Name (Cont.)" as a separate room. Always merge every "Room Name (Cont.)" section into the main room with the same name.
 - If there is a Contents/Areas page listing all rooms, use it as the master list of rooms you must extract. Do not finish the conversion until every room on that list has been checked and either included or clearly flagged as not found.
