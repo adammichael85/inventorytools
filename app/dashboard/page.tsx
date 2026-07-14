@@ -1416,6 +1416,20 @@ export default function Dashboard() {
   const wordJobIdRef = React.useRef<string | null>(null)
   const [backgroundJobs, setBackgroundJobs] = React.useState<{ jobId: string, filename: string, message: string, progress: number, status: string }[]>([])
   const [openJobModals, setOpenJobModals] = React.useState<string[]>([])
+  const [syncConversionInProgress, setSyncConversionInProgress] = React.useState(false)
+
+  // Word-to-Word and text-based PDF conversions run synchronously in the browser (no
+  // background job), so a refresh genuinely kills them - warn before that happens.
+  React.useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (syncConversionInProgress) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [syncConversionInProgress])
   const [mounted, setMounted] = React.useState(false)
   React.useEffect(() => { setMounted(true) }, [])
 
@@ -2158,6 +2172,7 @@ export default function Dashboard() {
     }
     setConvertState('processing')
     setConvertError('')
+    if (method !== 'vision') setSyncConversionInProgress(true)
     setElapsed(0)
     elapsedRef.current = 0
     setProcessingRooms([{ name: selectedFile?.name.toLowerCase().endsWith('.docx') ? 'Reading Word document...' : 'Reading PDF...', state: 'active' }])
@@ -2363,6 +2378,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
       }
       setConvertError('Unable to process at this time. If the problem persists, please contact admin.')
       setConvertState('error')
+    } finally {
+      setSyncConversionInProgress(false)
     }
   }
 
