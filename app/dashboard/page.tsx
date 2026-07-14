@@ -1415,6 +1415,7 @@ export default function Dashboard() {
   const activeVisionJobRef = React.useRef<{ jobId: string, filename: string } | null>(null)
   const wordJobIdRef = React.useRef<string | null>(null)
   const [backgroundJobs, setBackgroundJobs] = React.useState<{ jobId: string, filename: string, message: string, progress: number, status: string }[]>([])
+  const [openJobModals, setOpenJobModals] = React.useState<string[]>([])
   const [mounted, setMounted] = React.useState(false)
   React.useEffect(() => { setMounted(true) }, [])
 
@@ -3611,9 +3612,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
             return true
           }).map(job => (
             <div key={job.jobId} onClick={() => {
-              const isAudioJob = job.jobId.startsWith('audio-')
-              if (isAudioJob) { setShowAudioConvert(true); if (job.status !== 'complete') setAudioConvertState('processing'); return }
-              if (job.status !== 'complete') { setShowConvert(true); setConvertState('processing') }
+              setOpenJobModals(prev => prev.includes(job.jobId) ? prev : [...prev, job.jobId])
             }} style={{ background: '#fff', border: `1px solid ${job.status === 'error' ? '#DC2626' : job.status === 'complete' ? TEAL : BORDER}`, borderRadius: 12, padding: '12px 16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', cursor: 'pointer' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -3637,6 +3636,15 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           ))}
         </div>
       )}
+
+      {openJobModals.map(jobId => (
+        <JobDetailModal
+          key={jobId}
+          jobId={jobId}
+          cancelJob={cancelJob}
+          onClose={() => setOpenJobModals(prev => prev.filter(id => id !== jobId))}
+        />
+      ))}
 
       {/* TOPUP MODAL */}
       {showTopup && (() => { const finalAmount = topupAmount || (customAmount ? parseFloat(customAmount) : null); const closeTopup = () => { setShowTopup(false); setTopupStep('select'); setTopupClientSecret(''); setTopupCustomerSession(''); setTopupError(''); setTopupSuccess(false) }; return (
