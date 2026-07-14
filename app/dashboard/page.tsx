@@ -1234,6 +1234,78 @@ async function buildVisionDocxBlob(rooms: any[], address: string): Promise<{ url
   return { url, name }
 }
 
+// Self-contained job detail popup - takes just a jobId and polls independently for its
+// own live status. Multiple of these can be open simultaneously, each fully independent,
+// since none of them touch the old single-conversion processingRooms/audioProcessingRooms state.
+function JobDetailModal({ jobId, onClose, cancelJob }: { jobId: string, onClose: () => void, cancelJob: (jobId: string, type: 'audio' | 'vision') => void }) {
+  const [status, setStatus] = React.useState<any>(null)
+  const [docxUrl, setDocxUrl] = React.useState<string | null>(null)
+  const [docxName, setDocxName] = React.useState<string>('')
+  const [building, setBuilding] = React.useState(false)
+  const isAudioJob = jobId.startsWith('audio-')
+  const builtRef = React.useRef(false)
+
+  React.useEffect(() => {
+    let active = true
+    async function poll() {
+      try {
+        const res = await fetch((isAudioJob ? '/api/convert-audio-status?jobId=' : '/api/convert-vision-status?jobId=') + jobId)
+        const data = await res.json()
+        if (active) setStatus(data)
+
+        if (data.status === 'complete' && data.rooms && !builtRef.current) {
+          builtRef.current = true
+          setBuilding(true)
+          const { url, name } = isAudioJob
+            ? await buildAudioDocxBlob(data.rooms, data.address || jobId)
+            : await buildVisionDocxBlob(data.rooms, data.address || jobId)
+          if (active) { setDocxUrl(url); setDocxName(name); setBuilding(false) }
+        }
+      } catch (e) { console.error('Job detail poll failed:', e) }
+    }
+    poll()
+    const interval = setInterval(poll, 3000)
+    return () => { active = false; clearInterval(interval) }
+  }, [jobId, isAudioJob])
+
+  if (!status) return null
+
+  const roomNames: string[] = isAudioJob
+    ? Object.keys(status.room_statuses || {})
+    : (status.room_names || [])
+  const currentIndex = Math.floor(((status.progress || 0) / 100) * roomNames.length)
+  const roomStates = roomNames.map((name, i) => {
+    if (isAudioJob && status.room_statuses) return { name, state: status.room_statuses[name] || 'pending' }
+    return { name, state: i < currentIndex ? 'done' : i === currentIndex ? 'active' : 'pending' }
+  })
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 14, padding: 24, width: 'min(90vw, 480px)', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>{status.address || jobId}</h3>
+          <button onClick={onClose} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 18, color: '#8a8a8a' }}>×</button>
+        </div>
+        <p style={{ fontSize: 13, color: '#666', marginBottom: 14 }}>{building ? 'Building Word document...' : status.message}</p>
+        {status.status !== 'complete' && (
+          <button onClick={() => cancelJob(jobId, isAudioJob ? 'audio' : 'vision')} style={{ width: '100%', padding: 9, borderRadius: 8, border: '1px solid #DC2626', background: 'transparent', color: '#DC2626', fontFamily: 'inherit', fontSize: 12, fontWeight: 600, cursor: 'pointer', marginBottom: 14 }}>Cancel conversion</button>
+        )}
+        {roomStates.map((room, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', opacity: room.state === 'pending' ? 0.4 : 1 }}>
+            {room.state === 'done' && <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#1D9E75', flexShrink: 0 }} />}
+            {room.state === 'active' && <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid #BFDBFE', borderTopColor: '#2563EB', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />}
+            {room.state === 'pending' && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ccc', margin: '0 5px', flexShrink: 0 }} />}
+            <span style={{ fontSize: 13 }}>{room.name}</span>
+          </div>
+        ))}
+        {docxUrl && (
+          <a href={docxUrl} download={docxName} style={{ display: 'block', width: '100%', padding: 12, borderRadius: 10, background: '#1D9E75', color: '#fff', textAlign: 'center', textDecoration: 'none', fontWeight: 600, fontSize: 14, marginTop: 14 }}>↓ Download {docxName}</a>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const brand = useBrand()
   const TEAL = brand.primary_color
