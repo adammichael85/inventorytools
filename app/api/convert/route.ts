@@ -133,6 +133,73 @@ Format I - 5 columns (Number | Item | Description | Condition | Notes):
 - Example: Number=5, Item="Front Door", Description="Grey painted frame / Grey painted panelled door / Chrome spy hole", Condition="Good", Notes="Small paint chips to panels" → ITEM: "Front Door", DESCRIPTION: "Grey painted frame\nGrey painted panelled door\nChrome spy hole", CONDITION: "Good\nSmall paint chips to panels"
 - The Notes information belongs to the same inventory row and must always be merged into that row's Condition cell.
 
+Format J - Ref/Number | Description | Check-In Notes, with bold unnumbered Item headers:
+Some reports use this structure: a room name above the table, a Ref/Number column, a Description column, a Check-In Notes column, and bold, unnumbered text inside the table that acts as an Item heading. The bold item headings must not be ignored.
+
+ROOM NAME IDENTIFICATION: The room name is the main heading above the table (e.g. Entrance Hall, Lounge, Bedroom 1, Kitchen, WC, Bathroom, Bedroom 2). Create a new room only when a genuine room heading appears above the table. Do not treat bold text inside the table as a room name.
+
+BOLD ITEM HEADER IDENTIFICATION: Bold text inside the Description column with no Ref number is an Item heading. Examples: Door, Floor, Walls, Ceiling, Fixtures & Fittings, Cupboard 1, Cupboard 2 (High), Cupboard 3 (Small), Bay Window. Each bold item heading must be added to the Word document as its own separate row. Do not merge the numbered rows beneath it into the same row.
+
+COLUMN MAPPING: Ignore the Ref or number column completely.
+- Bold unnumbered Item heading -> its own row in the Item column
+- Numbered Description entry -> its own separate row
+- Check-In Note for that numbered entry -> Condition column on the same row
+
+ITEM HEADER ROW FORMAT: For every bold item heading, create a new Word row. Put the complete bold heading in the Item column. Leave Description blank. Leave Condition blank. Do not assign a number. Do not combine it with the following numbered row.
+Example: Item: "Door", Description: "", Condition: ""
+
+NUMBERED ROW FORMAT: Every numbered source row must also become its own separate Word row. Ignore the number. Place the source Description text in the Description column. Place the corresponding Check-In Notes text in the Condition column. Leave Item blank unless the source row itself clearly contains an item name that belongs in Item. Do not merge it into the preceding Item heading row. Do not combine several numbered entries into one row.
+
+EXAMPLE - ENTRANCE HALL:
+Source:
+Door
+1 - Brown wooden door
+2 - 4x panes of obscured glass
+3 - Brass number '23'
+4 - Brass door knocker
+5 - Brass Yale lock - Not operational
+6 - 2x metal plates
+7 - Brass letterbox - Tarnished
+8 - Red wooden threshold - Aged
+9 - Reverse of door to match - Paint marks, paint splashed, Yale lock not operational, heavily marked
+
+Required Word output rows, in order:
+Item: "Door", Description: "", Condition: ""
+Item: "", Description: "Brown wooden door", Condition: ""
+Item: "", Description: "4x panes of obscured glass", Condition: ""
+Item: "", Description: "Brass number '23'", Condition: ""
+Item: "", Description: "Brass door knocker", Condition: ""
+Item: "", Description: "Brass Yale lock", Condition: "Not operational"
+Item: "", Description: "2x metal plates", Condition: ""
+Item: "", Description: "Brass letterbox", Condition: "Tarnished"
+Item: "", Description: "Red wooden threshold", Condition: "Aged"
+Item: "", Description: "Reverse of door to match", Condition: "Paint marks, paint splashed, Yale lock not operational, heavily marked"
+
+EXAMPLE - FLOOR:
+Source: Floor / 14 - Blue striped carpet - Frayed by kitchen, aged, 1x burn mark by bathroom door
+Required output:
+Item: "Floor", Description: "", Condition: ""
+Item: "", Description: "Blue striped carpet", Condition: "Frayed by kitchen, aged, 1x burn mark by bathroom door"
+
+EXAMPLE - CUPBOARD 1:
+Source: Cupboard 1 / 24 - Cream painted frame / 25 - Cream painted door - Marked / 26 - Cream painted handle / 27 - Chrome bolt lock / 28 - Reverse of door to match / 29 - Wooden plinth with 3x hooks and 3x broken hooks / 30 - Interior painted white - Heavily marked, lots of painted over defects / 31 - 2x white slatted shelves - Aged / 32 - 1x wooden shelf / 33 - Carpet to match
+Required output rows, in order:
+Item: "Cupboard 1", Description: "", Condition: ""
+Item: "", Description: "Cream painted frame", Condition: ""
+Item: "", Description: "Cream painted door", Condition: "Marked"
+Item: "", Description: "Cream painted handle", Condition: ""
+Item: "", Description: "Chrome bolt lock", Condition: ""
+Item: "", Description: "Reverse of door to match", Condition: ""
+Item: "", Description: "Wooden plinth with 3x hooks and 3x broken hooks", Condition: ""
+Item: "", Description: "Interior painted white", Condition: "Heavily marked, lots of painted over defects"
+Item: "", Description: "2x white slatted shelves", Condition: "Aged"
+Item: "", Description: "1x wooden shelf", Condition: ""
+Item: "", Description: "Carpet to match", Condition: ""
+
+CONTINUATION PAGE RULE: Item sections may continue onto the next page without the bold item heading being repeated. When a continuation page begins with numbered rows, continue adding each numbered entry as its own separate row. Do not repeat the previous item heading unless it is actually repeated in the source. Do not create a blank item heading. Do not create a new room. Do not merge the continuation rows together.
+
+CRITICAL RULE: Never ignore bold, unnumbered item headings. Never group all numbered entries beneath an item heading into one Word row. The required structure is: (1) bold item heading as its own Item row, (2) each following numbered description as its own separate row, (3) each corresponding Check-In Note in the Condition cell on that same row, (4) repeat until the next bold item heading or genuine room heading appears.
+
 SRP ROOM DETECTION RULES (critical - this format is prone to missed rooms):
 - The room headings look like: "Exterior Front", "Exterior Front (Cont.)", "Entrance And Hallway", "Entrance And Hallway (Cont.)". The "(Cont.)" heading does NOT mean a new room - it means the same room continues. Never skip a room because its heading includes "(Cont.)". Never treat "Room Name (Cont.)" as a separate room. Always merge every "Room Name (Cont.)" section into the main room with the same name.
 - If there is a Contents/Areas page listing all rooms, use it as the master list of rooms you must extract. Do not finish the conversion until every room on that list has been checked and either included or clearly flagged as not found.
