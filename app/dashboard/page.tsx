@@ -1283,7 +1283,7 @@ function JobDetailModal({ jobId, onClose, cancelJob }: { jobId: string, onClose:
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 14, padding: 24, width: 'min(90vw, 480px)', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>{status.address || jobId}</h3>
+          <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>{status.address || (isAudioJob ? 'Audio conversion' : 'PDF conversion')}</h3>
           <button onClick={onClose} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 18, color: '#8a8a8a' }}>×</button>
         </div>
         <p style={{ fontSize: 13, color: '#666', marginBottom: 14 }}>{building ? 'Building Word document...' : status.message}</p>
