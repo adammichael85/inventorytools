@@ -2513,9 +2513,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 style={{
                   padding: '10px 22px',
                   border: `1px solid ${isActive ? tab.color : BORDER}`,
-                  borderBottom: isActive ? `1px solid ${SURFACE}` : `1px solid ${BORDER}`,
+                  borderBottom: isActive ? `1px solid ${BG}` : `1px solid ${BORDER}`,
                   borderRadius: '10px 10px 0 0',
-                  background: isActive ? SURFACE : '#fff',
+                  background: isActive ? BG : '#fff',
                   color: isActive ? tab.color : MUTED,
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 13,
