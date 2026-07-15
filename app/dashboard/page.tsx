@@ -2513,6 +2513,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 style={{
                   padding: '10px 22px',
                   border: `1px solid ${isActive ? tab.color : BORDER}`,
+                  borderBottom: isActive ? `1px solid ${SURFACE}` : `1px solid ${BORDER}`,
                   borderRadius: '10px 10px 0 0',
                   background: isActive ? SURFACE : '#fff',
                   color: isActive ? tab.color : MUTED,
@@ -2522,7 +2523,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   cursor: 'pointer',
                   transition: 'all 0.15s',
                   marginRight: 4,
+                  marginBottom: isActive ? -1 : 0,
                   position: 'relative',
+                  zIndex: isActive ? 2 : 1,
                 }}
               >
                 {tab.label}
