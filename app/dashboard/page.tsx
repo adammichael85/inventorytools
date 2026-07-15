@@ -602,6 +602,22 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
     setMembers(prev => prev.map(m => m.id === memberId ? { ...m, [field]: !current } : m))
   }
 
+  const [editingMemberId, setEditingMemberId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editPosition, setEditPosition] = useState('')
+
+  function startEditMember(m: any) {
+    setEditingMemberId(m.id)
+    setEditName(m.full_name || '')
+    setEditPosition(m.company_position || '')
+  }
+
+  async function saveEditMember(memberId: string) {
+    await supabase.from('profiles').update({ full_name: editName, company_position: editPosition }).eq('id', memberId)
+    setMembers(prev => prev.map(m => m.id === memberId ? { ...m, full_name: editName, company_position: editPosition } : m))
+    setEditingMemberId(null)
+  }
+
   async function removeMember(memberId: string) {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
@@ -658,10 +674,30 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
               {(m.full_name || 'U').split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase()}
             </div>
             <div style={{ flex: 1, minWidth: 140 }}>
-              <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{m.full_name || 'Unknown'}</p>
-              <p style={{ fontSize: 12, color: HINT, margin: 0 }}>{m.company_position || ''}</p>
+              {editingMemberId === m.id ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Full name" style={{ fontSize: 13, fontWeight: 600, padding: '5px 8px', borderRadius: 6, border: `1px solid ${BORDER}`, fontFamily: 'inherit' }} />
+                  <input value={editPosition} onChange={e => setEditPosition(e.target.value)} placeholder="Position" style={{ fontSize: 12, padding: '5px 8px', borderRadius: 6, border: `1px solid ${BORDER}`, fontFamily: 'inherit' }} />
+                </div>
+              ) : (
+                <>
+                  <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{m.full_name || 'Unknown'}</p>
+                  <p style={{ fontSize: 12, color: HINT, margin: 0 }}>{m.company_position || ''}</p>
+                </>
+              )}
             </div>
             <span style={{ fontSize: 12, background: m.role === 'admin' ? TEAL_LIGHT : BG, color: m.role === 'admin' ? TEAL_DARK : MUTED, padding: '3px 10px', borderRadius: 20, textTransform: 'capitalize' as const, flexShrink: 0 }}>{m.role || 'user'}</span>
+
+            {isAdmin && (
+              editingMemberId === m.id ? (
+                <>
+                  <button onClick={() => saveEditMember(m.id)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: 'none', cursor: 'pointer', background: TEAL, color: '#fff', flexShrink: 0 }}>Save</button>
+                  <button onClick={() => setEditingMemberId(null)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: `1px solid ${BORDER}`, cursor: 'pointer', background: 'transparent', color: MUTED, flexShrink: 0 }}>Cancel</button>
+                </>
+              ) : (
+                <button onClick={() => startEditMember(m)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: `1px solid ${BORDER}`, cursor: 'pointer', background: 'transparent', color: MUTED, flexShrink: 0 }}>Edit</button>
+              )
+            )}
 
             {isAdmin && m.id !== myId && (
               <button onClick={() => toggleRole(m.id, m.role || 'user')} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: `1px solid ${BORDER}`, cursor: 'pointer', background: 'transparent', color: MUTED, flexShrink: 0 }}>
