@@ -2569,7 +2569,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
       `}</style>
 
       {/* SIDEBAR */}
-      <aside style={{ width: isMobile ? 0 : 250, background: SURFACE, borderRight: isMobile ? 'none' : `1px solid ${BORDER}`, display: isMobile ? 'none' : 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0 }}>
+      <aside style={{ width: isMobile ? 0 : 290, background: SURFACE, borderRight: isMobile ? 'none' : `1px solid ${BORDER}`, display: isMobile ? 'none' : 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0 }}>
         <div style={{ height: 64, padding: '0 18px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: brand.company_name === 'InventoryTools' ? 'flex-start' : 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, width: '100%', cursor: 'default' }}>
             <img src={brand.logo_url || '/logo-full.png'} alt={brand.display_name} style={{ maxWidth: '100%', height: 'auto', maxHeight: 34 }} />
