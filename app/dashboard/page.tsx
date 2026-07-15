@@ -281,6 +281,98 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
 }
 
 
+function HelpPage({ TEAL, TEAL_LIGHT, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
+  const sections = [
+    {
+      title: 'Getting Started',
+      content: `Uploading your first file
+Click "Convert Audio" or "Convert PDF or Word" from the top of your dashboard. Select your file, fill in the property address and details, and hit Convert. Your file uploads securely and processing begins immediately.
+
+Property size, credits, and pricing
+Pricing is based on property size (studio/1-bed through to larger properties) for PDF conversions, and a base rate plus per-minute rate for audio. Your remaining credit balance is always visible in the top corner of your dashboard.
+
+What happens after you hit Convert
+Conversion runs in the background - you can safely close the tab, navigate elsewhere in the dashboard, or come back later. A progress bar at the bottom of your screen shows live status. You'll see the finished report appear automatically once it's done.`
+    },
+    {
+      title: 'PDF to Word',
+      content: `What works best
+Clear, well-scanned PDFs with a consistent Item/Description/Condition table layout convert most accurately. Complex multi-column layouts and older/lower-quality scans may take longer to process but are still supported.
+
+Why some PDFs take longer
+Longer or more complex documents (more rooms, denser tables, unusual formatting) take more processing time than a short, simple PDF. This is normal.
+
+If the output looks wrong
+Check the accuracy report generated alongside your conversion - it flags anything worth double-checking. If something looks genuinely incorrect, use the feedback button so we can review it.`
+    },
+    {
+      title: 'Audio to Word',
+      content: `Recording tips for best accuracy
+- Speak clearly at a steady pace
+- Minimize background noise where possible
+- Dictate one room at a time in a continuous recording, or upload separate files per room (see below)
+
+File naming for per-room matching
+If you upload one audio file per room, name each file after the room it covers (e.g., "Bedroom 1.mp3", "Kitchen.mp3"). This lets the system match each recording to its correct room automatically, which improves both speed and accuracy. If you upload one long recording covering the whole property instead, that's fully supported too - just name it however you like.
+
+Understanding abbreviations
+Your reports use standard UK property inventory abbreviations, e.g.:
+- T&W - Tested and Working
+- NT - Not Tested
+- ODU - Old Defects Under
+- DPP / SPP - Double / Single Power Point
+- PM - Paint Marked
+- LL / ML / UL - Lower / Mid / Upper Level
+- LHS / RHS - Left / Right Hand Side`
+    },
+    {
+      title: 'Billing & Credits',
+      content: `How pricing works
+PDF conversions are priced by property size. Audio conversions have a base cost plus a per-minute rate based on recording length. Exact pricing is shown before you confirm any conversion.
+
+Topping up your balance
+Click your credit balance in the dashboard to top up via card payment (including Apple Pay).
+
+Viewing your conversion history
+All past conversions, with dates and download links, are available in your Reports section.`
+    },
+    {
+      title: 'Team & Account',
+      content: `Inviting staff members
+From your account settings, send an invite by email. They'll receive a link to set up their own login under your company account.
+
+Managing your company profile
+Update your company name, address, and branding from Settings - this appears on your generated reports.`
+    },
+    {
+      title: 'Troubleshooting',
+      content: `My conversion seems stuck
+Background conversions can take several minutes for longer files - check the progress bar for live status. If it genuinely seems frozen with no progress for an extended period, use the Cancel button and try again.
+
+How to cancel a conversion
+Click the x on the progress bar, or the Cancel button inside the conversion modal, at any time while it's processing.
+
+The output has an error in it
+Use the feedback option on your report, or contact support directly with the property address and a description of the issue.`
+    },
+    {
+      title: 'Contact Support',
+      content: `Can't find what you need? Email us directly at admin@inventorytools.co.uk.`
+    },
+  ]
+
+  return (
+    <div>
+      <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Help & FAQ</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {sections.map(({ title, content }) => (
+          <LegalSection key={title} title={title} content={content} BORDER={BORDER} SURFACE={SURFACE} HINT={HINT} TEXT={TEXT} TEAL={TEAL} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function LegalPage({ TEAL, TEAL_LIGHT, BORDER, SURFACE, BG, HINT, MUTED, TEXT, brand }: any) {
   const productName = brand.display_name || 'InventoryTools'
   const supportEmail = brand.company_name === 'InventoryTools' ? 'admin@inventorytools.co.uk' : ('support@' + (brand.domain || 'inventorytools.co.uk'))
@@ -2166,6 +2258,7 @@ export default function Dashboard() {
     ...(userRole === 'admin' ? [{ id: 'billing', label: 'Billing', icon: 'M1 4h22v16a2 2 0 01-2 2H3a2 2 0 01-2-2V4zM1 10h22' }] : []),
     { id: 'settings', label: 'Settings', icon: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14' },
     { id: 'legal', label: 'Legal', icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
+    { id: 'help', label: 'Help & FAQ', icon: 'M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
     { id: 'contact', label: 'Contact Us', icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6' },
   ]
 
@@ -3147,6 +3240,10 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
           {page === 'legal' && (
             <LegalPage TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} brand={brand} />
+          )}
+
+          {page === 'help' && (
+            <HelpPage TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} />
           )}
 
           {page === 'team' && (
