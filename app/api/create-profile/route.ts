@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
       company_position: body.company_position,
       company_address: body.company_address,
       company_phone: body.company_phone,
+      audio_enabled: false,
     })
     if (error) throw new Error(error.message)
 
