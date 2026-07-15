@@ -2499,7 +2499,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         </div>
 
         {/* TOOL TAB BAR */}
-        <div style={{ background: SURFACE, borderBottom: `2px solid ${page === 'cleanpdf' ? '#16A34A' : (toolTab === 'audio' ? '#2563EB' : TEAL)}`, padding: '0 32px', display: 'flex', gap: 0, flexShrink: 0, justifyContent: 'center' }}>
+        <div style={{ background: SURFACE, borderBottom: `1px solid ${page === 'cleanpdf' ? '#16A34A' : (toolTab === 'audio' ? '#2563EB' : TEAL)}`, padding: '0 32px', display: 'flex', gap: 0, flexShrink: 0, justifyContent: 'center' }}>
           {[
             ...(pdfEnabled ? [{ id: 'pdf', label: 'PDF to Word', color: TEAL }] : []),
             ...(audioEnabled ? [{ id: 'audio', label: 'Audio to Word', color: '#2563EB' }] : []),
@@ -2513,19 +2513,16 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 style={{
                   padding: '10px 22px',
                   border: `1px solid ${isActive ? tab.color : BORDER}`,
-                  borderBottom: isActive ? `2px solid ${SURFACE}` : `1px solid ${BORDER}`,
                   borderRadius: '10px 10px 0 0',
-                  background: isActive ? SURFACE : '#F3F4F6',
+                  background: isActive ? SURFACE : '#fff',
                   color: isActive ? tab.color : MUTED,
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 13,
                   fontWeight: isActive ? 700 : 500,
                   cursor: 'pointer',
                   transition: 'all 0.15s',
-                  marginBottom: -1,
                   marginRight: 4,
                   position: 'relative',
-                  zIndex: isActive ? 2 : 1,
                 }}
               >
                 {tab.label}
