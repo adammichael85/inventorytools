@@ -268,13 +268,6 @@ Required output rows in order: Door (blank/blank) -> Brown wooden door -> 4x pan
 Before completing each room, check every bold or visually distinct row inside the source table and confirm that all subsection or parent-item rows have been included in the Word document.
 A blank reference number does not mean the row is blank or optional. Missing an unnumbered bold subsection row is a conversion failure.
 
-PHOTO CAPTION EXCLUSION RULE: Text with no row/reference number attached to it, that is NOT one of the two genuine exceptions below, is very likely a photo caption or gallery label describing what a photograph shows - discard it entirely, do not create an Item row for it.
-The two genuine exceptions that MUST still be kept even without a number:
-1. A genuine room or area heading (e.g. "KITCHEN", "STAIRS", "BATHROOM", "ENTRANCE HALL" - typically shown in capitals as a section title above the table). This is not a caption, it identifies the whole room.
-2. A bold, unnumbered subsection header that introduces a group of genuine numbered items listed beneath it (e.g. "Door" followed by "1. Brown wooden door / 2. Chrome handle..."). This is a real structural row grouping real numbered content, not a caption.
-Any other unnumbered text - a short standalone word or phrase with no number attached and no numbered items grouped beneath it - must be discarded as a photo caption, even if it looks like it could plausibly be a real item name (e.g. "Chrome gripper strip", "Glass transom", "Wall Angle Rubbed", "Oven", "Hob" appearing alone with no number and nothing grouped beneath them).
-The same phrase can be a real item in one place and a caption in another - judge each occurrence on whether IT specifically has a number attached or genuine numbered children grouped beneath it, not on whether the phrase sounds like a plausible inventory item.
-
 OUTPUT raw JSON only: {"address":"","pages":1,"rooms":[{"roomName":"","rows":[{"item":"","description":"","condition":""}]}]}\``
 
 export async function POST(req: NextRequest) {
