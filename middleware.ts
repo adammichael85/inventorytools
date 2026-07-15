@@ -5,7 +5,9 @@ export function middleware(req: NextRequest) {
   const hostname = req.headers.get('host') || ''
   const isOakleyJaneDomain = hostname.includes('oakleyjanetools.co.uk')
 
-  if (isOakleyJaneDomain && (req.nextUrl.pathname === '/' || req.nextUrl.pathname === '/auth')) {
+  const hasInviteToken = req.nextUrl.searchParams.has('invite')
+
+  if (isOakleyJaneDomain && (req.nextUrl.pathname === '/' || req.nextUrl.pathname === '/auth') && !hasInviteToken) {
     const url = req.nextUrl.clone()
     url.pathname = '/oj-login'
     return NextResponse.rewrite(url)
