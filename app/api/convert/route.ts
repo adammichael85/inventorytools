@@ -268,6 +268,11 @@ Required output rows in order: Door (blank/blank) -> Brown wooden door -> 4x pan
 Before completing each room, check every bold or visually distinct row inside the source table and confirm that all subsection or parent-item rows have been included in the Word document.
 A blank reference number does not mean the row is blank or optional. Missing an unnumbered bold subsection row is a conversion failure.
 
+PHOTO CAPTION EXCLUSION RULE: Some source documents include photo captions or labels that simply identify what a photograph shows (e.g., a photo captioned just "Oven", "Hob", "Wall Angle Rubbed" or "Chrome gripper strip", with no actual description or condition text attached). These are NOT genuine inventory table rows - they are labels describing a picture, not tabular data. This is different from a genuine parent/heading row (like "Back Wall" or "Facing Wall") which legitimately has blank description/condition because it is a real structural row within the flowing inventory data, not a photo label.
+Distinguish the two by context: photo captions typically appear as a short isolated cluster of words immediately after "Further views" and before the real, populated inventory table rows begin, or scattered near photo references. Genuine parent/heading rows appear naturally in the sequential flow of real table data, often followed later by real sub-items belonging to them.
+Do not create Item rows for isolated words or short phrases that are simply identifying what a photograph depicts. Only extract genuine inventory table rows with real structural meaning.
+Example of what to EXCLUDE: "Further views" followed immediately by bare single/short-phrase entries like "Oven", "Hob", "Wall Angle Rubbed", "Chrome gripper strip" with nothing else, before the real table data (e.g. "Ceiling | Painted white stipple artex | ...") begins.
+
 OUTPUT raw JSON only: {"address":"","pages":1,"rooms":[{"roomName":"","rows":[{"item":"","description":"","condition":""}]}]}\``
 
 export async function POST(req: NextRequest) {
