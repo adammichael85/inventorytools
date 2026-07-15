@@ -2121,7 +2121,7 @@ export default function Dashboard() {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z' },
-    { id: 'convert', label: toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF', icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z', badge: 'New' },
+    { id: 'convert', label: toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF or Word', icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z', badge: 'New' },
     { id: 'cleanpdf', label: 'Clean PDF', icon: 'M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8' },
     { id: 'reports', label: 'Reports', icon: 'M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z' },
     ...(userRole === 'admin' ? [{ id: 'stats', label: 'Statistics', icon: 'M18 20V10M12 20V4M6 20v-6' }] : []),
@@ -2492,7 +2492,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {userRole === 'admin' && <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif", color: TEAL_DARK }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})} remaining</div>}
             {page !== 'cleanpdf' && (
-              <button onClick={() => { if (toolTab === 'audio') { if (audioEnabled) setShowAudioConvert(true) } else { if (pdfEnabled) setShowConvert(true) } }} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap' }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF'}</button>
+              <button onClick={() => { if (toolTab === 'audio') { if (audioEnabled) setShowAudioConvert(true) } else { if (pdfEnabled) setShowConvert(true) } }} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap' }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF or Word'}</button>
             )}
           </div>
         </div>
