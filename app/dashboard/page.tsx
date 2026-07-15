@@ -1417,6 +1417,7 @@ export default function Dashboard() {
   const [backgroundJobs, setBackgroundJobs] = React.useState<{ jobId: string, filename: string, message: string, progress: number, status: string }[]>([])
   const [openJobModals, setOpenJobModals] = React.useState<string[]>([])
   const [syncConversionInProgress, setSyncConversionInProgress] = React.useState(false)
+  const [showWordWarning, setShowWordWarning] = React.useState(false)
 
   // Word-to-Word and text-based PDF conversions run synchronously in the browser (no
   // background job), so a refresh genuinely kills them - warn before that happens.
@@ -3473,7 +3474,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                           </svg>
                           <p style={{ fontSize: 12, color: '#166534', margin: 0, lineHeight: 1.6 }}>Reads your Word.doc report structure directly.<br/><br/>Ideal for converting another company's inventory into the standard Item, Description, Condition format. Fast, accurate, and works best with low MB sized Word.doc files.<br/><br/>The smaller the file the better. Images take up a lot of file space. Consider compressing your Word doc if the file is large.</p>
                         </div>
-                        <button onClick={() => startConvert('worddoc')} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert Now — £4.00</button>
+                        <button onClick={() => setShowWordWarning(true)} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Convert Now — £4.00</button>
                       </>
                     ) : (
                       <>
@@ -3657,6 +3658,18 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {showWordWarning && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 14, padding: 28, width: 'min(90vw, 460px)', boxShadow: '0 8px 40px rgba(0,0,0,0.25)' }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: '#B45309', margin: '0 0 12px' }}>⚠ WARNING</p>
+            <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.6, margin: '0 0 20px' }}>
+              Word-to-Word conversions run a different system and have different background processes. You will not be able to refresh the web page until the process is completed, unlike the PDF conversion. Please leave the browser untouched until conversion is completed.
+            </p>
+            <button onClick={() => { setShowWordWarning(false); startConvert('worddoc') }} style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: '#16A34A', color: '#fff', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>I confirm</button>
+          </div>
         </div>
       )}
 
