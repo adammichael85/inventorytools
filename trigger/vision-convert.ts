@@ -228,6 +228,12 @@ CONTINUATION PAGE RULE: Item sections may continue onto the next page without th
 
 CRITICAL RULE: Never ignore bold, unnumbered item headings. Never group all numbered entries beneath an item heading into one row. The required structure is: (1) bold item heading as its own Item row, (2) each following numbered description as its own separate row, (3) each corresponding Check-In Note in the Condition cell on that same row, (4) repeat until the next bold item heading or genuine room heading appears.
 
+PHOTO CAPTION EXCLUSION RULE
+Photos throughout the document, including in a "Further Views" photo gallery/appendix section, may have a short caption or label positioned directly beneath or beside them, simply identifying what the photo shows (e.g., a photo of an oven captioned just "Oven", or a photo of a wall captioned "Wall Angle Rubbed" or "Chrome gripper strip"). These captions describe the CONTENTS of a photograph - they are NOT genuine inventory table rows and must NEVER be extracted as Item rows.
+This is different from a genuine parent/heading row (like "Back Wall" or "Facing Wall") which legitimately has blank description/condition because it is a real structural row within the actual inventory table, not a photo label.
+Only extract data that appears within the ACTUAL inventory table structure (with proper Item/Description/Condition columns, populated with real descriptive/condition data). If a short word or phrase appears positioned near or beneath a photograph rather than inside the structured table, and has no associated description or condition data, do not include it as a row.
+Example of what to EXCLUDE: "Further views" followed immediately by bare single/short-phrase captions like "Oven", "Hob", "Wall Angle Rubbed", "Chrome gripper strip" positioned near photographs, before the real table data (e.g. "Ceiling | Painted white stipple artex | ...") begins.
+
 Return ONLY raw JSON:
 {"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}`;
 
@@ -440,6 +446,12 @@ Item: "", Description: "Carpet to match", Condition: ""
 CONTINUATION PAGE RULE: Item sections may continue onto the next page without the bold item heading being repeated. When a continuation page begins with numbered rows, continue adding each numbered entry as its own separate row. Do not repeat the previous item heading unless it is actually repeated in the source. Do not create a blank item heading. Do not create a new room. Do not merge the continuation rows together.
 
 CRITICAL RULE: Never ignore bold, unnumbered item headings. Never group all numbered entries beneath an item heading into one row. The required structure is: (1) bold item heading as its own Item row, (2) each following numbered description as its own separate row, (3) each corresponding Check-In Note in the Condition cell on that same row, (4) repeat until the next bold item heading or genuine room heading appears.
+
+PHOTO CAPTION EXCLUSION RULE
+Photos throughout the document, including in a "Further Views" photo gallery/appendix section, may have a short caption or label positioned directly beneath or beside them, simply identifying what the photo shows (e.g., a photo of an oven captioned just "Oven", or a photo of a wall captioned "Wall Angle Rubbed" or "Chrome gripper strip"). These captions describe the CONTENTS of a photograph - they are NOT genuine inventory table rows and must NEVER be extracted as Item rows.
+This is different from a genuine parent/heading row (like "Back Wall" or "Facing Wall") which legitimately has blank description/condition because it is a real structural row within the actual inventory table, not a photo label.
+Only extract data that appears within the ACTUAL inventory table structure (with proper Item/Description/Condition columns, populated with real descriptive/condition data). If a short word or phrase appears positioned near or beneath a photograph rather than inside the structured table, and has no associated description or condition data, do not include it as a row.
+Example of what to EXCLUDE: "Further views" followed immediately by bare single/short-phrase captions like "Oven", "Hob", "Wall Angle Rubbed", "Chrome gripper strip" positioned near photographs, before the real table data (e.g. "Ceiling | Painted white stipple artex | ...") begins.
 
 Return ONLY raw JSON: {"rows":[...]}`;
 async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: string, maxTokens: number, retries = 3): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
