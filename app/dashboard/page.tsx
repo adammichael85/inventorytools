@@ -2501,47 +2501,37 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         {/* TOOL TAB BAR */}
         <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: '0 32px', display: 'flex', gap: 0, flexShrink: 0, justifyContent: 'center' }}>
           {[
-            ...(pdfEnabled ? [{ id: 'pdf', label: '📄 PDF to Word', color: TEAL }] : []),
-            ...(audioEnabled ? [{ id: 'audio', label: '🎙️ Audio to Word', color: '#2563EB' }] : []),
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => { setToolTab(tab.id as 'pdf' | 'audio'); setPage('dashboard') }}
-              style={{
-                padding: '10px 20px',
-                border: 'none',
-                borderBottom: (toolTab === tab.id && page !== 'cleanpdf') ? `2px solid ${tab.color}` : '2px solid transparent',
-                background: 'transparent',
-                color: (toolTab === tab.id && page !== 'cleanpdf') ? tab.color : MUTED,
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 13,
-                fontWeight: (toolTab === tab.id && page !== 'cleanpdf') ? 600 : 500,
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                marginBottom: -1,
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-          <button
-            onClick={() => setPage('cleanpdf')}
-            style={{
-              padding: '10px 20px',
-              border: 'none',
-              borderBottom: page === 'cleanpdf' ? '2px solid #16A34A' : '2px solid transparent',
-              background: 'transparent',
-              color: page === 'cleanpdf' ? '#16A34A' : MUTED,
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 13,
-              fontWeight: page === 'cleanpdf' ? 600 : 500,
-              cursor: 'pointer',
-              transition: 'all 0.15s',
-              marginBottom: -1,
-            }}
-          >
-            🧹 Clean PDF
-          </button>
+            ...(pdfEnabled ? [{ id: 'pdf', label: 'PDF to Word', color: TEAL }] : []),
+            ...(audioEnabled ? [{ id: 'audio', label: 'Audio to Word', color: '#2563EB' }] : []),
+            { id: 'cleanpdf', label: 'Clean PDF', color: '#16A34A' },
+          ].map(tab => {
+            const isActive = tab.id === 'cleanpdf' ? page === 'cleanpdf' : (toolTab === tab.id && page !== 'cleanpdf')
+            return (
+              <button
+                key={tab.id}
+                onClick={() => { if (tab.id === 'cleanpdf') { setPage('cleanpdf') } else { setToolTab(tab.id as 'pdf' | 'audio'); setPage('dashboard') } }}
+                style={{
+                  padding: '10px 22px',
+                  border: `1px solid ${isActive ? tab.color : BORDER}`,
+                  borderBottom: isActive ? `1px solid ${SURFACE}` : `1px solid ${BORDER}`,
+                  borderRadius: '10px 10px 0 0',
+                  background: isActive ? SURFACE : '#F3F4F6',
+                  color: isActive ? tab.color : MUTED,
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 13,
+                  fontWeight: isActive ? 700 : 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  marginBottom: -1,
+                  marginRight: 4,
+                  position: 'relative',
+                  zIndex: isActive ? 2 : 1,
+                }}
+              >
+                {tab.label}
+              </button>
+            )
+          })}
         </div>
 
         <div style={{ flex: 1, overflow: 'auto', padding: isMobile ? 16 : 28, paddingBottom: isMobile ? 100 : 28 }}>
