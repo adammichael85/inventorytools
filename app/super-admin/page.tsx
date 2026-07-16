@@ -98,45 +98,6 @@ export default function SuperAdminPage() {
     })
   }
 
-  // User activity stats
-  const now = Date.now()
-  const DAY = 24 * 60 * 60 * 1000
-  const activeLast7Days = users.filter(u => u.last_sign_in_at && (now - new Date(u.last_sign_in_at).getTime()) < 7 * DAY).length
-  const activeLast30Days = users.filter(u => u.last_sign_in_at && (now - new Date(u.last_sign_in_at).getTime()) < 30 * DAY).length
-  const newThisWeek = users.filter(u => (now - new Date(u.created_at).getTime()) < 7 * DAY).length
-  const mostActiveUsers = [...users].sort((a, b) => b.conversion_count - a.conversion_count).slice(0, 5)
-  const sortedUsers = [...users].sort((a, b) => {
-    const aTime = a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0
-    const bTime = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0
-    return bTime - aTime
-  })
-
-  function timeAgo(dateStr: string | null) {
-    if (!dateStr) return 'Never'
-    const diffMs = now - new Date(dateStr).getTime()
-    const mins = Math.floor(diffMs / 60000)
-    if (mins < 60) return mins <= 1 ? 'Just now' : `${mins}m ago`
-    const hours = Math.floor(mins / 60)
-    if (hours < 24) return `${hours}h ago`
-    const days = Math.floor(hours / 24)
-    if (days < 30) return `${days}d ago`
-    return new Date(dateStr).toLocaleDateString('en-GB')
-  }
-
-  // Conversions per day, last 14 days
-  const last14Days: { date: string, count: number, realCost: number, charged: number }[] = []
-  for (let i = 13; i >= 0; i--) {
-    const day = new Date(now - i * DAY)
-    const dayStr = day.toLocaleDateString('en-GB')
-    const dayConversions = conversions.filter(c => new Date(c.created_at).toLocaleDateString('en-GB') === dayStr)
-    last14Days.push({
-      date: dayStr,
-      count: dayConversions.length,
-      realCost: dayConversions.reduce((s, c) => s + (c.actual_api_cost ? Number(c.actual_api_cost) : 0), 0),
-      charged: dayConversions.reduce((s, c) => s + (c.cost ? Number(c.cost) : 0), 0),
-    })
-  }
-
   const cardStyle = { background: '#fff', border: '1px solid #ecebe8', borderRadius: 14, padding: '16px 20px', minWidth: 170, boxShadow: '0 4px 14px rgba(0,0,0,0.05)' }
   const labelStyle = { fontSize: 11, color: '#8a8a8a', textTransform: 'uppercase' as const, letterSpacing: 0.6, marginBottom: 6 }
 
@@ -193,6 +154,186 @@ export default function SuperAdminPage() {
           {companies.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
+
+      {tab === 'users' && (
+        <div>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' as const }}>
+            {[
+              ['Total users', users.length.toString()],
+              ['Active last 7 days', activeLast7Days.toString()],
+              ['Active last 30 days', activeLast30Days.toString()],
+              ['New signups this week', newThisWeek.toString()],
+            ].map(([label, value]) => (
+              <div key={label} style={cardStyle}>
+                <p style={labelStyle}>{label}</p>
+                <p style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{value}</p>
+              </div>
+            ))}
+          </div>
+
+          <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Most active users</p>
+          <div style={{ background: '#fff', border: '1px solid #ecebe8', borderRadius: 14, overflow: 'hidden', marginBottom: 24 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: '#f6f5f3' }}>
+                  {['Name', 'Company', 'Conversions', 'Last Seen'].map(h => (
+                    <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#8a8a8a', textTransform: 'uppercase' as const, letterSpacing: 0.5, borderBottom: '1px solid #ecebe8' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {mostActiveUsers.map(u => (
+                  <tr key={u.id} style={{ borderBottom: '1px solid #ecebe8' }}>
+                    <td style={{ padding: '10px 14px' }}>{u.full_name || u.email}</td>
+                    <td style={{ padding: '10px 14px' }}>{u.company_name || '—'}</td>
+                    <td style={{ padding: '10px 14px', fontWeight: 600 }}>{u.conversion_count}</td>
+                    <td style={{ padding: '10px 14px' }}>{timeAgo(u.last_sign_in_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Last 14 days - conversions & cost</p>
+          <div style={{ background: '#fff', border: '1px solid #ecebe8', borderRadius: 14, overflow: 'hidden', marginBottom: 24 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: '#f6f5f3' }}>
+                  {['Date', 'Conversions', 'Charged', 'Real Cost', 'Margin'].map(h => (
+                    <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#8a8a8a', textTransform: 'uppercase' as const, letterSpacing: 0.5, borderBottom: '1px solid #ecebe8' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {last14Days.map(d => (
+                  <tr key={d.date} style={{ borderBottom: '1px solid #ecebe8' }}>
+                    <td style={{ padding: '10px 14px' }}>{d.date}</td>
+                    <td style={{ padding: '10px 14px', fontWeight: 600 }}>{d.count}</td>
+                    <td style={{ padding: '10px 14px' }}>£{d.charged.toFixed(2)}</td>
+                    <td style={{ padding: '10px 14px' }}>£{d.realCost.toFixed(2)}</td>
+                    <td style={{ padding: '10px 14px', fontWeight: 600, color: (d.charged - d.realCost) < 0 ? '#DC2626' : '#16A34A' }}>£{(d.charged - d.realCost).toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>All users</p>
+          <div style={{ background: '#fff', border: '1px solid #ecebe8', borderRadius: 14, overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: '#f6f5f3' }}>
+                  {['Name', 'Email', 'Company', 'Conversions', 'Last Seen', 'Joined'].map(h => (
+                    <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#8a8a8a', textTransform: 'uppercase' as const, letterSpacing: 0.5, borderBottom: '1px solid #ecebe8' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sortedUsers.map(u => (
+                  <tr key={u.id} style={{ borderBottom: '1px solid #ecebe8' }}>
+                    <td style={{ padding: '10px 14px' }}>{u.full_name || '—'}</td>
+                    <td style={{ padding: '10px 14px' }}>{u.email}</td>
+                    <td style={{ padding: '10px 14px' }}>{u.company_name || '—'}</td>
+                    <td style={{ padding: '10px 14px', fontWeight: 600 }}>{u.conversion_count}</td>
+                    <td style={{ padding: '10px 14px' }}>{timeAgo(u.last_sign_in_at)}</td>
+                    <td style={{ padding: '10px 14px' }}>{new Date(u.created_at).toLocaleDateString('en-GB')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {tab === 'users' && (
+        <div>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' as const }}>
+            {[
+              ['Total users', users.length.toString()],
+              ['Active last 7 days', activeLast7Days.toString()],
+              ['Active last 30 days', activeLast30Days.toString()],
+              ['New signups this week', newThisWeek.toString()],
+            ].map(([label, value]) => (
+              <div key={label} style={cardStyle}>
+                <p style={labelStyle}>{label}</p>
+                <p style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{value}</p>
+              </div>
+            ))}
+          </div>
+
+          <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Most active users</p>
+          <div style={{ background: '#fff', border: '1px solid #ecebe8', borderRadius: 14, overflow: 'hidden', marginBottom: 24 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: '#f6f5f3' }}>
+                  {['Name', 'Company', 'Conversions', 'Last Seen'].map(h => (
+                    <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#8a8a8a', textTransform: 'uppercase' as const, letterSpacing: 0.5, borderBottom: '1px solid #ecebe8' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {mostActiveUsers.map(u => (
+                  <tr key={u.id} style={{ borderBottom: '1px solid #ecebe8' }}>
+                    <td style={{ padding: '10px 14px' }}>{u.full_name || u.email}</td>
+                    <td style={{ padding: '10px 14px' }}>{u.company_name || '—'}</td>
+                    <td style={{ padding: '10px 14px', fontWeight: 600 }}>{u.conversion_count}</td>
+                    <td style={{ padding: '10px 14px' }}>{timeAgo(u.last_sign_in_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Last 14 days - conversions & cost</p>
+          <div style={{ background: '#fff', border: '1px solid #ecebe8', borderRadius: 14, overflow: 'hidden', marginBottom: 24 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: '#f6f5f3' }}>
+                  {['Date', 'Conversions', 'Charged', 'Real Cost', 'Margin'].map(h => (
+                    <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#8a8a8a', textTransform: 'uppercase' as const, letterSpacing: 0.5, borderBottom: '1px solid #ecebe8' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {last14Days.map(d => (
+                  <tr key={d.date} style={{ borderBottom: '1px solid #ecebe8' }}>
+                    <td style={{ padding: '10px 14px' }}>{d.date}</td>
+                    <td style={{ padding: '10px 14px', fontWeight: 600 }}>{d.count}</td>
+                    <td style={{ padding: '10px 14px' }}>£{d.charged.toFixed(2)}</td>
+                    <td style={{ padding: '10px 14px' }}>£{d.realCost.toFixed(2)}</td>
+                    <td style={{ padding: '10px 14px', fontWeight: 600, color: (d.charged - d.realCost) < 0 ? '#DC2626' : '#16A34A' }}>£{(d.charged - d.realCost).toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>All users</p>
+          <div style={{ background: '#fff', border: '1px solid #ecebe8', borderRadius: 14, overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: '#f6f5f3' }}>
+                  {['Name', 'Email', 'Company', 'Conversions', 'Last Seen', 'Joined'].map(h => (
+                    <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#8a8a8a', textTransform: 'uppercase' as const, letterSpacing: 0.5, borderBottom: '1px solid #ecebe8' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sortedUsers.map(u => (
+                  <tr key={u.id} style={{ borderBottom: '1px solid #ecebe8' }}>
+                    <td style={{ padding: '10px 14px' }}>{u.full_name || '—'}</td>
+                    <td style={{ padding: '10px 14px' }}>{u.email}</td>
+                    <td style={{ padding: '10px 14px' }}>{u.company_name || '—'}</td>
+                    <td style={{ padding: '10px 14px', fontWeight: 600 }}>{u.conversion_count}</td>
+                    <td style={{ padding: '10px 14px' }}>{timeAgo(u.last_sign_in_at)}</td>
+                    <td style={{ padding: '10px 14px' }}>{new Date(u.created_at).toLocaleDateString('en-GB')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {tab === 'conversions' ? (
         <div style={{ background: '#fff', border: '1px solid #ecebe8', borderRadius: 14, overflow: 'hidden' }}>
