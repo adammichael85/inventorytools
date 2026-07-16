@@ -9,10 +9,11 @@ export default function SuperAdminPage() {
   const [authorized, setAuthorized] = useState<boolean | null>(null)
   const [conversions, setConversions] = useState<any[]>([])
   const [transactions, setTransactions] = useState<any[]>([])
+  const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [companyFilter, setCompanyFilter] = useState('')
-  const [tab, setTab] = useState<'conversions' | 'topups'>('conversions')
+  const [tab, setTab] = useState<'conversions' | 'topups' | 'users'>('conversions')
   const router = useRouter()
 
   useEffect(() => {
@@ -30,6 +31,7 @@ export default function SuperAdminPage() {
       if (data.error) { setError(data.error); setLoading(false); return }
       setConversions(data.conversions || [])
       setTransactions(data.transactions || [])
+      setUsers(data.users || [])
       setLoading(false)
     })
   }, [router])
@@ -56,6 +58,84 @@ export default function SuperAdminPage() {
   // Real P&L: actual money collected via top-ups vs actual OpenAI spend — the true cash-in vs cash-out
   const totalToppedUp = filteredTransactions.reduce((s, t) => s + (t.amount ? Number(t.amount) : 0), 0)
   const realProfit = totalToppedUp - totalRealCost
+
+  // User activity stats
+  const now = Date.now()
+  const DAY = 24 * 60 * 60 * 1000
+  const activeLast7Days = users.filter(u => u.last_sign_in_at && (now - new Date(u.last_sign_in_at).getTime()) < 7 * DAY).length
+  const activeLast30Days = users.filter(u => u.last_sign_in_at && (now - new Date(u.last_sign_in_at).getTime()) < 30 * DAY).length
+  const newThisWeek = users.filter(u => (now - new Date(u.created_at).getTime()) < 7 * DAY).length
+  const mostActiveUsers = [...users].sort((a, b) => b.conversion_count - a.conversion_count).slice(0, 5)
+  const sortedUsers = [...users].sort((a, b) => {
+    const aTime = a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0
+    const bTime = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0
+    return bTime - aTime
+  })
+
+  function timeAgo(dateStr: string | null) {
+    if (!dateStr) return 'Never'
+    const diffMs = now - new Date(dateStr).getTime()
+    const mins = Math.floor(diffMs / 60000)
+    if (mins < 60) return mins <= 1 ? 'Just now' : `${mins}m ago`
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}h ago`
+    const days = Math.floor(hours / 24)
+    if (days < 30) return `${days}d ago`
+    return new Date(dateStr).toLocaleDateString('en-GB')
+  }
+
+  // Conversions per day, last 14 days
+  const last14Days: { date: string, count: number, realCost: number, charged: number }[] = []
+  for (let i = 13; i >= 0; i--) {
+    const day = new Date(now - i * DAY)
+    const dayStr = day.toLocaleDateString('en-GB')
+    const dayConversions = conversions.filter(c => new Date(c.created_at).toLocaleDateString('en-GB') === dayStr)
+    last14Days.push({
+      date: dayStr,
+      count: dayConversions.length,
+      realCost: dayConversions.reduce((s, c) => s + (c.actual_api_cost ? Number(c.actual_api_cost) : 0), 0),
+      charged: dayConversions.reduce((s, c) => s + (c.cost ? Number(c.cost) : 0), 0),
+    })
+  }
+
+  // User activity stats
+  const now = Date.now()
+  const DAY = 24 * 60 * 60 * 1000
+  const activeLast7Days = users.filter(u => u.last_sign_in_at && (now - new Date(u.last_sign_in_at).getTime()) < 7 * DAY).length
+  const activeLast30Days = users.filter(u => u.last_sign_in_at && (now - new Date(u.last_sign_in_at).getTime()) < 30 * DAY).length
+  const newThisWeek = users.filter(u => (now - new Date(u.created_at).getTime()) < 7 * DAY).length
+  const mostActiveUsers = [...users].sort((a, b) => b.conversion_count - a.conversion_count).slice(0, 5)
+  const sortedUsers = [...users].sort((a, b) => {
+    const aTime = a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0
+    const bTime = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0
+    return bTime - aTime
+  })
+
+  function timeAgo(dateStr: string | null) {
+    if (!dateStr) return 'Never'
+    const diffMs = now - new Date(dateStr).getTime()
+    const mins = Math.floor(diffMs / 60000)
+    if (mins < 60) return mins <= 1 ? 'Just now' : `${mins}m ago`
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}h ago`
+    const days = Math.floor(hours / 24)
+    if (days < 30) return `${days}d ago`
+    return new Date(dateStr).toLocaleDateString('en-GB')
+  }
+
+  // Conversions per day, last 14 days
+  const last14Days: { date: string, count: number, realCost: number, charged: number }[] = []
+  for (let i = 13; i >= 0; i--) {
+    const day = new Date(now - i * DAY)
+    const dayStr = day.toLocaleDateString('en-GB')
+    const dayConversions = conversions.filter(c => new Date(c.created_at).toLocaleDateString('en-GB') === dayStr)
+    last14Days.push({
+      date: dayStr,
+      count: dayConversions.length,
+      realCost: dayConversions.reduce((s, c) => s + (c.actual_api_cost ? Number(c.actual_api_cost) : 0), 0),
+      charged: dayConversions.reduce((s, c) => s + (c.cost ? Number(c.cost) : 0), 0),
+    })
+  }
 
   const cardStyle = { background: '#fff', border: '1px solid #ecebe8', borderRadius: 14, padding: '16px 20px', minWidth: 170, boxShadow: '0 4px 14px rgba(0,0,0,0.05)' }
   const labelStyle = { fontSize: 11, color: '#8a8a8a', textTransform: 'uppercase' as const, letterSpacing: 0.6, marginBottom: 6 }
@@ -102,9 +182,9 @@ export default function SuperAdminPage() {
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' as const }}>
         <div style={{ display: 'flex', gap: 4 }}>
-          {(['conversions', 'topups'] as const).map(t => (
+          {(['conversions', 'topups', 'users'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{ padding: '8px 16px', borderRadius: 8, border: `1px solid ${tab === t ? '#1a1a1a' : '#ecebe8'}`, background: tab === t ? '#1a1a1a' : 'transparent', color: tab === t ? '#fff' : '#1a1a1a', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-              {t === 'conversions' ? 'Conversions' : 'Top-ups'}
+              {t === 'conversions' ? 'Conversions' : t === 'topups' ? 'Top-ups' : 'Users'}
             </button>
           ))}
         </div>
