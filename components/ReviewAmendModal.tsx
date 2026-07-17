@@ -21,6 +21,31 @@ function normalizeWord(w: string) {
   return (w || '').toLowerCase().replace(/[^a-z0-9]/g, '')
 }
 
+// Keeps the active word comfortably away from the bottom edge of its transcript panel -
+// roughly 6 lines of reading room below it, rather than snapping it right to the edge.
+const TRANSCRIPT_LINE_HEIGHT = 15 * 1.9 // matches transcriptBodyStyle fontSize/lineHeight below
+const SCROLL_BUFFER_LINES = 6
+
+function scrollWordIntoView(wordEl: HTMLElement | null) {
+  if (!wordEl) return
+  const container = wordEl.closest('.rm-scrollbar') as HTMLElement | null
+  if (!container) return
+  const buffer = SCROLL_BUFFER_LINES * TRANSCRIPT_LINE_HEIGHT
+  const containerRect = container.getBoundingClientRect()
+  const wordRect = wordEl.getBoundingClientRect()
+  const wordTopRel = wordRect.top - containerRect.top
+  const wordBottomRel = wordRect.bottom - containerRect.top
+
+  if (wordTopRel < 0) {
+    // Scrolled past above - bring the word back into view near the top.
+    container.scrollTo({ top: container.scrollTop + wordTopRel - TRANSCRIPT_LINE_HEIGHT, behavior: 'smooth' })
+  } else if (wordBottomRel > container.clientHeight - buffer) {
+    // Not enough reading room below - scroll down just enough to restore the buffer.
+    const overflow = wordBottomRel - (container.clientHeight - buffer)
+    container.scrollTo({ top: container.scrollTop + overflow, behavior: 'smooth' })
+  }
+}
+
 // Aligns GPT-4o's plain word list against Whisper's timestamped word list using an
 // LCS-based anchor match, then linearly interpolates timestamps for the words in
 // between anchors. GPT-4o has no native timestamps, so this borrows Whisper's clock.
@@ -185,13 +210,11 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
   }, [t2Timestamps, currentTime])
 
   useEffect(() => {
-    const el = t1WordRefs.current[t1ActiveIndex]
-    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    scrollWordIntoView(t1WordRefs.current[t1ActiveIndex])
   }, [t1ActiveIndex])
 
   useEffect(() => {
-    const el = t2WordRefs.current[t2ActiveIndex]
-    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    scrollWordIntoView(t2WordRefs.current[t2ActiveIndex])
   }, [t2ActiveIndex])
 
   // Reset audio when room changes
