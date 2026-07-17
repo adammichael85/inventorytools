@@ -1488,6 +1488,7 @@ export default function Dashboard() {
   const audioElapsedRef = React.useRef(0)
   const [audioError, setAudioError] = React.useState('')
   const [audioDocxUrl, setAudioDocxUrl] = React.useState<string|null>(null)
+  const [audioConversionId, setAudioConversionId] = React.useState<string|null>(null)
   const [audioProcessingRooms, setAudioProcessingRooms] = React.useState<{name:string,state:string}[]>([])
   const activeAudioJobRef = React.useRef<{ jobId: string, filename: string } | null>(null)
   const [audioRestoredJobStartedAt, setAudioRestoredJobStartedAt] = React.useState<number | null>(null)
@@ -1627,6 +1628,7 @@ export default function Dashboard() {
               const { url, name } = await buildAudioDocxBlob(data.rooms, job.filename)
               setAudioDocxUrl(url)
               setAudioDocxName(name)
+              setAudioConversionId(data.conversion_id || null)
               setAudioConvertState('done')
               activeAudioJobRef.current = null
             }
@@ -1638,6 +1640,7 @@ export default function Dashboard() {
               const { url, name } = await buildAudioDocxBlob(data.rooms, job.filename)
               setAudioDocxUrl(url)
               setAudioDocxName(name)
+              setAudioConversionId(data.conversion_id || null)
               setAudioConvertState('done')
             }
           } else {
@@ -4145,6 +4148,12 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       <p style={{ fontSize: 13, color: '#166534', margin: 0 }}>{audioElapsed >= 60 ? Math.floor(audioElapsed/60) + 'm ' + (audioElapsed%60) + 's' : audioElapsed + 's'}</p>
                     </div>
                     <a href={audioDocxUrl} download={audioDocxName} style={{ display: 'block', width: '100%', padding: 13, borderRadius: 10, background: AUDIO_BLUE, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, textAlign: 'center', textDecoration: 'none', marginBottom: 10, boxSizing: 'border-box' as const }}>↓ Download {audioDocxName}</a>
+                    {audioConversionId && (
+                      <button onClick={async () => {
+                        const { data: { session } } = await supabase.auth.getSession()
+                        if (session) setShowReviewModal({ id: audioConversionId, user_id: session.user.id })
+                      }} style={{ display: 'block', width: '100%', padding: 13, borderRadius: 10, border: `1.5px solid ${AUDIO_BLUE}`, background: 'transparent', color: AUDIO_BLUE, fontFamily: 'inherit', fontSize: 15, fontWeight: 600, textAlign: 'center', cursor: 'pointer', marginBottom: 10, boxSizing: 'border-box' as const }}>Review &amp; Amend</button>
+                    )}
                     <button onClick={closeAudioModal} style={{ width: '100%', padding: 11, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>Close</button>
                   </div>
                 )}
