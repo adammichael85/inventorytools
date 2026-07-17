@@ -107,6 +107,7 @@ export const audioConvertTask = task({
             file: whisperAudioFile,
             language: 'en',
             response_format: 'verbose_json',
+            timestamp_granularities: ['word'],
           }),
           // gpt-4o-transcribe used only as a comparison transcript for reconciliation -
           // if it fails (e.g. file exceeds its 25-min limit), fall back to whisper-only
@@ -121,11 +122,15 @@ export const audioConvertTask = task({
           })
         ])
 
-        try { await supabase.storage.from('documents').remove([filePath]) } catch(e) {}
+        // NOTE: previously deleted the per-room audio file here right after transcription.
+        // Now kept in Storage so the Review & Amend modal can play it back. Cleanup should
+        // happen later (e.g. once reviewed, or on a rolling retention job) - not here.
+        // try { await supabase.storage.from('documents').remove([filePath]) } catch(e) {}
 
         return {
           i,
           whisperText: whisperTranscription.text,
+          whisperWords: (whisperTranscription as any).words || [],
           gpt4oText: gpt4oTranscription?.text || null,
           duration: Math.round((whisperTranscription as any).duration || 0)
         }
@@ -133,6 +138,7 @@ export const audioConvertTask = task({
 
       const transcriptMap: Record<number, string> = {}
       const whisperTextMap: Record<number, string> = {}
+      const whisperWordsMap: Record<number, any[]> = {}
       const gpt4oTextMap: Record<number, string> = {}
       const reconciliationAudits: any[] = []
       let reconciliationInputTokens = 0
@@ -147,6 +153,7 @@ export const audioConvertTask = task({
         transcriptionCost += (r.duration / 60) * 0.006 // whisper-1, always runs
         if (r.gpt4oText) transcriptionCost += (r.duration / 60) * 0.006 // gpt-4o-transcribe, only when it succeeded
         whisperTextMap[r.i] = r.whisperText
+        whisperWordsMap[r.i] = r.whisperWords || []
         gpt4oTextMap[r.i] = r.gpt4oText || r.whisperText // fall back to whisper if gpt-4o failed for this file
 
         if (r.gpt4oText) {
@@ -294,6 +301,19 @@ ${roomTranscript}`
         ? roomList.map((roomName: string) => `=== ${roomName} ===\n${gpt4oTextMap[roomFileMap[roomName]]}`).join('\n\n')
         : `(Files were not matched one-to-one with room names, so the full combined transcript is shown below rather than a per-room breakdown)\n\n${stitchedGpt4oTranscript}`
 
+      // Per-room Whisper word-level timestamps (only meaningful in per-room mode, since
+      // timestamps are relative to each individual room's own audio file). Used to drive
+      // the review/amend modal's audio-sync highlighting - not saved as text, saved as JSON.
+      const perRoomWhisperWords: Record<string, any[]> = {}
+      const perRoomAudioPath: Record<string, string> = {}
+      if (isPerRoom) {
+        for (const roomName of roomList) {
+          const fileIndex = roomFileMap[roomName]
+          perRoomWhisperWords[roomName] = whisperWordsMap[fileIndex] || []
+          perRoomAudioPath[roomName] = filePaths[fileIndex]
+        }
+      }
+
       await updateJob("complete", 100, `Complete — ${roomList.length} rooms converted`, roomStatuses, roomList, roomResults)
       logger.log("Audio conversion complete", { rooms: roomList.length })
 
@@ -317,6 +337,8 @@ ${roomTranscript}`
             whisper_transcript: perRoomWhisperTranscript,
             gpt4o_transcript: perRoomGpt4oTranscript,
             extracted_text: perRoomTranscript,
+            whisper_words: perRoomWhisperWords,
+            audio_paths: perRoomAudioPath,
           })
         })
         const saveData = await saveRes.json()
