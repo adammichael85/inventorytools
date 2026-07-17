@@ -528,7 +528,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
               ))}
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 18, marginTop: 10, paddingTop: 10, borderTop: '1px solid #ecebe8', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#1a1a1a' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginTop: 10, paddingTop: 10, borderTop: '1px solid #ecebe8', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#1a1a1a' }}>
             <span><kbd style={kbdStyle}>↓</kbd> <strong>Play / Pause</strong></span>
             <span><kbd style={kbdStyle}>←</kbd> <strong>Back 5s</strong></span>
             <span><kbd style={kbdStyle}>→</kbd> <strong>Forward 5s</strong></span>
