@@ -21,6 +21,13 @@ function normalizeWord(w: string) {
   return (w || '').toLowerCase().replace(/[^a-z0-9]/g, '')
 }
 
+function formatTime(seconds: number): string {
+  if (!seconds || !isFinite(seconds)) return '0:00'
+  const m = Math.floor(seconds / 60)
+  const s = Math.floor(seconds % 60)
+  return `${m}:${s.toString().padStart(2, '0')}`
+}
+
 // Keeps the active word comfortably away from the bottom edge of its transcript panel -
 // roughly 6 lines of reading room below it, rather than snapping it right to the edge.
 const TRANSCRIPT_LINE_HEIGHT = 15 * 1.9 // matches transcriptBodyStyle fontSize/lineHeight below
@@ -501,9 +508,14 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                 cursor: 'pointer', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 13,
               }}>Loop</button>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
-              <div style={{ flex: 1, height: 4, background: '#ecebe8', borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${duration ? (currentTime / duration) * 100 : 0}%`, background: accentColor, borderRadius: 4 }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ flex: 1, height: 4, background: '#ecebe8', borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${duration ? (currentTime / duration) * 100 : 0}%`, background: accentColor, borderRadius: 4 }} />
+                </div>
+              </div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#8a8a8a' }}>
+                {formatTime(currentTime)} / {formatTime(duration)}
               </div>
             </div>
             <div className="rm-scrollbar" style={{ display: 'flex', gap: 4, overflowX: 'auto', maxWidth: '44%', paddingBottom: 2 }}>
@@ -517,10 +529,10 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
             </div>
           </div>
           <div style={{ display: 'flex', gap: 18, marginTop: 10, paddingTop: 10, borderTop: '1px solid #ecebe8', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#8a8a8a' }}>
-            <span><kbd style={kbdStyle}>↓</kbd> play / pause</span>
-            <span><kbd style={kbdStyle}>←</kbd> back 5s</span>
-            <span><kbd style={kbdStyle}>→</kbd> forward 5s</span>
-            <span><kbd style={kbdStyle}>L</kbd> loop 5s {isLooping ? '· press L to stop' : ''}</span>
+            <span><kbd style={kbdStyle}>↓</kbd> <strong>play / pause</strong></span>
+            <span><kbd style={kbdStyle}>←</kbd> <strong>back 5s</strong></span>
+            <span><kbd style={kbdStyle}>→</kbd> <strong>forward 5s</strong></span>
+            <span><kbd style={kbdStyle}>L</kbd> <strong>loop 5s</strong> {isLooping ? '· press L to stop' : ''}</span>
           </div>
         </div>
       </div>
