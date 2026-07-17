@@ -80,6 +80,31 @@ function alignGpt4oWords(t1: WhisperWord[], t2: string[]): number[] {
   return ts
 }
 
+function AutoGrowCell({ value, onChange, className }: { value: string; onChange: (v: string) => void; className?: string }) {
+  const ref = useRef<HTMLTextAreaElement | null>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = el.scrollHeight + 'px'
+  }, [value])
+  return (
+    <textarea
+      ref={ref}
+      className={className}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      rows={1}
+      style={{
+        width: '100%', border: 'none', background: 'transparent', color: '#4a4a4a',
+        padding: '6px 4px', borderRadius: 6, resize: 'none', overflow: 'hidden',
+        fontFamily: 'inherit', fontSize: 'inherit', lineHeight: 1.4,
+        whiteSpace: 'pre-wrap', wordBreak: 'break-word', display: 'block',
+      }}
+    />
+  )
+}
+
 export default function ReviewAmendModal({ conversionId, userId, getAuthToken, onClose, accentColor = '#E8622C' }: ReviewAmendModalProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -401,22 +426,22 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
                   <thead>
                     <tr style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#8a8a8a' }}>
-                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '26%' }}>Item</th>
-                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '48%' }}>Description</th>
-                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '26%' }}>Condition</th>
+                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '25%' }}>Item</th>
+                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '37.5%' }}>Description</th>
+                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '37.5%' }}>Condition</th>
                     </tr>
                   </thead>
                   <tbody>
                     {r.rows.map((row, ii) => (
                       <tr key={ii} style={{ borderTop: '1px solid #ecebe8' }}>
                         <td style={{ padding: '4px 12px' }}>
-                          <input className="rm-input" value={row.item} onChange={(e) => updateItem(ri, ii, 'item', e.target.value)} style={inputStyle} />
+                          <AutoGrowCell className="rm-input" value={row.item} onChange={(v) => updateItem(ri, ii, 'item', v)} />
                         </td>
                         <td style={{ padding: '4px 12px' }}>
-                          <input className="rm-input" value={row.description} onChange={(e) => updateItem(ri, ii, 'description', e.target.value)} style={inputStyle} />
+                          <AutoGrowCell className="rm-input" value={row.description} onChange={(v) => updateItem(ri, ii, 'description', v)} />
                         </td>
                         <td style={{ padding: '4px 12px' }}>
-                          <input className="rm-input" value={row.condition} onChange={(e) => updateItem(ri, ii, 'condition', e.target.value)} style={inputStyle} />
+                          <AutoGrowCell className="rm-input" value={row.condition} onChange={(v) => updateItem(ri, ii, 'condition', v)} />
                         </td>
                       </tr>
                     ))}
@@ -498,9 +523,6 @@ const transcriptBodyStyle: React.CSSProperties = {
 }
 const roomNameStyle: React.CSSProperties = {
   fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, color: '#1a1a1a', marginBottom: 8,
-}
-const inputStyle: React.CSSProperties = {
-  width: '100%', border: 'none', background: 'transparent', color: '#4a4a4a', padding: '6px 4px', borderRadius: 6,
 }
 const transportBtnStyle: React.CSSProperties = {
   width: 36, height: 36, borderRadius: 10, border: '1px solid #ecebe8', background: '#f6f5f3',
