@@ -228,14 +228,6 @@ CONTINUATION PAGE RULE: Item sections may continue onto the next page without th
 
 CRITICAL RULE: Never ignore bold, unnumbered item headings. Never group all numbered entries beneath an item heading into one row. The required structure is: (1) bold item heading as its own Item row, (2) each following numbered description as its own separate row, (3) each corresponding Check-In Note in the Condition cell on that same row, (4) repeat until the next bold item heading or genuine room heading appears.
 
-PHOTO CAPTION EXCLUSION RULE
-Text with no row/reference number attached to it, that is NOT one of the two genuine exceptions below, is very likely a photo caption or gallery label describing what a photograph shows - discard it entirely, do not create an Item row for it.
-The two genuine exceptions that MUST still be kept even without a number:
-1. A genuine room or area heading (e.g. "KITCHEN", "STAIRS", "BATHROOM", "ENTRANCE HALL" - typically shown in capitals as a section title above the table, or as a distinct heading in the page image). This is not a caption, it identifies the whole room.
-2. A bold, unnumbered subsection header that introduces a group of genuine numbered items listed beneath it (e.g. "Door" followed by "1. Brown wooden door / 2. Chrome handle..."). This is a real structural row grouping real numbered content, not a caption.
-Any other unnumbered text - a short standalone word or phrase with no number attached and no numbered items grouped beneath it, especially text positioned near or beneath a photograph rather than inside the structured table - must be discarded as a photo caption, even if it looks like it could plausibly be a real item name (e.g. "Chrome gripper strip", "Glass transom", "Wall Angle Rubbed", "Oven", "Hob" appearing alone with no number and nothing grouped beneath them).
-The same phrase can be a real item in one place and a caption in another - judge each occurrence on whether IT specifically has a number attached or genuine numbered children grouped beneath it, not on whether the phrase sounds like a plausible inventory item.
-
 Return ONLY raw JSON:
 {"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}`;
 
@@ -448,14 +440,6 @@ Item: "", Description: "Carpet to match", Condition: ""
 CONTINUATION PAGE RULE: Item sections may continue onto the next page without the bold item heading being repeated. When a continuation page begins with numbered rows, continue adding each numbered entry as its own separate row. Do not repeat the previous item heading unless it is actually repeated in the source. Do not create a blank item heading. Do not create a new room. Do not merge the continuation rows together.
 
 CRITICAL RULE: Never ignore bold, unnumbered item headings. Never group all numbered entries beneath an item heading into one row. The required structure is: (1) bold item heading as its own Item row, (2) each following numbered description as its own separate row, (3) each corresponding Check-In Note in the Condition cell on that same row, (4) repeat until the next bold item heading or genuine room heading appears.
-
-PHOTO CAPTION EXCLUSION RULE
-Text with no row/reference number attached to it, that is NOT one of the two genuine exceptions below, is very likely a photo caption or gallery label describing what a photograph shows - discard it entirely, do not create an Item row for it.
-The two genuine exceptions that MUST still be kept even without a number:
-1. A genuine room or area heading (e.g. "KITCHEN", "STAIRS", "BATHROOM", "ENTRANCE HALL" - typically shown in capitals as a section title above the table, or as a distinct heading in the page image). This is not a caption, it identifies the whole room.
-2. A bold, unnumbered subsection header that introduces a group of genuine numbered items listed beneath it (e.g. "Door" followed by "1. Brown wooden door / 2. Chrome handle..."). This is a real structural row grouping real numbered content, not a caption.
-Any other unnumbered text - a short standalone word or phrase with no number attached and no numbered items grouped beneath it, especially text positioned near or beneath a photograph rather than inside the structured table - must be discarded as a photo caption, even if it looks like it could plausibly be a real item name (e.g. "Chrome gripper strip", "Glass transom", "Wall Angle Rubbed", "Oven", "Hob" appearing alone with no number and nothing grouped beneath them).
-The same phrase can be a real item in one place and a caption in another - judge each occurrence on whether IT specifically has a number attached or genuine numbered children grouped beneath it, not on whether the phrase sounds like a plausible inventory item.
 
 Return ONLY raw JSON: {"rows":[...]}`;
 async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: string, maxTokens: number, retries = 3): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
