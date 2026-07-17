@@ -14,7 +14,7 @@ interface ReviewAmendModalProps {
   accentColor?: string
 }
 
-const SPEEDS = [0.5, 1, 1.5, 2, 3, 4, 5]
+const SPEEDS = [0.5, 1, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4]
 const LOOP_SECONDS = 5
 
 function normalizeWord(w: string) {
@@ -127,6 +127,8 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const rightPanelRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const t1WordRefs = useRef<Record<number, HTMLSpanElement | null>>({})
+  const t2WordRefs = useRef<Record<number, HTMLSpanElement | null>>({})
 
   useEffect(() => {
     let cancelled = false
@@ -181,6 +183,16 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     }
     return idx
   }, [t2Timestamps, currentTime])
+
+  useEffect(() => {
+    const el = t1WordRefs.current[t1ActiveIndex]
+    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [t1ActiveIndex])
+
+  useEffect(() => {
+    const el = t2WordRefs.current[t2ActiveIndex]
+    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [t2ActiveIndex])
 
   // Reset audio when room changes
   useEffect(() => {
@@ -400,7 +412,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
               <div className="rm-scrollbar" style={transcriptBodyStyle}>
                 <div style={roomNameStyle}>{roomName}</div>
                 {t1Words.map((w, i) => (
-                  <span key={i} className={`rm-word${i === t1ActiveIndex ? ' active' : ''}`} onClick={() => seekTo(w.start)}>{w.word}{' '}</span>
+                  <span key={i} ref={(el) => { t1WordRefs.current[i] = el }} className={`rm-word${i === t1ActiveIndex ? ' active' : ''}`} onClick={() => seekTo(w.start)}>{w.word}{' '}</span>
                 ))}
               </div>
             </div>
@@ -409,7 +421,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
               <div className="rm-scrollbar" style={transcriptBodyStyle}>
                 <div style={roomNameStyle}>{roomName}</div>
                 {t2Words.map((w, i) => (
-                  <span key={i} className={`rm-word${i === t2ActiveIndex ? ' active' : ''}`} onClick={() => seekTo(t2Timestamps[i])}>{w}{' '}</span>
+                  <span key={i} ref={(el) => { t2WordRefs.current[i] = el }} className={`rm-word${i === t2ActiveIndex ? ' active' : ''}`} onClick={() => seekTo(t2Timestamps[i])}>{w}{' '}</span>
                 ))}
               </div>
             </div>
@@ -471,12 +483,12 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                 <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${duration ? (currentTime / duration) * 100 : 0}%`, background: accentColor, borderRadius: 4 }} />
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 4 }}>
+            <div className="rm-scrollbar" style={{ display: 'flex', gap: 4, overflowX: 'auto', maxWidth: '44%', paddingBottom: 2 }}>
               {SPEEDS.map((s) => (
                 <button key={s} onClick={() => { setSpeed(s); if (audioRef.current) audioRef.current.playbackRate = s }} style={{
-                  fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, padding: '6px 9px', borderRadius: 8,
+                  fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, padding: '6px 7px', borderRadius: 8,
                   border: '1px solid #ecebe8', background: speed === s ? '#1a1a1a' : '#f6f5f3',
-                  color: speed === s ? '#fff' : '#4a4a4a', cursor: 'pointer',
+                  color: speed === s ? '#fff' : '#4a4a4a', cursor: 'pointer', flexShrink: 0,
                 }}>{s}x</button>
               ))}
             </div>
