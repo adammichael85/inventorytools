@@ -315,9 +315,10 @@ ${roomTranscript}`
         }
       }
 
-      await updateJob("complete", 100, `Complete — ${roomList.length} rooms converted`, roomStatuses, roomList, roomResults)
-      logger.log("Audio conversion complete", { rooms: roomList.length })
-
+      // Save to the database BEFORE marking the job complete, so the conversion_id is
+      // guaranteed to be present the moment the client sees "complete" - no race between
+      // the two, no chance of the client catching a "complete" status with no id.
+      let savedConversionId: string | undefined = undefined
       try {
         const saveRes = await fetch(`https://www.inventorytools.co.uk/api/save-conversion`, {
           method: 'POST',
@@ -347,15 +348,14 @@ ${roomTranscript}`
           logger.error('save-conversion failed', { error: saveData.error })
         } else {
           logger.log('Audio conversion saved to database', { balance: saveData.balance })
-          // Update the job row with the new conversion's DB id so the client can offer
-          // Review & Amend right from the completion screen, not just conversion history.
-          if (saveData.conversion_id) {
-            await updateJob("complete", 100, `Complete — ${roomList.length} rooms converted`, roomStatuses, roomList, roomResults, saveData.conversion_id)
-          }
+          savedConversionId = saveData.conversion_id || undefined
         }
       } catch (saveErr: any) {
         logger.error('save-conversion request failed', { error: String(saveErr) })
       }
+
+      await updateJob("complete", 100, `Complete — ${roomList.length} rooms converted`, roomStatuses, roomList, roomResults, savedConversionId)
+      logger.log("Audio conversion complete", { rooms: roomList.length })
 
     } catch (err: any) {
       logger.error("Audio convert error:", { error: err.message })
