@@ -514,7 +514,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                   <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${duration ? (currentTime / duration) * 100 : 0}%`, background: accentColor, borderRadius: 4 }} />
                 </div>
               </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#8a8a8a' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#8a8a8a', textAlign: 'center' }}>
                 {formatTime(currentTime)} / {formatTime(duration)}
               </div>
             </div>
@@ -528,11 +528,11 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
               ))}
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 18, marginTop: 10, paddingTop: 10, borderTop: '1px solid #ecebe8', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#8a8a8a' }}>
-            <span><kbd style={kbdStyle}>↓</kbd> <strong>play / pause</strong></span>
-            <span><kbd style={kbdStyle}>←</kbd> <strong>back 5s</strong></span>
-            <span><kbd style={kbdStyle}>→</kbd> <strong>forward 5s</strong></span>
-            <span><kbd style={kbdStyle}>L</kbd> <strong>loop 5s</strong> {isLooping ? '· press L to stop' : ''}</span>
+          <div style={{ display: 'flex', gap: 18, marginTop: 10, paddingTop: 10, borderTop: '1px solid #ecebe8', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#1a1a1a' }}>
+            <span><kbd style={kbdStyle}>↓</kbd> <strong>Play / Pause</strong></span>
+            <span><kbd style={kbdStyle}>←</kbd> <strong>Back 5s</strong></span>
+            <span><kbd style={kbdStyle}>→</kbd> <strong>Forward 5s</strong></span>
+            <span><kbd style={kbdStyle}>L</kbd> <strong>Loop 5s</strong> {isLooping ? '· press L to stop' : ''}</span>
           </div>
         </div>
       </div>
