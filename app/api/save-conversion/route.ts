@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     )
 
     // Save conversion
-    const { error: convError } = await supabase.from('conversions').insert({
+    const { data: insertedConv, error: convError } = await supabase.from('conversions').insert({
       user_id: body.user_id,
       address: body.address,
       rooms: body.rooms,
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       gpt4o_transcript: body.gpt4o_transcript || null,
       whisper_words: body.whisper_words || null,
       audio_paths: body.audio_paths || null,
-    })
+    }).select('id').single()
     if (convError) throw new Error(convError.message)
 
     const conversionCost = body.cost ? Number(body.cost) : 4.00
@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
       }
     } catch(e) { console.log('Stats update failed:', e) }
 
-    return NextResponse.json({ ok: true, balance: newBalance })
+    return NextResponse.json({ ok: true, balance: newBalance, conversion_id: insertedConv?.id || null })
   } catch (err: any) {
     console.error('[API Error]', err)
     return NextResponse.json({ error: 'An unexpected error occurred. Please try again.' }, { status: 500 })

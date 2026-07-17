@@ -29,7 +29,7 @@ export const audioConvertTask = task({
     )
 
     let hasSetStartedAt = false
-    async function updateJob(status: string, progress: number, message: string, roomStatuses?: Record<string, string>, roomNames?: string[], rooms?: any[]) {
+    async function updateJob(status: string, progress: number, message: string, roomStatuses?: Record<string, string>, roomNames?: string[], rooms?: any[], conversionId?: string) {
       const payload: any = {
         id: jobId,
         user_id: userId,
@@ -40,6 +40,7 @@ export const audioConvertTask = task({
         room_names: roomNames ? JSON.stringify(roomNames) : undefined,
         room_statuses: roomStatuses ? JSON.stringify(roomStatuses) : undefined,
         rooms: rooms ? JSON.stringify(rooms) : undefined,
+        conversion_id: conversionId || undefined,
         updated_at: new Date().toISOString()
       }
       if (!hasSetStartedAt) {
@@ -346,6 +347,11 @@ ${roomTranscript}`
           logger.error('save-conversion failed', { error: saveData.error })
         } else {
           logger.log('Audio conversion saved to database', { balance: saveData.balance })
+          // Update the job row with the new conversion's DB id so the client can offer
+          // Review & Amend right from the completion screen, not just conversion history.
+          if (saveData.conversion_id) {
+            await updateJob("complete", 100, `Complete — ${roomList.length} rooms converted`, roomStatuses, roomList, roomResults, saveData.conversion_id)
+          }
         }
       } catch (saveErr: any) {
         logger.error('save-conversion request failed', { error: String(saveErr) })

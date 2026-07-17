@@ -1367,10 +1367,14 @@ async function buildVisionDocxBlob(rooms: any[], address: string): Promise<{ url
 // own live status. Multiple of these can be open simultaneously, each fully independent,
 // since none of them touch the old single-conversion processingRooms/audioProcessingRooms state.
 function JobDetailModal({ jobId, onClose, cancelJob }: { jobId: string, onClose: () => void, cancelJob: (jobId: string, type: 'audio' | 'vision') => void }) {
+  const brand = useBrand()
+  const TEAL = brand.primary_color
   const [status, setStatus] = React.useState<any>(null)
   const [docxUrl, setDocxUrl] = React.useState<string | null>(null)
   const [docxName, setDocxName] = React.useState<string>('')
   const [building, setBuilding] = React.useState(false)
+  const [showReview, setShowReview] = React.useState(false)
+  const [reviewUserId, setReviewUserId] = React.useState<string>('')
   const isAudioJob = jobId.startsWith('audio-')
   const builtRef = React.useRef(false)
 
@@ -1430,7 +1434,25 @@ function JobDetailModal({ jobId, onClose, cancelJob }: { jobId: string, onClose:
         {docxUrl && (
           <a href={docxUrl} download={docxName} style={{ display: 'block', width: '100%', padding: 12, borderRadius: 10, background: '#1D9E75', color: '#fff', textAlign: 'center', textDecoration: 'none', fontWeight: 600, fontSize: 14, marginTop: 14 }}>↓ Download {docxName}</a>
         )}
+        {isAudioJob && status.conversion_id && (
+          <button onClick={async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            if (session) { setReviewUserId(session.user.id); setShowReview(true) }
+          }} style={{ display: 'block', width: '100%', padding: 12, borderRadius: 10, background: 'transparent', border: `1.5px solid ${TEAL}`, color: TEAL, textAlign: 'center', fontFamily: 'inherit', fontWeight: 600, fontSize: 14, marginTop: 10, cursor: 'pointer' }}>Review &amp; Amend</button>
+        )}
       </div>
+      {showReview && (
+        <ReviewAmendModal
+          conversionId={status.conversion_id}
+          userId={reviewUserId}
+          getAuthToken={async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            return session?.access_token || ''
+          }}
+          onClose={() => setShowReview(false)}
+          accentColor={TEAL}
+        />
+      )}
     </div>
   )
 }
