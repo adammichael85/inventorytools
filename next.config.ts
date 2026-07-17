@@ -6,6 +6,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
+  "media-src 'self' blob: https://*.supabase.co",
   "connect-src 'self' https://api.stripe.com https://*.supabase.co https://auth.inventorytools.co.uk https://hcaptcha.com https://*.hcaptcha.com",
   "frame-src https://js.stripe.com https://hcaptcha.com https://newassets.hcaptcha.com",
   "object-src 'none'",
