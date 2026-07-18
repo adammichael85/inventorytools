@@ -177,12 +177,17 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <BrandContext.Provider value={brand}>
-      <div style={{
-        filter: shouldMask && !revealed ? 'grayscale(1)' : 'grayscale(0)',
-        transition: 'filter 0.3s ease',
-      }}>
-        {children}
-      </div>
+      {children}
+      {shouldMask && !revealed && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(245,245,245,0.97)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          zIndex: 99999,
+        }} />
+      )}
     </BrandContext.Provider>
   )
 }
