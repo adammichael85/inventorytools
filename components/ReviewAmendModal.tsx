@@ -225,6 +225,10 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
   const [evenOutVolume, setEvenOutVolume] = useState(false)
   const [clarityBoost, setClarityBoost] = useState(false)
   const [noiseGate, setNoiseGate] = useState(false)
+  const [audioElementKey, setAudioElementKey] = useState(0)
+  const wasEnhancementActiveRef = useRef(false)
+  const pendingRestoreTimeRef = useRef(0)
+  const pendingRestorePlayingRef = useRef(false)
   const rightPanelRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const activeRowRef = useRef<HTMLTableRowElement | null>(null)
   const t1WordRefs = useRef<Record<number, HTMLSpanElement | null>>({})
@@ -413,6 +417,41 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     if (gate) gate.parameters.get('enabled')!.value = noiseGate ? 1 : 0
   }, [noiseGate])
 
+  useEffect(() => {
+    const anyActive = boostQuiet || evenOutVolume || clarityBoost || noiseGate
+    if (!anyActive && wasEnhancementActiveRef.current) {
+      // All toggles just went off, and the Web Audio graph was engaged at some point.
+      // Browsers won't reliably play sped-up audio once an element has been routed
+      // through Web Audio, even with every effect set back to neutral - the only way
+      // to restore clean native playback is to tear down and recreate the <audio>
+      // element itself, which drops its Web Audio binding entirely.
+      const el = audioRef.current
+      pendingRestoreTimeRef.current = el?.currentTime ?? 0
+      pendingRestorePlayingRef.current = !!el && !el.paused
+      audioCtxRef.current?.close()
+      audioCtxRef.current = null
+      sourceNodeRef.current = null
+      gainNodeRef.current = null
+      compressorNodeRef.current = null
+      clarityFilterRef.current = null
+      noiseGateNodeRef.current = null
+      graphSetupStartedRef.current = false
+      setAudioElementKey((k) => k + 1)
+    }
+    wasEnhancementActiveRef.current = anyActive
+  }, [boostQuiet, evenOutVolume, clarityBoost, noiseGate])
+
+  useEffect(() => {
+    const el = audioRef.current
+    if (!el) return
+    el.currentTime = pendingRestoreTimeRef.current
+    el.playbackRate = speed
+    ;(el as any).preservesPitch = true
+    ;(el as any).mozPreservesPitch = true
+    ;(el as any).webkitPreservesPitch = true
+    if (pendingRestorePlayingRef.current) el.play()
+  }, [audioElementKey])
+
   const togglePlay = useCallback(async () => {
     const el = audioRef.current
     if (!el) return
@@ -594,6 +633,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
       `}</style>
       <div style={modalStyle}>
         <audio
+          key={audioElementKey}
           ref={audioRef}
           src={audioUrls[roomName]}
           crossOrigin="anonymous"
