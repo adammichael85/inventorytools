@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useReviewAudioEngine } from './useReviewAudioEngine'
 
 type WhisperWord = { word: string; start: number; end: number }
 type RoomRow = { item: string; description: string; condition: string }
@@ -203,10 +204,6 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
   const [audioUrls, setAudioUrls] = useState<Record<string, string>>({})
 
   const [roomIndex, setRoomIndex] = useState(0)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [speed, setSpeed] = useState(1)
   const [isLooping, setIsLooping] = useState(false)
   const loopStartRef = useRef<number | null>(null)
   const [creating, setCreating] = useState(false)
@@ -214,21 +211,6 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
   const [transcriptFontSize, setTranscriptFontSize] = useState(15)
   const [previewFontSize, setPreviewFontSize] = useState(13.5)
 
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-  const audioCtxRef = useRef<AudioContext | null>(null)
-  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null)
-  const gainNodeRef = useRef<GainNode | null>(null)
-  const compressorNodeRef = useRef<DynamicsCompressorNode | null>(null)
-  const clarityFilterRef = useRef<BiquadFilterNode | null>(null)
-  const noiseGateNodeRef = useRef<AudioWorkletNode | null>(null)
-  const [boostQuiet, setBoostQuiet] = useState(false)
-  const [evenOutVolume, setEvenOutVolume] = useState(false)
-  const [clarityBoost, setClarityBoost] = useState(false)
-  const [noiseGate, setNoiseGate] = useState(false)
-  const [audioElementKey, setAudioElementKey] = useState(0)
-  const wasEnhancementActiveRef = useRef(false)
-  const pendingRestoreTimeRef = useRef(0)
-  const pendingRestorePlayingRef = useRef(false)
   const rightPanelRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const activeRowRef = useRef<HTMLTableRowElement | null>(null)
   const t1WordRefs = useRef<Record<number, HTMLSpanElement | null>>({})
@@ -267,6 +249,9 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
   const roomName = room?.roomName || ''
   const t1Words = whisperWords[roomName] || []
   const t2Words = gpt4oWords[roomName] || []
+
+  const engine = useReviewAudioEngine(audioUrls[roomName])
+  const { isPlaying, currentTime, duration, speed, setSpeed, boostQuiet, setBoostQuiet, evenOutVolume, setEvenOutVolume, clarityBoost, setClarityBoost, noiseGate, setNoiseGate } = engine
 
   const t2Timestamps = useMemo(() => alignGpt4oWords(t1Words, t2Words), [t1Words, t2Words])
 
@@ -314,194 +299,43 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     scrollWordIntoView(activeRowRef.current)
   }, [activeRowIndex, roomIndex])
 
-  // Reset audio when room changes
+  // Reset loop tracking when room changes - audio load/reset itself is handled inside the engine hook
   useEffect(() => {
-    setIsPlaying(false)
-    setCurrentTime(0)
     setIsLooping(false)
     loopStartRef.current = null
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
-      audioRef.current.playbackRate = speed
-      ;(audioRef.current as any).preservesPitch = true
-      ;(audioRef.current as any).mozPreservesPitch = true
-      ;(audioRef.current as any).webkitPreservesPitch = true
-    }
   }, [roomIndex])
 
-  const graphSetupStartedRef = useRef(false)
+  const togglePlay = () => {
+    if (engine.isPlaying) engine.pause()
+    else engine.play()
+  }
 
-  const ensureAudioGraph = useCallback(async () => {
-    const el = audioRef.current
-    if (!el || graphSetupStartedRef.current) return // already set up or in progress
-    graphSetupStartedRef.current = true
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
-    const ctx = new AudioContextClass()
-
-    let noiseGateNode: AudioWorkletNode | null = null
-    try {
-      await ctx.audioWorklet.addModule('/noise-gate-processor.js')
-      noiseGateNode = new AudioWorkletNode(ctx, 'noise-gate-processor')
-    } catch (e) {
-      console.error('Noise gate worklet failed to load, continuing without it', e)
-    }
-
-    const source = ctx.createMediaElementSource(el)
-    const gainNode = ctx.createGain()
-    const compressor = ctx.createDynamicsCompressor()
-    const clarityFilter = ctx.createBiquadFilter()
-    clarityFilter.type = 'peaking'
-    clarityFilter.frequency.value = 2500 // speech-clarity range
-    clarityFilter.Q.value = 1
-
-    // Initialize from whatever the toggles are actually set to right now, rather than
-    // hardcoded neutral - since this setup is async, a toggle may already be "on" by
-    // the time these nodes exist (e.g. the click that triggered this very setup call).
-    gainNode.gain.value = boostQuiet ? 1.8 : 1
-    if (evenOutVolume) {
-      compressor.threshold.value = -30
-      compressor.ratio.value = 4
-      compressor.attack.value = 0.01
-      compressor.release.value = 0.25
-    } else {
-      compressor.threshold.value = 0
-      compressor.ratio.value = 1
-    }
-    clarityFilter.gain.value = clarityBoost ? 6 : 0
-    if (noiseGateNode) noiseGateNode.parameters.get('enabled')!.value = noiseGate ? 1 : 0
-
-    // Gate hiss first, then boost/compress/clarify the cleaned-up signal
-    if (noiseGateNode) {
-      source.connect(noiseGateNode)
-      noiseGateNode.connect(gainNode)
-    } else {
-      source.connect(gainNode)
-    }
-    gainNode.connect(compressor)
-    compressor.connect(clarityFilter)
-    clarityFilter.connect(ctx.destination)
-
-    audioCtxRef.current = ctx
-    sourceNodeRef.current = source
-    gainNodeRef.current = gainNode
-    compressorNodeRef.current = compressor
-    clarityFilterRef.current = clarityFilter
-    noiseGateNodeRef.current = noiseGateNode
-  }, [boostQuiet, evenOutVolume, clarityBoost, noiseGate])
-
-  useEffect(() => {
-    if (gainNodeRef.current) gainNodeRef.current.gain.value = boostQuiet ? 1.8 : 1
-  }, [boostQuiet])
-
-  useEffect(() => {
-    const c = compressorNodeRef.current
-    if (!c) return
-    if (evenOutVolume) {
-      c.threshold.value = -30
-      c.ratio.value = 4
-      c.attack.value = 0.01
-      c.release.value = 0.25
-    } else {
-      c.threshold.value = 0
-      c.ratio.value = 1
-    }
-  }, [evenOutVolume])
-
-  useEffect(() => {
-    if (clarityFilterRef.current) clarityFilterRef.current.gain.value = clarityBoost ? 6 : 0
-  }, [clarityBoost])
-
-  useEffect(() => {
-    const gate = noiseGateNodeRef.current
-    if (gate) gate.parameters.get('enabled')!.value = noiseGate ? 1 : 0
-  }, [noiseGate])
-
-  useEffect(() => {
-    const anyActive = boostQuiet || evenOutVolume || clarityBoost || noiseGate
-    if (!anyActive && wasEnhancementActiveRef.current) {
-      // All toggles just went off, and the Web Audio graph was engaged at some point.
-      // Browsers won't reliably play sped-up audio once an element has been routed
-      // through Web Audio, even with every effect set back to neutral - the only way
-      // to restore clean native playback is to tear down and recreate the <audio>
-      // element itself, which drops its Web Audio binding entirely.
-      const el = audioRef.current
-      pendingRestoreTimeRef.current = el?.currentTime ?? 0
-      pendingRestorePlayingRef.current = !!el && !el.paused
-      audioCtxRef.current?.close()
-      audioCtxRef.current = null
-      sourceNodeRef.current = null
-      gainNodeRef.current = null
-      compressorNodeRef.current = null
-      clarityFilterRef.current = null
-      noiseGateNodeRef.current = null
-      graphSetupStartedRef.current = false
-      setAudioElementKey((k) => k + 1)
-    }
-    wasEnhancementActiveRef.current = anyActive
-  }, [boostQuiet, evenOutVolume, clarityBoost, noiseGate])
-
-  useEffect(() => {
-    const el = audioRef.current
-    if (!el) return
-    el.currentTime = pendingRestoreTimeRef.current
-    el.playbackRate = speed
-    ;(el as any).preservesPitch = true
-    ;(el as any).mozPreservesPitch = true
-    ;(el as any).webkitPreservesPitch = true
-    if (pendingRestorePlayingRef.current) el.play()
-  }, [audioElementKey])
-
-  const togglePlay = useCallback(async () => {
-    const el = audioRef.current
-    if (!el) return
-    if (audioCtxRef.current?.state === 'suspended') audioCtxRef.current.resume()
-    if (el.paused) {
-      el.play()
-      setIsPlaying(true)
-    } else {
-      el.pause()
-      setIsPlaying(false)
-    }
-  }, [])
-
-  const stopPlayback = useCallback(() => {
-    const el = audioRef.current
-    if (!el) return
-    el.pause()
-    setIsPlaying(false)
+  const stopPlayback = () => {
+    engine.stop()
     setIsLooping(false)
     loopStartRef.current = null
-  }, [])
+  }
 
-  const seek = useCallback((deltaSeconds: number) => {
-    const el = audioRef.current
-    if (!el) return
-    el.currentTime = Math.max(0, Math.min(el.duration || 0, el.currentTime + deltaSeconds))
-  }, [])
+  const seek = (deltaSeconds: number) => {
+    const target = Math.max(0, Math.min(engine.duration || 0, engine.currentTime + deltaSeconds))
+    engine.seekTo(target)
+  }
 
-  const toggleLoop = useCallback(() => {
-    const el = audioRef.current
+  const toggleLoop = () => {
     setIsLooping((looping) => {
       if (looping) {
         loopStartRef.current = null
         return false
       }
-      loopStartRef.current = el?.currentTime ?? 0
+      loopStartRef.current = engine.currentTime
       return true
     })
-  }, [])
+  }
 
-  const seekTo = useCallback((seconds: number) => {
-    const el = audioRef.current
-    if (!el) return
-    el.currentTime = Math.max(0, seconds)
-    if (el.paused) {
-      if (audioCtxRef.current?.state === 'suspended') audioCtxRef.current.resume()
-      el.play()
-      setIsPlaying(true)
-    }
-  }, [])
+  const seekTo = (seconds: number) => {
+    engine.seekTo(Math.max(0, seconds))
+    if (!engine.isPlaying) engine.play()
+  }
 
   const selectRoom = (idx: number) => {
     setRoomIndex(idx)
@@ -521,23 +355,14 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [togglePlay, seek, toggleLoop])
+  })
 
+  // Loop enforcement - engine.currentTime is driven by its own requestAnimationFrame loop
   useEffect(() => {
-    return () => { audioCtxRef.current?.close() }
-  }, [])
-
-  // Loop enforcement
-  const handleTimeUpdate = () => {
-    const el = audioRef.current
-    if (!el) return
-    setCurrentTime(el.currentTime)
-    if (isLooping && loopStartRef.current != null) {
-      if (el.currentTime >= loopStartRef.current + LOOP_SECONDS) {
-        el.currentTime = loopStartRef.current
-      }
+    if (isLooping && loopStartRef.current != null && currentTime >= loopStartRef.current + LOOP_SECONDS) {
+      engine.seekTo(loopStartRef.current)
     }
-  }
+  }, [currentTime, isLooping])
 
   const updateItem = (ri: number, ii: number, field: keyof RoomRow, value: string) => {
     setEditedRooms((prev) => {
@@ -632,17 +457,6 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
         .rm-input:focus { outline: 2px solid ${accentColor}; outline-offset: 1px; }
       `}</style>
       <div style={modalStyle}>
-        <audio
-          key={audioElementKey}
-          ref={audioRef}
-          src={audioUrls[roomName]}
-          crossOrigin="anonymous"
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={(e) => setDuration((e.target as HTMLAudioElement).duration)}
-          onEnded={() => setIsPlaying(false)}
-          style={{ display: 'none' }}
-        />
-
         {/* Header */}
         <div style={headerStyle}>
           <div>
@@ -769,16 +583,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
             </div>
             <div className="rm-scrollbar" style={{ display: 'flex', gap: 4, overflowX: 'auto', maxWidth: '44%', paddingBottom: 2 }}>
               {SPEEDS.map((s) => (
-                <button key={s} onClick={() => {
-                  setSpeed(s)
-                  const el = audioRef.current
-                  if (el) {
-                    el.playbackRate = s
-                    ;(el as any).preservesPitch = true
-                    ;(el as any).mozPreservesPitch = true
-                    ;(el as any).webkitPreservesPitch = true
-                  }
-                }} style={{
+                <button key={s} onClick={() => setSpeed(s)} style={{
                   fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, padding: '6px 7px', borderRadius: 8,
                   border: '1px solid #ecebe8', background: speed === s ? '#1a1a1a' : '#f6f5f3',
                   color: speed === s ? '#fff' : '#4a4a4a', cursor: 'pointer', flexShrink: 0,
@@ -789,10 +594,10 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 10 }}>
             {[
-              { label: 'Reduce background noise', active: noiseGate, onClick: () => { ensureAudioGraph(); setNoiseGate((v) => !v) } },
-              { label: 'Boost quiet audio', active: boostQuiet, onClick: () => { ensureAudioGraph(); setBoostQuiet((v) => !v) } },
-              { label: 'Even out volume', active: evenOutVolume, onClick: () => { ensureAudioGraph(); setEvenOutVolume((v) => !v) } },
-              { label: 'Clarity boost', active: clarityBoost, onClick: () => { ensureAudioGraph(); setClarityBoost((v) => !v) } },
+              { label: 'Reduce background noise', active: noiseGate, onClick: () => setNoiseGate((v) => !v) },
+              { label: 'Boost quiet audio', active: boostQuiet, onClick: () => setBoostQuiet((v) => !v) },
+              { label: 'Even out volume', active: evenOutVolume, onClick: () => setEvenOutVolume((v) => !v) },
+              { label: 'Clarity boost', active: clarityBoost, onClick: () => setClarityBoost((v) => !v) },
             ].map((t) => (
               <button key={t.label} onClick={t.onClick} style={{
                 fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, padding: '6px 12px', borderRadius: 20,

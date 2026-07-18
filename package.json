@@ -11,6 +11,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
     "@hcaptcha/react-hcaptcha": "^2.0.2",
+    "@soundtouchjs/audio-worklet": "^2.1.0",
     "@stripe/react-stripe-js": "^6.6.0",
     "@stripe/stripe-js": "^9.8.0",
     "@supabase/supabase-js": "^2.107.0",
