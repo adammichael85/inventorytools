@@ -162,23 +162,20 @@ function AddRowDivider({ onAdd, accentColor }: { onAdd: () => void; accentColor:
   const [hover, setHover] = useState(false)
   return (
     <tr>
-      <td colSpan={4} style={{ padding: 0, height: hover ? 20 : 6, transition: 'height 0.12s ease' }}>
+      <td colSpan={4} style={{ padding: 0, height: 14 }}>
         <div
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
           onClick={onAdd}
           style={{
-            height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', position: 'relative',
+            height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: 4,
+            cursor: 'pointer',
           }}
         >
-          <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: 1, background: hover ? accentColor : 'transparent', transition: 'background 0.12s ease' }} />
-          {hover && (
-            <div style={{
-              position: 'relative', width: 20, height: 20, borderRadius: '50%', background: accentColor,
-              color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, lineHeight: 1,
-            }}>+</div>
-          )}
+          <span style={{
+            fontSize: 13, fontWeight: 700, lineHeight: 1, color: accentColor,
+            opacity: hover ? 1 : 0.25, transition: 'opacity 0.1s ease',
+          }}>+</span>
         </div>
       </td>
     </tr>
