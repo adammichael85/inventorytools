@@ -66,12 +66,18 @@ const css = `
 .aw-link{text-align:center;font-size:.83rem;color:#8a8577;margin-top:16px}
 .aw-link a,.aw-link button{color:var(--p,#fd6a02);font-weight:600;background:none;border:none;cursor:pointer;font-size:.83rem;font-family:'Inter'}
 .aw-centered{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;z-index:1}
-.aw-overlay{position:fixed;inset:0;background:rgba(26,26,26,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
-.aw-warn{background:#fff;border-radius:20px;padding:36px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(26,26,26,.15)}
+.aw-overlay{position:fixed;inset:0;background:rgba(26,26,26,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
+.aw-warn{background:rgba(255,255,255,.9);backdrop-filter:blur(30px) saturate(160%);-webkit-backdrop-filter:blur(30px) saturate(160%);border:1px solid rgba(255,255,255,.75);border-radius:22px;padding:36px;max-width:440px;width:100%;box-shadow:0 30px 70px rgba(30,20,10,.22)}
+.aw.dark .aw-warn{background:rgba(34,29,22,.92);border-color:rgba(255,255,255,.09)}
 .aw-warn h3{font-family:'Space Grotesk';font-size:1.25rem;font-weight:700;color:#1a1a1a;margin-bottom:10px}
+.aw.dark .aw-warn h3{color:#f3f0ea}
 .aw-warn p{font-size:.9rem;color:#4a4a4a;line-height:1.6;margin-bottom:22px}
+.aw.dark .aw-warn p{color:#c2bbaf}
 .aw-warn-btns{display:flex;flex-direction:column;gap:8px}
-.aw-warn-btn{width:100%;border:none;border-radius:10px;padding:12px;font-family:'Inter';font-weight:600;font-size:.93rem;cursor:pointer}
+.aw-warn-btn{width:100%;border:none;border-radius:12px;padding:13px;font-family:'Inter';font-weight:700;font-size:.93rem;cursor:pointer;transition:all .15s}
+.aw-warn-btn:hover{filter:brightness(.95);transform:translateY(-1px)}
+.aw-warn-btn-secondary{background:rgba(140,130,110,.12)!important;color:#1a1a1a!important}
+.aw.dark .aw-warn-btn-secondary{background:rgba(255,255,255,.08)!important;color:#f3f0ea!important}
 .aw-foot{font-size:.78rem;color:#8a8577;position:relative;z-index:1;margin-top:32px}
 @media(max-width:820px){.aw-two{grid-template-columns:1fr}.aw-hero{display:none}.aw-right{padding:32px 20px;min-height:100vh}}
 `
@@ -379,7 +385,7 @@ export default function Auth() {
                     <div style={{margin:'14px 0'}}><HCaptcha ref={forgotCaptchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setForgotCaptchaToken} onExpire={()=>setForgotCaptchaToken(null)} /></div>
                     <div className="aw-warn-btns" style={{marginTop:16}}>
                       <button type="submit" className="aw-warn-btn" style={{background:P,color:'#fff'}} disabled={forgotLoading||!forgotCaptchaToken}>{forgotLoading?'Sending…':'Send reset link'}</button>
-                      <button type="button" className="aw-warn-btn" style={{background:'#f6f5f3',color:'#1a1a1a'}} onClick={()=>setShowForgot(false)}>Cancel</button>
+                      <button type="button" className="aw-warn-btn aw-warn-btn-secondary" onClick={()=>setShowForgot(false)}>Cancel</button>
                     </div>
                   </form>
                 </>
@@ -394,7 +400,7 @@ export default function Auth() {
               <p>Your account is active on <strong>{existingSessionDevice}</strong>. Continuing here will sign out that session.</p>
               <div className="aw-warn-btns">
                 <button className="aw-warn-btn" style={{background:P,color:'#fff'}} onClick={async()=>{setShowSessionWarning(false);setLoading(true);await completeLogin(pendingLoginUserId)}}>Continue — sign in here</button>
-                <button className="aw-warn-btn" style={{background:'#f6f5f3',color:'#1a1a1a'}} onClick={()=>{setShowSessionWarning(false);setPendingLoginUserId('');setLoading(false)}}>Cancel</button>
+                <button className="aw-warn-btn aw-warn-btn-secondary" onClick={()=>{setShowSessionWarning(false);setPendingLoginUserId('');setLoading(false)}}>Cancel</button>
               </div>
             </div>
           </div>
