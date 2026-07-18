@@ -55,6 +55,7 @@ const css = `
 .aw.dark .aw-field input,.aw.dark .aw-field select{background:rgba(255,255,255,.05);color:#f3f0ea;border-color:rgba(255,255,255,.1)}
 .aw-field input:focus,.aw-field select:focus{border-color:var(--p,#fd6a02)}
 .aw-field select{appearance:none;cursor:pointer}
+.aw-captcha-wrap{overflow:hidden;border-radius:12px;display:flex;justify-content:center;margin-bottom:14px}
 .aw-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .aw-btn{width:100%;border:none;border-radius:12px;padding:13px;font-family:'Inter';font-weight:700;font-size:.97rem;cursor:pointer;margin-top:8px;transition:all .15s}
 .aw-btn-p{background:var(--p,#fd6a02);color:#fff;box-shadow:0 14px 30px -10px var(--p,#fd6a02)}
@@ -292,7 +293,7 @@ export default function Auth() {
           <div className="aw-field"><label>Email address</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" required /></div>
           <div className="aw-field"><label>Password</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required /></div>
           <div style={{textAlign:'right',marginBottom:6}}><button type="button" onClick={()=>{setShowForgot(true);setForgotEmail(email);setForgotSent(false)}} style={{fontSize:'.8rem',color:P,fontWeight:600,background:'none',border:'none',cursor:'pointer',padding:0}}>Forgot password?</button></div>
-          <div style={{marginBottom:14}}><HCaptcha ref={captchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setCaptchaToken} onExpire={()=>setCaptchaToken(null)} /></div>
+          <div className="aw-captcha-wrap"><HCaptcha ref={captchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setCaptchaToken} onExpire={()=>setCaptchaToken(null)} /></div>
           <button className="aw-btn aw-btn-p" type="submit" disabled={loading||cooldownUntil>Date.now()||!captchaToken}>{loading?'Signing in…':cooldownUntil>Date.now()?`Wait ${cooldownLeft}s…`:'Sign in'}</button>
           {isDefault && <p className="aw-link">No account? <button type="button" onClick={()=>{setTab('signup');setError('');setMessage('')}}>Sign up</button></p>}
           {!isDefault && <p className="aw-link" style={{marginTop:14}}>Need access? Contact your account administrator for an invite.</p>}
@@ -311,7 +312,7 @@ export default function Auth() {
           <div className="aw-field"><label>Your position *</label><input type="text" value={position} onChange={e=>setPosition(e.target.value)} placeholder="e.g. Inventory Clerk" required /></div>
           <div className="aw-field"><label>Company address</label><input type="text" value={address} onChange={e=>setAddress(e.target.value)} placeholder="Optional" /></div>
           <div className="aw-field"><label>Phone number</label><input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Optional" /></div>
-          <div style={{marginBottom:14}}><HCaptcha ref={captchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setCaptchaToken} onExpire={()=>setCaptchaToken(null)} /></div>
+          <div className="aw-captcha-wrap"><HCaptcha ref={captchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setCaptchaToken} onExpire={()=>setCaptchaToken(null)} /></div>
           <button className="aw-btn aw-btn-p" type="submit" disabled={loading||!!inviteError||checkingInvite||!captchaToken}>{loading?'Creating account…':inviteToken?'Join team':'Create account'}</button>
           {!inviteToken && <p className="aw-link">Already have an account? <button type="button" onClick={()=>{setTab('signin');setError('');setMessage('')}}>Sign in</button></p>}
         </form>
@@ -382,7 +383,7 @@ export default function Auth() {
                   <p>Enter your email address and we'll send you a reset link.</p>
                   <form onSubmit={handleForgot} style={{marginTop:16}}>
                     <div className="aw-field"><label>Email address</label><input type="email" value={forgotEmail} onChange={e=>setForgotEmail(e.target.value)} placeholder="you@example.com" required autoFocus /></div>
-                    <div style={{margin:'14px 0'}}><HCaptcha ref={forgotCaptchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setForgotCaptchaToken} onExpire={()=>setForgotCaptchaToken(null)} /></div>
+                    <div className="aw-captcha-wrap" style={{margin:"14px 0"}}><HCaptcha ref={forgotCaptchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setForgotCaptchaToken} onExpire={()=>setForgotCaptchaToken(null)} /></div>
                     <div className="aw-warn-btns" style={{marginTop:16}}>
                       <button type="submit" className="aw-warn-btn" style={{background:P,color:'#fff'}} disabled={forgotLoading||!forgotCaptchaToken}>{forgotLoading?'Sending…':'Send reset link'}</button>
                       <button type="button" className="aw-warn-btn aw-warn-btn-secondary" onClick={()=>setShowForgot(false)}>Cancel</button>
