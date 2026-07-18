@@ -2600,6 +2600,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         .it-num{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em}
         h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#1a1a1a}
         .it-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:${TEAL};font-weight:500;text-transform:uppercase;margin:0}
+        .it-logo-reveal{animation:itLogoReveal 1s ease forwards}
+        @keyframes itLogoReveal{0%{filter:blur(18px);opacity:.4}100%{filter:blur(0);opacity:1}}
         .it-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
         .it-blob{position:absolute;border-radius:50%;filter:blur(110px)}
         .it-blob-1{width:640px;height:640px;background:${TEAL};top:-220px;left:-160px;opacity:.14}
@@ -2636,7 +2638,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
       <aside className="it-glass-sidebar" style={{ width: isMobile ? 0 : 290, background: SURFACE, borderRight: isMobile ? 'none' : `1px solid ${BORDER}`, display: isMobile ? 'none' : 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0, position: 'relative', zIndex: 1 }}>
         <div style={{ height: 64, padding: '0 18px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: brand.company_name === 'InventoryTools' ? 'flex-start' : 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, width: '100%', cursor: 'default' }}>
-            <img src={brand.logo_url || '/logo-full.png'} alt={brand.display_name} style={{ maxWidth: '100%', height: 'auto', maxHeight: brand.company_name === 'InventoryTools' ? 26 : 44 }} />
+            <img className="it-logo-reveal" src={brand.logo_url || '/logo-full.png'} alt={brand.display_name} style={{ maxWidth: '100%', height: 'auto', maxHeight: brand.company_name === 'InventoryTools' ? 26 : 44 }} />
           </div>
         </div>
         <nav style={{ padding: '12px 10px', flex: 1 }}>
