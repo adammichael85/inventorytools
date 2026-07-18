@@ -8,10 +8,14 @@ import { SoundTouchNode } from '@soundtouchjs/audio-worklet'
 // always plays at native 1x as far as the browser's decoder is concerned, and speed is
 // applied as pure sample processing inside our own graph instead, alongside everything else.
 //
-// AudioBufferSourceNode (what actually plays the decoded audio here) can only be started
-// once, so seeking, looping, and stopping all work by tearing down the current node and
-// starting a fresh one at the desired offset - this is the standard Web Audio pattern for
-// buffer-based playback, not a workaround.
+// The SoundTouch node and noise gate node are rebuilt fresh every time playback starts
+// (play, seek, loop restart) rather than reused for the whole room session - both are
+// stateful, buffered processors (WSOLA time-stretching and an envelope-follower gate), and
+// reusing one instance across repeated start/stop/speed-change cycles let stale buffered
+// audio leak into a later playback start (audible as a stutter-repeat on Stop, or skipping
+// when a toggle and a speed change landed close together). A fresh node has no buffered
+// history, so this can't happen. The downstream gain/compressor/clarity chain has no such
+// buffering concerns and stays persistent for the room's session.
 
 let sharedWorkletModulesRegistered: Promise<void> | null = null
 
@@ -63,12 +67,12 @@ export function useReviewAudioEngine(audioUrl: string | undefined): ReviewAudioE
 
   const ctxRef = useRef<AudioContext | null>(null)
   const bufferRef = useRef<AudioBuffer | null>(null)
-  const stNodeRef = useRef<SoundTouchNode | null>(null)
-  const noiseGateNodeRef = useRef<AudioWorkletNode | null>(null)
   const gainNodeRef = useRef<GainNode | null>(null)
   const compressorNodeRef = useRef<DynamicsCompressorNode | null>(null)
   const clarityFilterRef = useRef<BiquadFilterNode | null>(null)
   const sourceRef = useRef<AudioBufferSourceNode | null>(null)
+  const stNodeRef = useRef<SoundTouchNode | null>(null)
+  const noiseGateNodeRef = useRef<AudioWorkletNode | null>(null)
   const manualStopRef = useRef(false)
 
   // Playback clock: position = pausedAt if paused, else pausedAt + elapsed-real-time * speed
@@ -77,9 +81,20 @@ export function useReviewAudioEngine(audioUrl: string | undefined): ReviewAudioE
   const speedRef = useRef(1)
   const rafRef = useRef<number | null>(null)
 
+  // Current toggle values, mirrored into refs so startFrom (a useCallback that must stay
+  // stable across renders) can read the latest state without needing to be recreated
+  const boostQuietRef = useRef(false)
+  const evenOutVolumeRef = useRef(false)
+  const clarityBoostRef = useRef(false)
+  const noiseGateRef = useRef(false)
+  useEffect(() => { boostQuietRef.current = boostQuiet }, [boostQuiet])
+  useEffect(() => { evenOutVolumeRef.current = evenOutVolume }, [evenOutVolume])
+  useEffect(() => { clarityBoostRef.current = clarityBoost }, [clarityBoost])
+  useEffect(() => { noiseGateRef.current = noiseGate }, [noiseGate])
+
   const loadIdRef = useRef(0)
 
-  // Load + decode audio, build the persistent processing chain, whenever the room's audio URL changes
+  // Load + decode audio, build the persistent downstream chain, whenever the room's audio URL changes
   useEffect(() => {
     if (!audioUrl) return
     const thisLoadId = ++loadIdRef.current
@@ -103,9 +118,10 @@ export function useReviewAudioEngine(audioUrl: string | undefined): ReviewAudioE
       bufferRef.current = audioBuffer
       setDuration(audioBuffer.duration)
 
-      // Build the persistent chain once: stNode -> [noiseGate] -> gain -> compressor -> clarityFilter -> destination
-      if (!stNodeRef.current) {
-        const stNode = new SoundTouchNode({ context: ctx })
+      // Build the persistent downstream chain once: gain -> compressor -> clarityFilter -> destination.
+      // The SoundTouch and noise gate nodes are NOT built here - they're rebuilt fresh on every
+      // playback start (see startFrom below).
+      if (!gainNodeRef.current) {
         const gainNode = ctx.createGain()
         const compressor = ctx.createDynamicsCompressor()
         const clarityFilter = ctx.createBiquadFilter()
@@ -124,26 +140,10 @@ export function useReviewAudioEngine(audioUrl: string | undefined): ReviewAudioE
         }
         clarityFilter.gain.value = clarityBoost ? 6 : 0
 
-        let noiseGateNode: AudioWorkletNode | null = null
-        try {
-          noiseGateNode = new AudioWorkletNode(ctx, 'noise-gate-processor')
-          noiseGateNode.parameters.get('enabled')!.value = noiseGate ? 1 : 0
-        } catch (e) {
-          console.error('Noise gate node failed to construct, continuing without it', e)
-        }
-
-        if (noiseGateNode) {
-          stNode.connect(noiseGateNode)
-          noiseGateNode.connect(gainNode)
-        } else {
-          stNode.connect(gainNode)
-        }
         gainNode.connect(compressor)
         compressor.connect(clarityFilter)
         clarityFilter.connect(ctx.destination)
 
-        stNodeRef.current = stNode
-        noiseGateNodeRef.current = noiseGateNode
         gainNodeRef.current = gainNode
         compressorNodeRef.current = compressor
         clarityFilterRef.current = clarityFilter
@@ -155,7 +155,7 @@ export function useReviewAudioEngine(audioUrl: string | undefined): ReviewAudioE
     return () => { loadIdRef.current++ } // invalidate in-flight load if the room changes again
   }, [audioUrl]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Toggle effects - adjust live without rebuilding the chain
+  // Toggle effects - adjust the persistent chain live without rebuilding it
   useEffect(() => {
     if (gainNodeRef.current) gainNodeRef.current.gain.value = boostQuiet ? 1.8 : 1
   }, [boostQuiet])
@@ -178,6 +178,8 @@ export function useReviewAudioEngine(audioUrl: string | undefined): ReviewAudioE
     if (clarityFilterRef.current) clarityFilterRef.current.gain.value = clarityBoost ? 6 : 0
   }, [clarityBoost])
 
+  // Noise gate lives on the per-playback node, not the persistent chain - update whichever
+  // instance is currently active, if any
   useEffect(() => {
     const gate = noiseGateNodeRef.current
     if (gate) gate.parameters.get('enabled')!.value = noiseGate ? 1 : 0
@@ -190,6 +192,15 @@ export function useReviewAudioEngine(audioUrl: string | undefined): ReviewAudioE
       sourceRef.current.disconnect()
       sourceRef.current = null
     }
+    // Tear down the per-playback nodes too, so no buffered state survives into the next start
+    if (stNodeRef.current) {
+      try { stNodeRef.current.disconnect() } catch (e) { /* already disconnected */ }
+      stNodeRef.current = null
+    }
+    if (noiseGateNodeRef.current) {
+      try { noiseGateNodeRef.current.disconnect() } catch (e) { /* already disconnected */ }
+      noiseGateNodeRef.current = null
+    }
   }, [])
 
   const computeCurrentPosition = useCallback(() => {
@@ -201,16 +212,32 @@ export function useReviewAudioEngine(audioUrl: string | undefined): ReviewAudioE
   const startFrom = useCallback((offsetSeconds: number) => {
     const ctx = ctxRef.current
     const buffer = bufferRef.current
-    const stNode = stNodeRef.current
-    if (!ctx || !buffer || !stNode) return
+    const gainNode = gainNodeRef.current
+    if (!ctx || !buffer || !gainNode) return
     stopSource()
     manualStopRef.current = false
+
+    // Fresh SoundTouch + noise gate nodes for this playback start - no leftover buffered state
+    const stNode = new SoundTouchNode({ context: ctx })
+    let noiseGateNode: AudioWorkletNode | null = null
+    try {
+      noiseGateNode = new AudioWorkletNode(ctx, 'noise-gate-processor')
+      noiseGateNode.parameters.get('enabled')!.value = noiseGateRef.current ? 1 : 0
+    } catch (e) {
+      console.error('Noise gate node failed to construct, continuing without it', e)
+    }
 
     const source = ctx.createBufferSource()
     source.buffer = buffer
     source.playbackRate.value = speedRef.current
     stNode.playbackRate.value = speedRef.current
     source.connect(stNode)
+    if (noiseGateNode) {
+      stNode.connect(noiseGateNode)
+      noiseGateNode.connect(gainNode)
+    } else {
+      stNode.connect(gainNode)
+    }
     source.onended = () => {
       if (manualStopRef.current) return // stopped ourselves for a seek/pause - not real end of track
       setIsPlaying(false)
@@ -219,6 +246,8 @@ export function useReviewAudioEngine(audioUrl: string | undefined): ReviewAudioE
     const clampedOffset = Math.max(0, Math.min(offsetSeconds, buffer.duration))
     source.start(0, clampedOffset)
     sourceRef.current = source
+    stNodeRef.current = stNode
+    noiseGateNodeRef.current = noiseGateNode
     startCtxTimeRef.current = ctx.currentTime
     pausedAtRef.current = clampedOffset
   }, [stopSource])
@@ -256,18 +285,17 @@ export function useReviewAudioEngine(audioUrl: string | undefined): ReviewAudioE
 
   const setSpeed = useCallback((rate: number) => {
     // Rebase the clock at the current computed position before changing rate, so time
-    // already elapsed at the old speed isn't retroactively recalculated at the new one
-    if (isPlaying) {
-      const current = computeCurrentPosition()
-      pausedAtRef.current = current
-      const ctx = ctxRef.current
-      if (ctx) startCtxTimeRef.current = ctx.currentTime
-    }
+    // already elapsed at the old speed isn't retroactively recalculated at the new one.
+    // Restarting playback (rather than just nudging the live playbackRate AudioParam) means
+    // the SoundTouch node is rebuilt fresh at the new rate too, avoiding any stale internal
+    // buffering from the previous rate.
     speedRef.current = rate
     setSpeedState(rate)
-    if (sourceRef.current) sourceRef.current.playbackRate.value = rate
-    if (stNodeRef.current) stNodeRef.current.playbackRate.value = rate
-  }, [isPlaying, computeCurrentPosition])
+    if (isPlaying) {
+      const current = computeCurrentPosition()
+      startFrom(current)
+    }
+  }, [isPlaying, computeCurrentPosition, startFrom])
 
   // Position polling loop - drives the progress bar and transcript/preview highlighting,
   // replacing the previous 'timeupdate' event from the <audio> element
