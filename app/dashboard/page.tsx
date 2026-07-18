@@ -2593,7 +2593,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         <div className="it-blob it-blob-3" />
       </div>
       <style>{`
-        .it-card{border-radius:18px;box-shadow:0 8px 30px rgba(26,26,26,.07);transition:box-shadow .2s ease,transform .2s ease}
+        .it-card{border-radius:18px;box-shadow:0 8px 30px rgba(26,26,26,.07);transition:box-shadow .2s ease,transform .2s ease;background:rgba(255,255,255,.7)!important;backdrop-filter:blur(24px) saturate(160%)!important;-webkit-backdrop-filter:blur(24px) saturate(160%)!important;border-color:rgba(255,255,255,.75)!important}
         .it-card:hover{box-shadow:0 14px 36px rgba(26,26,26,.11);transform:translateY(-3px)}
         .it-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:#8a8a8a;font-weight:500;text-transform:uppercase;margin:0}
         .it-num{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em}
@@ -2607,6 +2607,17 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         .it-glass-sidebar{background:rgba(255,255,255,.65)!important;backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%)}
         .it-glass-topbar{background:rgba(255,255,255,.7)!important;backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%)}
         .it-glass-tabbar{background:rgba(255,255,255,.35)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+        .it-stack{position:relative;height:120px}
+        .it-sheet{position:absolute;width:84px;height:108px;background:#fff;border:1px solid #ecebe8;border-radius:10px;box-shadow:0 8px 30px rgba(26,26,26,.1);left:50%;top:0;animation:itFan1 4s ease-in-out infinite}
+        .it-sheet:nth-child(2){animation-name:itFan2}
+        .it-sheet-accent{animation-name:itFan3!important;background:${TEAL}!important;border:none!important}
+        .it-sheet-line{height:6px;border-radius:3px;background:#ecebe8;margin:14px 14px 8px}
+        .it-sheet-accent .it-sheet-line{background:rgba(255,255,255,.5)}
+        .it-tick{position:absolute;bottom:12px;right:12px;opacity:0;animation:itTickIn 4s ease-in-out infinite}
+        @keyframes itFan1{0%{transform:translateX(-50%) rotate(-8deg)}15%,50%{transform:translateX(-68%) rotate(-14deg) translateY(-4px)}65%,100%{transform:translateX(-50%) rotate(0deg)}}
+        @keyframes itFan2{0%,15%,50%{transform:translateX(-50%) rotate(0deg) translateY(-2px)}65%,100%{transform:translateX(-50%) rotate(0deg) translateY(0)}}
+        @keyframes itFan3{0%{transform:translateX(-50%) rotate(8deg)}15%,50%{transform:translateX(-32%) rotate(14deg) translateY(-6px)}65%,100%{transform:translateX(-50%) rotate(0deg)}}
+        @keyframes itTickIn{0%,55%{opacity:0;transform:scale(.5)}70%,100%{opacity:1;transform:scale(1)}}
       `}</style>
 
       {/* SIDEBAR */}
@@ -2733,7 +2744,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 const tabAvg = tabTotal > 0 ? Math.round(tabDur / tabTotal) : 0
                 const tabAudio = tabConvs.reduce((s: number, r: any) => s + (r.audio_length_seconds || 0), 0)
                 const fmtT = (s: number) => s >= 60 ? Math.floor(s/60)+'m '+(s%60)+'s' : s+'s'
-                return (
+                return (<>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : `repeat(${userRole === 'admin' ? (toolTab === 'audio' ? 6 : 5) : (toolTab === 'audio' ? 4 : 3)},minmax(0,1fr))`, gap: 16, marginBottom: 0 }}>
                 {(userRole === 'admin' ? [['Total reports', tabTotal.toString(), 'all time'],['Total spent', '£'+tabSpend.toFixed(2), toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : []), ['Est. saving', '£'+tabSaving.toFixed(2), 'vs. manual typing']] : [['Total reports', tabTotal.toString(), 'all time'],['Avg. time', tabTotal > 0 ? fmtT(tabAvg) : '—', 'per conversion'],['Total time', fmtT(tabDur), 'all conversions'], ...(toolTab === 'audio' ? [['Total audio', fmtT(tabAudio), 'audio recorded']] : [])]).map(([label,val,sub]) => (
                   <div key={label} className="it-card" style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: RADIUS, padding: '20px 22px' }}>
@@ -2743,7 +2754,28 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   </div>
                 ))}
               </div>
-                )})()}
+              <div className="it-card" style={{ borderRadius: RADIUS, padding: '24px 28px', marginTop: 16, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.4fr 1fr', gap: 24, alignItems: 'center' }}>
+                <div>
+                  <p className="it-eyebrow" style={{ marginBottom: 6 }}>The whole point</p>
+                  <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 19, fontWeight: 700, margin: '0 0 8px' }}>Scattered notes in. One clean report out.</h2>
+                  <p style={{ fontSize: 13, color: MUTED, margin: 0, maxWidth: 420, lineHeight: 1.5 }}>
+                    {tabTotal > 0
+                      ? `${tabTotal} ${toolTab === 'audio' ? 'dictated recording' : 'report'}${tabTotal === 1 ? '' : 's'} became finished Word document${tabTotal === 1 ? '' : 's'}${userRole === 'admin' && tabSaving > 0 ? `, saving an estimated £${tabSaving.toFixed(2)} versus typing ${tabTotal === 1 ? 'it' : 'them'} by hand` : ''}.`
+                      : `Convert your first ${toolTab === 'audio' ? 'dictated recording' : 'PDF or Word report'} to see this add up.`}
+                  </p>
+                </div>
+                {!isMobile && (
+                  <div className="it-stack">
+                    <div className="it-sheet"><div className="it-sheet-line" style={{ width: '60%' }} /><div className="it-sheet-line" style={{ width: '80%' }} /><div className="it-sheet-line" style={{ width: '45%' }} /></div>
+                    <div className="it-sheet"><div className="it-sheet-line" style={{ width: '60%' }} /><div className="it-sheet-line" style={{ width: '80%' }} /><div className="it-sheet-line" style={{ width: '45%' }} /></div>
+                    <div className="it-sheet it-sheet-accent">
+                      <div className="it-sheet-line" style={{ width: '60%' }} /><div className="it-sheet-line" style={{ width: '80%' }} /><div className="it-sheet-line" style={{ width: '45%' }} />
+                      <svg className="it-tick" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+                )}
+              </div>
+                </>)})()}
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 20, marginTop: 16 }}>
