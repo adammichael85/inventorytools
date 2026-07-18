@@ -326,9 +326,12 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     }
   }, [roomIndex])
 
+  const graphSetupStartedRef = useRef(false)
+
   const ensureAudioGraph = useCallback(async () => {
     const el = audioRef.current
-    if (!el || sourceNodeRef.current) return // already set up
+    if (!el || graphSetupStartedRef.current) return // already set up or in progress
+    graphSetupStartedRef.current = true
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
     const ctx = new AudioContextClass()
 
@@ -348,12 +351,21 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     clarityFilter.frequency.value = 2500 // speech-clarity range
     clarityFilter.Q.value = 1
 
-    // Neutral by default - toggles below adjust these live without rebuilding the graph
-    gainNode.gain.value = 1
-    compressor.threshold.value = 0
-    compressor.ratio.value = 1
-    clarityFilter.gain.value = 0
-    if (noiseGateNode) noiseGateNode.parameters.get('enabled')!.value = 0
+    // Initialize from whatever the toggles are actually set to right now, rather than
+    // hardcoded neutral - since this setup is async, a toggle may already be "on" by
+    // the time these nodes exist (e.g. the click that triggered this very setup call).
+    gainNode.gain.value = boostQuiet ? 1.8 : 1
+    if (evenOutVolume) {
+      compressor.threshold.value = -30
+      compressor.ratio.value = 4
+      compressor.attack.value = 0.01
+      compressor.release.value = 0.25
+    } else {
+      compressor.threshold.value = 0
+      compressor.ratio.value = 1
+    }
+    clarityFilter.gain.value = clarityBoost ? 6 : 0
+    if (noiseGateNode) noiseGateNode.parameters.get('enabled')!.value = noiseGate ? 1 : 0
 
     // Gate hiss first, then boost/compress/clarify the cleaned-up signal
     if (noiseGateNode) {
@@ -372,7 +384,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     compressorNodeRef.current = compressor
     clarityFilterRef.current = clarityFilter
     noiseGateNodeRef.current = noiseGateNode
-  }, [])
+  }, [boostQuiet, evenOutVolume, clarityBoost, noiseGate])
 
   useEffect(() => {
     if (gainNodeRef.current) gainNodeRef.current.gain.value = boostQuiet ? 1.8 : 1
@@ -404,7 +416,6 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
   const togglePlay = useCallback(async () => {
     const el = audioRef.current
     if (!el) return
-    await ensureAudioGraph()
     if (audioCtxRef.current?.state === 'suspended') audioCtxRef.current.resume()
     if (el.paused) {
       el.play()
@@ -413,7 +424,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
       el.pause()
       setIsPlaying(false)
     }
-  }, [ensureAudioGraph])
+  }, [])
 
   const stopPlayback = useCallback(() => {
     const el = audioRef.current
@@ -442,17 +453,16 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     })
   }, [])
 
-  const seekTo = useCallback(async (seconds: number) => {
+  const seekTo = useCallback((seconds: number) => {
     const el = audioRef.current
     if (!el) return
     el.currentTime = Math.max(0, seconds)
     if (el.paused) {
-      await ensureAudioGraph()
       if (audioCtxRef.current?.state === 'suspended') audioCtxRef.current.resume()
       el.play()
       setIsPlaying(true)
     }
-  }, [ensureAudioGraph])
+  }, [])
 
   const selectRoom = (idx: number) => {
     setRoomIndex(idx)
@@ -739,10 +749,10 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 10 }}>
             {[
-              { label: 'Reduce background noise', active: noiseGate, onClick: () => setNoiseGate((v) => !v) },
-              { label: 'Boost quiet audio', active: boostQuiet, onClick: () => setBoostQuiet((v) => !v) },
-              { label: 'Even out volume', active: evenOutVolume, onClick: () => setEvenOutVolume((v) => !v) },
-              { label: 'Clarity boost', active: clarityBoost, onClick: () => setClarityBoost((v) => !v) },
+              { label: 'Reduce background noise', active: noiseGate, onClick: () => { ensureAudioGraph(); setNoiseGate((v) => !v) } },
+              { label: 'Boost quiet audio', active: boostQuiet, onClick: () => { ensureAudioGraph(); setBoostQuiet((v) => !v) } },
+              { label: 'Even out volume', active: evenOutVolume, onClick: () => { ensureAudioGraph(); setEvenOutVolume((v) => !v) } },
+              { label: 'Clarity boost', active: clarityBoost, onClick: () => { ensureAudioGraph(); setClarityBoost((v) => !v) } },
             ].map((t) => (
               <button key={t.label} onClick={t.onClick} style={{
                 fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, padding: '6px 12px', borderRadius: 20,
