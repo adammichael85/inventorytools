@@ -549,6 +549,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
         <audio
           ref={audioRef}
           src={audioUrls[roomName]}
+          crossOrigin="anonymous"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={(e) => setDuration((e.target as HTMLAudioElement).duration)}
           onEnded={() => setIsPlaying(false)}
