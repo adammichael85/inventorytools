@@ -15,7 +15,7 @@ interface ReviewAmendModalProps {
 }
 
 const SPEEDS = [0.5, 1, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4]
-const LOOP_SECONDS = 5
+const LOOP_SECONDS = 4
 
 function normalizeWord(w: string) {
   return (w || '').toLowerCase().replace(/[^a-z0-9]/g, '')
@@ -30,14 +30,15 @@ function formatTime(seconds: number): string {
 
 // Keeps the active word comfortably away from the bottom edge of its transcript panel -
 // roughly 6 lines of reading room below it, rather than snapping it right to the edge.
-const TRANSCRIPT_LINE_HEIGHT = 15 * 1.9 // matches transcriptBodyStyle fontSize/lineHeight below
 const SCROLL_BUFFER_LINES = 6
 
 function scrollWordIntoView(wordEl: HTMLElement | null) {
   if (!wordEl) return
   const container = wordEl.closest('.rm-scrollbar') as HTMLElement | null
   if (!container) return
-  const buffer = SCROLL_BUFFER_LINES * TRANSCRIPT_LINE_HEIGHT
+  const computedFontSize = parseFloat(getComputedStyle(wordEl).fontSize) || 15
+  const lineHeight = computedFontSize * 1.9
+  const buffer = SCROLL_BUFFER_LINES * lineHeight
   const containerRect = container.getBoundingClientRect()
   const wordRect = wordEl.getBoundingClientRect()
   const wordTopRel = wordRect.top - containerRect.top
@@ -45,7 +46,7 @@ function scrollWordIntoView(wordEl: HTMLElement | null) {
 
   if (wordTopRel < 0) {
     // Scrolled past above - bring the word back into view near the top.
-    container.scrollTo({ top: container.scrollTop + wordTopRel - TRANSCRIPT_LINE_HEIGHT, behavior: 'smooth' })
+    container.scrollTo({ top: container.scrollTop + wordTopRel - lineHeight, behavior: 'smooth' })
   } else if (wordBottomRel > container.clientHeight - buffer) {
     // Not enough reading room below - scroll down just enough to restore the buffer.
     const overflow = wordBottomRel - (container.clientHeight - buffer)
@@ -112,6 +113,60 @@ function alignGpt4oWords(t1: WhisperWord[], t2: string[]): number[] {
   return ts
 }
 
+// Builds a flat token stream from the preview rows (item + description + condition per
+// row, in order) so the playing transcript can be fuzzy-matched against it. There's no
+// true per-item timing from the extraction step yet - this is a heuristic stand-in until
+// GPT-5.5's extraction is extended to tag which words produced each item.
+function buildRowTokens(rows: { item: string; description: string; condition: string }[]): { tokens: string[]; owner: number[] } {
+  const tokens: string[] = []
+  const owner: number[] = []
+  rows.forEach((row, ri) => {
+    const text = `${row.item} ${row.description} ${row.condition}`
+    text.split(/\s+/).filter(Boolean).forEach((w) => {
+      tokens.push(normalizeWord(w))
+      owner.push(ri)
+    })
+  })
+  return { tokens, owner }
+}
+
+function alignWordsToRowTokens(t1: WhisperWord[], rowTokens: string[]): number[] {
+  const n = t1.length
+  const m = rowTokens.length
+  if (n === 0 || m === 0) return new Array(n).fill(-1)
+
+  const norm1 = t1.map((w) => normalizeWord(w.word))
+
+  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0))
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      if (norm1[i - 1] && norm1[i - 1] === rowTokens[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1
+      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1])
+    }
+  }
+
+  const matchRowToken = new Array(n).fill(-1)
+  let i = n, j = m
+  while (i > 0 && j > 0) {
+    if (norm1[i - 1] && norm1[i - 1] === rowTokens[j - 1]) {
+      matchRowToken[i - 1] = j - 1
+      i--; j--
+    } else if (dp[i - 1][j] >= dp[i][j - 1]) i--
+    else j--
+  }
+  return matchRowToken
+}
+
+function TextSizeControl({ size, onChange, min, max }: { size: number; onChange: (n: number) => void; min: number; max: number }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#8a8a8a', marginRight: 2 }}>Text size</span>
+      <button onClick={() => onChange(Math.max(min, size - 1))} style={{ width: 22, height: 22, borderRadius: 6, border: '1px solid #ecebe8', background: '#fff', color: '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }} aria-label="Decrease text size">−</button>
+      <button onClick={() => onChange(Math.min(max, size + 1))} style={{ width: 22, height: 22, borderRadius: 6, border: '1px solid #ecebe8', background: '#fff', color: '#1a1a1a', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }} aria-label="Increase text size">+</button>
+    </div>
+  )
+}
+
 function AutoGrowCell({ value, onChange, className }: { value: string; onChange: (v: string) => void; className?: string }) {
   const ref = useRef<HTMLTextAreaElement | null>(null)
   useEffect(() => {
@@ -156,6 +211,8 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
   const loopStartRef = useRef<number | null>(null)
   const [creating, setCreating] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [transcriptFontSize, setTranscriptFontSize] = useState(15)
+  const [previewFontSize, setPreviewFontSize] = useState(13.5)
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const rightPanelRefs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -206,6 +263,20 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     }
     return idx
   }, [t1Words, currentTime])
+
+  const rowTokenMatch = useMemo(() => {
+    const { tokens, owner } = buildRowTokens(room?.rows || [])
+    const matches = alignWordsToRowTokens(t1Words, tokens)
+    return { matches, owner }
+  }, [room, t1Words])
+
+  const activeRowIndex = useMemo(() => {
+    const { matches, owner } = rowTokenMatch
+    for (let i = t1ActiveIndex; i >= 0; i--) {
+      if (matches[i] !== -1) return owner[matches[i]]
+    }
+    return -1
+  }, [rowTokenMatch, t1ActiveIndex])
 
   const t2ActiveIndex = useMemo(() => {
     let idx = -1
@@ -437,9 +508,12 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
         {/* Main split */}
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
           <div style={{ width: '42%', display: 'flex', flexDirection: 'column', borderRight: '1px solid #ecebe8' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 18px 0', background: '#fff' }}>
+              <TextSizeControl size={transcriptFontSize} onChange={setTranscriptFontSize} min={11} max={24} />
+            </div>
             <div style={{ flex: 1, borderBottom: '1px solid #ecebe8', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
               <div style={transcriptLabelStyle}>Transcript 1</div>
-              <div className="rm-scrollbar" style={transcriptBodyStyle}>
+              <div className="rm-scrollbar" style={{ ...transcriptBodyStyle, fontSize: transcriptFontSize }}>
                 <div style={roomNameStyle}>{roomName}</div>
                 {t1Words.map((w, i) => (
                   <span key={i} ref={(el) => { t1WordRefs.current[i] = el }} className={`rm-word${i === t1ActiveIndex ? ' active' : ''}`} onClick={() => seekTo(w.start)}>{w.word}{' '}</span>
@@ -448,7 +522,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
               <div style={transcriptLabelStyle}>Transcript 2</div>
-              <div className="rm-scrollbar" style={transcriptBodyStyle}>
+              <div className="rm-scrollbar" style={{ ...transcriptBodyStyle, fontSize: transcriptFontSize }}>
                 <div style={roomNameStyle}>{roomName}</div>
                 {t2Words.map((w, i) => (
                   <span key={i} ref={(el) => { t2WordRefs.current[i] = el }} className={`rm-word${i === t2ActiveIndex ? ' active' : ''}`} onClick={() => seekTo(t2Timestamps[i])}>{w}{' '}</span>
@@ -457,7 +531,11 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
             </div>
           </div>
 
-          <div className="rm-scrollbar" style={{ width: '58%', overflowY: 'auto', padding: '18px 24px', background: '#f6f5f3' }}>
+          <div style={{ width: '58%', display: 'flex', flexDirection: 'column', background: '#f6f5f3' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 24px 0' }}>
+              <TextSizeControl size={previewFontSize} onChange={setPreviewFontSize} min={11} max={18} />
+            </div>
+            <div className="rm-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '10px 24px 18px' }}>
             {editedRooms.map((r, ri) => (
               <div key={r.roomName} ref={(el) => { rightPanelRefs.current[r.roomName] = el }} style={{
                 background: '#fff', borderRadius: 14,
@@ -465,7 +543,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                 boxShadow: '0 8px 30px rgba(26,26,26,.05)', marginBottom: 16, overflow: 'hidden',
               }}>
                 <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 15, color: '#1a1a1a', padding: '12px 16px', borderBottom: '1px solid #ecebe8' }}>{r.roomName}</div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: previewFontSize }}>
                   <thead>
                     <tr style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#8a8a8a' }}>
                       <th style={{ textAlign: 'left', padding: '6px 16px', width: '25%' }}>Item</th>
@@ -474,23 +552,27 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                     </tr>
                   </thead>
                   <tbody>
-                    {r.rows.map((row, ii) => (
-                      <tr key={ii} style={{ borderTop: '1px solid #ecebe8' }}>
-                        <td style={{ padding: '4px 12px' }}>
-                          <AutoGrowCell className="rm-input" value={row.item} onChange={(v) => updateItem(ri, ii, 'item', v)} />
-                        </td>
-                        <td style={{ padding: '4px 12px' }}>
-                          <AutoGrowCell className="rm-input" value={row.description} onChange={(v) => updateItem(ri, ii, 'description', v)} />
-                        </td>
-                        <td style={{ padding: '4px 12px' }}>
-                          <AutoGrowCell className="rm-input" value={row.condition} onChange={(v) => updateItem(ri, ii, 'condition', v)} />
-                        </td>
-                      </tr>
-                    ))}
+                    {r.rows.map((row, ii) => {
+                      const isActive = ri === roomIndex && ii === activeRowIndex
+                      return (
+                        <tr key={ii} style={{ borderTop: '1px solid #ecebe8', background: isActive ? `${accentColor}14` : 'transparent', transition: 'background 0.2s ease' }}>
+                          <td style={{ padding: '4px 12px', borderLeft: isActive ? `3px solid ${accentColor}` : '3px solid transparent' }}>
+                            <AutoGrowCell className="rm-input" value={row.item} onChange={(v) => updateItem(ri, ii, 'item', v)} />
+                          </td>
+                          <td style={{ padding: '4px 12px' }}>
+                            <AutoGrowCell className="rm-input" value={row.description} onChange={(v) => updateItem(ri, ii, 'description', v)} />
+                          </td>
+                          <td style={{ padding: '4px 12px' }}>
+                            <AutoGrowCell className="rm-input" value={row.condition} onChange={(v) => updateItem(ri, ii, 'condition', v)} />
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
             ))}
+            </div>
           </div>
         </div>
 
@@ -514,8 +596,9 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                   <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${duration ? (currentTime / duration) * 100 : 0}%`, background: accentColor, borderRadius: 4 }} />
                 </div>
               </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#8a8a8a', textAlign: 'center' }}>
-                {formatTime(currentTime)} / {formatTime(duration)}
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#8a8a8a', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+                <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
+                {isLooping && <span style={{ color: accentColor, fontWeight: 700 }}>● Looping 4s</span>}
               </div>
             </div>
             <div className="rm-scrollbar" style={{ display: 'flex', gap: 4, overflowX: 'auto', maxWidth: '44%', paddingBottom: 2 }}>
@@ -532,7 +615,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
             <span><kbd style={kbdStyle}>↓</kbd> <strong>Play / Pause</strong></span>
             <span><kbd style={kbdStyle}>←</kbd> <strong>Back 5s</strong></span>
             <span><kbd style={kbdStyle}>→</kbd> <strong>Forward 5s</strong></span>
-            <span><kbd style={kbdStyle}>L</kbd> <strong>Loop 5s</strong> {isLooping ? '· press L to stop' : ''}</span>
+            <span><kbd style={kbdStyle}>L</kbd> <strong style={{ color: isLooping ? accentColor : '#1a1a1a' }}>Loop 4s</strong> {isLooping ? '· press L to stop' : ''}</span>
           </div>
         </div>
       </div>
