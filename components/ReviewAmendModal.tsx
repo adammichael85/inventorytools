@@ -158,6 +158,33 @@ function alignWordsToRowTokens(t1: WhisperWord[], rowTokens: string[]): number[]
   return matchRowToken
 }
 
+function AddRowDivider({ onAdd, accentColor }: { onAdd: () => void; accentColor: string }) {
+  const [hover, setHover] = useState(false)
+  return (
+    <tr>
+      <td colSpan={4} style={{ padding: 0, height: hover ? 20 : 6, transition: 'height 0.12s ease' }}>
+        <div
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+          onClick={onAdd}
+          style={{
+            height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', position: 'relative',
+          }}
+        >
+          <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: 1, background: hover ? accentColor : 'transparent', transition: 'background 0.12s ease' }} />
+          {hover && (
+            <div style={{
+              position: 'relative', width: 20, height: 20, borderRadius: '50%', background: accentColor,
+              color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, lineHeight: 1,
+            }}>+</div>
+          )}
+        </div>
+      </td>
+    </tr>
+  )
+}
+
 function TextSizeControl({ size, onChange, min, max }: { size: number; onChange: (n: number) => void; min: number; max: number }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -372,10 +399,10 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     })
   }
 
-  const addRow = (ri: number) => {
+  const insertRowAt = (ri: number, atIndex: number) => {
     setEditedRooms((prev) => {
       const next = prev.map((r) => ({ roomName: r.roomName, rows: r.rows.map((row) => ({ ...row })) }))
-      next[ri].rows.push({ item: '', description: '', condition: '' })
+      next[ri].rows.splice(atIndex, 0, { item: '', description: '', condition: '' })
       return next
     })
   }
@@ -548,43 +575,36 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                     </tr>
                   </thead>
                   <tbody>
+                    <AddRowDivider onAdd={() => insertRowAt(ri, 0)} accentColor={accentColor} />
                     {r.rows.map((row, ii) => {
                       const isActive = ri === roomIndex && ii === activeRowIndex
                       return (
-                        <tr key={ii} ref={isActive ? activeRowRef : undefined} style={{ borderTop: '1px solid #ecebe8', background: isActive ? `${accentColor}14` : 'transparent', transition: 'background 0.2s ease' }}>
-                          <td style={{ padding: '4px 12px', borderLeft: isActive ? `3px solid ${accentColor}` : '3px solid transparent' }}>
-                            <AutoGrowCell className="rm-input" value={row.item} onChange={(v) => updateItem(ri, ii, 'item', v)} />
-                          </td>
-                          <td style={{ padding: '4px 12px' }}>
-                            <AutoGrowCell className="rm-input" value={row.description} onChange={(v) => updateItem(ri, ii, 'description', v)} />
-                          </td>
-                          <td style={{ padding: '4px 12px' }}>
-                            <AutoGrowCell className="rm-input" value={row.condition} onChange={(v) => updateItem(ri, ii, 'condition', v)} />
-                          </td>
-                          <td style={{ padding: '4px 4px', textAlign: 'center' }}>
-                            <button onClick={() => deleteRow(ri, ii)} title="Delete row" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}
-                              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-                              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.5')}
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2 2 0 01-2 2H8a2 2 0 01-2-2L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-                            </button>
-                          </td>
-                        </tr>
+                        <React.Fragment key={ii}>
+                          <tr ref={isActive ? activeRowRef : undefined} style={{ borderTop: '1px solid #ecebe8', background: isActive ? `${accentColor}14` : 'transparent', transition: 'background 0.2s ease' }}>
+                            <td style={{ padding: '4px 12px', borderLeft: isActive ? `3px solid ${accentColor}` : '3px solid transparent' }}>
+                              <AutoGrowCell className="rm-input" value={row.item} onChange={(v) => updateItem(ri, ii, 'item', v)} />
+                            </td>
+                            <td style={{ padding: '4px 12px' }}>
+                              <AutoGrowCell className="rm-input" value={row.description} onChange={(v) => updateItem(ri, ii, 'description', v)} />
+                            </td>
+                            <td style={{ padding: '4px 12px' }}>
+                              <AutoGrowCell className="rm-input" value={row.condition} onChange={(v) => updateItem(ri, ii, 'condition', v)} />
+                            </td>
+                            <td style={{ padding: '4px 4px', textAlign: 'center' }}>
+                              <button onClick={() => deleteRow(ri, ii)} title="Delete row" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}
+                                onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+                                onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.5')}
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2 2 0 01-2 2H8a2 2 0 01-2-2L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                              </button>
+                            </td>
+                          </tr>
+                          <AddRowDivider onAdd={() => insertRowAt(ri, ii + 1)} accentColor={accentColor} />
+                        </React.Fragment>
                       )
                     })}
                   </tbody>
                 </table>
-                <button onClick={() => addRow(ri)} style={{
-                  width: '100%', padding: '8px 16px', border: 'none', borderTop: '1px solid #ecebe8',
-                  background: '#fff', color: accentColor, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11,
-                  fontWeight: 600, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 6,
-                }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = '#f6f5f3')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = '#fff')}
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accentColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  Add row
-                </button>
               </div>
             ))}
             </div>
