@@ -320,9 +320,9 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
       audioRef.current.pause()
       audioRef.current.currentTime = 0
       audioRef.current.playbackRate = speed
-      ;(audioRef.current as any).preservesPitch = false
-      ;(audioRef.current as any).mozPreservesPitch = false
-      ;(audioRef.current as any).webkitPreservesPitch = false
+      ;(audioRef.current as any).preservesPitch = true
+      ;(audioRef.current as any).mozPreservesPitch = true
+      ;(audioRef.current as any).webkitPreservesPitch = true
     }
   }, [roomIndex])
 
@@ -725,9 +725,9 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                   const el = audioRef.current
                   if (el) {
                     el.playbackRate = s
-                    ;(el as any).preservesPitch = false
-                    ;(el as any).mozPreservesPitch = false
-                    ;(el as any).webkitPreservesPitch = false
+                    ;(el as any).preservesPitch = true
+                    ;(el as any).mozPreservesPitch = true
+                    ;(el as any).webkitPreservesPitch = true
                   }
                 }} style={{
                   fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, padding: '6px 7px', borderRadius: 8,
