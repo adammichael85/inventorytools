@@ -220,9 +220,11 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
   const gainNodeRef = useRef<GainNode | null>(null)
   const compressorNodeRef = useRef<DynamicsCompressorNode | null>(null)
   const clarityFilterRef = useRef<BiquadFilterNode | null>(null)
+  const noiseGateNodeRef = useRef<AudioWorkletNode | null>(null)
   const [boostQuiet, setBoostQuiet] = useState(false)
   const [evenOutVolume, setEvenOutVolume] = useState(false)
   const [clarityBoost, setClarityBoost] = useState(false)
+  const [noiseGate, setNoiseGate] = useState(false)
   const rightPanelRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const activeRowRef = useRef<HTMLTableRowElement | null>(null)
   const t1WordRefs = useRef<Record<number, HTMLSpanElement | null>>({})
@@ -317,14 +319,27 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     if (audioRef.current) {
       audioRef.current.pause()
       audioRef.current.currentTime = 0
+      audioRef.current.playbackRate = speed
+      ;(audioRef.current as any).preservesPitch = false
+      ;(audioRef.current as any).mozPreservesPitch = false
+      ;(audioRef.current as any).webkitPreservesPitch = false
     }
   }, [roomIndex])
 
-  const ensureAudioGraph = useCallback(() => {
+  const ensureAudioGraph = useCallback(async () => {
     const el = audioRef.current
     if (!el || sourceNodeRef.current) return // already set up
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
     const ctx = new AudioContextClass()
+
+    let noiseGateNode: AudioWorkletNode | null = null
+    try {
+      await ctx.audioWorklet.addModule('/noise-gate-processor.js')
+      noiseGateNode = new AudioWorkletNode(ctx, 'noise-gate-processor')
+    } catch (e) {
+      console.error('Noise gate worklet failed to load, continuing without it', e)
+    }
+
     const source = ctx.createMediaElementSource(el)
     const gainNode = ctx.createGain()
     const compressor = ctx.createDynamicsCompressor()
@@ -338,8 +353,15 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     compressor.threshold.value = 0
     compressor.ratio.value = 1
     clarityFilter.gain.value = 0
+    if (noiseGateNode) noiseGateNode.parameters.get('enabled')!.value = 0
 
-    source.connect(gainNode)
+    // Gate hiss first, then boost/compress/clarify the cleaned-up signal
+    if (noiseGateNode) {
+      source.connect(noiseGateNode)
+      noiseGateNode.connect(gainNode)
+    } else {
+      source.connect(gainNode)
+    }
     gainNode.connect(compressor)
     compressor.connect(clarityFilter)
     clarityFilter.connect(ctx.destination)
@@ -349,6 +371,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     gainNodeRef.current = gainNode
     compressorNodeRef.current = compressor
     clarityFilterRef.current = clarityFilter
+    noiseGateNodeRef.current = noiseGateNode
   }, [])
 
   useEffect(() => {
@@ -373,10 +396,15 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     if (clarityFilterRef.current) clarityFilterRef.current.gain.value = clarityBoost ? 6 : 0
   }, [clarityBoost])
 
-  const togglePlay = useCallback(() => {
+  useEffect(() => {
+    const gate = noiseGateNodeRef.current
+    if (gate) gate.parameters.get('enabled')!.value = noiseGate ? 1 : 0
+  }, [noiseGate])
+
+  const togglePlay = useCallback(async () => {
     const el = audioRef.current
     if (!el) return
-    ensureAudioGraph()
+    await ensureAudioGraph()
     if (audioCtxRef.current?.state === 'suspended') audioCtxRef.current.resume()
     if (el.paused) {
       el.play()
@@ -386,6 +414,16 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
       setIsPlaying(false)
     }
   }, [ensureAudioGraph])
+
+  const stopPlayback = useCallback(() => {
+    const el = audioRef.current
+    if (!el) return
+    el.pause()
+    el.currentTime = 0
+    setIsPlaying(false)
+    setIsLooping(false)
+    loopStartRef.current = null
+  }, [])
 
   const seek = useCallback((deltaSeconds: number) => {
     const el = audioRef.current
@@ -405,12 +443,12 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     })
   }, [])
 
-  const seekTo = useCallback((seconds: number) => {
+  const seekTo = useCallback(async (seconds: number) => {
     const el = audioRef.current
     if (!el) return
     el.currentTime = Math.max(0, seconds)
     if (el.paused) {
-      ensureAudioGraph()
+      await ensureAudioGraph()
       if (audioCtxRef.current?.state === 'suspended') audioCtxRef.current.resume()
       el.play()
       setIsPlaying(true)
@@ -660,6 +698,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <button onClick={() => seek(-5)} style={transportBtnStyle} aria-label="Back 5 seconds">⏪</button>
               <button onClick={togglePlay} style={{ ...transportBtnStyle, width: 44, height: 44, borderRadius: '50%', background: accentColor, color: '#fff', border: 'none' }} aria-label={isPlaying ? 'Pause' : 'Play'}>{isPlaying ? '⏸' : '▶'}</button>
+              <button onClick={stopPlayback} style={transportBtnStyle} aria-label="Stop">⏹</button>
               <button onClick={() => seek(5)} style={transportBtnStyle} aria-label="Forward 5 seconds">⏩</button>
               <button onClick={toggleLoop} style={{
                 height: 36, padding: '0 14px', borderRadius: 10,
@@ -681,7 +720,16 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
             </div>
             <div className="rm-scrollbar" style={{ display: 'flex', gap: 4, overflowX: 'auto', maxWidth: '44%', paddingBottom: 2 }}>
               {SPEEDS.map((s) => (
-                <button key={s} onClick={() => { setSpeed(s); if (audioRef.current) audioRef.current.playbackRate = s }} style={{
+                <button key={s} onClick={() => {
+                  setSpeed(s)
+                  const el = audioRef.current
+                  if (el) {
+                    el.playbackRate = s
+                    ;(el as any).preservesPitch = false
+                    ;(el as any).mozPreservesPitch = false
+                    ;(el as any).webkitPreservesPitch = false
+                  }
+                }} style={{
                   fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, padding: '6px 7px', borderRadius: 8,
                   border: '1px solid #ecebe8', background: speed === s ? '#1a1a1a' : '#f6f5f3',
                   color: speed === s ? '#fff' : '#4a4a4a', cursor: 'pointer', flexShrink: 0,
@@ -692,6 +740,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 10 }}>
             {[
+              { label: 'Reduce background noise', active: noiseGate, onClick: () => setNoiseGate((v) => !v) },
               { label: 'Boost quiet audio', active: boostQuiet, onClick: () => setBoostQuiet((v) => !v) },
               { label: 'Even out volume', active: evenOutVolume, onClick: () => setEvenOutVolume((v) => !v) },
               { label: 'Clarity boost', active: clarityBoost, onClick: () => setClarityBoost((v) => !v) },
