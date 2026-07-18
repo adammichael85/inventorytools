@@ -1516,6 +1516,7 @@ export default function Dashboard() {
   })
   React.useEffect(() => { sessionStorage.setItem('lastPage', page) }, [page])
   function setPage(p: string) { setPageState(p); setTimeout(() => { const main = document.querySelector('main div[style*="overflow"]') as HTMLElement; if (main) main.scrollTop = 0 }, 0) }
+  const [darkMode, setDarkMode] = useState(false)
   const [showConvert, setShowConvert] = useState(false)
   const [showTopup, setShowTopup] = useState(false)
   const [cleanPdfFile, setCleanPdfFile] = useState<File | null>(null)
@@ -2586,7 +2587,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
 
   return (
-    <div style={{ fontFamily: "'IBM Plex Mono', monospace", display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', overflow: 'hidden', background: BG }}>
+    <div className={darkMode ? 'it-dark' : ''} style={{ fontFamily: "'IBM Plex Mono', monospace", display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', overflow: 'hidden', background: darkMode ? '#14110C' : BG, transition: 'background .3s ease' }}>
       <div className="it-backdrop">
         <div className="it-blob it-blob-1" />
         <div className="it-blob it-blob-2" />
@@ -2606,6 +2607,17 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         .it-blob-3{width:560px;height:560px;background:#c9cfda;bottom:-260px;left:20%;opacity:.28}
         .it-glass-sidebar{background:rgba(255,255,255,.65)!important;backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%)}
         .it-glass-topbar{background:rgba(255,255,255,.7)!important;backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%)}
+        .it-dark .it-blob-1{opacity:.22}
+        .it-dark .it-blob-2{background:#2e2a22!important;opacity:.55}
+        .it-dark .it-blob-3{background:#1c2028!important;opacity:.35}
+        .it-dark .it-glass-sidebar{background:rgba(20,17,12,.55)!important}
+        .it-dark .it-glass-sidebar *{color:#f3f0ea!important}
+        .it-dark .it-glass-topbar{background:rgba(20,17,12,.6)!important}
+        .it-dark .it-glass-topbar h1,.it-dark .it-glass-topbar p{color:#f3f0ea!important}
+        .it-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.6);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.7);border-radius:20px;padding:4px;cursor:pointer}
+        .it-dark .it-toggle{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.1)}
+        .it-toggle-pill{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;color:#8a8577;transition:all .2s ease}
+        .it-toggle-pill.on{background:${TEAL};color:#fff}
         .it-glass-tabbar{background:rgba(255,255,255,.35)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
         .it-stack{position:relative;height:120px}
         .it-sheet{position:absolute;width:84px;height:108px;background:#fff;border:1px solid #ecebe8;border-radius:10px;box-shadow:0 8px 30px rgba(26,26,26,.1);left:50%;top:0;animation:itFan1 4s ease-in-out infinite}
@@ -2673,14 +2685,25 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {userRole === 'admin' && <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: 7, background: TEAL_LIGHT, borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif", color: TEAL_DARK }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})} remaining</div>}
+            {!isMobile && (
+              <div className="it-toggle" onClick={() => setDarkMode(d => !d)}>
+                <div className={`it-toggle-pill${!darkMode ? ' on' : ''}`}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>
+                </div>
+                <div className={`it-toggle-pill${darkMode ? ' on' : ''}`}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                </div>
+              </div>
+            )}
             {page !== 'cleanpdf' && (
-              <button onClick={() => { if (toolTab === 'audio') { if (audioEnabled) setShowAudioConvert(true) } else { if (pdfEnabled) setShowConvert(true) } }} style={{ padding: isMobile ? '6px 12px' : '8px 16px', borderRadius: 8, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: isMobile ? 12 : 13, fontWeight: 600, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap' }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF or Word'}</button>
+              <button onClick={() => { if (toolTab === 'audio') { if (audioEnabled) setShowAudioConvert(true) } else { if (pdfEnabled) setShowConvert(true) } }} style={{ padding: isMobile ? '6px 12px' : '9px 18px', borderRadius: 10, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: isMobile ? 12 : 13, fontWeight: 700, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap', boxShadow: `0 10px 22px -8px ${toolTab === 'audio' ? '#2563EB' : TEAL}` }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF or Word'}</button>
             )}
           </div>
         </div>
 
         {/* TOOL TAB BAR */}
-        <div className="it-glass-tabbar" style={{ background: SURFACE, borderBottom: `1px solid ${page === 'cleanpdf' ? '#16A34A' : (toolTab === 'audio' ? '#2563EB' : TEAL)}`, padding: '0 32px', display: 'flex', gap: 0, flexShrink: 0, justifyContent: 'center', position: 'relative', zIndex: 1 }}>
+        <div className="it-glass-tabbar" style={{ padding: '14px 32px', display: 'flex', justifyContent: 'center', flexShrink: 0, position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', gap: 4, background: darkMode ? 'rgba(255,255,255,.08)' : 'rgba(255,255,255,.4)', padding: 5, borderRadius: 14 }}>
           {[
             ...(pdfEnabled ? [{ id: 'pdf', label: 'PDF to Word', color: TEAL }] : []),
             ...(audioEnabled ? [{ id: 'audio', label: 'Audio to Word', color: '#2563EB' }] : []),
@@ -2692,32 +2715,30 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 key={tab.id}
                 onClick={() => { if (tab.id === 'cleanpdf') { setPage('cleanpdf') } else { setToolTab(tab.id as 'pdf' | 'audio'); setPage('dashboard') } }}
                 style={{
-                  padding: '10px 22px',
-                  border: `1px solid ${isActive ? tab.color : BORDER}`,
-                  borderBottom: isActive ? `1px solid ${BG}` : `1px solid ${BORDER}`,
-                  borderRadius: '10px 10px 0 0',
-                  background: isActive ? BG : 'transparent',
+                  padding: '9px 20px',
+                  border: 'none',
+                  borderRadius: 10,
+                  background: isActive ? (darkMode ? 'rgba(255,255,255,.15)' : '#fff') : 'transparent',
                   color: isActive ? tab.color : MUTED,
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 13,
+                  fontSize: 12.5,
                   fontWeight: isActive ? 700 : 500,
                   cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  marginRight: 4,
-                  marginBottom: isActive ? -1 : 0,
-                  position: 'relative',
-                  zIndex: isActive ? 2 : 1,
+                  transition: 'all 0.2s ease',
+                  boxShadow: isActive ? '0 4px 14px rgba(30,20,10,.12)' : 'none',
                 }}
               >
                 {tab.label}
               </button>
             )
           })}
+          </div>
         </div>
 
         <div style={{ flex: 1, overflow: 'auto', padding: isMobile ? 16 : 28, paddingBottom: isMobile ? 100 : 28, position: 'relative', zIndex: 1 }}>
           {page === 'dashboard' && (
-            <div>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 20 }}>
+              <div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}` }}>
                   <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700, margin: 0 }}>Lifetime statistics <span style={{ fontSize: 12, fontWeight: 400, color: HINT, fontFamily: "'Inter', sans-serif" }}>— includes deleted reports</span></p>
@@ -2778,7 +2799,6 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 </>)})()}
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 20, marginTop: 16 }}>
                 <div className="it-card" style={{ background: SURFACE, border: `1px solid ${BORDER}`, overflow: 'hidden', display: 'block' }}>
                   <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h2 className="it-eyebrow">Recent conversions</h2>
@@ -2884,6 +2904,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     </tbody>
                   </table>
                 </div>
+              </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div className="it-card" style={{ background: SURFACE, border: `1px solid ${BORDER}`, overflow: 'hidden' }}>
                     <div style={{ padding: '14px 18px', borderBottom: `1px solid ${BORDER}` }}><h3 className="it-eyebrow">Credits</h3></div>
@@ -2920,7 +2941,6 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   </div>
                 </div>
               </div>
-            </div>
           )}
 
           {page === 'convert' && (
