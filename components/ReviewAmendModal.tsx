@@ -216,6 +216,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const rightPanelRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const activeRowRef = useRef<HTMLTableRowElement | null>(null)
   const t1WordRefs = useRef<Record<number, HTMLSpanElement | null>>({})
   const t2WordRefs = useRef<Record<number, HTMLSpanElement | null>>({})
 
@@ -294,6 +295,10 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
   useEffect(() => {
     scrollWordIntoView(t2WordRefs.current[t2ActiveIndex])
   }, [t2ActiveIndex])
+
+  useEffect(() => {
+    scrollWordIntoView(activeRowRef.current)
+  }, [activeRowIndex, roomIndex])
 
   // Reset audio when room changes
   useEffect(() => {
@@ -555,7 +560,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                     {r.rows.map((row, ii) => {
                       const isActive = ri === roomIndex && ii === activeRowIndex
                       return (
-                        <tr key={ii} style={{ borderTop: '1px solid #ecebe8', background: isActive ? `${accentColor}14` : 'transparent', transition: 'background 0.2s ease' }}>
+                        <tr key={ii} ref={isActive ? activeRowRef : undefined} style={{ borderTop: '1px solid #ecebe8', background: isActive ? `${accentColor}14` : 'transparent', transition: 'background 0.2s ease' }}>
                           <td style={{ padding: '4px 12px', borderLeft: isActive ? `3px solid ${accentColor}` : '3px solid transparent' }}>
                             <AutoGrowCell className="rm-input" value={row.item} onChange={(v) => updateItem(ri, ii, 'item', v)} />
                           </td>
