@@ -419,7 +419,6 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     const el = audioRef.current
     if (!el) return
     el.pause()
-    el.currentTime = 0
     setIsPlaying(false)
     setIsLooping(false)
     loopStartRef.current = null
