@@ -2587,6 +2587,11 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
   return (
     <div style={{ fontFamily: "'IBM Plex Mono', monospace", display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh', overflow: 'hidden', background: BG }}>
+      <div className="it-backdrop">
+        <div className="it-blob it-blob-1" />
+        <div className="it-blob it-blob-2" />
+        <div className="it-blob it-blob-3" />
+      </div>
       <style>{`
         .it-card{border-radius:18px;box-shadow:0 8px 30px rgba(26,26,26,.07);transition:box-shadow .2s ease,transform .2s ease}
         .it-card:hover{box-shadow:0 14px 36px rgba(26,26,26,.11);transform:translateY(-3px)}
@@ -2594,10 +2599,18 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         .it-num{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em}
         h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#1a1a1a}
         .it-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:${TEAL};font-weight:500;text-transform:uppercase;margin:0}
+        .it-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+        .it-blob{position:absolute;border-radius:50%;filter:blur(110px)}
+        .it-blob-1{width:640px;height:640px;background:${TEAL};top:-220px;left:-160px;opacity:.14}
+        .it-blob-2{width:520px;height:520px;background:#e4d9c9;top:10%;right:-180px;opacity:.5}
+        .it-blob-3{width:560px;height:560px;background:#c9cfda;bottom:-260px;left:20%;opacity:.28}
+        .it-glass-sidebar{background:rgba(255,255,255,.65)!important;backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%)}
+        .it-glass-topbar{background:rgba(255,255,255,.7)!important;backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%)}
+        .it-glass-tabbar{background:rgba(255,255,255,.35)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
       `}</style>
 
       {/* SIDEBAR */}
-      <aside style={{ width: isMobile ? 0 : 290, background: SURFACE, borderRight: isMobile ? 'none' : `1px solid ${BORDER}`, display: isMobile ? 'none' : 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0 }}>
+      <aside className="it-glass-sidebar" style={{ width: isMobile ? 0 : 290, background: SURFACE, borderRight: isMobile ? 'none' : `1px solid ${BORDER}`, display: isMobile ? 'none' : 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0, position: 'relative', zIndex: 1 }}>
         <div style={{ height: 64, padding: '0 18px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: brand.company_name === 'InventoryTools' ? 'flex-start' : 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, width: '100%', cursor: 'default' }}>
             <img src={brand.logo_url || '/logo-full.png'} alt={brand.display_name} style={{ maxWidth: '100%', height: 'auto', maxHeight: 34 }} />
@@ -2625,7 +2638,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
       {/* MAIN */}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-        <div style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: isMobile ? '0 16px' : '0 32px', height: isMobile ? 56 : 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div className="it-glass-topbar" style={{ background: SURFACE, borderBottom: `1px solid ${BORDER}`, padding: isMobile ? '0 16px' : '0 32px', height: isMobile ? 56 : 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 0 }}>
             {isMobile && (
               brand.company_name === 'InventoryTools' ? (
@@ -2656,7 +2669,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         </div>
 
         {/* TOOL TAB BAR */}
-        <div style={{ background: SURFACE, borderBottom: `1px solid ${page === 'cleanpdf' ? '#16A34A' : (toolTab === 'audio' ? '#2563EB' : TEAL)}`, padding: '0 32px', display: 'flex', gap: 0, flexShrink: 0, justifyContent: 'center' }}>
+        <div className="it-glass-tabbar" style={{ background: SURFACE, borderBottom: `1px solid ${page === 'cleanpdf' ? '#16A34A' : (toolTab === 'audio' ? '#2563EB' : TEAL)}`, padding: '0 32px', display: 'flex', gap: 0, flexShrink: 0, justifyContent: 'center', position: 'relative', zIndex: 1 }}>
           {[
             ...(pdfEnabled ? [{ id: 'pdf', label: 'PDF to Word', color: TEAL }] : []),
             ...(audioEnabled ? [{ id: 'audio', label: 'Audio to Word', color: '#2563EB' }] : []),
@@ -2672,7 +2685,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   border: `1px solid ${isActive ? tab.color : BORDER}`,
                   borderBottom: isActive ? `1px solid ${BG}` : `1px solid ${BORDER}`,
                   borderRadius: '10px 10px 0 0',
-                  background: isActive ? BG : '#fff',
+                  background: isActive ? BG : 'transparent',
                   color: isActive ? tab.color : MUTED,
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 13,
@@ -2691,7 +2704,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           })}
         </div>
 
-        <div style={{ flex: 1, overflow: 'auto', padding: isMobile ? 16 : 28, paddingBottom: isMobile ? 100 : 28 }}>
+        <div style={{ flex: 1, overflow: 'auto', padding: isMobile ? 16 : 28, paddingBottom: isMobile ? 100 : 28, position: 'relative', zIndex: 1 }}>
           {page === 'dashboard' && (
             <div>
               <div style={{ marginBottom: 16 }}>
