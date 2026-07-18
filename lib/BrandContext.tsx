@@ -74,11 +74,19 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   // correct colour once the window ends.
   const pathname = usePathname()
   const shouldMask = pathname?.startsWith('/dashboard') ?? false
-  const [revealed, setRevealed] = useState(false)
+  // Reveal as soon as we actually have a real brand - either an instantly-trusted cache
+  // (common case, no wait needed) or the freshly resolved brand from Supabase. A fixed
+  // timer here was the bug: brand resolution is 3 sequential Supabase calls and can easily
+  // take longer than a short fixed window, so the mask was lifting before the real brand
+  // arrived, exposing the wrong (default) brand before it switched. A capped safety timeout
+  // still exists in case resolution ever hangs, so the page never stays masked forever.
+  const [revealed, setRevealed] = useState(!shouldMask || !!cachedAtStart)
   useEffect(() => {
-    const t = setTimeout(() => setRevealed(true), shouldMask ? 500 : 0)
+    if (!shouldMask) { setRevealed(true); return }
+    if (ready) { setRevealed(true); return }
+    const t = setTimeout(() => setRevealed(true), 1500)
     return () => clearTimeout(t)
-  }, [shouldMask])
+  }, [shouldMask, ready])
 
   useEffect(() => {
     async function resolveBrand() {
