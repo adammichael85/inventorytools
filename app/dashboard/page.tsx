@@ -8,7 +8,8 @@ import { supabase } from '@/lib/supabase'
 import { useBrand } from '@/lib/BrandContext'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
-import ReviewAmendModal from '@/components/ReviewAmendModal'
+import dynamic from 'next/dynamic'
+const ReviewAmendModal = dynamic(() => import('@/components/ReviewAmendModal'), { ssr: false })
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
