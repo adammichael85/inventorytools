@@ -215,6 +215,14 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
   const [previewFontSize, setPreviewFontSize] = useState(13.5)
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioCtxRef = useRef<AudioContext | null>(null)
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null)
+  const gainNodeRef = useRef<GainNode | null>(null)
+  const compressorNodeRef = useRef<DynamicsCompressorNode | null>(null)
+  const clarityFilterRef = useRef<BiquadFilterNode | null>(null)
+  const [boostQuiet, setBoostQuiet] = useState(false)
+  const [evenOutVolume, setEvenOutVolume] = useState(false)
+  const [clarityBoost, setClarityBoost] = useState(false)
   const rightPanelRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const activeRowRef = useRef<HTMLTableRowElement | null>(null)
   const t1WordRefs = useRef<Record<number, HTMLSpanElement | null>>({})
@@ -312,9 +320,64 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     }
   }, [roomIndex])
 
+  const ensureAudioGraph = useCallback(() => {
+    const el = audioRef.current
+    if (!el || sourceNodeRef.current) return // already set up
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
+    const ctx = new AudioContextClass()
+    const source = ctx.createMediaElementSource(el)
+    const gainNode = ctx.createGain()
+    const compressor = ctx.createDynamicsCompressor()
+    const clarityFilter = ctx.createBiquadFilter()
+    clarityFilter.type = 'peaking'
+    clarityFilter.frequency.value = 2500 // speech-clarity range
+    clarityFilter.Q.value = 1
+
+    // Neutral by default - toggles below adjust these live without rebuilding the graph
+    gainNode.gain.value = 1
+    compressor.threshold.value = 0
+    compressor.ratio.value = 1
+    clarityFilter.gain.value = 0
+
+    source.connect(gainNode)
+    gainNode.connect(compressor)
+    compressor.connect(clarityFilter)
+    clarityFilter.connect(ctx.destination)
+
+    audioCtxRef.current = ctx
+    sourceNodeRef.current = source
+    gainNodeRef.current = gainNode
+    compressorNodeRef.current = compressor
+    clarityFilterRef.current = clarityFilter
+  }, [])
+
+  useEffect(() => {
+    if (gainNodeRef.current) gainNodeRef.current.gain.value = boostQuiet ? 1.8 : 1
+  }, [boostQuiet])
+
+  useEffect(() => {
+    const c = compressorNodeRef.current
+    if (!c) return
+    if (evenOutVolume) {
+      c.threshold.value = -30
+      c.ratio.value = 4
+      c.attack.value = 0.01
+      c.release.value = 0.25
+    } else {
+      c.threshold.value = 0
+      c.ratio.value = 1
+    }
+  }, [evenOutVolume])
+
+  useEffect(() => {
+    if (clarityFilterRef.current) clarityFilterRef.current.gain.value = clarityBoost ? 6 : 0
+  }, [clarityBoost])
+
   const togglePlay = useCallback(() => {
     const el = audioRef.current
     if (!el) return
+    ensureAudioGraph()
+    if (audioCtxRef.current?.state === 'suspended') audioCtxRef.current.resume()
     if (el.paused) {
       el.play()
       setIsPlaying(true)
@@ -322,7 +385,7 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
       el.pause()
       setIsPlaying(false)
     }
-  }, [])
+  }, [ensureAudioGraph])
 
   const seek = useCallback((deltaSeconds: number) => {
     const el = audioRef.current
@@ -346,8 +409,13 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     const el = audioRef.current
     if (!el) return
     el.currentTime = Math.max(0, seconds)
-    if (el.paused) { el.play(); setIsPlaying(true) }
-  }, [])
+    if (el.paused) {
+      ensureAudioGraph()
+      if (audioCtxRef.current?.state === 'suspended') audioCtxRef.current.resume()
+      el.play()
+      setIsPlaying(true)
+    }
+  }, [ensureAudioGraph])
 
   const selectRoom = (idx: number) => {
     setRoomIndex(idx)
@@ -368,6 +436,10 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [togglePlay, seek, toggleLoop])
+
+  useEffect(() => {
+    return () => { audioCtxRef.current?.close() }
+  }, [])
 
   // Loop enforcement
   const handleTimeUpdate = () => {
@@ -615,6 +687,21 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                 }}>{s}x</button>
               ))}
             </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 10 }}>
+            {[
+              { label: 'Boost quiet audio', active: boostQuiet, onClick: () => setBoostQuiet((v) => !v) },
+              { label: 'Even out volume', active: evenOutVolume, onClick: () => setEvenOutVolume((v) => !v) },
+              { label: 'Clarity boost', active: clarityBoost, onClick: () => setClarityBoost((v) => !v) },
+            ].map((t) => (
+              <button key={t.label} onClick={t.onClick} style={{
+                fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, padding: '6px 12px', borderRadius: 20,
+                border: t.active ? `1px solid ${accentColor}` : '1px solid #ecebe8',
+                background: t.active ? accentColor : '#f6f5f3', color: t.active ? '#fff' : '#4a4a4a',
+                cursor: 'pointer', fontWeight: 600,
+              }}>{t.label}</button>
+            ))}
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginTop: 10, paddingTop: 10, borderTop: '1px solid #ecebe8', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#1a1a1a' }}>
             <span><kbd style={kbdStyle}>↓</kbd> <strong>Play / Pause</strong></span>
