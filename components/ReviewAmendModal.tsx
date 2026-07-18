@@ -372,6 +372,22 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
     })
   }
 
+  const addRow = (ri: number) => {
+    setEditedRooms((prev) => {
+      const next = prev.map((r) => ({ roomName: r.roomName, rows: r.rows.map((row) => ({ ...row })) }))
+      next[ri].rows.push({ item: '', description: '', condition: '' })
+      return next
+    })
+  }
+
+  const deleteRow = (ri: number, ii: number) => {
+    setEditedRooms((prev) => {
+      const next = prev.map((r) => ({ roomName: r.roomName, rows: r.rows.map((row) => ({ ...row })) }))
+      next[ri].rows.splice(ii, 1)
+      return next
+    })
+  }
+
   const handleCreate = async () => {
     setCreating(true)
     try {
@@ -525,9 +541,10 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: previewFontSize }}>
                   <thead>
                     <tr style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#8a8a8a' }}>
-                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '25%' }}>Item</th>
-                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '37.5%' }}>Description</th>
-                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '37.5%' }}>Condition</th>
+                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '24%' }}>Item</th>
+                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '36%' }}>Description</th>
+                      <th style={{ textAlign: 'left', padding: '6px 16px', width: '36%' }}>Condition</th>
+                      <th style={{ width: 36 }}></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -544,11 +561,30 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
                           <td style={{ padding: '4px 12px' }}>
                             <AutoGrowCell className="rm-input" value={row.condition} onChange={(v) => updateItem(ri, ii, 'condition', v)} />
                           </td>
+                          <td style={{ padding: '4px 4px', textAlign: 'center' }}>
+                            <button onClick={() => deleteRow(ri, ii)} title="Delete row" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}
+                              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+                              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.5')}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2 2 0 01-2 2H8a2 2 0 01-2-2L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                            </button>
+                          </td>
                         </tr>
                       )
                     })}
                   </tbody>
                 </table>
+                <button onClick={() => addRow(ri)} style={{
+                  width: '100%', padding: '8px 16px', border: 'none', borderTop: '1px solid #ecebe8',
+                  background: '#fff', color: accentColor, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11,
+                  fontWeight: 600, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 6,
+                }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = '#f6f5f3')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = '#fff')}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={accentColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add row
+                </button>
               </div>
             ))}
             </div>
