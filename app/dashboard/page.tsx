@@ -898,7 +898,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Team</h2>
-        {isAdmin && <button onClick={() => setShowInvite(!showInvite)} style={{ padding: '9px 18px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>+ Invite member</button>}
+        {isAdmin && <button onClick={() => setShowInvite(!showInvite)} style={{ padding: '9px 18px', borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: `0 10px 22px -8px ${TEAL}` }}>+ Invite member</button>}
       </div>
 
       {showInvite && isAdmin && (
@@ -1128,7 +1128,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
           <input value={profile.company_phone || ''} onChange={e => setProfile({...profile, company_phone: e.target.value})} style={inputStyle} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={saveProfile} disabled={saving} style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: saving ? '#94AEA6' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: saving ? 'default' : 'pointer' }}>
+          <button onClick={saveProfile} disabled={saving} style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: saving ? '#94AEA6' : TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: saving ? 'default' : 'pointer', boxShadow: saving ? 'none' : `0 10px 22px -8px ${TEAL}` }}>
             {saving ? 'Saving...' : 'Save changes'}
           </button>
           {saved && <span style={{ fontSize: 13, color: TEAL }}>✓ Saved!</span>}
@@ -1174,7 +1174,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
               setSavingTypistRates(false)
               setSavedTypistRates(true)
               setTimeout(() => setSavedTypistRates(false), 3000)
-            }} style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: savingTypistRates ? '#94AEA6' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: savingTypistRates ? 'default' : 'pointer' }}>
+            }} style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: savingTypistRates ? '#94AEA6' : TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: savingTypistRates ? 'default' : 'pointer', boxShadow: savingTypistRates ? 'none' : `0 10px 22px -8px ${TEAL}` }}>
               {savingTypistRates ? 'Saving...' : 'Save typist cost'}
             </button>
             {savedTypistRates && <span style={{ fontSize: 13, color: TEAL }}>✓ Saved!</span>}
@@ -1230,7 +1230,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
               setSavingAudioTypistRates(false)
               setSavedAudioTypistRates(true)
               setTimeout(() => setSavedAudioTypistRates(false), 3000)
-            }} style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: savingAudioTypistRates ? '#94AEA6' : '#2563EB', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: savingAudioTypistRates ? 'default' : 'pointer' }}>
+            }} style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: savingAudioTypistRates ? '#94AEA6' : '#2563EB', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: savingAudioTypistRates ? 'default' : 'pointer', boxShadow: savingAudioTypistRates ? 'none' : '0 10px 22px -8px #2563EB' }}>
               {savingAudioTypistRates ? 'Saving...' : 'Save typist cost'}
             </button>
             {savedAudioTypistRates && <span style={{ fontSize: 13, color: '#2563EB' }}>✓ Saved!</span>}
@@ -1261,7 +1261,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
               setSavingLowBalance(false)
               setSavedLowBalance(true)
               setTimeout(() => setSavedLowBalance(false), 3000)
-            }} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: savingLowBalance ? '#94AEA6' : TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: savingLowBalance ? 'default' : 'pointer' }}>
+            }} style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: savingLowBalance ? '#94AEA6' : TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: savingLowBalance ? 'default' : 'pointer', boxShadow: savingLowBalance ? 'none' : `0 10px 22px -8px ${TEAL}` }}>
               {savingLowBalance ? 'Saving...' : 'Save'}
             </button>
             {savedLowBalance && <span style={{ fontSize: 13, color: TEAL, alignSelf: 'center' }}>✓ Saved!</span>}
@@ -1288,7 +1288,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
           const { data: { session } } = await supabase.auth.getSession()
           if (session) await supabase.from('profiles').update({ auto_delete_days: autoDelete }).eq('id', session.user.id)
           setSavingAutoDelete(false)
-        }} style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+        }} style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: `0 10px 22px -8px ${TEAL}` }}>
           {savingAutoDelete ? 'Saving...' : 'Save preference'}
         </button>
       </div>
@@ -1341,7 +1341,7 @@ function DeleteAccountButton({ supabase, profile, userEmail }: any) {
   const [deleting, setDeleting] = React.useState(false)
 
   if (step === 0) return (
-    <button onClick={() => setStep(1)} style={{ padding: '9px 20px', borderRadius: 9, border: 'none', background: '#DC2626', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Delete company account</button>
+    <button onClick={() => setStep(1)} style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: '#DC2626', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 10px 22px -8px #DC2626' }}>Delete company account</button>
   )
 
   if (step === 1) return (
