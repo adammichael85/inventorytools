@@ -4308,6 +4308,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
                 {/* Audio file upload */}
                 <div>
+                  <div style={{ background: '#FEF2F2', border: '1.5px solid #DC2626', borderRadius: 10, padding: '10px 14px', marginBottom: 10 }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: '#DC2626', margin: 0, lineHeight: 1.5 }}>WARNING: Rooms must be split into separate files. Do not upload one long continuous audio file covering multiple rooms. Individual room audio files are the only currently supported method.</p>
+                  </div>
                   <label style={labelStyle}>Audio files <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(upload one or more — any combination of files)</span></label>
                   <label htmlFor="audio-upload">
                     <div
