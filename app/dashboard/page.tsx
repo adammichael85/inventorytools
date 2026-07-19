@@ -2938,7 +2938,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 <div>
                   <p className="it-eyebrow" style={{ marginBottom: 6 }}>The whole point</p>
                   <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 19, fontWeight: 700, margin: '0 0 8px' }}>Scattered notes in. One clean report out.</h2>
-                  <p style={{ fontSize: 13, color: MUTED, margin: 0, maxWidth: 420, lineHeight: 1.5 }}>
+                  <p style={{ fontSize: 13, color: MUTED, margin: 0, maxWidth: 420, lineHeight: 1.5, minHeight: '2.6em', overflow: 'visible' }}>
                     {tabTotal > 0
                       ? `${tabTotal} ${toolTab === 'audio' ? 'dictated recording' : 'report'}${tabTotal === 1 ? '' : 's'} became finished Word document${tabTotal === 1 ? '' : 's'}${userRole === 'admin' && tabSaving > 0 ? `, saving an estimated £${tabSaving.toFixed(2)} versus typing ${tabTotal === 1 ? 'it' : 'them'} by hand` : ''}.`
                       : `Convert your first ${toolTab === 'audio' ? 'dictated recording' : 'PDF or Word report'} to see this add up.`}
