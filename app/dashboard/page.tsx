@@ -2902,7 +2902,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}` }}>
                   <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700, margin: 0 }}>Lifetime statistics <span style={{ fontSize: 12, fontWeight: 400, color: HINT, fontFamily: "'Inter', sans-serif" }}>— includes deleted reports</span></p>
                 </div>
-                <div style={{ padding: '16px 20px' }}>
+                <div style={{ padding: '16px 0' }}>
               {(() => {
                 const tabConvs = conversions.filter((c: any) => toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio')
                 const tabTotal = tabConvs.length
