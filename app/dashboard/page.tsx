@@ -160,28 +160,32 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, letterSpacing: -0.3 }}>Statistics <span style={{ fontSize: 13, fontWeight: 400, color: HINT }}>— reports showing in your dashboard</span></h2>
-        <div style={{ display: 'flex', background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 10, padding: 3, gap: 2 }}>
+        <div className="it-card" style={{ display: 'flex', border: `1px solid ${BORDER}`, borderRadius: 12, padding: 4, gap: 3 }}>
           {[['today','Today'],['week','Week'],['month','Month'],['all','All Time']].map(([v,l]) => (
             <button key={v} onClick={() => setPeriod(v)} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: period === v ? TEAL : 'transparent', color: period === v ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 12, fontWeight: 500, cursor: 'pointer' }}>{l}</button>
           ))}
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 12 }}>
-        <div style={{ background: TEAL, borderRadius: 18, padding: '20px 24px', color: '#fff' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 18, marginBottom: 18 }}>
+        <div style={{ background: TEAL, borderRadius: 20, padding: '24px 26px', color: '#fff', boxShadow: `0 14px 32px -10px ${TEAL}` }}>
           <p style={{ fontSize: 11, opacity: 0.75, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Conversions</p>
           <p style={{ fontSize: 40, fontWeight: 700, lineHeight: 1, marginBottom: 4 }}>{total}</p>
           <p style={{ fontSize: 12, opacity: 0.7, marginBottom: 16 }}>{periodLabels[period].toLowerCase()}</p>
-          <div style={{ display: 'flex', alignItems: 'flex-end', height: 32, gap: 2 }}>
-            {last30.slice(-7).map((d, i) => (
-              <div key={i} style={{ flex: 1, borderRadius: 2, background: 'rgba(255,255,255,' + (0.4 + (d.count > 0 ? 0.5 : 0)) + ')', height: d.count > 0 ? Math.max(30, d.count * 40) + '%' : '15%', minHeight: 4 }} />
-            ))}
+          <div style={{ display: 'flex', alignItems: 'flex-end', height: 32, gap: 3 }}>
+            {(() => {
+              const last7 = last30.slice(-7)
+              const maxCount = Math.max(1, ...last7.map(d => d.count))
+              return last7.map((d, i) => (
+                <div key={i} style={{ flex: 1, borderRadius: 2, background: 'rgba(255,255,255,' + (0.4 + (d.count > 0 ? 0.5 : 0)) + ')', height: (d.count > 0 ? Math.max(20, (d.count / maxCount) * 100) : 12) + '%', minHeight: 4 }} />
+              ))
+            })()}
           </div>
         </div>
 
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
+        <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '22px 20px' }}>
           <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Total spent</p>
           <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{cost.toFixed(2)}</p>
           <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>{toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'}</p>
@@ -191,7 +195,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
           {toolTab !== 'audio' && <p style={{ fontSize: 11, color: HINT, marginTop: 6 }}>{total} of 20 credit target</p>}
         </div>
 
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
+        <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '22px 20px' }}>
           <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Est. saving*</p>
           <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: TEAL, marginBottom: 4 }}>£{saving.toFixed(2)}</p>
           <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>vs. manual typing</p>
@@ -204,20 +208,20 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 12, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 18, marginBottom: 18 }}>
         {[
           ['Rooms processed', rooms.toString()],
           ['Avg conv. time', fmtTime(avg)],
           ['Total conv. time', fmtTime(duration)],
         ].map(([lbl, val]) => (
-          <div key={lbl} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
+          <div key={lbl} className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 14, padding: '18px 16px', textAlign: 'center' }}>
             <p style={{ fontSize: 11, color: HINT, marginBottom: 8 }}>{lbl}</p>
             <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: -0.5 }}>{val}</p>
           </div>
         ))}
       </div>
 
-      <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 20, marginBottom: 8 }}>
+      <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 20, padding: 24, marginBottom: 8 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>Conversions — last 30 days</p>
           <span style={{ fontSize: 11, color: HINT }}>{last30.reduce((s,d)=>s+d.count,0)} total</span>
@@ -244,18 +248,18 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
               <p style={{ fontSize: 16, fontWeight: 700, margin: '0 0 2px', letterSpacing: -0.3 }}>Lifetime statistics</p>
               <p style={{ fontSize: 12, color: HINT, margin: 0 }}>Permanent record — includes deleted reports</p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 12 }}>
-              <div style={{ background: TEAL, borderRadius: 18, padding: '20px 24px', color: '#fff' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 18, marginBottom: 18 }}>
+              <div style={{ background: TEAL, borderRadius: 20, padding: '24px 26px', color: '#fff', boxShadow: `0 14px 32px -10px ${TEAL}` }}>
                 <p style={{ fontSize: 11, opacity: 0.75, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Total conversions</p>
                 <p style={{ fontSize: 40, fontWeight: 700, lineHeight: 1, marginBottom: 4 }}>{ltTotal}</p>
                 <p style={{ fontSize: 12, opacity: 0.7 }}>all time</p>
               </div>
-              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
+              <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '22px 20px' }}>
                 <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Total spent</p>
                 <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{ltCost.toFixed(2)}</p>
                 <p style={{ fontSize: 12, color: HINT }}>{toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'}</p>
               </div>
-              <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 18px' }}>
+              <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '22px 20px' }}>
                 <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Est. saving*</p>
                 <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: TEAL, marginBottom: 4 }}>£{ltSaving.toFixed(2)}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
@@ -266,9 +270,9 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
                 </div>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 12, marginBottom: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 18, marginBottom: 8 }}>
               {[['Rooms processed', ltRooms.toString()],['Avg conv. time', fmtTime(ltAvg)],['Total conv. time', fmtTime(ltDuration)]].map(([lbl, val]) => (
-                <div key={lbl} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
+                <div key={lbl} className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 14, padding: '18px 16px', textAlign: 'center' }}>
                   <p style={{ fontSize: 11, color: HINT, marginBottom: 8 }}>{lbl}</p>
                   <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: -0.5 }}>{val}</p>
                 </div>
