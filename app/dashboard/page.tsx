@@ -2773,7 +2773,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         .it-dark .it-glass-sidebar nav svg{color:#c9c4b8}
         .it-dark .it-card{background:rgba(30,27,22,.72)!important;border-color:rgba(255,255,255,.08)!important}
         .it-dark .it-card *{color:#ece8e0!important}
-        .it-dark .it-card .it-eyebrow{color:${TEAL}!important}
+        .it-dark .it-card .it-eyebrow{color:#ece8e0!important;opacity:.85}
         .it-dark .it-card .it-label{color:#9a958a!important}
         .it-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.6);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.7);border-radius:20px;padding:4px;cursor:pointer}
         .it-dark .it-toggle{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.1)}
@@ -2996,7 +2996,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                               ))}
                             </div>
                           </td>
-                          <td style={{ padding: '12px 20px' }}><span style={{ background: TEAL_LIGHT, color: TEAL_DARK, fontSize: 11, fontWeight: 600, fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.05em', padding: '3px 9px', borderRadius: 20 }}>Complete</span></td>
+                          <td style={{ padding: '12px 20px' }}><span style={{ background: darkMode ? 'rgba(255,255,255,.12)' : TEAL_LIGHT, color: darkMode ? '#fff' : TEAL_DARK, fontSize: 11, fontWeight: 600, fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.05em', padding: '3px 9px', borderRadius: 20 }}>Complete</span></td>
                           <td style={{ padding: '12px 20px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             {c.type === 'audio' && c.audio_paths && (
