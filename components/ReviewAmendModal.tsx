@@ -679,17 +679,17 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
 }
 
 const overlayStyle: React.CSSProperties = {
-  position: 'fixed', inset: 0, background: 'rgba(26,22,18,0.55)', display: 'flex',
+  position: 'fixed', inset: 0, background: 'rgba(60,60,65,0.22)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', display: 'flex',
   alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 24,
 }
 const modalStyle: React.CSSProperties = {
-  width: '92vw', maxWidth: 1400, height: '86vh', background: '#f6f5f3', borderRadius: 18,
-  boxShadow: '0 20px 60px rgba(0,0,0,.35)', display: 'flex', flexDirection: 'column',
-  overflow: 'hidden', border: '1px solid #ecebe8',
+  width: '92vw', maxWidth: 1400, height: '86vh', background: 'rgba(255,255,255,.96)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22,
+  boxShadow: '0 30px 70px rgba(30,20,10,.2)', display: 'flex', flexDirection: 'column',
+  overflow: 'hidden', border: '1px solid rgba(255,255,255,.85)',
 }
 const headerStyle: React.CSSProperties = {
   display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px',
-  borderBottom: '1px solid #ecebe8', background: '#fff',
+  borderBottom: '1px solid #ecebe8', background: 'rgba(255,255,255,.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
 }
 const eyebrowStyle: React.CSSProperties = {
   fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: '0.06em', color: '#8a8a8a', textTransform: 'uppercase',
