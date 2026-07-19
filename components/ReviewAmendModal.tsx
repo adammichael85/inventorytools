@@ -504,10 +504,10 @@ export default function ReviewAmendModal({ conversionId, userId, getAuthToken, o
             <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 20, color: '#1a1a1a' }}>{address || 'Audio conversion'}</div>
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <button onClick={handleCreate} disabled={creating} style={{ display: 'flex', alignItems: 'center', gap: 8, background: accentColor, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 16px', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 14, cursor: creating ? 'default' : 'pointer', opacity: creating ? 0.7 : 1 }}>
+            <button onClick={handleCreate} disabled={creating} style={{ display: 'flex', alignItems: 'center', gap: 8, background: accentColor, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 18px', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 14, cursor: creating ? 'default' : 'pointer', opacity: creating ? 0.7 : 1, boxShadow: creating ? 'none' : `0 10px 22px -8px ${accentColor}` }}>
               {creating ? 'Creating...' : 'Create Word Document'}
             </button>
-            <button onClick={onClose} style={{ width: 36, height: 36, background: '#f6f5f3', border: '1px solid #ecebe8', borderRadius: 10, cursor: 'pointer', color: '#4a4a4a' }} aria-label="Close">✕</button>
+            <button onClick={onClose} style={{ width: 36, height: 36, background: 'rgba(0,0,0,.04)', border: '1px solid #ecebe8', borderRadius: 10, cursor: 'pointer', color: '#4a4a4a' }} aria-label="Close">✕</button>
           </div>
         </div>
 
