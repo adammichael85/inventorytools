@@ -4083,7 +4083,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
       {/* TOPUP MODAL */}
       {showTopup && (() => { const finalAmount = topupAmount || (customAmount ? parseFloat(customAmount) : null); const closeTopup = () => { setShowTopup(false); setTopupStep('select'); setTopupClientSecret(''); setTopupCustomerSession(''); setTopupError(''); setTopupSuccess(false) }; return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(60,60,65,0.22)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-            <div className="it-card" style={{ borderRadius: 22, border: '1px solid rgba(255,255,255,.85)', width: '100%', maxWidth: 440, overflow: 'hidden', boxShadow: '0 30px 70px rgba(30,20,10,.2)' }}>
+            <div style={{ background: 'rgba(255,255,255,.96)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22, border: '1px solid rgba(255,255,255,.85)', width: '100%', maxWidth: 440, overflow: 'hidden', boxShadow: '0 30px 70px rgba(30,20,10,.2)' }}>
               <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>Top up balance</p>
