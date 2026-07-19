@@ -84,6 +84,8 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
   const [period, setPeriod] = React.useState('month')
   const chartRef = React.useRef<any>(null)
   const chartInstanceRef = React.useRef<any>(null)
+  const weekChartRef = React.useRef<any>(null)
+  const weekChartInstanceRef = React.useRef<any>(null)
   const [chartReady, setChartReady] = React.useState(false)
 
   const now = new Date()
@@ -183,6 +185,17 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
     return { label, count }
   })
 
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(now); d.setDate(d.getDate() - (6 - i))
+    const label = d.toLocaleString('default', { weekday: 'short' })
+    const count = conversions.filter((c: any) => {
+      if (toolTab === 'audio' ? c.type !== 'audio' : c.type === 'audio') return false
+      const cd = new Date(c.created_at)
+      return cd.getDate() === d.getDate() && cd.getMonth() === d.getMonth() && cd.getFullYear() === d.getFullYear()
+    }).length
+    return { label, count }
+  })
+
   React.useEffect(() => {
     if (!(window as any).Chart) {
       const s = document.createElement('script')
@@ -213,6 +226,27 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
     })
   }, [chartReady, conversions, toolTab, TEAL])
 
+  React.useEffect(() => {
+    if (!chartReady || !weekChartRef.current) return
+    if (weekChartInstanceRef.current) weekChartInstanceRef.current.destroy()
+    const Chart = (window as any).Chart
+    weekChartInstanceRef.current = new Chart(weekChartRef.current, {
+      type: 'bar',
+      data: {
+        labels: last7Days.map(d => d.label),
+        datasets: [{ label: 'Conversions', data: last7Days.map(d => d.count), backgroundColor: toolTab === 'audio' ? '#2563EB' : TEAL, borderRadius: 4, borderSkipped: false }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#94AEA6' } },
+          y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { stepSize: 1, font: { size: 11 }, color: '#94AEA6' }, beginAtZero: true }
+        }
+      }
+    })
+  }, [chartReady, conversions, toolTab, TEAL])
+
   const periodLabels: any = { today: 'Today', week: 'This Week', month: 'This Month', all: 'All Time' }
   const trendUnit = period === 'today' ? 'day' : period === 'week' ? 'week' : 'month'
 
@@ -233,19 +267,10 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
           <p style={{ fontSize: 40, fontWeight: 700, lineHeight: 1, marginBottom: 4 }}>{total}</p>
           <p style={{ fontSize: 12, opacity: 0.7, marginBottom: 8 }}>{periodLabels[period].toLowerCase()}</p>
           {trend !== null && (
-            <p style={{ fontSize: 11, fontWeight: 600, marginBottom: 14, opacity: 0.9 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, opacity: 0.9 }}>
               {trend > 0 ? `↑ ${trend}` : trend < 0 ? `↓ ${Math.abs(trend)}` : 'No change'} vs last {trendUnit}
             </p>
           )}
-          <div style={{ display: 'flex', alignItems: 'flex-end', height: 32, gap: 3 }}>
-            {(() => {
-              const last7 = last30.slice(-7)
-              const maxCount = Math.max(1, ...last7.map(d => d.count))
-              return last7.map((d, i) => (
-                <div key={i} style={{ flex: 1, borderRadius: 2, background: 'rgba(255,255,255,' + (0.4 + (d.count > 0 ? 0.5 : 0)) + ')', height: (d.count > 0 ? Math.max(20, (d.count / maxCount) * 100) : 12) + '%', minHeight: 4 }} />
-              ))
-            })()}
-          </div>
         </div>
 
         <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '22px 20px' }}>
@@ -265,6 +290,16 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
             </div>
             <span style={{ fontSize: 11, color: TEAL_DARK, fontWeight: 600 }}>{savingPct}% saved</span>
           </div>
+        </div>
+      </div>
+
+      <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 20, padding: 24, marginBottom: 18 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>This week, day by day</p>
+          <span style={{ fontSize: 11, color: HINT }}>{last7Days.reduce((s,d)=>s+d.count,0)} total</span>
+        </div>
+        <div style={{ position: 'relative', height: 220 }}>
+          <canvas ref={weekChartRef} role="img" aria-label="Bar chart of conversions by day of the week" />
         </div>
       </div>
 
