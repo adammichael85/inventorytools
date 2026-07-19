@@ -11,7 +11,17 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import dynamic from 'next/dynamic'
 const ReviewAmendModal = dynamic(() => import('@/components/ReviewAmendModal'), { ssr: false })
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+// Loaded lazily (only when the payment step actually renders) rather than on every
+// page view - Stripe.js injects hidden telemetry iframes as soon as loadStripe() runs,
+// which was causing a Safari rendering bug (solid black boxes) on every dashboard visit,
+// even for users who never touch the Top-up flow.
+let _stripePromise: ReturnType<typeof loadStripe> | null = null
+function getStripe() {
+  if (!_stripePromise) {
+    _stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+  }
+  return _stripePromise
+}
 
 const BORDER = '#ecebe8'
 const BG = '#f6f5f3'
@@ -4148,7 +4158,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   {topupSuccess ? (
                     <p style={{ fontSize: 13, color: TEAL, textAlign: 'center', marginTop: 12, fontWeight: 600 }}>Payment received — updating your balance…</p>
                   ) : topupClientSecret ? (
-                    <Elements stripe={stripePromise} options={{ clientSecret: topupClientSecret, customerSessionClientSecret: topupCustomerSession }}>
+                    <Elements stripe={getStripe()} options={{ clientSecret: topupClientSecret, customerSessionClientSecret: topupCustomerSession }}>
                       <TopupCheckoutForm
                         amount={finalAmount || 0}
                         primaryColor={TEAL}
