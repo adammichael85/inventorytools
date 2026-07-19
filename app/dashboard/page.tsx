@@ -2713,7 +2713,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
             return (
               <button
                 key={tab.id}
-                onClick={() => { if (tab.id === 'cleanpdf') { setPage('cleanpdf') } else { setToolTab(tab.id as 'pdf' | 'audio'); setPage('dashboard') } }}
+                onClick={() => { if (tab.id === 'cleanpdf') { setPage('cleanpdf') } else { setToolTab(tab.id as 'pdf' | 'audio'); if (page === 'cleanpdf') setPage('dashboard') } }}
                 style={{
                   padding: '9px 20px',
                   border: 'none',
