@@ -2820,7 +2820,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
       {/* MAIN */}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-        <div className="it-glass-topbar" style={{ padding: isMobile ? '0 16px' : '0 32px', height: isMobile ? 56 : 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative', zIndex: 1 }}>
+        <div style={{ padding: isMobile ? '0 16px' : '0 32px', height: isMobile ? 56 : 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 0 }}>
             {isMobile && (
               brand.company_name === 'InventoryTools' ? (
@@ -2861,7 +2861,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         </div>
 
         {/* TOOL TAB BAR */}
-        <div className="it-glass-tabbar" style={{ padding: '14px 32px', display: 'flex', justifyContent: 'center', flexShrink: 0, position: 'relative', zIndex: 1 }}>
+        <div style={{ padding: '14px 32px', display: 'flex', justifyContent: 'center', flexShrink: 0, position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', gap: 4, background: darkMode ? 'rgba(255,255,255,.08)' : 'rgba(255,255,255,.4)', padding: 5, borderRadius: 14 }}>
           {[
             ...(pdfEnabled ? [{ id: 'pdf', label: 'PDF to Word', color: TEAL }] : []),
