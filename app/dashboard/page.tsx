@@ -2855,7 +2855,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               </div>
             )}
             {page !== 'cleanpdf' && (
-              <button onClick={() => { if (toolTab === 'audio') { if (audioEnabled) setShowAudioConvert(true) } else { if (pdfEnabled) setShowConvert(true) } }} style={{ padding: isMobile ? '6px 12px' : '9px 18px', borderRadius: 10, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: isMobile ? 12 : 13, fontWeight: 700, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap', boxShadow: `0 10px 22px -8px ${toolTab === 'audio' ? '#2563EB' : TEAL}` }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF or Word'}</button>
+              <button onClick={() => { if (toolTab === 'audio') { if (audioEnabled) { setAudioFiles([]); setAudioAddress(''); setAudioPropertySize(''); setAudioFurnished(''); setAudioRoomOrder(''); setAudioConvertState('idle'); setAudioError(''); setAudioDocxUrl(null); setShowAudioConvert(true) } } else { if (pdfEnabled) setShowConvert(true) } }} style={{ padding: isMobile ? '6px 12px' : '9px 18px', borderRadius: 10, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: isMobile ? 12 : 13, fontWeight: 700, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap', boxShadow: `0 10px 22px -8px ${toolTab === 'audio' ? '#2563EB' : TEAL}` }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF or Word'}</button>
             )}
           </div>
         </div>
