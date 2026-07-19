@@ -2753,18 +2753,18 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         <div className="it-blob it-blob-3" />
       </div>
       <style>{`
-        .it-card{border-radius:18px;box-shadow:0 8px 30px rgba(26,26,26,.07);transition:box-shadow .2s ease,transform .2s ease;background:rgba(255,255,255,.7)!important;backdrop-filter:blur(24px) saturate(160%)!important;-webkit-backdrop-filter:blur(24px) saturate(160%)!important;border-color:rgba(255,255,255,.75)!important;-webkit-transform:translateZ(0);transform:translateZ(0)}
+        .it-card{border-radius:18px;box-shadow:0 8px 30px rgba(26,26,26,.07);transition:box-shadow .2s ease,transform .2s ease;background:rgba(255,255,255,.7)!important;backdrop-filter:blur(24px) saturate(160%)!important;-webkit-backdrop-filter:blur(24px) saturate(160%)!important;border-color:rgba(255,255,255,.75)!important;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform,backdrop-filter}
         .it-card:hover{box-shadow:0 14px 36px rgba(26,26,26,.11);transform:translateY(-3px)}
         .it-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:#8a8a8a;font-weight:500;text-transform:uppercase;margin:0}
         .it-num{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em}
         h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#1a1a1a}
         .it-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:${TEAL};font-weight:500;text-transform:uppercase;margin:0}
-        .it-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+        .it-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform}
         .it-blob{position:absolute;border-radius:50%;filter:blur(110px)}
         .it-blob-1{width:640px;height:640px;background:${TEAL};top:-220px;left:-160px;opacity:.14}
         .it-blob-2{width:520px;height:520px;background:#e4d9c9;top:10%;right:-180px;opacity:.5}
         .it-blob-3{width:560px;height:560px;background:#c9cfda;bottom:-260px;left:20%;opacity:.28}
-        .it-glass-sidebar{background:rgba(255,255,255,.65)!important;backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%);-webkit-transform:translateZ(0);transform:translateZ(0)}
+        .it-glass-sidebar{background:rgba(255,255,255,.65)!important;backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform,backdrop-filter}
         .it-glass-topbar{background:rgba(255,255,255,.7)!important;backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%)}
         .it-dark .it-blob-1{opacity:.22}
         .it-dark .it-blob-2{background:#2e2a22!important;opacity:.55}
