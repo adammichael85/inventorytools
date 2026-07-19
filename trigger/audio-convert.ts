@@ -215,7 +215,7 @@ export const audioConvertTask = task({
         roomStatuses[roomName] = 'active'
         await updateJob("running", 10 + Math.round((completedCount / roomList.length) * 85), `Converting ${roomName}...`, { ...roomStatuses }, roomList)
 
-        const systemPrompt = buildSystemPrompt(roomName, items, descs, conds)
+        const systemPrompt = buildSystemPrompt(roomName, items, descs, conds, roomList)
         const userMessage = `Property: ${address}
 Property size: ${propertySize}
 Room: ${roomName}
