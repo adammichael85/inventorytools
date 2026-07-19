@@ -66,11 +66,15 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   const [brand, setBrand] = useState<Brand>(cachedAtStart || DEFAULT_BRAND)
   const [ready, setReady] = useState<boolean>(!!cachedAtStart)
 
-  // NOTE: the brief-flash masking overlay that used to sit here has been removed - it was
-  // causing the entire dashboard to stay permanently hidden behind a grey blur for some
-  // accounts (never lifting), which is a far worse outcome than the flash it was meant to
-  // hide. Removed entirely rather than patched again, to stop production being broken while
-  // a proper fix is worked out separately and tested properly before reintroducing it.
+  // Hides the brief flash of default (InventoryTools) branding before the real brand loads,
+  // on a genuinely fresh load with no cache yet. Deliberately built so it CANNOT get stuck:
+  // - It's fully opaque (not a blur), so there is zero chance of colour bleeding through.
+  // - It disappears via a pure CSS animation on a fixed timer, not JS state or data-loading -
+  //   the browser's own animation engine guarantees it completes, independent of whether
+  //   brand resolution succeeds, fails, or is slow. There is nothing here that can hang.
+  // - pointer-events:none means even in a worst case, the real page underneath is always
+  //   clickable/usable - the mask can only ever be a visual layer, never a functional block.
+  const showFreshLoadMask = !cachedAtStart
 
   useEffect(() => {
     async function resolveBrand() {
@@ -162,6 +166,27 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   return (
     <BrandContext.Provider value={brand}>
       {children}
+      {showFreshLoadMask && (
+        <>
+          <style>{`
+            @keyframes brandMaskOut { 0%, 70% { opacity: 1 } 100% { opacity: 0; visibility: hidden } }
+            @keyframes brandMaskSpin { to { transform: rotate(360deg) } }
+          `}</style>
+          <div style={{
+            position: 'fixed', inset: 0, zIndex: 999999,
+            background: '#F5F5F3',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            pointerEvents: 'none',
+            animation: 'brandMaskOut 1100ms ease forwards',
+          }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: '50%',
+              border: '3px solid #E4E1DA', borderTopColor: '#9A958A',
+              animation: 'brandMaskSpin 0.8s linear infinite',
+            }} />
+          </div>
+        </>
+      )}
     </BrandContext.Provider>
   )
 }
