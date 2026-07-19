@@ -107,13 +107,70 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
 
   const isAllTime = period === 'all'
   const allTabConversions = conversions.filter((c: any) => toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio')
-  const total = isAllTime ? allTabConversions.length : filtered.length
-  const rooms = isAllTime ? allTabConversions.reduce((s: number, r: any) => s + (r.rooms || 0), 0) : filtered.reduce((s: number, r: any) => s + (r.rooms || 0), 0)
-  const duration = isAllTime ? allTabConversions.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0) : filtered.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
+  const periodConvs = isAllTime ? allTabConversions : filtered
+  const total = periodConvs.length
+  const rooms = periodConvs.reduce((s: number, r: any) => s + (r.rooms || 0), 0)
+  const duration = periodConvs.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
   const avg = total > 0 ? Math.round(duration / total) : 0
-  const cost = (isAllTime ? allTabConversions : filtered).reduce((s: number, c: any) => s + getActualCost(c), 0)
-  const saving = (isAllTime ? allTabConversions : filtered).reduce((s: number, c: any) => s + Math.max(0, getMarketRate(c) - getActualCost(c)), 0)
+  const avgRooms = total > 0 ? rooms / total : 0
+  const cost = periodConvs.reduce((s: number, c: any) => s + getActualCost(c), 0)
+  const saving = periodConvs.reduce((s: number, c: any) => s + Math.max(0, getMarketRate(c) - getActualCost(c)), 0)
   const savingPct = cost + saving > 0 ? Math.round((saving / (cost + saving)) * 100) : 0
+
+  // Trend vs the equivalent previous period - the "20 credit target" bar this replaced didn't
+  // explain what 20 meant or where it came from, so it wasn't actually informative
+  const trend = React.useMemo(() => {
+    if (isAllTime) return null
+    let prevStart: Date, prevEnd: Date
+    if (period === 'today') {
+      prevStart = new Date(todayStart); prevStart.setDate(prevStart.getDate() - 1)
+      prevEnd = todayStart
+    } else if (period === 'week') {
+      prevStart = new Date(weekStart); prevStart.setDate(prevStart.getDate() - 7)
+      prevEnd = weekStart
+    } else {
+      prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+      prevEnd = monthStart
+    }
+    const prevCount = allTabConversions.filter((c: any) => {
+      const d = new Date(c.created_at)
+      return d >= prevStart && d < prevEnd
+    }).length
+    return total - prevCount
+  }, [period, conversions, toolTab, total])
+
+  // Average rating - the data's already collected per conversion but wasn't shown anywhere on this page
+  const ratedConvs = periodConvs.filter((c: any) => c.rating)
+  const avgRating = ratedConvs.length > 0 ? ratedConvs.reduce((s: number, c: any) => s + c.rating, 0) / ratedConvs.length : null
+
+  // Busiest day of week
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  const dayCounts = [0, 0, 0, 0, 0, 0, 0]
+  periodConvs.forEach((c: any) => { dayCounts[new Date(c.created_at).getDay()]++ })
+  const maxDayCount = Math.max(...dayCounts)
+  const busiestDayIdx = maxDayCount > 0 ? dayCounts.indexOf(maxDayCount) : -1
+  const busiestDay = busiestDayIdx >= 0 ? dayNames[busiestDayIdx] : null
+
+  // Team breakdown - only meaningful (and only shown) when more than one person is converting reports
+  const teamCounts: Record<string, number> = {}
+  periodConvs.forEach((c: any) => {
+    const name = (c.converted_by || 'Unknown').trim()
+    teamCounts[name] = (teamCounts[name] || 0) + 1
+  })
+  const teamEntries = Object.entries(teamCounts).sort((a, b) => (b[1] as number) - (a[1] as number))
+  const showTeam = teamEntries.length > 1
+
+  // Property size mix - audio-specific, since that's the only conversion type tracking property size
+  const sizeCounts: Record<string, number> = {}
+  if (toolTab === 'audio') {
+    periodConvs.forEach((c: any) => {
+      if (c.property_size) {
+        const lbl = c.property_size.replace('bed', ' bed').replace('_', ' ')
+        sizeCounts[lbl] = (sizeCounts[lbl] || 0) + 1
+      }
+    })
+  }
+  const sizeEntries = Object.entries(sizeCounts).sort((a, b) => (b[1] as number) - (a[1] as number))
 
   const last30 = Array.from({ length: 30 }, (_, i) => {
     const d = new Date(now); d.setDate(d.getDate() - (29 - i))
@@ -157,6 +214,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
   }, [chartReady, conversions, toolTab, TEAL])
 
   const periodLabels: any = { today: 'Today', week: 'This Week', month: 'This Month', all: 'All Time' }
+  const trendUnit = period === 'today' ? 'day' : period === 'week' ? 'week' : 'month'
 
   return (
     <div>
@@ -173,7 +231,12 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         <div style={{ background: TEAL, borderRadius: 20, padding: '24px 26px', color: '#fff', boxShadow: `0 14px 32px -10px ${TEAL}` }}>
           <p style={{ fontSize: 11, opacity: 0.75, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Conversions</p>
           <p style={{ fontSize: 40, fontWeight: 700, lineHeight: 1, marginBottom: 4 }}>{total}</p>
-          <p style={{ fontSize: 12, opacity: 0.7, marginBottom: 16 }}>{periodLabels[period].toLowerCase()}</p>
+          <p style={{ fontSize: 12, opacity: 0.7, marginBottom: 8 }}>{periodLabels[period].toLowerCase()}</p>
+          {trend !== null && (
+            <p style={{ fontSize: 11, fontWeight: 600, marginBottom: 14, opacity: 0.9 }}>
+              {trend > 0 ? `↑ ${trend}` : trend < 0 ? `↓ ${Math.abs(trend)}` : 'No change'} vs last {trendUnit}
+            </p>
+          )}
           <div style={{ display: 'flex', alignItems: 'flex-end', height: 32, gap: 3 }}>
             {(() => {
               const last7 = last30.slice(-7)
@@ -188,17 +251,14 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '22px 20px' }}>
           <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Total spent</p>
           <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 4 }}>£{cost.toFixed(2)}</p>
-          <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>{toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'}</p>
-          <div style={{ height: 3, background: BORDER, borderRadius: 2 }}>
-            <div style={{ height: '100%', width: Math.min(100, total * 5) + '%', background: TEAL, borderRadius: 2 }} />
-          </div>
-          {toolTab !== 'audio' && <p style={{ fontSize: 11, color: HINT, marginTop: 6 }}>{total} of 20 credit target</p>}
+          <p style={{ fontSize: 12, color: HINT }}>{toolTab === 'audio' ? 'varies by property size' : '@ £4.00 per report'}</p>
+          {total > 0 && <p style={{ fontSize: 11, color: HINT, marginTop: 10 }}>£{(cost / total).toFixed(2)} average per report</p>}
         </div>
 
         <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '22px 20px' }}>
           <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Est. saving*</p>
           <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: TEAL, marginBottom: 4 }}>£{saving.toFixed(2)}</p>
-          <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>vs. manual typing</p>
+          <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>You paid £{cost.toFixed(2)} · A typist would cost £{(cost + saving).toFixed(2)}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ flex: 1, height: 3, background: BORDER, borderRadius: 2 }}>
               <div style={{ height: '100%', width: savingPct + '%', background: TEAL, borderRadius: 2 }} />
@@ -208,9 +268,10 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 18, marginBottom: 18 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', gap: 18, marginBottom: 18 }}>
         {[
           ['Rooms processed', rooms.toString()],
+          ['Avg rooms/report', avgRooms > 0 ? avgRooms.toFixed(1) : '—'],
           ['Avg conv. time', fmtTime(avg)],
           ['Total conv. time', fmtTime(duration)],
         ].map(([lbl, val]) => (
@@ -220,6 +281,63 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
           </div>
         ))}
       </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: 18, marginBottom: 18 }}>
+        <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '20px 20px' }}>
+          <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Average rating</p>
+          {avgRating !== null ? (
+            <>
+              <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 26, fontWeight: 700, color: TEXT, marginBottom: 4 }}>★ {avgRating.toFixed(1)}</p>
+              <p style={{ fontSize: 12, color: HINT }}>from {ratedConvs.length} rated report{ratedConvs.length === 1 ? '' : 's'}</p>
+            </>
+          ) : (
+            <p style={{ fontSize: 13, color: HINT }}>No ratings yet</p>
+          )}
+        </div>
+        <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '20px 20px' }}>
+          <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Busiest day</p>
+          {busiestDay ? (
+            <>
+              <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 26, fontWeight: 700, color: TEXT, marginBottom: 4 }}>{busiestDay}</p>
+              <p style={{ fontSize: 12, color: HINT }}>{maxDayCount} conversion{maxDayCount === 1 ? '' : 's'}</p>
+            </>
+          ) : (
+            <p style={{ fontSize: 13, color: HINT }}>Not enough data yet</p>
+          )}
+        </div>
+      </div>
+
+      {showTeam && (
+        <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '20px 22px', marginBottom: 18 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: TEXT, marginBottom: 14 }}>Team breakdown</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {teamEntries.map(([name, count]) => (
+              <div key={name}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                  <span style={{ color: TEXT, fontWeight: 500 }}>{name}</span>
+                  <span style={{ color: HINT }}>{count}</span>
+                </div>
+                <div style={{ height: 6, background: BORDER, borderRadius: 3 }}>
+                  <div style={{ height: '100%', width: Math.round(((count as number) / (teamEntries[0][1] as number)) * 100) + '%', background: toolTab === 'audio' ? '#2563EB' : TEAL, borderRadius: 3 }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {toolTab === 'audio' && sizeEntries.length > 0 && (
+        <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '20px 22px', marginBottom: 18 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: TEXT, marginBottom: 14 }}>Property size mix</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {sizeEntries.map(([label, count]) => (
+              <span key={label} style={{ fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", background: BG, border: `1px solid ${BORDER}`, borderRadius: 20, padding: '6px 12px', color: TEXT }}>
+                {label}: {count} ({Math.round(((count as number) / total) * 100)}%)
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 20, padding: 24, marginBottom: 8 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -240,8 +358,10 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         const ltDuration = ltConvs.reduce((s: number, r: any) => s + (r.duration_seconds || 0), 0)
         const ltRooms = ltConvs.reduce((s: number, r: any) => s + (r.rooms || 0), 0)
         const ltAvg = ltTotal > 0 ? Math.round(ltDuration / ltTotal) : 0
-        const ltSaving = conversions.filter((c: any) => toolTab === 'audio' ? c.type === 'audio' : c.type !== 'audio').reduce((s: number, c: any) => s + Math.max(0, getMarketRate(c) - getActualCost(c)), 0)
+        const ltSaving = ltConvs.reduce((s: number, c: any) => s + Math.max(0, getMarketRate(c) - getActualCost(c)), 0)
         const ltSavingPct = ltCost + ltSaving > 0 ? Math.round((ltSaving / (ltCost + ltSaving)) * 100) : 0
+        const ltRated = ltConvs.filter((c: any) => c.rating)
+        const ltAvgRating = ltRated.length > 0 ? ltRated.reduce((s: number, c: any) => s + c.rating, 0) / ltRated.length : null
         return (
           <div style={{ marginTop: 32 }}>
             <div style={{ marginBottom: 16 }}>
@@ -262,7 +382,8 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
               <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 16, padding: '22px 20px' }}>
                 <p style={{ fontSize: 11, color: HINT, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>Est. saving*</p>
                 <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: TEAL, marginBottom: 4 }}>£{ltSaving.toFixed(2)}</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
+                <p style={{ fontSize: 12, color: HINT, marginBottom: 14 }}>You paid £{ltCost.toFixed(2)} · A typist would cost £{(ltCost + ltSaving).toFixed(2)}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ flex: 1, height: 3, background: BORDER, borderRadius: 2 }}>
                     <div style={{ height: '100%', width: ltSavingPct + '%', background: TEAL, borderRadius: 2 }} />
                   </div>
@@ -270,8 +391,8 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
                 </div>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 18, marginBottom: 8 }}>
-              {[['Rooms processed', ltRooms.toString()],['Avg conv. time', fmtTime(ltAvg)],['Total conv. time', fmtTime(ltDuration)]].map(([lbl, val]) => (
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', gap: 18, marginBottom: 8 }}>
+              {[['Rooms processed', ltRooms.toString()],['Avg conv. time', fmtTime(ltAvg)],['Total conv. time', fmtTime(ltDuration)],['Avg rating', ltAvgRating !== null ? '★ ' + ltAvgRating.toFixed(1) : '—']].map(([lbl, val]) => (
                 <div key={lbl} className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 14, padding: '18px 16px', textAlign: 'center' }}>
                   <p style={{ fontSize: 11, color: HINT, marginBottom: 8 }}>{lbl}</p>
                   <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: -0.5 }}>{val}</p>
@@ -285,7 +406,6 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
     </div>
   )
 }
-
 
 function HelpPage({ TEAL, TEAL_LIGHT, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
   const sections = [
