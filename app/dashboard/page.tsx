@@ -3582,8 +3582,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
       {/* CONVERT MODAL */}
       {showConvert && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 480, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: 'rgba(255,255,255,.9)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22, border: '1px solid rgba(255,255,255,.75)', width: '100%', maxWidth: 480, overflow: 'hidden', boxShadow: '0 30px 70px rgba(30,20,10,.25)' }}>
             <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{selectedFile?.name.toLowerCase().endsWith('.docx') ? '📝 Convert Word to Word' : '📄 Convert PDF to Word'}</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£4.00 · £{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining</p></div>
               <button onClick={closeConvert} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
@@ -4069,11 +4069,11 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         const labelStyle = { display: 'block' as const, fontSize: 12, fontWeight: 600 as const, color: MUTED, marginBottom: 5, textTransform: 'uppercase' as const, letterSpacing: 0.5 }
 
         return (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-            <div style={{ background: SURFACE, borderRadius: 16, border: `1px solid ${BORDER}`, width: '100%', maxWidth: 520, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <div style={{ background: 'rgba(255,255,255,.9)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22, border: '1px solid rgba(255,255,255,.75)', width: '100%', maxWidth: 520, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 30px 70px rgba(30,20,10,.25)' }}>
 
               {/* Header */}
-              <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: SURFACE, zIndex: 1 }}>
+              <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'rgba(255,255,255,.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', zIndex: 1 }}>
                 <div>
                   <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>🎙️ Convert Audio to Word</p>
                   <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>{price ? `£${price.toFixed(2)} · £${Number(credits).toFixed(2)} remaining` : 'Select property size to see price'}</p>
