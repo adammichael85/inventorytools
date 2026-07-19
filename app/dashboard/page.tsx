@@ -1091,7 +1091,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
   if (!profile) return <div style={{ padding: 40, color: MUTED, fontSize: 13 }}>Loading...</div>
 
   return (
-    <div style={{ maxWidth: 1100 }}>
+    <div style={{ width: '100%' }}>
       <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Settings</h2>
 
       <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24, marginBottom: 16 }}>
