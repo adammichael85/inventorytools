@@ -3325,13 +3325,13 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
             <div>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Billing</h2>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: 20, marginBottom: 20 }}>
-                <div style={{ background: TEAL, borderRadius: 18, boxShadow: SHADOW, padding: 24, color: '#fff' }}>
+                <div style={{ background: TEAL, borderRadius: 20, boxShadow: `0 14px 32px -10px ${TEAL}`, padding: 26, color: '#fff' }}>
                   <p style={{ fontSize: 12, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Current balance</p>
                   <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 42, fontWeight: 700, letterSpacing: -1, lineHeight: 1, marginBottom: 6 }}>£{Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                   <p style={{ fontSize: 14, opacity: 0.8, marginBottom: 20 }}>balance remaining</p>
-                  <button onClick={() => setShowTopup(true)} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: '#fff', color: TEAL, fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Top up balance</button>
+                  <button onClick={() => setShowTopup(true)} style={{ padding: '11px 22px', borderRadius: 10, border: 'none', background: '#fff', color: TEAL, fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 10px 22px -8px rgba(0,0,0,.25)' }}>Top up balance</button>
                 </div>
-                <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24 }}>
+                <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 18, padding: 24 }}>
                   <p style={{ fontSize: 12, fontWeight: 700, color: MUTED, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>PDF to Word</p>
                   {(() => {
                     const filtered = conversions.filter((c:any) => c.type !== 'audio')
@@ -3348,7 +3348,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     ))
                   })()}
                 </div>
-                <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24 }}>
+                <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 18, padding: 24 }}>
                   <p style={{ fontSize: 12, fontWeight: 700, color: MUTED, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>Audio to Word</p>
                   {(() => {
                     const filtered = conversions.filter((c:any) => c.type === 'audio')
@@ -3369,13 +3369,13 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
               {userRole === 'admin' && (
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20, alignItems: 'start' }}>
-                <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, overflow: 'hidden' }}>
+                <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 18, overflow: 'hidden' }}>
                   <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}` }}>
                     <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px' }}>Top Up History</h3>
                     <p style={{ fontSize: 12, color: MUTED, margin: '0 0 12px' }}>A record of all balance top-up payments made to your account.</p>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
                       {(['all','today','week','month','custom'] as const).map(pd => (
-                        <button key={pd} onClick={() => setTopupHistoryPeriod(pd)} style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${topupHistoryPeriod === pd ? TEAL : BORDER}`, background: topupHistoryPeriod === pd ? TEAL : 'transparent', color: topupHistoryPeriod === pd ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 12, fontWeight: 500, cursor: 'pointer', textTransform: 'capitalize' as const }}>
+                        <button key={pd} onClick={() => setTopupHistoryPeriod(pd)} style={{ padding: '7px 16px', borderRadius: 9, border: `1px solid ${topupHistoryPeriod === pd ? TEAL : BORDER}`, background: topupHistoryPeriod === pd ? TEAL : 'transparent', color: topupHistoryPeriod === pd ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 12, fontWeight: topupHistoryPeriod === pd ? 700 : 500, cursor: 'pointer', textTransform: 'capitalize' as const, boxShadow: topupHistoryPeriod === pd ? `0 8px 18px -8px ${TEAL}` : 'none' }}>
                           {pd === 'all' ? 'All time' : pd === 'today' ? 'Today' : pd === 'week' ? 'This week' : pd === 'month' ? 'This month' : 'Custom range'}
                         </button>
                       ))}
@@ -3411,7 +3411,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                             <td style={{ padding: '12px 20px', fontSize: 13, fontFamily: 'monospace' }}>{t.invoice_number || '—'}</td>
                             <td style={{ padding: '12px 20px', fontSize: 13, color: MUTED }}>{t.description || 'Balance top-up'}</td>
                             <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 600 }}>£{Number(t.amount).toFixed(2)}</td>
-                            <td style={{ padding: '12px 20px' }}><button onClick={() => downloadTransactionInvoicePDF(t)} style={{ padding: '8px 16px', borderRadius: 9, border: 'none', background: TEAL, color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>↓ Download</button></td>
+                            <td style={{ padding: '12px 20px' }}><button onClick={() => downloadTransactionInvoicePDF(t)} style={{ padding: '9px 18px', borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: `0 8px 18px -8px ${TEAL}` }}>↓ Download</button></td>
                           </tr>
                         ))}
                       </tbody>
@@ -3420,7 +3420,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   })()}
                 </div>
 
-                <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, overflow: 'hidden' }}>
+                <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 18, overflow: 'hidden' }}>
                   <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}` }}>
                     <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px' }}>Usage invoices</h3>
                     <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>Download a report of completed conversions and their cost for your own accounting records.</p>
@@ -3428,7 +3428,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   <div style={{ padding: 20 }}>
                     <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' as const }}>
                       {(['all','today','week','month','custom'] as const).map(p => (
-                        <button key={p} onClick={() => setUsageInvoicePeriod(p)} style={{ padding: '7px 16px', borderRadius: 8, border: `1px solid ${usageInvoicePeriod === p ? TEAL : BORDER}`, background: usageInvoicePeriod === p ? TEAL : 'transparent', color: usageInvoicePeriod === p ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: 500, cursor: 'pointer', textTransform: 'capitalize' as const }}>
+                        <button key={p} onClick={() => setUsageInvoicePeriod(p)} style={{ padding: '7px 16px', borderRadius: 9, border: `1px solid ${usageInvoicePeriod === p ? TEAL : BORDER}`, background: usageInvoicePeriod === p ? TEAL : 'transparent', color: usageInvoicePeriod === p ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 13, fontWeight: usageInvoicePeriod === p ? 700 : 500, cursor: 'pointer', textTransform: 'capitalize' as const, boxShadow: usageInvoicePeriod === p ? `0 8px 18px -8px ${TEAL}` : 'none' }}>
                           {p === 'all' ? 'All time' : p === 'today' ? 'Today' : p === 'week' ? 'This week' : p === 'month' ? 'This month' : 'Custom range'}
                         </button>
                       ))}
@@ -3452,12 +3452,12 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       const total = items.reduce((s: number, c: any) => s + (c.cost ? Number(c.cost) : (c.type === 'audio' ? 4.88 : 4.00)), 0)
                       return (
                         <>
-                          <div style={{ background: BG, borderRadius: 10, padding: '14px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ background: BG, borderRadius: 12, padding: '16px 18px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
                               <p style={{ fontSize: 13, color: MUTED, margin: '0 0 2px' }}>{items.length} report{items.length === 1 ? '' : 's'} in this period</p>
                               <p style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>£{total.toFixed(2)}</p>
                             </div>
-                            <button onClick={downloadUsageInvoicePDF} disabled={generatingUsageInvoice || items.length === 0} style={{ padding: '10px 20px', borderRadius: 9, border: 'none', background: items.length === 0 ? BORDER : TEAL, color: items.length === 0 ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: items.length === 0 ? 'default' : 'pointer' }}>
+                            <button onClick={downloadUsageInvoicePDF} disabled={generatingUsageInvoice || items.length === 0} style={{ padding: '11px 22px', borderRadius: 10, border: 'none', background: items.length === 0 ? BORDER : TEAL, color: items.length === 0 ? MUTED : '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: items.length === 0 ? 'default' : 'pointer', boxShadow: items.length === 0 ? 'none' : `0 10px 22px -8px ${TEAL}` }}>
                               {generatingUsageInvoice ? 'Generating...' : '↓ Download PDF'}
                             </button>
                           </div>
