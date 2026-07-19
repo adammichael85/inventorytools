@@ -2770,7 +2770,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:#1a1a1a}
         .it-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:${TEAL};font-weight:500;text-transform:uppercase;margin:0}
         .it-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;-webkit-transform:translateZ(0);transform:translateZ(0);will-change:transform}
-        .it-blob{position:absolute;border-radius:50%;filter:blur(110px)}
+        .it-blob{position:absolute;border-radius:50%;filter:blur(110px);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:filter,transform}
         .it-blob-1{width:640px;height:640px;background:${TEAL};top:-220px;left:-160px;opacity:.14}
         .it-blob-2{width:520px;height:520px;background:#e4d9c9;top:10%;right:-180px;opacity:.5}
         .it-blob-3{width:560px;height:560px;background:#c9cfda;bottom:-260px;left:20%;opacity:.28}
