@@ -2770,9 +2770,11 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         .it-dark .it-blob-2{background:#2e2a22!important;opacity:.55}
         .it-dark .it-blob-3{background:#1c2028!important;opacity:.35}
         .it-dark .it-glass-sidebar{background:rgba(20,17,12,.55)!important}
-        .it-dark .it-glass-sidebar *{color:#f3f0ea!important}
-        .it-dark .it-glass-topbar{background:rgba(20,17,12,.6)!important}
-        .it-dark .it-glass-topbar h1,.it-dark .it-glass-topbar p{color:#f3f0ea!important}
+        .it-dark .it-glass-sidebar nav svg{color:#c9c4b8}
+        .it-dark .it-card{background:rgba(30,27,22,.72)!important;border-color:rgba(255,255,255,.08)!important}
+        .it-dark .it-card *{color:#ece8e0!important}
+        .it-dark .it-card .it-eyebrow{color:${TEAL}!important}
+        .it-dark .it-card .it-label{color:#9a958a!important}
         .it-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.6);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.7);border-radius:20px;padding:4px;cursor:pointer}
         .it-dark .it-toggle{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.1)}
         .it-toggle-pill{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;color:#8a8577;transition:all .2s ease}
@@ -2801,7 +2803,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         <nav style={{ padding: '12px 10px', flex: 1 }}>
           {navItems.map(item => (
             <button key={item.id} onClick={() => { if (item.id === 'contact') { window.location.href = 'mailto:admin@inventorytools.co.uk' } else if (item.id === 'convert') { if (toolTab === 'audio' ? audioEnabled : pdfEnabled) setShowConvert(true) } else { setPage(item.id) } }}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px', borderRadius: 8, width: '100%', textAlign: 'left', border: 'none', background: page === item.id ? TEAL_LIGHT : 'transparent', color: page === item.id ? TEAL_DARK : MUTED, fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', marginBottom: 2 }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px', borderRadius: 8, width: '100%', textAlign: 'left', border: 'none', background: page === item.id ? (darkMode ? 'rgba(255,255,255,.14)' : TEAL_LIGHT) : 'transparent', color: page === item.id ? (darkMode ? '#fff' : TEAL_DARK) : (darkMode ? '#c9c4b8' : MUTED), fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', marginBottom: 2 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={item.icon}/></svg>
               {item.label}
               {item.badge && <span style={{ marginLeft: 'auto', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 20 }}>{item.badge}</span>}
@@ -2810,9 +2812,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         </nav>
         <div style={{ padding: '14px 10px', borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 8 }}>
-            <div style={{ width: 30, height: 30, borderRadius: '50%', background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: TEAL_DARK }}>{userName ? userName.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase() : userEmail.slice(0,2).toUpperCase()}</div>
+            <div style={{ width: 30, height: 30, borderRadius: '50%', background: darkMode ? 'rgba(255,255,255,.14)' : TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: darkMode ? '#fff' : TEAL_DARK }}>{userName ? userName.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase() : userEmail.slice(0,2).toUpperCase()}</div>
             <div>
-              <p style={{ fontSize: 11, color: MUTED, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userEmail}</p>
+              <p style={{ fontSize: 11, color: darkMode ? '#c9c4b8' : MUTED, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userEmail}</p>
             </div>
           </div>
         </div>
@@ -2838,8 +2840,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               )
             )}
             <div>
-            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, letterSpacing: -0.4, margin: 0 }}>{(page === 'dashboard' || page === 'cleanpdf') ? ((() => { const h = new Date().getHours(); return (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ' ' + (userName ? userName.split(' ')[0].charAt(0).toUpperCase() + userName.split(' ')[0].slice(1) : (userEmail.split('@')[0].charAt(0).toUpperCase() + userEmail.split('@')[0].slice(1))) + (isMobile ? '' : ' 👋') })()) : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
-            <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: MUTED, margin: 0, letterSpacing: '0.03em' }}>{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, letterSpacing: -0.4, margin: 0, color: darkMode ? '#f3f0ea' : TEXT }}>{(page === 'dashboard' || page === 'cleanpdf') ? ((() => { const h = new Date().getHours(); return (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ' ' + (userName ? userName.split(' ')[0].charAt(0).toUpperCase() + userName.split(' ')[0].slice(1) : (userEmail.split('@')[0].charAt(0).toUpperCase() + userEmail.split('@')[0].slice(1))) + (isMobile ? '' : ' 👋') })()) : page.charAt(0).toUpperCase() + page.slice(1)}</h1>
+            <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: darkMode ? '#a49f92' : MUTED, margin: 0, letterSpacing: '0.03em' }}>{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -2878,7 +2880,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   border: 'none',
                   borderRadius: 10,
                   background: isActive ? (darkMode ? 'rgba(255,255,255,.15)' : '#fff') : 'transparent',
-                  color: isActive ? tab.color : MUTED,
+                  color: isActive ? tab.color : (darkMode ? '#c9c4b8' : MUTED),
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 12.5,
                   fontWeight: isActive ? 700 : 500,
