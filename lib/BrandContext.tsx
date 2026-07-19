@@ -1,6 +1,5 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export type Brand = {
@@ -67,26 +66,11 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   const [brand, setBrand] = useState<Brand>(cachedAtStart || DEFAULT_BRAND)
   const [ready, setReady] = useState<boolean>(!!cachedAtStart)
 
-  // Masks the brief flash of default (orange) branding before the real cached/resolved brand
-  // takes effect, by greying out the whole page for a fixed short window on every fresh load -
-  // pure CSS, no server-side brand detection needed. Whatever colour briefly shows underneath
-  // is desaturated to grey, so the flash becomes invisible, then everything fades into the
-  // correct colour once the window ends.
-  const pathname = usePathname()
-  const shouldMask = pathname?.startsWith('/dashboard') ?? false
-  // Reveal as soon as we actually have a real brand - either an instantly-trusted cache
-  // (common case, no wait needed) or the freshly resolved brand from Supabase. A fixed
-  // timer here was the bug: brand resolution is 3 sequential Supabase calls and can easily
-  // take longer than a short fixed window, so the mask was lifting before the real brand
-  // arrived, exposing the wrong (default) brand before it switched. A capped safety timeout
-  // still exists in case resolution ever hangs, so the page never stays masked forever.
-  const [revealed, setRevealed] = useState(!shouldMask || !!cachedAtStart)
-  useEffect(() => {
-    if (!shouldMask) { setRevealed(true); return }
-    if (ready) { setRevealed(true); return }
-    const t = setTimeout(() => setRevealed(true), 1500)
-    return () => clearTimeout(t)
-  }, [shouldMask, ready])
+  // NOTE: the brief-flash masking overlay that used to sit here has been removed - it was
+  // causing the entire dashboard to stay permanently hidden behind a grey blur for some
+  // accounts (never lifting), which is a far worse outcome than the flash it was meant to
+  // hide. Removed entirely rather than patched again, to stop production being broken while
+  // a proper fix is worked out separately and tested properly before reintroducing it.
 
   useEffect(() => {
     async function resolveBrand() {
@@ -178,16 +162,6 @@ export function BrandProvider({ children }: { children: React.ReactNode }) {
   return (
     <BrandContext.Provider value={brand}>
       {children}
-      {shouldMask && !revealed && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(245,245,245,0.97)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          zIndex: 99999,
-        }} />
-      )}
     </BrandContext.Provider>
   )
 }
