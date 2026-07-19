@@ -2422,7 +2422,7 @@ export default function Dashboard() {
             })
         }
       })
-      supabase.from('user_stats').select('*').eq('user_id', session.user.id).single().then(({ data: stats }) => { if (stats) setUserStats(stats) })
+      supabase.from('user_stats').select('*').eq('user_id', session.user.id).maybeSingle().then(({ data: stats }) => { if (stats) setUserStats(stats) })
       // Load transaction/invoice history for this company, plus company address/phone for invoice headers
       supabase.from('profiles').select('company_name, company_address, company_phone').eq('id', session.user.id).single().then(({ data: me }) => {
         if (me?.company_name) {
