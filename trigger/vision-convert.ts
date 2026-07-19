@@ -228,6 +228,333 @@ CONTINUATION PAGE RULE: Item sections may continue onto the next page without th
 
 CRITICAL RULE: Never ignore bold, unnumbered item headings. Never group all numbered entries beneath an item heading into one row. The required structure is: (1) bold item heading as its own Item row, (2) each following numbered description as its own separate row, (3) each corresponding Check-In Note in the Condition cell on that same row, (4) repeat until the next bold item heading or genuine room heading appears.
 
+
+## SCANNED / FADED INVENTORY TABLES WITH INDEX, ITEM, DESCRIPTION, CONDITION AND EMBEDDED SUBHEADINGS
+
+Some source reports are scanned copies rather than digitally generated PDFs. These pages may be faded, low contrast, slightly rotated, skewed, stretched, unevenly aligned or distorted around the table borders.
+
+When this type of report is detected, do not rely only on OCR reading order. Read the page visually as a table and use the printed borders, row structure, text position, font weight, underlining and surrounding context to determine the correct room, Item, Description and Condition.
+
+The source table may contain:
+
+**Index | Item | Description | Condition at Check In | Check Out Comments**
+
+### SCAN INTERPRETATION RULES
+
+* Read each scanned page visually as a structured table.
+* Use the nearest visible vertical and horizontal borders to determine which text belongs to each column and row.
+* Allow for text that sits slightly above, below or across a printed border because the page is skewed or distorted.
+* Do not move text into the wrong column merely because the scan is not perfectly straight.
+* Do not omit faint text solely because OCR confidence is low.
+* Use the surrounding rows, room heading, Index number, formatting and table structure to resolve placement.
+* Preserve the original wording as closely as possible.
+* Do not improve, rewrite, summarise or invent wording.
+* When a word is genuinely unreadable, mark only that uncertain word with asterisks rather than guessing.
+* Do not omit an entire row because one word is unclear.
+
+Example:
+
+\`Brushed chrome colour **security** keep\`
+
+### ROOM IDENTIFICATION
+
+The room name normally appears in the grey table heading beside the word **Index**.
+
+Examples include:
+
+* EXTERIOR FRONT
+* LOBBY
+* RECEPTION ROOM/KITCHEN
+* INNER HALLWAY
+* BATHROOM
+* BEDROOM 1
+* BEDROOM 2
+* EN-SUITE
+* EXTERIOR REAR
+
+Create a new room section whenever the grey room heading changes.
+
+A repeated room heading at the top of a continuation page means the same room is continuing. Do not create a duplicate room.
+
+Do not treat ordinary bold Item text inside the body of the table as a room name.
+
+### COLUMN MAPPING
+
+Ignore the **Index** number completely.
+
+Ignore the **Check Out Comments** column when converting an inventory or check-in report.
+
+Map the remaining source content as follows:
+
+| Source report         | Word document |
+| --------------------- | ------------- |
+| Bold Item column      | Item          |
+| Description column    | Description   |
+| Condition at Check In | Condition     |
+| Check Out Comments    | Ignore        |
+| Index number          | Ignore        |
+
+Each numbered source row must remain a separate Word row unless the source row itself contains several visibly separate components that require splitting.
+
+### STANDARD NUMBERED ROWS
+
+For a normal numbered source row:
+
+* Put the bold wording from the Item column into **Item**.
+* Put all wording from the Description column into **Description**.
+* Put all wording from Condition at Check In into **Condition**.
+* Ignore the Index number.
+* Ignore Check Out Comments.
+* Preserve separate source lines as separate lines within their correct cells.
+* Do not merge several numbered rows because they belong to the same category.
+
+Example source:
+
+**Index:** 14
+**Item:** Door
+**Description:**
+White painted frame
+Oak wood effect flush door
+Brushed chrome colour lever handle
+Reverse of frame, door & handle to match
+
+**Condition:**
+Old defects beneath
+Some whitened scuff marks to mid low level
+Several scratches at low level
+
+Required output:
+
+| Item | Description                                                                                                                         | Condition                                                                                           |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Door | White painted frame<br>Oak wood effect flush door<br>Brushed chrome colour lever handle<br>Reverse of frame, door & handle to match | Old defects beneath<br>Some whitened scuff marks to mid low level<br>Several scratches at low level |
+
+### BLANK ITEM CELLS
+
+Some numbered rows have a blank Item cell because they continue a broader category from the row above.
+
+Do not omit these rows.
+
+Do not merge them into the preceding numbered row.
+
+For a numbered row with a blank Item cell:
+
+* Create its own separate Word row.
+* Leave Item blank unless the Description contains a clear bold or underlined subheading.
+* Put the source Description into Description.
+* Put the corresponding Condition into Condition.
+* Do not automatically repeat the previous Item unless another explicit rule requires it.
+
+Example:
+
+| Item     | Description                                                                                                          | Condition |
+| -------- | ------------------------------------------------------------------------------------------------------------------- | --------- |
+| Curtains | Brushed chrome colour curtain pole with matching finials<br>Pair of floor length beige self-patterned lined curtains |           |
+|          | White plastic extendable curtain rail<br>Pair of white net curtains                                                  |           |
+
+### BOLD OR UNDERLINED SUBHEADINGS INSIDE DESCRIPTION
+
+Some rows contain bold or underlined headings inside the Description column.
+
+Examples include:
+
+* Wall units
+* Floor units
+* Fridge
+* Freezer compartment
+
+These are meaningful Item or subsection headings and must never be ignored.
+
+When bold or underlined text appears inside the Description column:
+
+* Detect it as a subheading even if it has no separate Index number.
+* Add it as its own standalone Word row.
+* Put the complete subheading into the **Item** column.
+* Leave Description and Condition blank on that standalone heading row.
+* Continue placing the following component descriptions into separate rows beneath it.
+* Do not bury the subheading inside a long Description cell.
+* Do not mistake underlining for scan noise or a table border.
+
+Example source:
+
+**Item:** Units
+
+Description:
+
+Range of wall and floor units...
+**Wall units**
+Single unit
+1 shelf
+Single unit
+1 shelf
+Single door concealing extractor
+Double unit housing draining racks...
+
+Required output:
+
+| Item       | Description                                                                                                                                           | Condition                                                      |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Units      | Range of wall and floor units part in flush lime green finish, part in flush grey finish<br>Brushed chrome colour handles<br>Silver colour kickboards | Number of patchy marks to doors<br>Doors not all aligned/flush |
+| Wall units |                                                                                                                                                         |                                                                 |
+|            | Single unit<br>1 shelf                                                                                                                                | |
+|            | Single unit<br>1 shelf                                                                                                                                | |
+|            | Single door concealing extractor                                                                                                                      | Door not flush |
+|            | Double unit housing 2 chrome colour draining racks with clear plastic drip tray beneath                                                               | Doors not flush |
+
+### UNDERLINED APPLIANCE SUBSECTIONS
+
+Appliances may contain internal underlined headings.
+
+Example source:
+
+**Siemens integrated fridge**
+**Fridge**
+Clear glass shelf with white plastic trim
+2-part clear glass shelf with white plastic trim
+White plastic trim and glass sliding cover for clear plastic salad drawer
+**Freezer compartment**
+Integrated handle
+
+Required treatment:
+
+| Item                      | Description                                                               | Condition                                                       |
+| ------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------|
+| Siemens integrated fridge |                                                                            | Shelves and sliding shelf stored in under sink unit at check in |
+| Fridge                    |                                                                            |                                                                  |
+|                           | Clear glass shelf with white plastic trim                                 | Normal usage scratches                                          |
+|                           | 2-part clear glass shelf with white plastic trim                          | Trim split at join                                              |
+|                           | White plastic trim and glass sliding cover for clear plastic salad drawer | Cracked to base                                                 |
+| Freezer compartment       |                                                                            |                                                                  |
+|                           | Integrated handle                                                         | Heavily cracked above handle<br>Defrosted and clean             |
+
+Every visible bold or underlined subheading must be preserved as its own Item row.
+
+### CONDITION ALIGNMENT WITH DESCRIPTION LINES
+
+A large source row may contain several Description entries and several Condition entries at different vertical positions.
+
+Use vertical alignment to associate each condition with the correct description entry.
+
+Do not attach every condition to the first description line.
+
+Where several distinct components and conditions appear inside one large source row:
+
+* Split the content into separate Word rows.
+* Keep each condition aligned with the component it describes.
+* Preserve components that have no condition.
+* Leave blank Condition cells blank.
+
+Example associations:
+
+* \`Floor laid to continuation of oak wood effect boarding\` → \`Heavily worn & stained\`
+* \`Large quantity of underfloor heating pipework & valves\` → \`As fitted\`
+* \`Temperature gauge\` → \`Appears unravelled & no cover\`
+* \`Honeywell carbon monoxide alarm\` → \`Test button working, Beep heard\`
+* Washing-machine description → washing-machine condition comments
+
+### LARGE MULTI-ITEM SOURCE CELLS
+
+Some single Index rows contain an entire grouped section with many distinct components.
+
+Examples include:
+
+* Utility Cupboard
+* Built-in Cupboard
+* Suite
+* Units
+* Appliances
+
+Do not place the entire source cell into one enormous Word row when it contains visibly separate components.
+
+Required treatment:
+
+1. Preserve the bold Item from the source.
+2. Add every distinct component beneath it as a separate Word row.
+3. Keep every Condition aligned with the component it describes.
+4. Do not omit components that have no condition.
+5. Do not combine unrelated components.
+6. Do not invent condition text.
+
+Example:
+
+| Item             | Description                                            | Condition                                                                     |
+| ---------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| Utility Cupboard |                                                         |                                                                                |
+|                  | White painted frame                                    |                                                                                |
+|                  | Oak wood effect flush door                             | Paint marked to mid low level                                                 |
+|                  | Brushed chrome colour lever handle                     |                                                                                |
+|                  | Walls painted cream                                    | Light scuffs                                                                  |
+|                  | Floor laid to continuation of oak wood effect boarding | Heavily worn & stained                                                        |
+|                  | Honeywell carbon monoxide alarm                        | Test button working, Beep heard                                               |
+|                  | White Zanussi washing machine                          | Some light residual marking to soap dispenser<br>Some scuff and scratch marks |
+
+### ITEM FORMATTING SIGNALS
+
+Treat the following as evidence that text is an Item or subsection heading:
+
+* Bold text in the dedicated Item column
+* Bold text at the beginning of a grouped source cell
+* Underlined text inside Description
+* A short category label followed by detailed component lines
+* Labels such as Door, Walls, Floor, Lighting, Suite, Units, Appliances, Additional, Fridge or Floor units
+
+Do not rely on boldness alone because scan quality may weaken or blur formatting.
+
+Use position, wording, underlining and surrounding structure together.
+
+### FADED OR MISALIGNED BORDERS
+
+When row lines are faint or the scan is tilted:
+
+* Follow the nearest horizontal border across the full table.
+* Use the Index number only as an alignment aid.
+* Never include the Index number in the output.
+* Check whether Description and Condition text occupy the same vertical band.
+* A Condition appearing slightly higher or lower may still belong to the same component.
+* Do not automatically attach a condition to the row above or below because the baseline is uneven.
+* Compare its vertical position with the related Description text.
+
+### DEFAULT CONDITION STATEMENT
+
+The table heading may state:
+
+**Good condition unless otherwise noted**
+
+Do not insert "Good" into blank Condition cells.
+
+Only transfer condition wording that is explicitly written in the source.
+
+A blank source Condition must remain blank.
+
+### COLOURED TEXT
+
+Some entries may be printed in red, especially alarm descriptions and testing notes.
+
+Red text is still inventory content.
+
+* Do not omit it.
+* Do not treat it as an external annotation.
+* Transfer red Description text into Description.
+* Transfer red Condition text into Condition.
+* Colour does not change the column mapping.
+
+### CRITICAL RULES
+
+* Ignore Index numbers.
+* Ignore Check Out Comments.
+* Preserve every numbered source row.
+* Preserve every bold Item.
+* Preserve every bold or underlined subheading.
+* Add subheadings as their own Item rows.
+* Keep visibly separate components on separate rows.
+* Do not merge an entire cupboard, suite, appliance or unit section into one row.
+* Do not omit rows with blank Item cells.
+* Do not add "Good" to blank conditions.
+* Do not guess faint text.
+* Do not allow scan skew or faded borders to change the correct column placement.
+* Never treat underlining as meaningless formatting or scan noise.
+* Preserve the original source wording and structure as closely as possible.
+
 Return ONLY raw JSON:
 {"rows":[{"item":"Front Door","description":"White UPVC double glazed...","condition":"Minor weathering."}]}`;
 
@@ -440,6 +767,333 @@ Item: "", Description: "Carpet to match", Condition: ""
 CONTINUATION PAGE RULE: Item sections may continue onto the next page without the bold item heading being repeated. When a continuation page begins with numbered rows, continue adding each numbered entry as its own separate row. Do not repeat the previous item heading unless it is actually repeated in the source. Do not create a blank item heading. Do not create a new room. Do not merge the continuation rows together.
 
 CRITICAL RULE: Never ignore bold, unnumbered item headings. Never group all numbered entries beneath an item heading into one row. The required structure is: (1) bold item heading as its own Item row, (2) each following numbered description as its own separate row, (3) each corresponding Check-In Note in the Condition cell on that same row, (4) repeat until the next bold item heading or genuine room heading appears.
+
+
+## SCANNED / FADED INVENTORY TABLES WITH INDEX, ITEM, DESCRIPTION, CONDITION AND EMBEDDED SUBHEADINGS
+
+Some source reports are scanned copies rather than digitally generated PDFs. These pages may be faded, low contrast, slightly rotated, skewed, stretched, unevenly aligned or distorted around the table borders.
+
+When this type of report is detected, do not rely only on OCR reading order. Read the page visually as a table and use the printed borders, row structure, text position, font weight, underlining and surrounding context to determine the correct room, Item, Description and Condition.
+
+The source table may contain:
+
+**Index | Item | Description | Condition at Check In | Check Out Comments**
+
+### SCAN INTERPRETATION RULES
+
+* Read each scanned page visually as a structured table.
+* Use the nearest visible vertical and horizontal borders to determine which text belongs to each column and row.
+* Allow for text that sits slightly above, below or across a printed border because the page is skewed or distorted.
+* Do not move text into the wrong column merely because the scan is not perfectly straight.
+* Do not omit faint text solely because OCR confidence is low.
+* Use the surrounding rows, room heading, Index number, formatting and table structure to resolve placement.
+* Preserve the original wording as closely as possible.
+* Do not improve, rewrite, summarise or invent wording.
+* When a word is genuinely unreadable, mark only that uncertain word with asterisks rather than guessing.
+* Do not omit an entire row because one word is unclear.
+
+Example:
+
+\`Brushed chrome colour **security** keep\`
+
+### ROOM IDENTIFICATION
+
+The room name normally appears in the grey table heading beside the word **Index**.
+
+Examples include:
+
+* EXTERIOR FRONT
+* LOBBY
+* RECEPTION ROOM/KITCHEN
+* INNER HALLWAY
+* BATHROOM
+* BEDROOM 1
+* BEDROOM 2
+* EN-SUITE
+* EXTERIOR REAR
+
+Create a new room section whenever the grey room heading changes.
+
+A repeated room heading at the top of a continuation page means the same room is continuing. Do not create a duplicate room.
+
+Do not treat ordinary bold Item text inside the body of the table as a room name.
+
+### COLUMN MAPPING
+
+Ignore the **Index** number completely.
+
+Ignore the **Check Out Comments** column when converting an inventory or check-in report.
+
+Map the remaining source content as follows:
+
+| Source report         | Word document |
+| --------------------- | ------------- |
+| Bold Item column      | Item          |
+| Description column    | Description   |
+| Condition at Check In | Condition     |
+| Check Out Comments    | Ignore        |
+| Index number          | Ignore        |
+
+Each numbered source row must remain a separate Word row unless the source row itself contains several visibly separate components that require splitting.
+
+### STANDARD NUMBERED ROWS
+
+For a normal numbered source row:
+
+* Put the bold wording from the Item column into **Item**.
+* Put all wording from the Description column into **Description**.
+* Put all wording from Condition at Check In into **Condition**.
+* Ignore the Index number.
+* Ignore Check Out Comments.
+* Preserve separate source lines as separate lines within their correct cells.
+* Do not merge several numbered rows because they belong to the same category.
+
+Example source:
+
+**Index:** 14
+**Item:** Door
+**Description:**
+White painted frame
+Oak wood effect flush door
+Brushed chrome colour lever handle
+Reverse of frame, door & handle to match
+
+**Condition:**
+Old defects beneath
+Some whitened scuff marks to mid low level
+Several scratches at low level
+
+Required output:
+
+| Item | Description                                                                                                                         | Condition                                                                                           |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Door | White painted frame<br>Oak wood effect flush door<br>Brushed chrome colour lever handle<br>Reverse of frame, door & handle to match | Old defects beneath<br>Some whitened scuff marks to mid low level<br>Several scratches at low level |
+
+### BLANK ITEM CELLS
+
+Some numbered rows have a blank Item cell because they continue a broader category from the row above.
+
+Do not omit these rows.
+
+Do not merge them into the preceding numbered row.
+
+For a numbered row with a blank Item cell:
+
+* Create its own separate Word row.
+* Leave Item blank unless the Description contains a clear bold or underlined subheading.
+* Put the source Description into Description.
+* Put the corresponding Condition into Condition.
+* Do not automatically repeat the previous Item unless another explicit rule requires it.
+
+Example:
+
+| Item     | Description                                                                                                          | Condition |
+| -------- | ------------------------------------------------------------------------------------------------------------------- | --------- |
+| Curtains | Brushed chrome colour curtain pole with matching finials<br>Pair of floor length beige self-patterned lined curtains |           |
+|          | White plastic extendable curtain rail<br>Pair of white net curtains                                                  |           |
+
+### BOLD OR UNDERLINED SUBHEADINGS INSIDE DESCRIPTION
+
+Some rows contain bold or underlined headings inside the Description column.
+
+Examples include:
+
+* Wall units
+* Floor units
+* Fridge
+* Freezer compartment
+
+These are meaningful Item or subsection headings and must never be ignored.
+
+When bold or underlined text appears inside the Description column:
+
+* Detect it as a subheading even if it has no separate Index number.
+* Add it as its own standalone Word row.
+* Put the complete subheading into the **Item** column.
+* Leave Description and Condition blank on that standalone heading row.
+* Continue placing the following component descriptions into separate rows beneath it.
+* Do not bury the subheading inside a long Description cell.
+* Do not mistake underlining for scan noise or a table border.
+
+Example source:
+
+**Item:** Units
+
+Description:
+
+Range of wall and floor units...
+**Wall units**
+Single unit
+1 shelf
+Single unit
+1 shelf
+Single door concealing extractor
+Double unit housing draining racks...
+
+Required output:
+
+| Item       | Description                                                                                                                                           | Condition                                                      |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Units      | Range of wall and floor units part in flush lime green finish, part in flush grey finish<br>Brushed chrome colour handles<br>Silver colour kickboards | Number of patchy marks to doors<br>Doors not all aligned/flush |
+| Wall units |                                                                                                                                                         |                                                                 |
+|            | Single unit<br>1 shelf                                                                                                                                | |
+|            | Single unit<br>1 shelf                                                                                                                                | |
+|            | Single door concealing extractor                                                                                                                      | Door not flush |
+|            | Double unit housing 2 chrome colour draining racks with clear plastic drip tray beneath                                                               | Doors not flush |
+
+### UNDERLINED APPLIANCE SUBSECTIONS
+
+Appliances may contain internal underlined headings.
+
+Example source:
+
+**Siemens integrated fridge**
+**Fridge**
+Clear glass shelf with white plastic trim
+2-part clear glass shelf with white plastic trim
+White plastic trim and glass sliding cover for clear plastic salad drawer
+**Freezer compartment**
+Integrated handle
+
+Required treatment:
+
+| Item                      | Description                                                               | Condition                                                       |
+| ------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------|
+| Siemens integrated fridge |                                                                            | Shelves and sliding shelf stored in under sink unit at check in |
+| Fridge                    |                                                                            |                                                                  |
+|                           | Clear glass shelf with white plastic trim                                 | Normal usage scratches                                          |
+|                           | 2-part clear glass shelf with white plastic trim                          | Trim split at join                                              |
+|                           | White plastic trim and glass sliding cover for clear plastic salad drawer | Cracked to base                                                 |
+| Freezer compartment       |                                                                            |                                                                  |
+|                           | Integrated handle                                                         | Heavily cracked above handle<br>Defrosted and clean             |
+
+Every visible bold or underlined subheading must be preserved as its own Item row.
+
+### CONDITION ALIGNMENT WITH DESCRIPTION LINES
+
+A large source row may contain several Description entries and several Condition entries at different vertical positions.
+
+Use vertical alignment to associate each condition with the correct description entry.
+
+Do not attach every condition to the first description line.
+
+Where several distinct components and conditions appear inside one large source row:
+
+* Split the content into separate Word rows.
+* Keep each condition aligned with the component it describes.
+* Preserve components that have no condition.
+* Leave blank Condition cells blank.
+
+Example associations:
+
+* \`Floor laid to continuation of oak wood effect boarding\` → \`Heavily worn & stained\`
+* \`Large quantity of underfloor heating pipework & valves\` → \`As fitted\`
+* \`Temperature gauge\` → \`Appears unravelled & no cover\`
+* \`Honeywell carbon monoxide alarm\` → \`Test button working, Beep heard\`
+* Washing-machine description → washing-machine condition comments
+
+### LARGE MULTI-ITEM SOURCE CELLS
+
+Some single Index rows contain an entire grouped section with many distinct components.
+
+Examples include:
+
+* Utility Cupboard
+* Built-in Cupboard
+* Suite
+* Units
+* Appliances
+
+Do not place the entire source cell into one enormous Word row when it contains visibly separate components.
+
+Required treatment:
+
+1. Preserve the bold Item from the source.
+2. Add every distinct component beneath it as a separate Word row.
+3. Keep every Condition aligned with the component it describes.
+4. Do not omit components that have no condition.
+5. Do not combine unrelated components.
+6. Do not invent condition text.
+
+Example:
+
+| Item             | Description                                            | Condition                                                                     |
+| ---------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| Utility Cupboard |                                                         |                                                                                |
+|                  | White painted frame                                    |                                                                                |
+|                  | Oak wood effect flush door                             | Paint marked to mid low level                                                 |
+|                  | Brushed chrome colour lever handle                     |                                                                                |
+|                  | Walls painted cream                                    | Light scuffs                                                                  |
+|                  | Floor laid to continuation of oak wood effect boarding | Heavily worn & stained                                                        |
+|                  | Honeywell carbon monoxide alarm                        | Test button working, Beep heard                                               |
+|                  | White Zanussi washing machine                          | Some light residual marking to soap dispenser<br>Some scuff and scratch marks |
+
+### ITEM FORMATTING SIGNALS
+
+Treat the following as evidence that text is an Item or subsection heading:
+
+* Bold text in the dedicated Item column
+* Bold text at the beginning of a grouped source cell
+* Underlined text inside Description
+* A short category label followed by detailed component lines
+* Labels such as Door, Walls, Floor, Lighting, Suite, Units, Appliances, Additional, Fridge or Floor units
+
+Do not rely on boldness alone because scan quality may weaken or blur formatting.
+
+Use position, wording, underlining and surrounding structure together.
+
+### FADED OR MISALIGNED BORDERS
+
+When row lines are faint or the scan is tilted:
+
+* Follow the nearest horizontal border across the full table.
+* Use the Index number only as an alignment aid.
+* Never include the Index number in the output.
+* Check whether Description and Condition text occupy the same vertical band.
+* A Condition appearing slightly higher or lower may still belong to the same component.
+* Do not automatically attach a condition to the row above or below because the baseline is uneven.
+* Compare its vertical position with the related Description text.
+
+### DEFAULT CONDITION STATEMENT
+
+The table heading may state:
+
+**Good condition unless otherwise noted**
+
+Do not insert "Good" into blank Condition cells.
+
+Only transfer condition wording that is explicitly written in the source.
+
+A blank source Condition must remain blank.
+
+### COLOURED TEXT
+
+Some entries may be printed in red, especially alarm descriptions and testing notes.
+
+Red text is still inventory content.
+
+* Do not omit it.
+* Do not treat it as an external annotation.
+* Transfer red Description text into Description.
+* Transfer red Condition text into Condition.
+* Colour does not change the column mapping.
+
+### CRITICAL RULES
+
+* Ignore Index numbers.
+* Ignore Check Out Comments.
+* Preserve every numbered source row.
+* Preserve every bold Item.
+* Preserve every bold or underlined subheading.
+* Add subheadings as their own Item rows.
+* Keep visibly separate components on separate rows.
+* Do not merge an entire cupboard, suite, appliance or unit section into one row.
+* Do not omit rows with blank Item cells.
+* Do not add "Good" to blank conditions.
+* Do not guess faint text.
+* Do not allow scan skew or faded borders to change the correct column placement.
+* Never treat underlining as meaningless formatting or scan noise.
+* Preserve the original source wording and structure as closely as possible.
 
 Return ONLY raw JSON: {"rows":[...]}`;
 async function callVisionAPI(base64: string, systemPrompt: string, userPrompt: string, maxTokens: number, retries = 3): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
