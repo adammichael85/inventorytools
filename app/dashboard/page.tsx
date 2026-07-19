@@ -4427,7 +4427,12 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                         const af = audioFiles[fi]
                         const tempPath = uploadSession.user.id + '/audio_temp_' + ts + '_' + fi + '_' + af.name
                         const { data: upData, error: upErr } = await supabase.storage.from('documents').upload(tempPath, af, { contentType: af.type || 'audio/mpeg', upsert: true })
-                        if (upErr) throw new Error('Upload failed: ' + upErr.message)
+                        if (upErr) {
+                          if (upErr.message && upErr.message.toLowerCase().includes('exceeded the maximum allowed size')) {
+                            throw new Error(`"${af.name}" (${(af.size / 1024 / 1024).toFixed(1)}MB) is too large for a single upload. Try splitting long recordings into separate files per room, or contact support to raise the file size limit.`)
+                          }
+                          throw new Error('Upload failed: ' + upErr.message)
+                        }
                         filePaths.push(upData.path)
                         fileNames.push(af.name)
                       }
