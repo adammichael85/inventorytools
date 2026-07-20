@@ -10,12 +10,27 @@ export async function POST(req: NextRequest) {
     if (!authToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const authVerifyClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
     const { data: { user: authUser } } = await authVerifyClient.auth.getUser(authToken)
-    if (!authUser || authUser.id !== user_id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
+
+    if (authUser.id !== user_id) {
+      const { data: requesterProfile } = await supabase
+        .from('profiles')
+        .select('role, company_name')
+        .eq('id', authUser.id)
+        .single()
+      const { data: targetProfile } = await supabase
+        .from('profiles')
+        .select('company_name')
+        .eq('id', user_id)
+        .single()
+      const isSameCompanyAdmin = requesterProfile?.role === 'admin' && targetProfile?.company_name && requesterProfile.company_name === targetProfile.company_name
+      if (!isSameCompanyAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const { data: conv, error } = await supabase
       .from('conversions')
