@@ -1521,7 +1521,13 @@ export const visionConvertTask = task({
               break;
             } catch (e) {
               lastFailureReason = "JSON parse failed";
-              logger.log(`Room ${roomInfo.room}: attempt ${pass2Attempt} - JSON parse failed${pass2Attempt === 1 ? ', retrying' : ''}`, { error: String(e), responsePreview: pass2Text.slice(p2first, p2first + 500) });
+              const errStr = String(e);
+              const posMatch = errStr.match(/position (\d+)/);
+              const errPos = posMatch ? parseInt(posMatch[1], 10) : null;
+              const contextSlice = errPos !== null
+                ? pass2Text.slice(p2first + Math.max(0, errPos - 300), p2first + errPos + 300)
+                : pass2Text.slice(p2first, p2first + 500);
+              logger.log(`Room ${roomInfo.room}: attempt ${pass2Attempt} - JSON parse failed${pass2Attempt === 1 ? ', retrying' : ''}`, { error: errStr, errorPosition: errPos, contextAroundError: contextSlice });
             }
           }
 
