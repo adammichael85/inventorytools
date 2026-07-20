@@ -12,6 +12,8 @@ INCLUDE: All room and area headings such as Kitchen, Living Room, Bedroom 1, Bat
 
 EXCLUDE: Cover page, contents page, notes, disclaimers, checklists, keys and utilities, meter readings, declaration, terms and conditions, abbreviations pages.
 
+EXCLUDE FROM ROOM LIST - WALL/DIRECTION SUBSECTION LABELS: Do not add bold, unnumbered wall or direction labels to the room list, even though they appear on their own line inside a room's table (e.g. Rear Wall, Front Wall, Left Wall, Right Wall, LHS Wall, RHS Wall, Facing Wall, Entrance Wall, Window Wall, Door Wall, Side Wall). These are subsection headings that belong INSIDE the room whose heading appears above them in the same table - they are never a new room in their own right, no matter how many times they repeat across different rooms (e.g. every room may have its own Rear Wall / Facing Wall / LHS Wall rows). Only the genuine room-type heading above the table (Kitchen, Bedroom, Bathroom, Hallway, Lounge, etc.) starts a new room in the list.
+
 IMPORTANT: Be generous with page ranges. If unsure where a room ends, extend the endPage by 2-3 extra pages. It is better to include too many pages than too few. Small transitional areas like Porch, Stairs, Hallways must be included even if they only span 1-2 pages.
 
 CONTINUATION PAGES: If a page is labelled "(Cont.)" after a room name (e.g. "Kitchen (Cont.)"), this is a CONTINUATION of that same room, not a new room. Extend the original room's endPage to include these continuation pages rather than creating a separate room entry. Never treat "Room Name (Cont.)" as a separate room — always merge it into the main room with the same name.
@@ -659,6 +661,8 @@ const LEADERS_PASS1_SYSTEM = `You are reading a UK property inventory PDF.
 Your job is to identify every room/area section in this PDF and return their page ranges. Also extract the property address from the cover page or header.
 
 INCLUDE ALL sections without exception: All rooms (Kitchen, Living Room, Bedroom 1-10, Bathroom etc.), AND also: Property Information, Weather/Cleaning Standard, Utilities, Smoke Detectors, Carbon Monoxide Detectors, Keys, External Surfaces, External Features, Boundaries, Hallway/Stairs & Landing, any sub-areas.
+
+EXCLUDE FROM ROOM LIST - WALL/DIRECTION SUBSECTION LABELS: Do not add bold, unnumbered wall or direction labels to the room list, even though they appear on their own line inside a room's table (e.g. Rear Wall, Front Wall, Left Wall, Right Wall, LHS Wall, RHS Wall, Facing Wall, Entrance Wall, Window Wall, Door Wall, Side Wall). These are subsection headings that belong INSIDE the room whose heading appears above them in the same table - they are never a new room in their own right, no matter how many times they repeat across different rooms (e.g. every room may have its own Rear Wall / Facing Wall / LHS Wall rows). Only the genuine room-type heading above the table (Kitchen, Bedroom, Bathroom, Hallway, Lounge, etc.) starts a new room in the list.
 
 IMPORTANT: Be generous with page ranges. If unsure where a section ends, extend endPage by 2-3 extra pages.
 
