@@ -3448,16 +3448,18 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     </div>
 
                     <div style={{ padding: '20px 24px 12px', flexShrink: 0 }}>
-                      <div style={{ position: 'relative', marginBottom: 4, overflowX: 'auto' }}>
-                        <div ref={splitterWaveRef} style={{ background: SURFACE, borderRadius: 12, padding: '12px 16px', width: splitterDuration > 0 ? `${Math.max(splitterZoom * splitterDuration, 100)}px` : '100%' }} />
-                        {splitterDuration > 0 && splitterMarkers.map((m, i) => (
+                      <div style={{ overflowX: 'auto', marginBottom: 4 }}>
+                        <div style={{ position: 'relative', width: splitterDuration > 0 ? `${Math.max(splitterZoom * splitterDuration, 100)}px` : '100%' }}>
+                          <div ref={splitterWaveRef} style={{ background: SURFACE, borderRadius: 12, padding: '12px 16px' }} />
+                          {splitterDuration > 0 && splitterMarkers.map((m, i) => (
                           <div
                             key={i}
                             onClick={() => setSplitterMarkers(prev => prev.filter(x => x !== m))}
                             title="Click to remove this cut"
-                            style={{ position: 'absolute', top: 12, bottom: 12, left: `calc(${(m / splitterDuration) * 100}% + 16px)`, width: 2, background: '#DC2626', cursor: 'pointer', zIndex: 2 }}
-                          />
-                        ))}
+                            style={{ position: 'absolute', top: 12, bottom: 12, left: 16 + (m / splitterDuration) * (Math.max(splitterZoom * splitterDuration, 100) - 32), width: 2, background: '#DC2626', cursor: 'pointer', zIndex: 2 }}
+                            />
+                          ))}
+                        </div>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 8 }}>
                         <button onClick={() => setSplitterZoom(z => Math.max(1, z - 20))} style={{ ...splitterTransportBtnStyle, width: 30, height: 30, fontSize: 13 }} title="Zoom out">−</button>
