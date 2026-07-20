@@ -1488,33 +1488,45 @@ export const visionConvertTask = task({
           const roomPdfBytes = await roomPdf.save();
           const roomBase64 = Buffer.from(roomPdfBytes).toString("base64");
 
-          const pass2Result = await callVisionAPI(
-            roomBase64,
-            activePass2System,
-            `This section is: ${roomInfo.room}\n\nExtract ALL inventory rows. Return raw JSON only.`,
-            28000
-          );
-          const pass2Text = pass2Result.text
-          totalInputTokens += pass2Result.inputTokens
-          totalOutputTokens += pass2Result.outputTokens
+          let roomData: any = null;
+          let lastFailureReason = "";
 
-          if (!pass2Text) {
-            logger.log(`ROOM SKIPPED - empty response: ${roomInfo.room}`);
-            continue;
+          for (let pass2Attempt = 1; pass2Attempt <= 2; pass2Attempt++) {
+            const pass2Result = await callVisionAPI(
+              roomBase64,
+              activePass2System,
+              `This section is: ${roomInfo.room}\n\nExtract ALL inventory rows. Return raw JSON only.`,
+              28000
+            );
+            const pass2Text = pass2Result.text
+            totalInputTokens += pass2Result.inputTokens
+            totalOutputTokens += pass2Result.outputTokens
+
+            if (!pass2Text) {
+              lastFailureReason = "empty response";
+              logger.log(`Room ${roomInfo.room}: attempt ${pass2Attempt} - empty response${pass2Attempt === 1 ? ', retrying' : ''}`);
+              continue;
+            }
+
+            const p2first = pass2Text.indexOf("{");
+            const p2last = pass2Text.lastIndexOf("}");
+            if (p2first === -1) {
+              lastFailureReason = "no JSON found";
+              logger.log(`Room ${roomInfo.room}: attempt ${pass2Attempt} - no JSON found${pass2Attempt === 1 ? ', retrying' : ''}`, { responsePreview: pass2Text.slice(0, 500) });
+              continue;
+            }
+
+            try {
+              roomData = JSON.parse(pass2Text.slice(p2first, p2last + 1));
+              break;
+            } catch (e) {
+              lastFailureReason = "JSON parse failed";
+              logger.log(`Room ${roomInfo.room}: attempt ${pass2Attempt} - JSON parse failed${pass2Attempt === 1 ? ', retrying' : ''}`, { error: String(e), responsePreview: pass2Text.slice(p2first, p2first + 500) });
+            }
           }
 
-          const p2first = pass2Text.indexOf("{");
-          const p2last = pass2Text.lastIndexOf("}");
-          if (p2first === -1) {
-            logger.log(`ROOM SKIPPED - no JSON found: ${roomInfo.room}`, { responsePreview: pass2Text.slice(0, 500) });
-            continue;
-          }
-
-          let roomData: any;
-          try {
-            roomData = JSON.parse(pass2Text.slice(p2first, p2last + 1));
-          } catch (e) {
-            logger.log(`ROOM SKIPPED - JSON parse failed: ${roomInfo.room}`, { error: String(e), responsePreview: pass2Text.slice(p2first, p2first + 500) });
+          if (!roomData) {
+            logger.log(`ROOM SKIPPED after retry - ${lastFailureReason}: ${roomInfo.room}`);
             continue;
           }
 
