@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { convertPDF, convertPDFVision, convertWordDoc } from './convert-action'
 import { PDFDocument } from 'pdf-lib'
@@ -3429,7 +3430,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 </div>
               )}
 
-              {splitterState === 'loaded' && splitterFile && (
+              {splitterState === 'loaded' && splitterFile && typeof document !== 'undefined' && createPortal(
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
                   <div style={{ width: '80vw', height: '80vh', background: '#fff', borderRadius: 16, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     <div style={{ padding: '16px 24px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -3526,7 +3527,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div>,
+                document.body
               )}
             </div>
           )}
