@@ -3513,7 +3513,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                           <button onClick={() => splitterSeek(5)} style={splitterTransportBtnStyle} aria-label="Forward 5 seconds">⏩</button>
                           <button onClick={splitterToggleLoop} style={{ height: 36, padding: '0 14px', borderRadius: 10, border: splitterLooping ? `1px solid ${TEAL}` : `1px solid ${BORDER}`, background: splitterLooping ? TEAL : SURFACE, color: splitterLooping ? '#fff' : TEXT, cursor: 'pointer', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 13 }}>Loop</button>
                           <button
-                            onClick={() => {
+                            onMouseDown={() => {
                               const t = splitterWSRef.current?.getCurrentTime()
                               if (t == null || !splitterDuration) return
                               setSplitterMarkers(prev => prev.some(m => Math.abs(m - t) < 0.15) ? prev : [...prev, t].sort((a, b) => a - b))
