@@ -1695,6 +1695,37 @@ export default function Dashboard() {
   const [splitterFile, setSplitterFile] = useState<File | null>(null)
   const [splitterState, setSplitterState] = useState<'idle'|'loaded'|'processing'>('idle')
   const [splitterError, setSplitterError] = useState('')
+  const [splitterPlaying, setSplitterPlaying] = useState(false)
+  const [splitterSpeed, setSplitterSpeed] = useState(1)
+  const splitterWaveRef = React.useRef<HTMLDivElement | null>(null)
+  const splitterWSRef = React.useRef<any>(null)
+  React.useEffect(() => {
+    if (page !== 'audiosplitter' || splitterState !== 'loaded' || !splitterFile || !splitterWaveRef.current) return
+    let ws: any
+    let cancelled = false
+    import('wavesurfer.js').then(({ default: WaveSurfer }) => {
+      if (cancelled || !splitterWaveRef.current) return
+      ws = WaveSurfer.create({
+        container: splitterWaveRef.current,
+        waveColor: '#D8B4FE',
+        progressColor: '#7C3AED',
+        height: 96,
+        cursorColor: '#4C1D95',
+        barWidth: 2,
+        barGap: 1,
+      })
+      ws.loadBlob(splitterFile)
+      ws.on('play', () => setSplitterPlaying(true))
+      ws.on('pause', () => setSplitterPlaying(false))
+      ws.on('finish', () => setSplitterPlaying(false))
+      splitterWSRef.current = ws
+    })
+    return () => {
+      cancelled = true
+      if (ws) ws.destroy()
+      splitterWSRef.current = null
+    }
+  }, [page, splitterState, splitterFile])
   const [topupAmount, setTopupAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState('')
   const [topupStep, setTopupStep] = useState<'select' | 'pay'>('select')
@@ -3293,12 +3324,28 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               )}
 
               {splitterState === 'loaded' && splitterFile && (
-                <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                  <p style={{ fontSize: 14, color: MUTED, marginBottom: 8 }}>Loaded:</p>
-                  <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 20 }}>{splitterFile.name}</p>
-                  <p style={{ fontSize: 13, color: HINT }}>Waveform &amp; slicing tools coming in the next build step.</p>
-                  <p style={{ marginTop: 20 }}>
-                    <button onClick={() => { setSplitterState('idle'); setSplitterFile(null) }} style={{ background: 'none', border: 'none', color: MUTED, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>Choose a different file</button>
+                <div style={{ padding: '8px 0' }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 14, textAlign: 'center' }}>{splitterFile.name}</p>
+
+                  <div ref={splitterWaveRef} style={{ background: SURFACE, borderRadius: 12, padding: '12px 16px', marginBottom: 16 }} />
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginBottom: 8 }}>
+                    <button onClick={() => splitterWSRef.current?.playPause()} style={{ width: 44, height: 44, borderRadius: '50%', border: 'none', background: '#7C3AED', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {splitterPlaying ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                      )}
+                    </button>
+                    <select value={splitterSpeed} onChange={e => { const v = Number(e.target.value); setSplitterSpeed(v); splitterWSRef.current?.setPlaybackRate(v) }} style={{ padding: '8px 10px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, background: SURFACE, color: TEXT }}>
+                      {[0.5, 0.75, 1, 1.25, 1.5, 2].map(s => <option key={s} value={s}>{s}x</option>)}
+                    </select>
+                  </div>
+
+                  <p style={{ fontSize: 12, color: HINT, textAlign: 'center', marginTop: 4 }}>Slicing tools coming in the next build step.</p>
+
+                  <p style={{ textAlign: 'center', marginTop: 16 }}>
+                    <button onClick={() => { setSplitterState('idle'); setSplitterFile(null); setSplitterPlaying(false) }} style={{ background: 'none', border: 'none', color: MUTED, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>Choose a different file</button>
                   </p>
                 </div>
               )}
