@@ -1729,9 +1729,9 @@ export default function Dashboard() {
       ws = WaveSurfer.create({
         container: splitterWaveRef.current,
         waveColor: '#D8B4FE',
-        progressColor: '#7C3AED',
+        progressColor: TEAL,
         height: 150,
-        cursorColor: '#4C1D95',
+        cursorColor: TEAL,
         barWidth: 2,
         barGap: 1,
         dragToSeek: true,
@@ -3027,7 +3027,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
             ...(pdfEnabled ? [{ id: 'pdf', label: 'PDF to Word', color: TEAL }] : []),
             ...(audioEnabled ? [{ id: 'audio', label: 'Audio to Word', color: '#2563EB' }] : []),
             { id: 'cleanpdf', label: 'Clean PDF', color: '#16A34A' },
-            { id: 'audiosplitter', label: 'Audio Splitter', color: '#7C3AED' },
+            { id: 'audiosplitter', label: 'Audio Splitter', color: TEAL },
           ].map(tab => {
             const isActive = (tab.id === 'cleanpdf' || tab.id === 'audiosplitter') ? page === tab.id : (toolTab === tab.id && page !== 'cleanpdf' && page !== 'audiosplitter')
             return (
@@ -3411,8 +3411,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           {page === 'audiosplitter' && (
             <div className="it-card" style={{ maxWidth: 560, margin: '0 auto', padding: 32 }}>
               <div style={{ textAlign: 'center', marginBottom: 28 }}>
-                <div style={{ width: 52, height: 52, borderRadius: 14, background: '#F3E8FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: `${TEAL}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>
                 </div>
                 <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px' }}>Audio Splitter</h2>
                 <p style={{ fontSize: 14, color: MUTED, margin: '0 0 12px', lineHeight: 1.6 }}>Got one long continuous recording instead of separate files per room? Upload it here to view the waveform, cut it into room-by-room slices, name each one, and download them ready to upload to Convert Audio.</p>
@@ -3422,8 +3422,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 <div>
                   <label htmlFor="splitter-upload" style={{ display: 'block', cursor: 'pointer' }}>
                     <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 16, padding: '40px 24px', textAlign: 'center', background: SURFACE }}>
-                      <div style={{ width: 52, height: 52, borderRadius: 12, background: '#F3E8FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      <div style={{ width: 52, height: 52, borderRadius: 12, background: `${TEAL}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                       </div>
                       <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your audio file here</p>
                       <p style={{ fontSize: 13, color: HINT }}>or click to browse · MP3, WAV, M4A</p>
@@ -3475,7 +3475,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                               const dur = end - start
                               return (
                                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, background: SURFACE, marginBottom: 6 }}>
-                                  <button onClick={() => splitterWSRef.current?.play(start, end)} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: '#EDE9FE', color: '#7C3AED', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <button onClick={() => splitterWSRef.current?.play(start, end)} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: `${TEAL}1A`, color: TEAL, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
                                   </button>
                                   <input
@@ -3490,7 +3490,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                             <button
                               disabled={splitterExporting}
                               onClick={splitterExportAll}
-                              style={{ width: '100%', marginTop: 12, padding: 13, borderRadius: 10, border: 'none', background: splitterExporting ? BORDER : '#7C3AED', color: splitterExporting ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: splitterExporting ? 'default' : 'pointer' }}
+                              style={{ width: '100%', marginTop: 12, padding: 13, borderRadius: 10, border: 'none', background: splitterExporting ? BORDER : TEAL, color: splitterExporting ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: splitterExporting ? 'default' : 'pointer' }}
                             >
                               {splitterExporting ? 'Exporting…' : 'Export & Download All'}
                             </button>
@@ -3503,10 +3503,10 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <button onClick={() => splitterSeek(-5)} style={splitterTransportBtnStyle} aria-label="Back 5 seconds">⏪</button>
-                          <button onClick={splitterTogglePlay} style={{ ...splitterTransportBtnStyle, width: 44, height: 44, borderRadius: '50%', background: '#7C3AED', color: '#fff', border: 'none' }} aria-label={splitterPlaying ? 'Pause' : 'Play'}>{splitterPlaying ? '⏸' : '▶'}</button>
+                          <button onClick={splitterTogglePlay} style={{ ...splitterTransportBtnStyle, width: 44, height: 44, borderRadius: '50%', background: TEAL, color: '#fff', border: 'none' }} aria-label={splitterPlaying ? 'Pause' : 'Play'}>{splitterPlaying ? '⏸' : '▶'}</button>
                           <button onClick={splitterStop} style={splitterTransportBtnStyle} aria-label="Stop">⏹</button>
                           <button onClick={() => splitterSeek(5)} style={splitterTransportBtnStyle} aria-label="Forward 5 seconds">⏩</button>
-                          <button onClick={splitterToggleLoop} style={{ height: 36, padding: '0 14px', borderRadius: 10, border: splitterLooping ? '1px solid #7C3AED' : `1px solid ${BORDER}`, background: splitterLooping ? '#7C3AED' : SURFACE, color: splitterLooping ? '#fff' : TEXT, cursor: 'pointer', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 13 }}>Loop</button>
+                          <button onClick={splitterToggleLoop} style={{ height: 36, padding: '0 14px', borderRadius: 10, border: splitterLooping ? `1px solid ${TEAL}` : `1px solid ${BORDER}`, background: splitterLooping ? TEAL : SURFACE, color: splitterLooping ? '#fff' : TEXT, cursor: 'pointer', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 13 }}>Loop</button>
                           <button
                             onClick={() => {
                               const t = splitterWSRef.current?.getCurrentTime()
@@ -3514,12 +3514,12 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                               setSplitterMarkers(prev => prev.some(m => Math.abs(m - t) < 0.15) ? prev : [...prev, t].sort((a, b) => a - b))
                             }}
                             title="Cut at current position"
-                            style={{ ...splitterTransportBtnStyle, color: '#7C3AED' }}
+                            style={{ ...splitterTransportBtnStyle, color: TEAL }}
                           >✂</button>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
                           <div style={{ height: 4, background: BORDER, borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
-                            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${splitterDuration ? (splitterCurrentTime / splitterDuration) * 100 : 0}%`, background: '#7C3AED', borderRadius: 4 }} />
+                            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${splitterDuration ? (splitterCurrentTime / splitterDuration) * 100 : 0}%`, background: TEAL, borderRadius: 4 }} />
                           </div>
                           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: HINT, textAlign: 'center' }}>
                             {formatSplitterTime(splitterCurrentTime)} / {formatSplitterTime(splitterDuration)}{splitterLooping ? '  ·  ● Looping 4s' : ''}
@@ -3535,7 +3535,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                         <span>↓ <strong>Play/Pause</strong></span>
                         <span>← <strong>Back 5s</strong></span>
                         <span>→ <strong>Forward 5s</strong></span>
-                        <span>L <strong style={{ color: splitterLooping ? '#7C3AED' : TEXT }}>Loop 4s</strong></span>
+                        <span>L <strong style={{ color: splitterLooping ? TEAL : TEXT }}>Loop 4s</strong></span>
                       </div>
                     </div>
                   </div>
