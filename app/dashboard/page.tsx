@@ -1713,6 +1713,7 @@ export default function Dashboard() {
   const [splitterCurrentTime, setSplitterCurrentTime] = useState(0)
   const [splitterLooping, setSplitterLooping] = useState(false)
   const [splitterLoopStart, setSplitterLoopStart] = useState(0)
+  const [splitterZoom, setSplitterZoom] = useState(50)
   const splitterLoopingRef = React.useRef(false)
   const splitterLoopStartRef = React.useRef(0)
   React.useEffect(() => { splitterLoopingRef.current = splitterLooping }, [splitterLooping])
@@ -1754,6 +1755,11 @@ export default function Dashboard() {
       splitterWSRef.current = null
     }
   }, [page, splitterState, splitterFile])
+  React.useEffect(() => {
+    if (splitterWSRef.current && splitterWSRef.current.zoom) {
+      try { splitterWSRef.current.zoom(splitterZoom) } catch (e) {}
+    }
+  }, [splitterZoom, splitterDuration])
   function splitterSeek(delta: number) {
     const ws = splitterWSRef.current
     if (!ws || !splitterDuration) return
@@ -3438,9 +3444,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       <button onClick={() => { setSplitterState('idle'); setSplitterFile(null); setSplitterPlaying(false); setSplitterMarkers([]); setSplitterNames({}); setSplitterDuration(0); setSplitterLooping(false) }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: MUTED, lineHeight: 1 }}>×</button>
                     </div>
 
-                    <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
-                      <div style={{ position: 'relative', marginBottom: 4 }}>
-                        <div ref={splitterWaveRef} style={{ background: SURFACE, borderRadius: 12, padding: '12px 16px' }} />
+                    <div style={{ padding: '20px 24px 12px', flexShrink: 0 }}>
+                      <div style={{ position: 'relative', marginBottom: 4, overflowX: 'auto' }}>
+                        <div ref={splitterWaveRef} style={{ background: SURFACE, borderRadius: 12, padding: '12px 16px', minWidth: `${splitterZoom * 20}px` }} />
                         {splitterDuration > 0 && splitterMarkers.map((m, i) => (
                           <div
                             key={i}
@@ -3450,9 +3456,15 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                           />
                         ))}
                       </div>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 8 }}>
+                        <button onClick={() => setSplitterZoom(z => Math.max(10, z - 20))} style={{ ...splitterTransportBtnStyle, width: 30, height: 30, fontSize: 13 }} title="Zoom out">−</button>
+                        <button onClick={() => setSplitterZoom(z => Math.min(500, z + 20))} style={{ ...splitterTransportBtnStyle, width: 30, height: 30, fontSize: 13 }} title="Zoom in">+</button>
+                      </div>
 
                       {splitterError && <p style={{ fontSize: 13, color: '#DC2626', textAlign: 'center', marginTop: 8 }}>{splitterError}</p>}
+                    </div>
 
+                    <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px' }}>
                       {splitterDuration > 0 && (() => {
                         const bounds = [0, ...splitterMarkers, splitterDuration]
                         return (
