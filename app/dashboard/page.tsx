@@ -1692,6 +1692,9 @@ export default function Dashboard() {
   const [cleanPdfState, setCleanPdfState] = useState<'idle'|'processing'|'done'|'error'>('idle')
   const [cleanPdfError, setCleanPdfError] = useState('')
   const [cleanPdfResult, setCleanPdfResult] = useState<{ base64: string, filename: string } | null>(null)
+  const [splitterFile, setSplitterFile] = useState<File | null>(null)
+  const [splitterState, setSplitterState] = useState<'idle'|'loaded'|'processing'>('idle')
+  const [splitterError, setSplitterError] = useState('')
   const [topupAmount, setTopupAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState('')
   const [topupStep, setTopupStep] = useState<'select' | 'pay'>('select')
@@ -2450,6 +2453,7 @@ export default function Dashboard() {
     { id: 'dashboard', label: 'Dashboard', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z' },
     { id: 'convert', label: toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF or Word', icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z', badge: 'New' },
     { id: 'cleanpdf', label: 'Clean PDF', icon: 'M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8' },
+    { id: 'audiosplitter', label: 'Audio Splitter', icon: 'M6 9a3 3 0 100-6 3 3 0 000 6zM6 21a3 3 0 100-6 3 3 0 000 6zM20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12' },
     { id: 'reports', label: 'Reports', icon: 'M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z' },
     ...(userRole === 'admin' ? [{ id: 'stats', label: 'Statistics', icon: 'M18 20V10M12 20V4M6 20v-6' }] : []),
     ...(userRole === 'admin' ? [{ id: 'team', label: 'Team', icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75' }] : []),
@@ -2879,12 +2883,13 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
             ...(pdfEnabled ? [{ id: 'pdf', label: 'PDF to Word', color: TEAL }] : []),
             ...(audioEnabled ? [{ id: 'audio', label: 'Audio to Word', color: '#2563EB' }] : []),
             { id: 'cleanpdf', label: 'Clean PDF', color: '#16A34A' },
+            { id: 'audiosplitter', label: 'Audio Splitter', color: '#7C3AED' },
           ].map(tab => {
-            const isActive = tab.id === 'cleanpdf' ? page === 'cleanpdf' : (toolTab === tab.id && page !== 'cleanpdf')
+            const isActive = (tab.id === 'cleanpdf' || tab.id === 'audiosplitter') ? page === tab.id : (toolTab === tab.id && page !== 'cleanpdf' && page !== 'audiosplitter')
             return (
               <button
                 key={tab.id}
-                onClick={() => { if (tab.id === 'cleanpdf') { setPage('cleanpdf') } else { setToolTab(tab.id as 'pdf' | 'audio'); if (page === 'cleanpdf') setPage('dashboard') } }}
+                onClick={() => { if (tab.id === 'cleanpdf' || tab.id === 'audiosplitter') { setPage(tab.id) } else { setToolTab(tab.id as 'pdf' | 'audio'); if (page === 'cleanpdf' || page === 'audiosplitter') setPage('dashboard') } }}
                 style={{
                   padding: '9px 20px',
                   border: 'none',
@@ -3253,6 +3258,47 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   </button>
                   <p style={{ marginTop: 20 }}>
                     <button onClick={() => { setCleanPdfState('idle'); setCleanPdfFile(null); setCleanPdfResult(null) }} style={{ background: 'none', border: 'none', color: MUTED, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>Clean another PDF</button>
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {page === 'audiosplitter' && (
+            <div className="it-card" style={{ maxWidth: 560, margin: '0 auto', padding: 32 }}>
+              <div style={{ textAlign: 'center', marginBottom: 28 }}>
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: '#F3E8FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>
+                </div>
+                <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px' }}>Audio Splitter</h2>
+                <p style={{ fontSize: 14, color: MUTED, margin: '0 0 12px', lineHeight: 1.6 }}>Got one long continuous recording instead of separate files per room? Upload it here to view the waveform, cut it into room-by-room slices, name each one, and download them ready to upload to Convert Audio.</p>
+              </div>
+
+              {splitterState === 'idle' && (
+                <div>
+                  <label htmlFor="splitter-upload" style={{ display: 'block', cursor: 'pointer' }}>
+                    <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 16, padding: '40px 24px', textAlign: 'center', background: SURFACE }}>
+                      <div style={{ width: 52, height: 52, borderRadius: 12, background: '#F3E8FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      </div>
+                      <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your audio file here</p>
+                      <p style={{ fontSize: 13, color: HINT }}>or click to browse · MP3, WAV, M4A</p>
+                    </div>
+                  </label>
+                  <input id="splitter-upload" type="file" accept="audio/*" style={{ display: 'none' }} onChange={e => {
+                    if (e.target.files?.[0]) { setSplitterFile(e.target.files[0]); setSplitterState('loaded') }
+                  }} />
+                  {splitterError && <p style={{ fontSize: 13, color: '#DC2626', marginTop: 12 }}>{splitterError}</p>}
+                </div>
+              )}
+
+              {splitterState === 'loaded' && splitterFile && (
+                <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                  <p style={{ fontSize: 14, color: MUTED, marginBottom: 8 }}>Loaded:</p>
+                  <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 20 }}>{splitterFile.name}</p>
+                  <p style={{ fontSize: 13, color: HINT }}>Waveform &amp; slicing tools coming in the next build step.</p>
+                  <p style={{ marginTop: 20 }}>
+                    <button onClick={() => { setSplitterState('idle'); setSplitterFile(null) }} style={{ background: 'none', border: 'none', color: MUTED, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>Choose a different file</button>
                   </p>
                 </div>
               )}

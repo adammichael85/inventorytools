@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "@hcaptcha/react-hcaptcha": "^2.0.2",
     "@soundtouchjs/audio-worklet": "^2.1.0",
     "@stripe/react-stripe-js": "^6.6.0",
@@ -28,6 +30,7 @@
     "react-dom": "19.2.4",
     "stripe": "^22.3.0",
     "svix": "^1.96.1",
+    "wavesurfer.js": "^7.12.11",
     "ws": "^8.21.0"
   },
   "devDependencies": {
