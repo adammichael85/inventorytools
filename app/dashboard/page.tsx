@@ -1732,9 +1732,12 @@ export default function Dashboard() {
         progressColor: TEAL,
         height: 150,
         cursorColor: TEAL,
-        barWidth: 2,
-        barGap: 1,
+        barWidth: 5,
+        barGap: 4,
+        barRadius: 3,
         dragToSeek: true,
+        autoScroll: false,
+        autoCenter: false,
       })
       ws.loadBlob(splitterFile)
       ws.on('play', () => setSplitterPlaying(true))
