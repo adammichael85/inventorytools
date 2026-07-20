@@ -12,7 +12,7 @@ INCLUDE: All room and area headings such as Kitchen, Living Room, Bedroom 1, Bat
 
 EXCLUDE: Cover page, contents page, notes, disclaimers, checklists, keys and utilities, meter readings, declaration, terms and conditions, abbreviations pages.
 
-EXCLUDE FROM ROOM LIST - WALL/DIRECTION SUBSECTION LABELS: Do not add bold, unnumbered wall or direction labels to the room list, even though they appear on their own line inside a room's table (e.g. Rear Wall, Front Wall, Left Wall, Right Wall, LHS Wall, RHS Wall, Facing Wall, Entrance Wall, Window Wall, Door Wall, Side Wall). These are subsection headings that belong INSIDE the room whose heading appears above them in the same table - they are never a new room in their own right, no matter how many times they repeat across different rooms (e.g. every room may have its own Rear Wall / Facing Wall / LHS Wall rows). Only the genuine room-type heading above the table (Kitchen, Bedroom, Bathroom, Hallway, Lounge, etc.) starts a new room in the list.
+UNIVERSAL RULE - WALL/DIRECTION LABELS ARE NEVER ROOMS (applies no matter which detailed format section below ends up matching): Some reports print a bold, underlined or all-caps label describing a wall or direction on its own line inside a room's table, sometimes even with its own row number (e.g. Rear Wall, Front Wall, Left Wall, Right Wall, LHS Wall, RHS Wall, Facing Wall, Entrance Wall, Window Wall, Door Wall, Side Wall). Never add this kind of label to the room list and never treat it as a new room, no matter how many times a similar label repeats across different rooms (every room may have its own Rear Wall / Facing Wall / LHS Wall line). A new room only begins when a genuine room-type heading appears (Kitchen, Bedroom, Bathroom, Hallway, Lounge, WC, or a combined name like Lounge/Kitchen). If a bold all-caps label could be read either way, keep it inside the current room rather than starting a new one.
 
 IMPORTANT: Be generous with page ranges. If unsure where a room ends, extend the endPage by 2-3 extra pages. It is better to include too many pages than too few. Small transitional areas like Porch, Stairs, Hallways must be included even if they only span 1-2 pages.
 
@@ -130,6 +130,11 @@ IGNORE completely:
 - Rows where the item or description is just a photo reference like "Ref # 3.1" or "Ref #5" or similar
 - Any text that is just a photo caption or timestamp like "17 Aug 2023 10:28"
 - Cover pages, disclaimers, declaration pages
+
+UNIVERSAL RULE - WALL/DIRECTION LABELS AND ROOM NAMES (applies no matter which detailed format section below ends up matching):
+1. Wall or direction labels (Rear Wall, Front Wall, Left Wall, Right Wall, LHS Wall, RHS Wall, Facing Wall, Entrance Wall, Window Wall, Door Wall, Side Wall) are Item-heading rows inside the CURRENT room, exactly like Door, Floor, Walls or Ceiling - never a new room, even if bold, underlined, all-caps, or individually numbered in the source.
+2. If the source row for a wall/direction label also has its own Condition text on the same source line (e.g. "REAR WALL ... Good and clean condition"), keep that Condition on the SAME Word row as the heading. Do not move it to a separate blank row below.
+3. The room's own name must appear only as the room heading above the table - never also as a blank or duplicate Item row inside its own table.
 
 COLUMN DETECTION: Identify the column format visually:
 - Some PDFs have: Ref | Name | Description | Condition (4 columns)
@@ -260,8 +265,6 @@ REF/NUMBER | DESCRIPTION | CHECK-IN NOTES, WITH BOLD UNNUMBERED ITEM HEADERS
 Some reports use this structure: a room name above the table, a Ref/Number column, a Description column, a Check-In Notes column, and bold, unnumbered text inside the table that acts as an Item heading. The bold item headings must not be ignored.
 
 ROOM NAME IDENTIFICATION: The room name is the main heading above the table (e.g. Entrance Hall, Lounge, Bedroom 1, Kitchen, WC, Bathroom, Bedroom 2). Create a new room only when a genuine room heading appears above the table. Do not treat bold text inside the table as a room name.
-
-WALL/DIRECTION SUBSECTION LABELS ARE NEVER ROOMS: Bold, unnumbered, all-caps labels that describe a wall or direction within a room (e.g. Rear Wall, Front Wall, Left Wall, Right Wall, LHS Wall, RHS Wall, Facing Wall, Entrance Wall, Window Wall, Door Wall, Side Wall) must always be treated as an Item heading row inside the CURRENT room's table, exactly like Door, Floor, Walls or Ceiling. Never create a new room section for these labels, even though they are bold, capitalised and visually resemble a room heading. Room boundaries are determined only when a genuine room-type heading (Kitchen, Bedroom, Bathroom, Lounge, Hallway, WC, etc.) appears above the table as the start of a new inventory section - not by boldness, capitalisation, or a label standing on its own line. If in doubt whether a bold label is a new room or a subsection inside the current room, treat it as a subsection inside the current room.
 
 BOLD ITEM HEADER IDENTIFICATION: Bold text inside the Description column with no Ref number is an Item heading. Examples: Door, Floor, Walls, Ceiling, Fixtures & Fittings, Cupboard 1, Cupboard 2 (High), Cupboard 3 (Small), Bay Window. Each bold item heading must be added to the Word document as its own separate row. Do not merge the numbered rows beneath it into the same row.
 
@@ -662,7 +665,7 @@ Your job is to identify every room/area section in this PDF and return their pag
 
 INCLUDE ALL sections without exception: All rooms (Kitchen, Living Room, Bedroom 1-10, Bathroom etc.), AND also: Property Information, Weather/Cleaning Standard, Utilities, Smoke Detectors, Carbon Monoxide Detectors, Keys, External Surfaces, External Features, Boundaries, Hallway/Stairs & Landing, any sub-areas.
 
-EXCLUDE FROM ROOM LIST - WALL/DIRECTION SUBSECTION LABELS: Do not add bold, unnumbered wall or direction labels to the room list, even though they appear on their own line inside a room's table (e.g. Rear Wall, Front Wall, Left Wall, Right Wall, LHS Wall, RHS Wall, Facing Wall, Entrance Wall, Window Wall, Door Wall, Side Wall). These are subsection headings that belong INSIDE the room whose heading appears above them in the same table - they are never a new room in their own right, no matter how many times they repeat across different rooms (e.g. every room may have its own Rear Wall / Facing Wall / LHS Wall rows). Only the genuine room-type heading above the table (Kitchen, Bedroom, Bathroom, Hallway, Lounge, etc.) starts a new room in the list.
+UNIVERSAL RULE - WALL/DIRECTION LABELS ARE NEVER ROOMS (applies no matter which detailed format section below ends up matching): Some reports print a bold, underlined or all-caps label describing a wall or direction on its own line inside a room's table, sometimes even with its own row number (e.g. Rear Wall, Front Wall, Left Wall, Right Wall, LHS Wall, RHS Wall, Facing Wall, Entrance Wall, Window Wall, Door Wall, Side Wall). Never add this kind of label to the room list and never treat it as a new room, no matter how many times a similar label repeats across different rooms (every room may have its own Rear Wall / Facing Wall / LHS Wall line). A new room only begins when a genuine room-type heading appears (Kitchen, Bedroom, Bathroom, Hallway, Lounge, WC, or a combined name like Lounge/Kitchen). If a bold all-caps label could be read either way, keep it inside the current room rather than starting a new one.
 
 IMPORTANT: Be generous with page ranges. If unsure where a section ends, extend endPage by 2-3 extra pages.
 
@@ -774,6 +777,11 @@ OUTPUT FORMAT — return ONLY this JSON structure:
 {"rows":[{"item":"Front Door","description":"Wooden stained. Colour: light brown.","condition":"Good"}]}
 
 ABSOLUTE RULE: The output item field must be a PHYSICAL THING (e.g. Front Door, Handle, Ceiling, Laminate flooring, Smoke Detector). NEVER use PDF column names like "Door Type", "Door Finish", "Frame Type", "Window Type", "Ceiling Finish", "Floor Finish", "Wall Colour" as item values.
+
+UNIVERSAL RULE - WALL/DIRECTION LABELS AND ROOM NAMES (applies no matter which detailed format section below ends up matching):
+1. Wall or direction labels (Rear Wall, Front Wall, Left Wall, Right Wall, LHS Wall, RHS Wall, Facing Wall, Entrance Wall, Window Wall, Door Wall, Side Wall) are Item-heading rows inside the CURRENT room, exactly like Door, Floor, Walls or Ceiling - never a new room, even if bold, underlined, all-caps, or individually numbered in the source.
+2. If the source row for a wall/direction label also has its own Condition text on the same source line (e.g. "REAR WALL ... Good and clean condition"), keep that Condition on the SAME Word row as the heading. Do not move it to a separate blank row below.
+3. The room's own name must appear only as the room heading above the table - never also as a blank or duplicate Item row inside its own table.
 
 CORE RULES:
 - Split every physical object into its own row — never group multiple objects in one row
@@ -897,8 +905,6 @@ REF/NUMBER | DESCRIPTION | CHECK-IN NOTES, WITH BOLD UNNUMBERED ITEM HEADERS
 Some reports use this structure: a room name above the table, a Ref/Number column, a Description column, a Check-In Notes column, and bold, unnumbered text inside the table that acts as an Item heading. The bold item headings must not be ignored.
 
 ROOM NAME IDENTIFICATION: The room name is the main heading above the table (e.g. Entrance Hall, Lounge, Bedroom 1, Kitchen, WC, Bathroom, Bedroom 2). Create a new room only when a genuine room heading appears above the table. Do not treat bold text inside the table as a room name.
-
-WALL/DIRECTION SUBSECTION LABELS ARE NEVER ROOMS: Bold, unnumbered, all-caps labels that describe a wall or direction within a room (e.g. Rear Wall, Front Wall, Left Wall, Right Wall, LHS Wall, RHS Wall, Facing Wall, Entrance Wall, Window Wall, Door Wall, Side Wall) must always be treated as an Item heading row inside the CURRENT room's table, exactly like Door, Floor, Walls or Ceiling. Never create a new room section for these labels, even though they are bold, capitalised and visually resemble a room heading. Room boundaries are determined only when a genuine room-type heading (Kitchen, Bedroom, Bathroom, Lounge, Hallway, WC, etc.) appears above the table as the start of a new inventory section - not by boldness, capitalisation, or a label standing on its own line. If in doubt whether a bold label is a new room or a subsection inside the current room, treat it as a subsection inside the current room.
 
 BOLD ITEM HEADER IDENTIFICATION: Bold text inside the Description column with no Ref number is an Item heading. Examples: Door, Floor, Walls, Ceiling, Fixtures & Fittings, Cupboard 1, Cupboard 2 (High), Cupboard 3 (Small), Bay Window. Each bold item heading must be added to the Word document as its own separate row. Do not merge the numbered rows beneath it into the same row.
 
