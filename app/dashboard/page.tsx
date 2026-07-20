@@ -10,6 +10,14 @@ import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import dynamic from 'next/dynamic'
 const ReviewAmendModal = dynamic(() => import('@/components/ReviewAmendModal'), { ssr: false })
+const SPLITTER_SPEEDS = [0.5, 1, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4]
+function formatSplitterTime(t: number) {
+  if (!isFinite(t)) return '0:00'
+  const m = Math.floor(t / 60)
+  const s = Math.floor(t % 60)
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+const splitterTransportBtnStyle: React.CSSProperties = { width: 36, height: 36, borderRadius: 10, border: '1px solid #ecebe8', background: '#f6f5f3', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }
 
 // Loaded lazily (only when the payment step actually renders) rather than on every
 // page view - Stripe.js injects hidden telemetry iframes as soon as loadStripe() runs,
@@ -1701,6 +1709,13 @@ export default function Dashboard() {
   const [splitterMarkers, setSplitterMarkers] = useState<number[]>([])
   const [splitterNames, setSplitterNames] = useState<Record<number, string>>({})
   const [splitterExporting, setSplitterExporting] = useState(false)
+  const [splitterCurrentTime, setSplitterCurrentTime] = useState(0)
+  const [splitterLooping, setSplitterLooping] = useState(false)
+  const [splitterLoopStart, setSplitterLoopStart] = useState(0)
+  const splitterLoopingRef = React.useRef(false)
+  const splitterLoopStartRef = React.useRef(0)
+  React.useEffect(() => { splitterLoopingRef.current = splitterLooping }, [splitterLooping])
+  React.useEffect(() => { splitterLoopStartRef.current = splitterLoopStart }, [splitterLoopStart])
   const splitterWaveRef = React.useRef<HTMLDivElement | null>(null)
   const splitterWSRef = React.useRef<any>(null)
   React.useEffect(() => {
@@ -1717,12 +1732,19 @@ export default function Dashboard() {
         cursorColor: '#4C1D95',
         barWidth: 2,
         barGap: 1,
+        dragToSeek: true,
       })
       ws.loadBlob(splitterFile)
       ws.on('play', () => setSplitterPlaying(true))
       ws.on('pause', () => setSplitterPlaying(false))
       ws.on('finish', () => setSplitterPlaying(false))
       ws.on('ready', () => setSplitterDuration(ws.getDuration()))
+      ws.on('timeupdate', (t: number) => {
+        setSplitterCurrentTime(t)
+        if (splitterLoopingRef.current && t >= splitterLoopStartRef.current + 4) {
+          ws.setTime(splitterLoopStartRef.current)
+        }
+      })
       splitterWSRef.current = ws
     })
     return () => {
@@ -1731,6 +1753,46 @@ export default function Dashboard() {
       splitterWSRef.current = null
     }
   }, [page, splitterState, splitterFile])
+  function splitterSeek(delta: number) {
+    const ws = splitterWSRef.current
+    if (!ws || !splitterDuration) return
+    const t = Math.min(Math.max(ws.getCurrentTime() + delta, 0), splitterDuration)
+    ws.setTime(t)
+  }
+  function splitterTogglePlay() {
+    splitterWSRef.current?.playPause()
+  }
+  function splitterStop() {
+    const ws = splitterWSRef.current
+    if (!ws) return
+    ws.pause()
+    ws.setTime(0)
+  }
+  function splitterToggleLoop() {
+    setSplitterLooping(prev => {
+      const next = !prev
+      if (next) {
+        const t = splitterWSRef.current?.getCurrentTime() || 0
+        setSplitterLoopStart(t)
+        splitterLoopStartRef.current = t
+      }
+      splitterLoopingRef.current = next
+      return next
+    })
+  }
+  React.useEffect(() => {
+    if (page !== 'audiosplitter' || splitterState !== 'loaded') return
+    function handleKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return
+      if (e.key === 'ArrowLeft') { e.preventDefault(); splitterSeek(-5) }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); splitterSeek(5) }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); splitterTogglePlay() }
+      else if (e.key === 'l' || e.key === 'L') { e.preventDefault(); splitterToggleLoop() }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [page, splitterState, splitterDuration])
   async function splitterExportAll() {
     if (!splitterFile || splitterDuration <= 0) return
     setSplitterExporting(true)
@@ -3368,83 +3430,102 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               )}
 
               {splitterState === 'loaded' && splitterFile && (
-                <div style={{ padding: '8px 0' }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 14, textAlign: 'center' }}>{splitterFile.name}</p>
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+                  <div style={{ width: '80vw', height: '80vh', background: '#fff', borderRadius: 16, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <div style={{ padding: '16px 24px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>{splitterFile.name}</p>
+                      <button onClick={() => { setSplitterState('idle'); setSplitterFile(null); setSplitterPlaying(false); setSplitterMarkers([]); setSplitterNames({}); setSplitterDuration(0); setSplitterLooping(false) }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: MUTED, lineHeight: 1 }}>×</button>
+                    </div>
 
-                  <div style={{ position: 'relative', marginBottom: 16 }}>
-                    <div ref={splitterWaveRef} style={{ background: SURFACE, borderRadius: 12, padding: '12px 16px' }} />
-                    {splitterDuration > 0 && splitterMarkers.map((m, i) => (
-                      <div
-                        key={i}
-                        onClick={() => setSplitterMarkers(prev => prev.filter(x => x !== m))}
-                        title="Click to remove this cut"
-                        style={{ position: 'absolute', top: 12, bottom: 12, left: `calc(${(m / splitterDuration) * 100}% + 16px)`, width: 2, background: '#DC2626', cursor: 'pointer', zIndex: 2 }}
-                      />
-                    ))}
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginBottom: 8 }}>
-                    <button onClick={() => splitterWSRef.current?.playPause()} style={{ width: 44, height: 44, borderRadius: '50%', border: 'none', background: '#7C3AED', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {splitterPlaying ? (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                      ) : (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-                      )}
-                    </button>
-                    <select value={splitterSpeed} onChange={e => { const v = Number(e.target.value); setSplitterSpeed(v); splitterWSRef.current?.setPlaybackRate(v) }} style={{ padding: '8px 10px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, background: SURFACE, color: TEXT }}>
-                      {[0.5, 0.75, 1, 1.25, 1.5, 2].map(s => <option key={s} value={s}>{s}x</option>)}
-                    </select>
-                    <button
-                      onClick={() => {
-                        const t = splitterWSRef.current?.getCurrentTime()
-                        if (t == null || !splitterDuration) return
-                        setSplitterMarkers(prev => prev.some(m => Math.abs(m - t) < 0.15) ? prev : [...prev, t].sort((a, b) => a - b))
-                      }}
-                      title="Cut at current position"
-                      style={{ width: 44, height: 44, borderRadius: '50%', border: `1px solid ${BORDER}`, background: SURFACE, color: '#7C3AED', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>
-                    </button>
-                  </div>
-
-                  {splitterError && <p style={{ fontSize: 13, color: '#DC2626', textAlign: 'center', marginTop: 8 }}>{splitterError}</p>}
-
-                  {splitterDuration > 0 && (() => {
-                    const bounds = [0, ...splitterMarkers, splitterDuration]
-                    return (
-                      <div style={{ marginTop: 20 }}>
-                        <p className="it-label" style={{ fontSize: 11, color: MUTED, marginBottom: 8 }}>{bounds.length - 1} slice{bounds.length - 1 === 1 ? '' : 's'}</p>
-                        {bounds.slice(0, -1).map((start, i) => {
-                          const end = bounds[i + 1]
-                          const dur = end - start
-                          return (
-                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, background: SURFACE, marginBottom: 6 }}>
-                              <button onClick={() => splitterWSRef.current?.play(start, end)} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: '#EDE9FE', color: '#7C3AED', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-                              </button>
-                              <input
-                                value={splitterNames[i] ?? `Slice ${i + 1}`}
-                                onChange={e => setSplitterNames(prev => ({ ...prev, [i]: e.target.value }))}
-                                style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 13, background: '#fff', color: TEXT }}
-                              />
-                              <span style={{ fontSize: 12, color: HINT, flexShrink: 0, minWidth: 40, textAlign: 'right' }}>{Math.floor(dur / 60)}:{String(Math.floor(dur % 60)).padStart(2, '0')}</span>
-                            </div>
-                          )
-                        })}
-                        <button
-                          disabled={splitterExporting}
-                          onClick={splitterExportAll}
-                          style={{ width: '100%', marginTop: 12, padding: 13, borderRadius: 10, border: 'none', background: splitterExporting ? BORDER : '#7C3AED', color: splitterExporting ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: splitterExporting ? 'default' : 'pointer' }}
-                        >
-                          {splitterExporting ? 'Exporting…' : 'Export & Download All'}
-                        </button>
+                    <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
+                      <div style={{ position: 'relative', marginBottom: 4 }}>
+                        <div ref={splitterWaveRef} style={{ background: SURFACE, borderRadius: 12, padding: '12px 16px' }} />
+                        {splitterDuration > 0 && splitterMarkers.map((m, i) => (
+                          <div
+                            key={i}
+                            onClick={() => setSplitterMarkers(prev => prev.filter(x => x !== m))}
+                            title="Click to remove this cut"
+                            style={{ position: 'absolute', top: 12, bottom: 12, left: `calc(${(m / splitterDuration) * 100}% + 16px)`, width: 2, background: '#DC2626', cursor: 'pointer', zIndex: 2 }}
+                          />
+                        ))}
                       </div>
-                    )
-                  })()}
 
-                  <p style={{ textAlign: 'center', marginTop: 16 }}>
-                    <button onClick={() => { setSplitterState('idle'); setSplitterFile(null); setSplitterPlaying(false); setSplitterMarkers([]); setSplitterNames({}); setSplitterDuration(0) }} style={{ background: 'none', border: 'none', color: MUTED, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>Choose a different file</button>
-                  </p>
+                      {splitterError && <p style={{ fontSize: 13, color: '#DC2626', textAlign: 'center', marginTop: 8 }}>{splitterError}</p>}
+
+                      {splitterDuration > 0 && (() => {
+                        const bounds = [0, ...splitterMarkers, splitterDuration]
+                        return (
+                          <div style={{ marginTop: 20 }}>
+                            <p className="it-label" style={{ fontSize: 11, color: MUTED, marginBottom: 8 }}>{bounds.length - 1} slice{bounds.length - 1 === 1 ? '' : 's'}</p>
+                            {bounds.slice(0, -1).map((start, i) => {
+                              const end = bounds[i + 1]
+                              const dur = end - start
+                              return (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, background: SURFACE, marginBottom: 6 }}>
+                                  <button onClick={() => splitterWSRef.current?.play(start, end)} style={{ width: 30, height: 30, borderRadius: '50%', border: 'none', background: '#EDE9FE', color: '#7C3AED', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                                  </button>
+                                  <input
+                                    value={splitterNames[i] ?? `Slice ${i + 1}`}
+                                    onChange={e => setSplitterNames(prev => ({ ...prev, [i]: e.target.value }))}
+                                    style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 13, background: '#fff', color: TEXT }}
+                                  />
+                                  <span style={{ fontSize: 12, color: HINT, flexShrink: 0, minWidth: 40, textAlign: 'right' }}>{Math.floor(dur / 60)}:{String(Math.floor(dur % 60)).padStart(2, '0')}</span>
+                                </div>
+                              )
+                            })}
+                            <button
+                              disabled={splitterExporting}
+                              onClick={splitterExportAll}
+                              style={{ width: '100%', marginTop: 12, padding: 13, borderRadius: 10, border: 'none', background: splitterExporting ? BORDER : '#7C3AED', color: splitterExporting ? MUTED : '#fff', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: splitterExporting ? 'default' : 'pointer' }}
+                            >
+                              {splitterExporting ? 'Exporting…' : 'Export & Download All'}
+                            </button>
+                          </div>
+                        )
+                      })()}
+                    </div>
+
+                    <div style={{ borderTop: `1px solid ${BORDER}`, background: '#fff', padding: '12px 24px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <button onClick={() => splitterSeek(-5)} style={splitterTransportBtnStyle} aria-label="Back 5 seconds">⏪</button>
+                          <button onClick={splitterTogglePlay} style={{ ...splitterTransportBtnStyle, width: 44, height: 44, borderRadius: '50%', background: '#7C3AED', color: '#fff', border: 'none' }} aria-label={splitterPlaying ? 'Pause' : 'Play'}>{splitterPlaying ? '⏸' : '▶'}</button>
+                          <button onClick={splitterStop} style={splitterTransportBtnStyle} aria-label="Stop">⏹</button>
+                          <button onClick={() => splitterSeek(5)} style={splitterTransportBtnStyle} aria-label="Forward 5 seconds">⏩</button>
+                          <button onClick={splitterToggleLoop} style={{ height: 36, padding: '0 14px', borderRadius: 10, border: splitterLooping ? '1px solid #7C3AED' : `1px solid ${BORDER}`, background: splitterLooping ? '#7C3AED' : SURFACE, color: splitterLooping ? '#fff' : TEXT, cursor: 'pointer', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 13 }}>Loop</button>
+                          <button
+                            onClick={() => {
+                              const t = splitterWSRef.current?.getCurrentTime()
+                              if (t == null || !splitterDuration) return
+                              setSplitterMarkers(prev => prev.some(m => Math.abs(m - t) < 0.15) ? prev : [...prev, t].sort((a, b) => a - b))
+                            }}
+                            title="Cut at current position"
+                            style={{ ...splitterTransportBtnStyle, color: '#7C3AED' }}
+                          >✂</button>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+                          <div style={{ height: 4, background: BORDER, borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
+                            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${splitterDuration ? (splitterCurrentTime / splitterDuration) * 100 : 0}%`, background: '#7C3AED', borderRadius: 4 }} />
+                          </div>
+                          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: HINT, textAlign: 'center' }}>
+                            {formatSplitterTime(splitterCurrentTime)} / {formatSplitterTime(splitterDuration)}{splitterLooping ? '  ·  ● Looping 4s' : ''}
+                          </div>
+                        </div>
+                        <div className="rm-scrollbar" style={{ display: 'flex', gap: 4, overflowX: 'auto', maxWidth: '40%', paddingBottom: 2 }}>
+                          {SPLITTER_SPEEDS.map(s => (
+                            <button key={s} onClick={() => { setSplitterSpeed(s); splitterWSRef.current?.setPlaybackRate(s) }} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, padding: '6px 7px', borderRadius: 8, border: `1px solid ${BORDER}`, background: splitterSpeed === s ? '#1a1a1a' : SURFACE, color: splitterSpeed === s ? '#fff' : MUTED, cursor: 'pointer', flexShrink: 0 }}>{s}x</button>
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${BORDER}`, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: TEXT }}>
+                        <span>↓ <strong>Play/Pause</strong></span>
+                        <span>← <strong>Back 5s</strong></span>
+                        <span>→ <strong>Forward 5s</strong></span>
+                        <span>L <strong style={{ color: splitterLooping ? '#7C3AED' : TEXT }}>Loop 4s</strong></span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
