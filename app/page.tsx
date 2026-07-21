@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { createPortal } from 'react-dom'
 
 export default function Home() {
   const [toolsOpen, setToolsOpen] = useState(false)
@@ -23,31 +24,33 @@ export default function Home() {
     { q: 'Is my data handled securely?', a: 'Your documents and audio files are handled securely during processing, and your reports stay yours.' },
   ]
 
+  const demoContent: Record<string, { input: string, inputSub: string, process: string, output: string }> = {
+    pdf: { input: 'Messy 64-page PDF', inputSub: 'Inconsistent formatting', process: 'PDF to Word', output: 'Clean, editable DOCX' },
+    audio: { input: 'Room-by-room dictation', inputSub: 'Spoken inspection notes', process: 'Audio to Word', output: 'Structured DOCX' },
+    long: { input: '42-minute recording', inputSub: 'Whole property, one file', process: 'Split, then Convert', output: 'Room-by-room DOCX' },
+    locked: { input: 'Unreadable PDF', inputSub: 'Locked or corrupted', process: 'Clean, then Convert', output: 'Editable DOCX' },
+  }
+  const activeDemo = demoContent[demoTab]
+
   const css = `
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
-:root{--ink:#1a1a1a;--body:#4a4a4a;--muted:#8a8a8a;--bg:#f7f9f8;--bg-alt:#f6f5f3;--orange:#fd6a02;--orange-hover:#e05e00;--orange-tint:#fff1e6;--navy:#1c2942;--navy-tint:#e9ebf1;--border:#ecebe8;--green:#3e8e5a;--green-tint:#e9f3ec;--red:#d64545;--red-tint:#fbeaea;--radius:18px;--shadow:0 8px 30px rgba(26,26,26,.07);--glass-bg:rgba(255,255,255,.7);--glass-bg-strong:rgba(255,255,255,.85);--glass-border:rgba(255,255,255,.75)}
+:root{--ink:#1a1a1a;--body:#4a4a4a;--muted:#8a8a8a;--bg:#f6f5f3;--bg-alt:#f0efec;--orange:#fd6a02;--orange-hover:#e05e00;--orange-tint:#fff1e6;--navy:#1c2942;--navy-tint:#e9ebf1;--border:#ecebe8;--green:#3e8e5a;--green-tint:#e9f3ec;--radius:18px;--shadow:0 8px 30px rgba(26,26,26,.07);--glass-bg:rgba(255,255,255,.7);--glass-bg-strong:rgba(255,255,255,.85);--glass-border:rgba(255,255,255,.75)}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-body{font-family:'Inter',sans-serif;color:var(--body);background:var(--bg);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',sans-serif;color:var(--body);background:var(--bg)!important;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
 .pl-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
-.pl-blob{position:absolute;border-radius:50%;filter:blur(110px);-webkit-transform:translateZ(0);transform:translateZ(0);will-change:filter,transform}
-.pl-blob-1{width:640px;height:640px;background:var(--orange);top:-220px;left:-160px;opacity:.13}
-.pl-blob-2{width:520px;height:520px;background:#e4d9c9;top:20%;right:-180px;opacity:.4}
-.pl-blob-3{width:560px;height:560px;background:var(--navy);bottom:-260px;left:20%;opacity:.09}
+.pl-blob{position:absolute;border-radius:50%;filter:blur(110px);-webkit-transform:translateZ(0);transform:translateZ(0)}
+.pl-blob-1{width:640px;height:640px;background:var(--orange);top:-220px;left:-160px;opacity:.2}
+.pl-blob-2{width:520px;height:520px;background:#e4d9c9;top:15%;right:-180px;opacity:.55}
+.pl-blob-3{width:560px;height:560px;background:var(--navy);bottom:10%;left:20%;opacity:.12}
+.pl-blob-4{width:480px;height:480px;background:var(--orange);bottom:-260px;right:10%;opacity:.1}
 .pl-main{position:relative;z-index:1}
-h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.12;letter-spacing:-.02em}
-h1{font-size:clamp(2.3rem,5vw,3.8rem);font-weight:700}h2{font-size:clamp(1.7rem,3.4vw,2.5rem);font-weight:700}h3{font-size:1.2rem;font-weight:600}
-.container{max-width:1180px;margin:0 auto;padding:0 24px}section{padding:100px 0}
-.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.14em;color:var(--orange);font-weight:500;text-transform:uppercase;display:block;margin-bottom:16px}
-.eyebrow.navy{color:var(--navy)}
-.section-head{text-align:center;max-width:700px;margin:0 auto 56px}.section-head p{margin-top:14px;font-size:1.05rem}
-.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;font-weight:600;font-size:1rem;padding:14px 26px;border-radius:12px;cursor:pointer;text-decoration:none;border:1px solid transparent;transition:transform .15s ease,background .15s ease,box-shadow .15s ease}
-.btn-primary{background:var(--orange);color:#fff;box-shadow:0 10px 22px -8px rgba(253,106,2,.5)}
-.btn-primary:hover{background:var(--orange-hover);transform:translateY(-1px);box-shadow:0 12px 26px -6px rgba(253,106,2,.45)}
-.btn-secondary{background:var(--glass-bg-strong);color:var(--ink);border-color:var(--glass-border);backdrop-filter:blur(16px)}
-.btn-secondary:hover{border-color:var(--ink)}
-.btn-navy{background:var(--navy);color:#fff;box-shadow:0 10px 22px -8px rgba(28,41,66,.5)}
-.btn-navy:hover{transform:translateY(-1px)}
-.arrow{font-weight:700}
+.container{max-width:1180px;margin:0 auto;padding:0 24px}section{padding:90px 0}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.15;letter-spacing:-.02em}
+h1{font-size:clamp(2.3rem,5vw,3.6rem);font-weight:700}h2{font-size:clamp(1.6rem,3vw,2.3rem);font-weight:700}h3{font-size:1.2rem;font-weight:600}
+.section-head{text-align:center;max-width:680px;margin:0 auto 54px}.section-head p{margin-top:14px;font-size:1.02rem}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.14em;color:var(--orange);font-weight:500;text-transform:uppercase;display:inline-block;margin-bottom:16px}
+.eyebrow.pill{background:var(--orange-tint);padding:7px 16px;border-radius:100px}
+.glass-card{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:22px;box-shadow:var(--shadow)}
 header{position:sticky;top:0;z-index:100;background:var(--glass-bg)!important;backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border-bottom:1px solid var(--glass-border)}
 .nav{display:flex;align-items:center;justify-content:space-between;height:68px;position:relative}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
@@ -68,13 +71,20 @@ header{position:sticky;top:0;z-index:100;background:var(--glass-bg)!important;ba
 .mobile-menu a{display:block;padding:11px 0;text-decoration:none;color:var(--ink);font-weight:600;border-bottom:1px solid var(--bg-alt)}
 .mobile-menu.open{display:block}
 .mobile-menu small{display:block;font-weight:400;color:var(--muted);font-size:.78rem;margin-top:2px}
-.hero{padding:84px 0 64px;text-align:center}
-.hero .eyebrow{display:inline-block;background:var(--orange-tint);padding:7px 16px;border-radius:100px;margin-bottom:26px}
-.hero h1{max-width:780px;margin:0 auto 22px}.hero .sub{max-width:640px;margin:0 auto 30px;font-size:1.1rem}
-.hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
-.hero-note{font-size:.85rem;color:var(--muted);font-weight:500;margin-bottom:54px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;font-weight:600;font-size:1rem;padding:14px 26px;border-radius:12px;cursor:pointer;text-decoration:none;border:1px solid transparent;transition:transform .15s ease,background .15s ease,box-shadow .15s ease}
+.btn-primary{background:var(--orange);color:#fff;box-shadow:0 10px 22px -8px rgba(253,106,2,.5)}
+.btn-primary:hover{background:var(--orange-hover);transform:translateY(-1px);box-shadow:0 12px 26px -6px rgba(253,106,2,.45)}
+.btn-secondary{background:var(--glass-bg-strong);color:var(--ink);border-color:var(--glass-border);backdrop-filter:blur(16px)}
+.btn-secondary:hover{border-color:var(--ink)}
+.btn-navy{background:var(--navy);color:#fff;box-shadow:0 10px 22px -8px rgba(28,41,66,.5)}
+.btn-navy:hover{transform:translateY(-1px)}
+.arrow{font-weight:700}
+.hero{padding:80px 0 60px;text-align:center}
+.hero h1{max-width:780px;margin:0 auto 20px}.hero .sub{max-width:600px;margin:0 auto 28px;font-size:1.05rem}
+.hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.hero-note{font-size:.85rem;color:var(--muted);font-weight:500;margin-bottom:50px}
 .hero-note b{color:var(--ink)}
-.workflow-visual{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:24px;box-shadow:var(--shadow);padding:36px;max-width:1040px;margin:0 auto;text-align:left}
+.workflow-visual{padding:36px;max-width:1040px;margin:0 auto;text-align:left}
 .wf-row{display:grid;grid-template-columns:1fr auto 1.1fr;gap:28px;align-items:center}
 .wf-inputs{display:flex;flex-direction:column;gap:12px}
 .wf-input-card{border:1px solid var(--border);border-radius:14px;padding:16px 18px;background:rgba(255,255,255,.6);display:flex;align-items:center;gap:12px}
@@ -94,8 +104,7 @@ header{position:sticky;top:0;z-index:100;background:var(--glass-bg)!important;ba
 .doc-row.hdr{color:var(--muted);font-weight:700;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em}
 .doc-row:last-child{border-bottom:none}
 .grid-4{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
-.tool-card{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:22px;padding:32px;display:flex;flex-direction:column;position:relative}
-.tool-card.main{padding:36px}
+.tool-card{padding:32px;display:flex;flex-direction:column;position:relative}
 .tool-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--muted);letter-spacing:.08em;margin-bottom:14px}
 .tool-badge{position:absolute;top:24px;right:24px;background:var(--navy);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.08em;padding:5px 11px;border-radius:100px;text-transform:uppercase}
 .tool-badge.free{background:var(--green)}
@@ -109,7 +118,7 @@ header{position:sticky;top:0;z-index:100;background:var(--glass-bg)!important;ba
 .tool-price.free{color:var(--green)}
 .tool-price small{font-size:.78rem;color:var(--muted);font-family:'Inter';font-weight:500}
 .route-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
-.route-panel{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:22px;padding:30px}
+.route-panel{padding:30px}
 .route-panel .eyebrow{margin-bottom:14px}
 .route-steps{display:flex;flex-direction:column;gap:0}
 .route-step{display:flex;align-items:center;gap:14px;padding:12px 0}
@@ -120,19 +129,19 @@ header{position:sticky;top:0;z-index:100;background:var(--glass-bg)!important;ba
 .demo-tabs{display:flex;justify-content:center;gap:6px;background:var(--glass-bg);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:100px;padding:5px;width:max-content;margin:0 auto 40px;flex-wrap:wrap}
 .demo-tabs button{border:none;background:transparent;font-family:'Inter';font-weight:600;font-size:.88rem;padding:10px 20px;border-radius:100px;cursor:pointer;color:var(--body)}
 .demo-tabs button.active{background:var(--ink);color:#fff}
-.demo-panel{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:24px;box-shadow:var(--shadow);padding:36px;max-width:920px;margin:0 auto}
+.demo-panel{padding:36px;max-width:920px;margin:0 auto}
 .ipo-row{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:18px;align-items:center}
 .ipo-card{border:1px solid var(--border);border-radius:14px;padding:18px;background:rgba(255,255,255,.6);text-align:center}
 .ipo-card .mini-label{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:block}
 .ipo-card strong{font-size:.95rem;color:var(--ink);display:block}
 .ipo-arrow{color:var(--orange);font-size:1.3rem;font-weight:700}
 .benefit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
-.benefit-card{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:var(--radius);padding:26px}
+.benefit-card{padding:26px}
 .benefit-icon{width:42px;height:42px;border-radius:12px;background:var(--orange-tint);display:flex;align-items:center;justify-content:center;font-size:1.15rem;margin-bottom:16px}
 .benefit-card h3{font-size:1.02rem;margin-bottom:8px}.benefit-card p{font-size:.9rem}
-.evidence-panel{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:24px;padding:44px;text-align:center;max-width:800px;margin:0 auto}
+.evidence-panel{padding:44px;text-align:center;max-width:800px;margin:0 auto}
 .evidence-panel p{font-size:1.05rem;color:var(--ink);font-family:'Space Grotesk';font-weight:600;line-height:1.5}
-.pricing-table-wrap{max-width:720px;margin:0 auto;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+.pricing-table-wrap{max-width:720px;margin:0 auto;overflow:hidden}
 .pricing-row{display:flex;justify-content:space-between;align-items:center;padding:20px 28px;border-bottom:1px solid var(--border)}
 .pricing-row:last-child{border-bottom:none}
 .pricing-row .name{font-weight:600;color:var(--ink);font-size:1rem}
@@ -142,18 +151,20 @@ header{position:sticky;top:0;z-index:100;background:var(--glass-bg)!important;ba
 .pricing-notes span::before{content:"✓ ";color:var(--green)}
 .pricing-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px}
 .team-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
-.team-card{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:var(--radius);padding:32px}
+.team-card{padding:32px}
 .team-card h3{margin-bottom:16px}
 .team-card ul{list-style:none;display:flex;flex-direction:column;gap:11px}
 .team-card li{display:flex;gap:10px;font-size:.94rem;align-items:flex-start}
 .team-card li::before{content:"✓";color:var(--green);font-weight:700;flex-shrink:0}
 .team-cta{text-align:center;margin-top:38px}
 .faq-list{max-width:740px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
-.faq-item{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:14px;overflow:hidden}
+.faq-item{border-radius:14px;overflow:hidden}
 .faq-q{width:100%;background:none;border:none;font-family:'Inter';font-weight:600;font-size:1rem;color:var(--ink);padding:19px 22px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:14px}
 .faq-q .pm{color:var(--orange);font-size:1.3rem;font-weight:700;transition:transform .2s;flex-shrink:0}
 .faq-item.open .pm{transform:rotate(45deg)}
-.faq-a{overflow:hidden;transition:max-height .3s ease}.faq-a p{padding:0 22px 20px;font-size:.94rem}
+.faq-a{overflow:hidden;max-height:0;transition:max-height .3s ease}
+.faq-item.open .faq-a{max-height:320px}
+.faq-a p{padding:0 22px 20px;font-size:.94rem}
 .final{background:#20242c;color:#c9cdd6;text-align:center;padding:100px 0}
 .final h2{color:#fff;max-width:700px;margin:0 auto 18px}.final p{max-width:560px;margin:0 auto 30px;font-size:1.05rem}
 .final-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
@@ -169,22 +180,18 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
 @media(prefers-reduced-motion:reduce){.wf-gear{animation:none}html{scroll-behavior:auto}}
 `
 
-  const demoContent: Record<string, { input: string, inputSub: string, process: string, output: string }> = {
-    pdf: { input: 'Messy 64-page PDF', inputSub: 'Inconsistent formatting', process: 'PDF to Word', output: 'Clean, editable DOCX' },
-    audio: { input: 'Room-by-room dictation', inputSub: 'Spoken inspection notes', process: 'Audio to Word', output: 'Structured DOCX' },
-    long: { input: '42-minute recording', inputSub: 'Whole property, one file', process: 'Split, then Convert', output: 'Room-by-room DOCX' },
-    locked: { input: 'Unreadable PDF', inputSub: 'Locked or corrupted', process: 'Clean, then Convert', output: 'Editable DOCX' },
-  }
-  const activeDemo = demoContent[demoTab]
-
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
-      <div className="pl-backdrop">
-        <div className="pl-blob pl-blob-1" />
-        <div className="pl-blob pl-blob-2" />
-        <div className="pl-blob pl-blob-3" />
-      </div>
+      {typeof document !== 'undefined' && createPortal(
+        <div className="pl-backdrop">
+          <div className="pl-blob pl-blob-1" />
+          <div className="pl-blob pl-blob-2" />
+          <div className="pl-blob pl-blob-3" />
+          <div className="pl-blob pl-blob-4" />
+        </div>,
+        document.body
+      )}
       <div className="pl-main">
 
       <header>
@@ -238,7 +245,7 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
 
       <section className="hero" id="top">
         <div className="container">
-          <span className="eyebrow">The inventory report toolkit</span>
+          <span className="eyebrow pill">THE INVENTORY REPORT TOOLKIT</span>
           <h1>Four tools. One finished inventory report.</h1>
           <p className="sub">Convert existing reports, turn dictated inspections into structured Word documents, split long recordings room by room, and repair PDFs that can&apos;t be read properly.</p>
           <div className="hero-ctas">
@@ -247,21 +254,21 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
           </div>
           <p className="hero-note">No subscription · Pay per conversion · <b>Preparation tools included free</b></p>
 
-          <div className="workflow-visual">
+          <div className="glass-card workflow-visual">
             <div className="wf-row">
               <div className="wf-inputs">
                 <div className="wf-input-card">
                   <div className="wf-input-icon">📄</div>
                   <div>
                     <div className="wf-input-label">PDF / Word report</div>
-                    <div className="wf-input-sub">Problem PDF? <a className="wf-prep-link" href="#tools" style={{ marginLeft: 4 }}>Clean it first</a></div>
+                    <div className="wf-input-sub">Problem PDF? <a href="#tools" className="wf-prep-link">Clean it first</a></div>
                   </div>
                 </div>
                 <div className="wf-input-card">
                   <div className="wf-input-icon">🎙️</div>
                   <div>
                     <div className="wf-input-label">Dictated audio</div>
-                    <div className="wf-input-sub">Long recording? <a className="wf-prep-link" href="#tools" style={{ marginLeft: 4 }}>Split it first</a></div>
+                    <div className="wf-input-sub">Long recording? <a href="#tools" className="wf-prep-link">Split it first</a></div>
                   </div>
                 </div>
               </div>
@@ -286,13 +293,12 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
       <section id="tools">
         <div className="container">
           <div className="section-head">
-            <span className="eyebrow">The full toolkit</span>
+            <span className="eyebrow">THE FULL TOOLKIT</span>
             <h2>Everything between the inspection and the finished report.</h2>
             <p>Use one tool on its own, or combine them into a complete workflow.</p>
           </div>
-
           <div className="grid-4">
-            <div className="tool-card main">
+            <div className="glass-card tool-card">
               <div className="tool-num">01 — Convert</div>
               <h3>PDF to Word</h3>
               <p>Rebuild an existing inventory report. Upload a PDF or Word file and convert it into a clean, editable document using your chosen inventory layout.</p>
@@ -302,13 +308,13 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
                 <li>Produces an editable Word document</li>
               </ul>
               <div className="tool-foot">
-                <div className="tool-price">From £4.00 <small>per report</small></div>
-                <Link className="btn btn-primary" href="/auth">Convert a report</Link>
+                <div className="tool-price">From £4.00<small> per report</small></div>
+                <Link className="btn btn-primary" style={{ padding: '9px 18px', fontSize: '.88rem', borderRadius: 10 }} href="/auth">Convert a report</Link>
               </div>
             </div>
 
-            <div className="tool-card main">
-              <span className="tool-badge">InventoryTools exclusive</span>
+            <div className="glass-card tool-card">
+              <div className="tool-badge">Exclusive</div>
               <div className="tool-num">02 — Convert</div>
               <h3>Audio to Word</h3>
               <p>Turn inspection dictation into the report. Dictate the property room by room, and InventoryTools converts your spoken notes into a structured inventory document.</p>
@@ -318,13 +324,13 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
                 <li>Handles corrections, repetitions and spoken formatting</li>
               </ul>
               <div className="tool-foot">
-                <div className="tool-price">From £4.88 <small>per report</small></div>
-                <Link className="btn btn-primary" href="/auth">Convert inspection audio</Link>
+                <div className="tool-price">From £4.88<small> per report</small></div>
+                <Link className="btn btn-primary" style={{ padding: '9px 18px', fontSize: '.88rem', borderRadius: 10 }} href="/auth">Convert inspection audio</Link>
               </div>
             </div>
 
-            <div className="tool-card">
-              <span className="tool-badge free">Free</span>
+            <div className="glass-card tool-card">
+              <div className="tool-badge free">Free</div>
               <div className="tool-num">03 — Prepare</div>
               <h3>Audio Splitter</h3>
               <p>Turn one long recording into separate room files. View the waveform, mark each room, name the sections, and export files ready for Audio to Word.</p>
@@ -335,12 +341,12 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
               </ul>
               <div className="tool-foot">
                 <div className="tool-price free">Free</div>
-                <Link className="btn btn-secondary" href="/auth">Split a recording</Link>
+                <Link className="btn btn-secondary" style={{ padding: '9px 18px', fontSize: '.88rem', borderRadius: 10 }} href="/auth">Split a recording</Link>
               </div>
             </div>
 
-            <div className="tool-card">
-              <span className="tool-badge free">Free</span>
+            <div className="glass-card tool-card">
+              <div className="tool-badge free">Free</div>
               <div className="tool-num">04 — Prepare</div>
               <h3>Clean &amp; Unlock PDF</h3>
               <p>Repair PDFs that can&apos;t be processed properly. Remove troublesome security wrappers and create a clean copy before conversion.</p>
@@ -351,7 +357,43 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
               </ul>
               <div className="tool-foot">
                 <div className="tool-price free">Free</div>
-                <Link className="btn btn-secondary" href="/auth">Clean a PDF</Link>
+                <Link className="btn btn-secondary" style={{ padding: '9px 18px', fontSize: '.88rem', borderRadius: 10 }} href="/auth">Clean a PDF</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="container">
+          <div className="section-head">
+            <span className="eyebrow">CONNECTED, NOT SEPARATE</span>
+            <h2>Start with whatever you have.</h2>
+            <p>The four tools are built to work together, not as four unrelated products.</p>
+          </div>
+          <div className="route-grid">
+            <div className="glass-card route-panel">
+              <span className="eyebrow">ROUTE A — EXISTING REPORT</span>
+              <div className="route-steps">
+                <div className="route-step"><div className="route-step-num">1</div><div><div className="route-step-label">Problem PDF</div><div className="route-step-sub">Locked, corrupted, or won&apos;t read cleanly</div></div></div>
+                <div className="route-arrow-down">↓</div>
+                <div className="route-step"><div className="route-step-num">2</div><div><div className="route-step-label">Clean &amp; Unlock</div><div className="route-step-sub">Repair a clean, readable copy</div></div></div>
+                <div className="route-arrow-down">↓</div>
+                <div className="route-step"><div className="route-step-num">3</div><div><div className="route-step-label">PDF to Word</div><div className="route-step-sub">Rebuild it into a structured report</div></div></div>
+                <div className="route-arrow-down">↓</div>
+                <div className="route-step"><div className="route-step-num">4</div><div><div className="route-step-label">Review and send</div><div className="route-step-sub">Check it, tweak it, done</div></div></div>
+              </div>
+            </div>
+            <div className="glass-card route-panel">
+              <span className="eyebrow">ROUTE B — DICTATED INSPECTION</span>
+              <div className="route-steps">
+                <div className="route-step"><div className="route-step-num">1</div><div><div className="route-step-label">Long recording</div><div className="route-step-sub">Whole property, one continuous file</div></div></div>
+                <div className="route-arrow-down">↓</div>
+                <div className="route-step"><div className="route-step-num">2</div><div><div className="route-step-label">Audio Splitter</div><div className="route-step-sub">Mark and name each room</div></div></div>
+                <div className="route-arrow-down">↓</div>
+                <div className="route-step"><div className="route-step-num">3</div><div><div className="route-step-label">Audio to Word</div><div className="route-step-sub">Convert each room&apos;s recording</div></div></div>
+                <div className="route-arrow-down">↓</div>
+                <div className="route-step"><div className="route-step-num">4</div><div><div className="route-step-label">Review and send</div><div className="route-step-sub">Check it, tweak it, done</div></div></div>
               </div>
             </div>
           </div>
@@ -361,96 +403,22 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
       <section id="how">
         <div className="container">
           <div className="section-head">
-            <span className="eyebrow">Connected, not separate</span>
-            <h2>Start with whatever you have.</h2>
-            <p>The four tools are built to work together, not as four unrelated products.</p>
-          </div>
-
-          <div className="route-grid">
-            <div className="route-panel">
-              <span className="eyebrow navy">Route A — Existing report</span>
-              <div className="route-steps">
-                <div className="route-step">
-                  <div className="route-step-num">1</div>
-                  <div><div className="route-step-label">Problem PDF</div><div className="route-step-sub">Locked, corrupted, or won&apos;t read cleanly</div></div>
-                </div>
-                <div className="route-arrow-down">↓</div>
-                <div className="route-step">
-                  <div className="route-step-num">2</div>
-                  <div><div className="route-step-label">Clean &amp; Unlock</div><div className="route-step-sub">Repair a clean, readable copy</div></div>
-                </div>
-                <div className="route-arrow-down">↓</div>
-                <div className="route-step">
-                  <div className="route-step-num">3</div>
-                  <div><div className="route-step-label">PDF to Word</div><div className="route-step-sub">Rebuild it into a structured report</div></div>
-                </div>
-                <div className="route-arrow-down">↓</div>
-                <div className="route-step">
-                  <div className="route-step-num">4</div>
-                  <div><div className="route-step-label">Review and send</div><div className="route-step-sub">Check it, tweak it, done</div></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="route-panel">
-              <span className="eyebrow navy">Route B — Dictated inspection</span>
-              <div className="route-steps">
-                <div className="route-step">
-                  <div className="route-step-num">1</div>
-                  <div><div className="route-step-label">Long recording</div><div className="route-step-sub">Whole property, one continuous file</div></div>
-                </div>
-                <div className="route-arrow-down">↓</div>
-                <div className="route-step">
-                  <div className="route-step-num">2</div>
-                  <div><div className="route-step-label">Audio Splitter</div><div className="route-step-sub">Mark and name each room</div></div>
-                </div>
-                <div className="route-arrow-down">↓</div>
-                <div className="route-step">
-                  <div className="route-step-num">3</div>
-                  <div><div className="route-step-label">Audio to Word</div><div className="route-step-sub">Convert each room&apos;s recording</div></div>
-                </div>
-                <div className="route-arrow-down">↓</div>
-                <div className="route-step">
-                  <div className="route-step-num">4</div>
-                  <div><div className="route-step-label">Review and send</div><div className="route-step-sub">Check it, tweak it, done</div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div className="container">
-          <div className="section-head">
-            <span className="eyebrow">See it in action</span>
+            <span className="eyebrow">SEE IT IN ACTION</span>
             <h2>InventoryTools rebuilds the report — not just the file.</h2>
           </div>
-
           <div className="demo-tabs">
             <button className={demoTab === 'pdf' ? 'active' : ''} onClick={() => setDemoTab('pdf')}>PDF report</button>
             <button className={demoTab === 'audio' ? 'active' : ''} onClick={() => setDemoTab('audio')}>Audio dictation</button>
             <button className={demoTab === 'long' ? 'active' : ''} onClick={() => setDemoTab('long')}>Long recording</button>
             <button className={demoTab === 'locked' ? 'active' : ''} onClick={() => setDemoTab('locked')}>Locked PDF</button>
           </div>
-
-          <div className="demo-panel">
+          <div className="glass-card demo-panel">
             <div className="ipo-row">
-              <div className="ipo-card">
-                <span className="mini-label">Input</span>
-                <strong>{activeDemo.input}</strong>
-                <div style={{ fontSize: '.8rem', color: 'var(--muted)', marginTop: 4 }}>{activeDemo.inputSub}</div>
-              </div>
+              <div className="ipo-card"><span className="mini-label">Input</span><strong>{activeDemo.input}</strong><span style={{ fontSize: '.82rem', color: 'var(--muted)' }}>{activeDemo.inputSub}</span></div>
               <div className="ipo-arrow">→</div>
-              <div className="ipo-card">
-                <span className="mini-label">Process</span>
-                <strong>{activeDemo.process}</strong>
-              </div>
+              <div className="ipo-card"><span className="mini-label">Process</span><strong>{activeDemo.process}</strong></div>
               <div className="ipo-arrow">→</div>
-              <div className="ipo-card">
-                <span className="mini-label">Output</span>
-                <strong>{activeDemo.output}</strong>
-              </div>
+              <div className="ipo-card"><span className="mini-label">Output</span><strong>{activeDemo.output}</strong></div>
             </div>
           </div>
         </div>
@@ -459,30 +427,14 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
       <section>
         <div className="container">
           <div className="section-head">
-            <span className="eyebrow">Why it helps</span>
+            <span className="eyebrow">WHY IT HELPS</span>
             <h2>Finish the report while the inspection is still fresh.</h2>
           </div>
           <div className="benefit-grid">
-            <div className="benefit-card">
-              <div className="benefit-icon">⏱️</div>
-              <h3>Save hours</h3>
-              <p>Review the output instead of rebuilding the report manually.</p>
-            </div>
-            <div className="benefit-card">
-              <div className="benefit-icon">📈</div>
-              <h3>Increase capacity</h3>
-              <p>Complete more inspections without creating a typing backlog.</p>
-            </div>
-            <div className="benefit-card">
-              <div className="benefit-icon">🔒</div>
-              <h3>Keep control</h3>
-              <p>Every converted report remains fully editable in Word.</p>
-            </div>
-            <div className="benefit-card">
-              <div className="benefit-icon">🛠️</div>
-              <h3>Remove file problems</h3>
-              <p>Prepare long recordings and difficult PDFs before converting them.</p>
-            </div>
+            <div className="glass-card benefit-card"><div className="benefit-icon">⏱️</div><h3>Save hours</h3><p>Review the output instead of rebuilding the report manually.</p></div>
+            <div className="glass-card benefit-card"><div className="benefit-icon">📈</div><h3>Increase capacity</h3><p>Complete more inspections without creating a typing backlog.</p></div>
+            <div className="glass-card benefit-card"><div className="benefit-icon">🔒</div><h3>Keep control</h3><p>Every converted report remains fully editable in Word.</p></div>
+            <div className="glass-card benefit-card"><div className="benefit-icon">🛠️</div><h3>Remove file problems</h3><p>Prepare long recordings and difficult PDFs before converting them.</p></div>
           </div>
         </div>
       </section>
@@ -490,10 +442,10 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
       <section>
         <div className="container">
           <div className="section-head">
-            <span className="eyebrow">Built by inventory professionals</span>
+            <span className="eyebrow">BUILT BY INVENTORY PROFESSIONALS</span>
             <h2>Built and tested inside a working inventory company.</h2>
           </div>
-          <div className="evidence-panel">
+          <div className="glass-card evidence-panel">
             <p>Built around real UK inventory reports, inspection language, and room-by-room working practices.</p>
           </div>
         </div>
@@ -502,20 +454,17 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
       <section id="pricing">
         <div className="container">
           <div className="section-head">
-            <span className="eyebrow">Pricing</span>
+            <span className="eyebrow">PRICING</span>
             <h2>Pay for conversions. Use preparation tools free.</h2>
           </div>
-          <div className="pricing-table-wrap">
+          <div className="glass-card pricing-table-wrap">
             <div className="pricing-row"><span className="name">PDF to Word</span><span className="price">From £4.00</span></div>
             <div className="pricing-row"><span className="name">Audio to Word</span><span className="price">From £4.88</span></div>
             <div className="pricing-row"><span className="name">Audio Splitter</span><span className="price free">Free</span></div>
             <div className="pricing-row"><span className="name">Clean &amp; Unlock PDF</span><span className="price free">Free</span></div>
           </div>
           <div className="pricing-notes">
-            <span>No subscription</span>
-            <span>Shared company balances</span>
-            <span>Credits do not expire</span>
-            <span>Fully editable Word output</span>
+            <span>No subscription</span><span>Shared company balances</span><span>Credits do not expire</span><span>Fully editable Word output</span>
           </div>
           <div className="pricing-ctas">
             <Link className="btn btn-primary" href="/auth">Create an account</Link>
@@ -527,11 +476,11 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
       <section id="teams">
         <div className="container">
           <div className="section-head">
-            <span className="eyebrow">Solo or as a team</span>
+            <span className="eyebrow">SOLO OR AS A TEAM</span>
             <h2>Built for individual clerks and busy inventory teams.</h2>
           </div>
           <div className="team-grid">
-            <div className="team-card">
+            <div className="glass-card team-card">
               <h3>Independent clerks</h3>
               <ul>
                 <li>Pay only when needed</li>
@@ -540,7 +489,7 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
                 <li>Use from any modern browser</li>
               </ul>
             </div>
-            <div className="team-card">
+            <div className="glass-card team-card">
               <h3>Companies and teams</h3>
               <ul>
                 <li>Shared company balance</li>
@@ -550,27 +499,24 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
               </ul>
             </div>
           </div>
-          <div className="team-cta">
-            <Link className="btn btn-navy" href="/auth">Use InventoryTools with your team</Link>
-          </div>
+          <div className="team-cta"><Link className="btn btn-navy" href="/auth">Use InventoryTools with your team</Link></div>
         </div>
       </section>
 
       <section id="faq">
         <div className="container">
           <div className="section-head">
-            <span className="eyebrow">Questions</span>
+            <span className="eyebrow">QUESTIONS</span>
             <h2>Frequently asked questions</h2>
           </div>
           <div className="faq-list">
             {faqs.map((f, i) => (
-              <div key={f.q} className={`faq-item${openFaq === i ? ' open' : ''}`}>
+              <div key={i} className={`faq-item glass-card${openFaq === i ? ' open' : ''}`}>
                 <button className="faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
-                  {f.q} <span className="pm">+</span>
+                  <span>{f.q}</span>
+                  <span className="pm">+</span>
                 </button>
-                <div className="faq-a" style={{ maxHeight: openFaq === i ? 240 : 0 }}>
-                  <p>{f.a}</p>
-                </div>
+                <div className="faq-a"><p>{f.a}</p></div>
               </div>
             ))}
           </div>
@@ -579,7 +525,7 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
 
       <section className="final">
         <div className="container">
-          <span className="eyebrow" style={{ color: '#ff9a52' }}>Ready when you are</span>
+          <span className="eyebrow" style={{ color: '#ff9c52' }}>READY WHEN YOU ARE</span>
           <h2>Your inspection is finished. Your report should be too.</h2>
           <p>Choose the material you already have and let InventoryTools prepare, structure, and convert it into an editable report.</p>
           <div className="final-ctas">
@@ -592,16 +538,10 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
 
       <footer>
         <div className="container foot-row">
-          <div className="logo">
-            <span style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: '1rem', color: '#fff' }}>inventory<span style={{ color: '#fd6a02' }}>tools</span></span>
-          </div>
-          <div className="foot-price"><b>PDF from £4.00</b> · <b>Audio from £4.88</b> · Splitter &amp; Clean PDF free</div>
+          <span>inventorytools</span>
+          <span className="foot-price"><b>PDF from £4.00</b> · <b>Audio from £4.88</b> · Splitter &amp; Clean PDF free</span>
           <div>
-            <a href="#how">How it works</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
-            <Link href="/terms">Terms</Link>
-            <Link href="/privacy">Privacy</Link>
+            <a href="#how">How it works</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link>
           </div>
         </div>
       </footer>
