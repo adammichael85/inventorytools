@@ -152,6 +152,7 @@ export default function Auth() {
     if (typeof window === 'undefined') return
     if (window.location.search.includes('reason=inactivity')) setInactiveMsg(true)
     const params = new URLSearchParams(window.location.search)
+    if (params.get('tab') === 'signup') setTab('signup')
     const invite = params.get('invite')
     if (!invite) return
     setInviteToken(invite); setTab('signup'); setCheckingInvite(true); setBrandReady(false)

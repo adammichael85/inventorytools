@@ -51,7 +51,7 @@ h1{font-size:clamp(2.3rem,5vw,3.6rem);font-weight:700}h2{font-size:clamp(1.6rem,
 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.14em;color:var(--orange);font-weight:500;text-transform:uppercase;display:inline-block;margin-bottom:16px}
 .eyebrow.pill{background:var(--orange-tint);padding:7px 16px;border-radius:100px}
 .glass-card{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:22px;box-shadow:var(--shadow)}
-header{position:sticky;top:0;z-index:100;background:var(--glass-bg)!important;backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border-bottom:1px solid var(--glass-border)}
+header{position:sticky;top:0;z-index:100;background:transparent!important}
 .nav{display:flex;align-items:center;justify-content:space-between;height:68px;position:relative}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
 .logo-text{font-family:'Space Grotesk';font-weight:700;font-size:1.12rem;color:var(--ink)}.logo-text span{color:var(--orange)}
@@ -65,7 +65,7 @@ header{position:sticky;top:0;z-index:100;background:var(--glass-bg)!important;ba
 .tools-dropdown-col a{display:block;padding:8px 0;text-decoration:none;color:var(--ink);font-weight:600;font-size:.92rem}
 .tools-dropdown-col a:hover{color:var(--orange)}
 .tools-dropdown-col a small{display:block;font-weight:400;color:var(--muted);font-size:.78rem;margin-top:2px}
-.nav-right{display:flex;align-items:center;gap:18px}.nav-right .login{text-decoration:none;color:var(--body);font-weight:500;font-size:.93rem}.nav-right .btn{padding:9px 18px;font-size:.9rem;border-radius:10px;gap:5px}
+.nav-right{display:flex;align-items:center;gap:18px}.nav-right .login{text-decoration:none;color:var(--body);font-weight:500;font-size:.93rem}.nav-right .btn{padding:7px 14px;font-size:.82rem;border-radius:8px;gap:4px}
 .hamburger{display:none;background:none;border:none;font-size:1.6rem;cursor:pointer;color:var(--ink)}
 .mobile-menu{display:none;position:fixed;top:68px;left:0;right:0;background:var(--glass-bg)!important;backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border-bottom:1px solid var(--glass-border);padding:18px 24px;box-shadow:0 12px 24px rgba(26,26,26,.08);z-index:99;max-height:80vh;overflow-y:auto}
 .mobile-menu a{display:block;padding:11px 0;text-decoration:none;color:var(--ink);font-weight:600;border-bottom:1px solid var(--bg-alt)}
@@ -197,7 +197,7 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
       <header>
         <div className="container nav">
           <a className="logo" href="#top" aria-label="InventoryTools home">
-            <img src="/logo-full.png" alt="InventoryTools" style={{ height: 31, width: 'auto' }} />
+            <img src="/logo-full.png" alt="InventoryTools" style={{ height: 25, width: 'auto' }} />
           </a>
           <ul className="nav-links">
             <li style={{ position: 'relative' }}>
@@ -225,8 +225,8 @@ footer{background:#20242c;border-top:1px solid #2c313a;padding:34px 0;color:#9a9
             <li><a href="#faq">Help</a></li>
           </ul>
           <div className="nav-right">
-            <Link className="login" href="/auth">Log in</Link>
-            <Link className="btn btn-primary" href="/auth">Start converting <span className="arrow">→</span></Link>
+            <Link className="login" href="/auth?tab=signup">Sign up</Link>
+            <Link className="btn btn-primary" href="/auth">Log in</Link>
             <button className="hamburger" aria-label="Open menu" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>☰</button>
           </div>
         </div>
