@@ -814,7 +814,7 @@ function LegalSection({ title, content, BORDER, SURFACE, HINT, TEXT, TEAL }: any
   )
 }
 
-function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
+function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT, darkMode }: any) {
   const [members, setMembers] = React.useState<any[]>([])
   const [showInvite, setShowInvite] = React.useState(false)
   const [inviteEmail, setInviteEmail] = React.useState('')
@@ -953,36 +953,36 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
                 </div>
               ) : (
                 <>
-                  <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{m.full_name || 'Unknown'}</p>
-                  <p style={{ fontSize: 12, color: HINT, margin: 0 }}>{m.company_position || ''}</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, margin: 0, color: darkMode ? '#f3f0ea' : TEXT }}>{m.full_name || 'Unknown'}</p>
+                  <p style={{ fontSize: 12, color: darkMode ? '#a49f92' : HINT, margin: 0 }}>{m.company_position || ''}</p>
                 </>
               )}
             </div>
-            <span style={{ fontSize: 12, background: m.role === 'admin' ? TEAL_LIGHT : BG, color: m.role === 'admin' ? TEAL_DARK : MUTED, padding: '3px 10px', borderRadius: 20, textTransform: 'capitalize' as const, flexShrink: 0 }}>{m.role || 'user'}</span>
+            <span style={{ fontSize: 12, background: m.role === 'admin' ? (darkMode ? 'rgba(255,255,255,.12)' : TEAL_LIGHT) : (darkMode ? 'rgba(255,255,255,.06)' : BG), color: m.role === 'admin' ? (darkMode ? '#fff' : TEAL_DARK) : (darkMode ? '#a49f92' : MUTED), padding: '3px 10px', borderRadius: 20, textTransform: 'capitalize' as const, flexShrink: 0 }}>{m.role || 'user'}</span>
 
             {isAdmin && (
               editingMemberId === m.id ? (
                 <>
                   <button onClick={() => saveEditMember(m.id)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: 'none', cursor: 'pointer', background: TEAL, color: '#fff', flexShrink: 0 }}>Save</button>
-                  <button onClick={() => setEditingMemberId(null)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: `1px solid ${BORDER}`, cursor: 'pointer', background: 'transparent', color: MUTED, flexShrink: 0 }}>Cancel</button>
+                  <button onClick={() => setEditingMemberId(null)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, cursor: 'pointer', background: 'transparent', color: darkMode ? '#a49f92' : MUTED, flexShrink: 0 }}>Cancel</button>
                 </>
               ) : (
-                <button onClick={() => startEditMember(m)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: `1px solid ${BORDER}`, cursor: 'pointer', background: 'transparent', color: MUTED, flexShrink: 0 }}>Edit</button>
+                <button onClick={() => startEditMember(m)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, cursor: 'pointer', background: 'transparent', color: darkMode ? '#a49f92' : MUTED, flexShrink: 0 }}>Edit</button>
               )
             )}
 
             {isAdmin && m.id !== myId && (
-              <button onClick={() => toggleRole(m.id, m.role || 'user')} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: `1px solid ${BORDER}`, cursor: 'pointer', background: 'transparent', color: MUTED, flexShrink: 0 }}>
+              <button onClick={() => toggleRole(m.id, m.role || 'user')} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, cursor: 'pointer', background: 'transparent', color: darkMode ? '#a49f92' : MUTED, flexShrink: 0 }}>
                 {m.role === 'admin' ? 'Demote to user' : 'Promote to admin'}
               </button>
             )}
 
             {isAdmin && (
               <>
-                <button onClick={() => toggleAccess(m.id, 'pdf_enabled', m.pdf_enabled !== false)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: 'none', cursor: 'pointer', background: m.pdf_enabled !== false ? TEAL_LIGHT : BG, color: m.pdf_enabled !== false ? TEAL_DARK : MUTED, flexShrink: 0 }}>
+                <button onClick={() => toggleAccess(m.id, 'pdf_enabled', m.pdf_enabled !== false)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: 'none', cursor: 'pointer', background: m.pdf_enabled !== false ? (darkMode ? 'rgba(255,255,255,.12)' : TEAL_LIGHT) : (darkMode ? 'rgba(255,255,255,.06)' : BG), color: m.pdf_enabled !== false ? (darkMode ? '#fff' : TEAL_DARK) : (darkMode ? '#a49f92' : MUTED), flexShrink: 0 }}>
                   PDF {m.pdf_enabled !== false ? 'ON' : 'OFF'}
                 </button>
-                <button onClick={() => toggleAccess(m.id, 'audio_enabled', m.audio_enabled !== false)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: 'none', cursor: 'pointer', background: m.audio_enabled !== false ? '#DBEAFE' : BG, color: m.audio_enabled !== false ? '#1D4ED8' : MUTED, flexShrink: 0 }}>
+                <button onClick={() => toggleAccess(m.id, 'audio_enabled', m.audio_enabled !== false)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: 'none', cursor: 'pointer', background: m.audio_enabled !== false ? (darkMode ? 'rgba(255,255,255,.12)' : '#DBEAFE') : (darkMode ? 'rgba(255,255,255,.06)' : BG), color: m.audio_enabled !== false ? (darkMode ? '#fff' : '#1D4ED8') : (darkMode ? '#a49f92' : MUTED), flexShrink: 0 }}>
                   Audio {m.audio_enabled !== false ? 'ON' : 'OFF'}
                 </button>
                 {m.id !== myId && (
@@ -1111,12 +1111,12 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
 
   return (
     <div style={{ width: '100%' }}>
-      <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Settings</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3, color: darkMode ? '#f3f0ea' : TEXT }}>Settings</h2>
 
       <div className="it-card" style={{ border: `1px solid ${BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 24, marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>Profile</p>
-          <span style={{ fontSize: 11, background: profile.role === 'admin' ? '#fff0e6' : '#F7F9F8', color: profile.role === 'admin' ? '#c24a00' : MUTED, padding: '3px 10px', borderRadius: 20, fontWeight: 500, textTransform: 'uppercase' as const }}>{profile.role || 'user'}</span>
+          <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: darkMode ? '#f3f0ea' : TEXT }}>Profile</p>
+          <span style={{ fontSize: 11, background: profile.role === 'admin' ? (darkMode ? 'rgba(253,106,2,.18)' : '#fff0e6') : (darkMode ? 'rgba(255,255,255,.08)' : '#F7F9F8'), color: profile.role === 'admin' ? (darkMode ? '#FDBA74' : '#c24a00') : (darkMode ? '#a49f92' : MUTED), padding: '3px 10px', borderRadius: 20, fontWeight: 500, textTransform: 'uppercase' as const }}>{profile.role || 'user'}</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14, marginBottom: 14 }}>
           <div>
@@ -1125,7 +1125,7 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
           </div>
           <div>
             <label style={labelStyle}>Email</label>
-            <input value={userEmail} disabled style={{...inputStyle, background: BG, color: MUTED}} />
+            <input value={userEmail} disabled style={{...inputStyle, background: darkMode ? 'rgba(255,255,255,.03)' : BG, color: darkMode ? '#a49f92' : MUTED}} />
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14, marginBottom: 14 }}>
@@ -3618,7 +3618,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       <button onClick={() => deleteConversion(c.id, c.file_path)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }} title='Delete'><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='#DC2626' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><polyline points='3,6 5,6 21,6'/><path d='M19,6l-1,14a2 2 0 01-2 2H8a2 2 0 01-2-2L5,6'/><path d='M10,11v6M14,11v6'/><path d='M9,6V4a1 1 0 011-1h4a1 1 0 011 1v2'/></svg></button></div></td>
                   </tr>))}</tbody>
                 </table></div>
-                <div id="scroll-fade" style={{ position: 'absolute', top: 0, right: 0, width: 60, height: '100%', background: 'linear-gradient(to right, transparent, white)', pointerEvents: 'none', borderRadius: '0 14px 14px 0' }} />
+                <div id="scroll-fade" style={{ position: 'absolute', top: 0, right: 0, width: 60, height: '100%', background: darkMode ? 'linear-gradient(to right, transparent, rgba(20,17,12,.9))' : 'linear-gradient(to right, transparent, white)', pointerEvents: 'none', borderRadius: '0 14px 14px 0' }} />
                 </div>
               </div>
             </div>
@@ -3812,7 +3812,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           )}
 
           {page === 'team' && (
-            <TeamPage supabase={supabase} TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} TEAL_DARK={TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} />
+            <TeamPage supabase={supabase} TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} TEAL_DARK={TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} darkMode={darkMode} />
           )}
         </div>
       </main>
