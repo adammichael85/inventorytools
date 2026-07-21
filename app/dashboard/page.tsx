@@ -942,7 +942,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
           <div style={{ padding: 40, textAlign: 'center', color: MUTED, fontSize: 13 }}>No team members found.</div>
         ) : members.map((m, i) => (
           <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px', borderBottom: i < members.length-1 ? `1px solid ${BORDER}` : 'none', flexWrap: 'wrap' as const }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: TEAL_DARK, flexShrink: 0 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: darkMode ? 'rgba(255,255,255,.14)' : TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: darkMode ? '#fff' : TEAL_DARK, flexShrink: 0 }}>
               {(m.full_name || 'U').split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase()}
             </div>
             <div style={{ flex: 1, minWidth: 140 }}>
@@ -986,7 +986,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
                   Audio {m.audio_enabled !== false ? 'ON' : 'OFF'}
                 </button>
                 {m.id !== myId && (
-                  <button onClick={() => setConfirmRemove(m)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: 'none', cursor: 'pointer', background: '#FEE2E2', color: '#DC2626', flexShrink: 0 }}>
+                  <button onClick={() => setConfirmRemove(m)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 10px', borderRadius: 16, border: 'none', cursor: 'pointer', background: darkMode ? 'rgba(220,38,38,.15)' : '#FEE2E2', color: darkMode ? '#FCA5A5' : '#DC2626', flexShrink: 0 }}>
                     Remove
                   </button>
                 )}
@@ -3767,16 +3767,16 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                           {items.length > 0 && (
                             <div style={{ maxHeight: 240, overflowY: 'auto', border: `1px solid ${BORDER}`, borderRadius: 10 }}>
                               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead><tr style={{ background: BG, position: 'sticky' as const, top: 0 }}>
-                                  {['Date','Property','Type','Cost'].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase' as const, letterSpacing: 0.8, padding: '8px 14px', textAlign: 'left' }}>{h}</th>)}
+                                <thead><tr style={{ background: darkMode ? 'rgba(255,255,255,.04)' : BG, position: 'sticky' as const, top: 0 }}>
+                                  {['Date','Property','Type','Cost'].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: darkMode ? '#a49f92' : HINT, textTransform: 'uppercase' as const, letterSpacing: 0.8, padding: '8px 14px', textAlign: 'left' }}>{h}</th>)}
                                 </tr></thead>
                                 <tbody>
                                   {items.map((c: any) => (
-                                    <tr key={c.id} style={{ borderTop: `1px solid ${BORDER}` }}>
-                                      <td style={{ padding: '8px 14px', fontSize: 12 }}>{new Date(c.created_at).toLocaleDateString('en-GB')}</td>
-                                      <td style={{ padding: '8px 14px', fontSize: 12, color: MUTED, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{c.address || 'Unknown'}</td>
-                                      <td style={{ padding: '8px 14px', fontSize: 12 }}>{c.type === 'audio' ? 'Audio' : 'PDF'}</td>
-                                      <td style={{ padding: '8px 14px', fontSize: 12, fontWeight: 600 }}>£{(c.cost ? Number(c.cost) : (c.type === 'audio' ? 4.88 : 4.00)).toFixed(2)}</td>
+                                    <tr key={c.id} style={{ borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,.12)' : BORDER}` }}>
+                                      <td style={{ padding: '8px 14px', fontSize: 12, color: darkMode ? '#f3f0ea' : TEXT }}>{new Date(c.created_at).toLocaleDateString('en-GB')}</td>
+                                      <td style={{ padding: '8px 14px', fontSize: 12, color: darkMode ? '#a49f92' : MUTED, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{c.address || 'Unknown'}</td>
+                                      <td style={{ padding: '8px 14px', fontSize: 12, color: darkMode ? '#f3f0ea' : TEXT }}>{c.type === 'audio' ? 'Audio' : 'PDF'}</td>
+                                      <td style={{ padding: '8px 14px', fontSize: 12, fontWeight: 600, color: darkMode ? '#f3f0ea' : TEXT }}>£{(c.cost ? Number(c.cost) : (c.type === 'audio' ? 4.88 : 4.00)).toFixed(2)}</td>
                                     </tr>
                                   ))}
                                 </tbody>
