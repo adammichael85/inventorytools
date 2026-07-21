@@ -4045,21 +4045,21 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
       {/* CONVERT MODAL */}
       {showConvert && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(60,60,65,0.22)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: 'rgba(255,255,255,.96)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22, border: '1px solid rgba(255,255,255,.85)', width: '100%', maxWidth: 480, overflow: 'hidden', boxShadow: '0 30px 70px rgba(30,20,10,.2)' }}>
-            <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{selectedFile?.name.toLowerCase().endsWith('.docx') ? '📝 Convert Word to Word' : '📄 Convert PDF to Word'}</p><p style={{ fontSize: 12, color: HINT, margin: 0 }}>£4.00 · £{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining</p></div>
-              <button onClick={closeConvert} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
+          <div style={{ background: darkMode ? 'rgba(26,22,16,.94)' : 'rgba(255,255,255,.96)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22, border: `1px solid ${darkMode ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.85)'}`, width: '100%', maxWidth: 480, overflow: 'hidden', boxShadow: '0 30px 70px rgba(30,20,10,.2)' }}>
+            <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,.12)' : BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div><p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: darkMode ? '#f3f0ea' : TEXT }}>{selectedFile?.name.toLowerCase().endsWith('.docx') ? '📝 Convert Word to Word' : '📄 Convert PDF to Word'}</p><p style={{ fontSize: 12, color: darkMode ? '#a49f92' : HINT, margin: 0 }}>£4.00 · £{typeof credits === 'number' ? Number(credits).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : credits} remaining</p></div>
+              <button onClick={closeConvert} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: darkMode ? '#a49f92' : MUTED }}>×</button>
             </div>
 
-            <div style={{ margin: '16px 24px 0', padding: '10px 14px', background: '#FFF8E1', border: '1px solid #FFD54F', borderRadius: 8 }}>
-              <p style={{ fontSize: 11, color: '#7B5E00', margin: 0, lineHeight: 1.5 }}>⚠️ This conversion uses AI and is not guaranteed to be 100% accurate. PDF quality, formatting, or compression may affect the result. Please check the Word document against the original PDF before use.</p>
+            <div style={{ margin: '16px 24px 0', padding: '10px 14px', background: darkMode ? 'rgba(251,191,36,.1)' : '#FFF8E1', border: `1px solid ${darkMode ? 'rgba(251,191,36,.3)' : '#FFD54F'}`, borderRadius: 8 }}>
+              <p style={{ fontSize: 11, color: darkMode ? '#FCD34D' : '#7B5E00', margin: 0, lineHeight: 1.5 }}>⚠️ This conversion uses AI and is not guaranteed to be 100% accurate. PDF quality, formatting, or compression may affect the result. Please check the Word document against the original PDF before use.</p>
             </div>
 
             {convertState === 'idle' && (
               <div style={{ padding: 24 }}>
                 <label htmlFor="pdf-upload">
                   <div
-                    style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: 36, textAlign: 'center', cursor: 'pointer', background: BG }}
+                    style={{ border: `2px dashed ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, borderRadius: 12, padding: 36, textAlign: 'center', cursor: 'pointer', background: darkMode ? 'rgba(255,255,255,.04)' : BG }}
                     onDragOver={e => { e.preventDefault(); e.stopPropagation() }}
                     onDrop={async e => {
                       e.preventDefault(); e.stopPropagation()
@@ -4091,10 +4091,10 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     <div style={{ width: 52, height: 52, borderRadius: 12, background: TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     </div>
-                    <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your PDF or Word doc here</p>
-                    <p style={{ fontSize: 13, color: HINT }}>or click to browse</p>
-                    <p style={{ fontSize: 11, color: HINT, marginTop: 8 }}>If file size is over 30mb, please compress with a tool like ilovepdf.com before uploading.</p>
-                    <p style={{ fontSize: 11, color: HINT, marginTop: 4 }}>We only support .docx files. If your Word doc won't upload, this is due to the file being an old MS Word format. Open it in MS Word, then save as .docx first.</p>
+                    <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: darkMode ? '#f3f0ea' : TEXT }}>Drop your PDF or Word doc here</p>
+                    <p style={{ fontSize: 13, color: darkMode ? '#a49f92' : HINT }}>or click to browse</p>
+                    <p style={{ fontSize: 11, color: darkMode ? '#a49f92' : HINT, marginTop: 8 }}>If file size is over 30mb, please compress with a tool like ilovepdf.com before uploading.</p>
+                    <p style={{ fontSize: 11, color: darkMode ? '#a49f92' : HINT, marginTop: 4 }}>We only support .docx files. If your Word doc won't upload, this is due to the file being an old MS Word format. Open it in MS Word, then save as .docx first.</p>
                   </div>
                 </label>
                 <input id="pdf-upload" type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display: 'none' }} onChange={async e => { 
@@ -4386,30 +4386,30 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
       {/* TOPUP MODAL */}
       {showTopup && (() => { const finalAmount = topupAmount || (customAmount ? parseFloat(customAmount) : null); const closeTopup = () => { setShowTopup(false); setTopupStep('select'); setTopupClientSecret(''); setTopupCustomerSession(''); setTopupError(''); setTopupSuccess(false) }; return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(60,60,65,0.22)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-            <div style={{ background: 'rgba(255,255,255,.96)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22, border: '1px solid rgba(255,255,255,.85)', width: '100%', maxWidth: 440, overflow: 'hidden', boxShadow: '0 30px 70px rgba(30,20,10,.2)' }}>
-              <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ background: darkMode ? 'rgba(26,22,16,.94)' : 'rgba(255,255,255,.96)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22, border: `1px solid ${darkMode ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.85)'}`, width: '100%', maxWidth: 440, overflow: 'hidden', boxShadow: '0 30px 70px rgba(30,20,10,.2)' }}>
+              <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,.12)' : BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px' }}>Top up balance</p>
-                  <p style={{ fontSize: 12, color: HINT, margin: 0 }}>Balance never expires · Non-refundable</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px', color: darkMode ? '#f3f0ea' : TEXT }}>Top up balance</p>
+                  <p style={{ fontSize: 12, color: darkMode ? '#a49f92' : HINT, margin: 0 }}>Balance never expires · Non-refundable</p>
                 </div>
-                <button onClick={closeTopup} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
+                <button onClick={closeTopup} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: darkMode ? '#a49f92' : MUTED }}>×</button>
               </div>
               {topupStep === 'select' ? (
                 <>
-                  <div style={{ padding: '16px 24px', borderBottom: `1px solid ${BORDER}` }}>
-                    <p style={{ fontSize: 12, color: HINT, margin: '0 0 4px' }}>Pricing varies by property size · Balance never expires</p>
+                  <div style={{ padding: '16px 24px', borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,.12)' : BORDER}` }}>
+                    <p style={{ fontSize: 12, color: darkMode ? '#a49f92' : HINT, margin: '0 0 4px' }}>Pricing varies by property size · Balance never expires</p>
                   </div>
                   <div style={{ padding: '18px 24px' }}>
-                    <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 10 }}>Quick select:</p>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: darkMode ? '#a49f92' : MUTED, marginBottom: 10 }}>Quick select:</p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
                       {[5,10,20,30,40,50,100,150,200].map(amt => (
-                        <button key={amt} onClick={() => { setTopupAmount(amt); setCustomAmount('') }} style={{ padding: '8px 16px', borderRadius: 8, border: `1.5px solid ${topupAmount === amt ? TEAL : BORDER}`, background: topupAmount === amt ? TEAL : 'transparent', color: topupAmount === amt ? '#fff' : TEXT, fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>£{amt}</button>
+                        <button key={amt} onClick={() => { setTopupAmount(amt); setCustomAmount('') }} style={{ padding: '8px 16px', borderRadius: 8, border: `1.5px solid ${topupAmount === amt ? TEAL : (darkMode ? 'rgba(255,255,255,.15)' : BORDER)}`, background: topupAmount === amt ? TEAL : 'transparent', color: topupAmount === amt ? '#fff' : (darkMode ? '#f3f0ea' : TEXT), fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>£{amt}</button>
                       ))}
                     </div>
-                    <p style={{ fontSize: 12, fontWeight: 600, color: MUTED, marginBottom: 8 }}>Or enter custom amount (minimum £5):</p>
-                    <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${BORDER}`, borderRadius: 8, overflow: 'hidden', marginBottom: 20 }}>
-                      <span style={{ padding: '10px 12px', background: BG, color: MUTED, fontSize: 14, fontWeight: 600, borderRight: `1px solid ${BORDER}` }}>£</span>
-                      <input type="number" min="5" placeholder="5.00" value={customAmount} onChange={e => { setCustomAmount(e.target.value); setTopupAmount(null) }} style={{ flex: 1, padding: '10px 12px', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 14 }} />
+                    <p style={{ fontSize: 12, fontWeight: 600, color: darkMode ? '#a49f92' : MUTED, marginBottom: 8 }}>Or enter custom amount (minimum £5):</p>
+                    <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, borderRadius: 8, overflow: 'hidden', marginBottom: 20 }}>
+                      <span style={{ padding: '10px 12px', background: darkMode ? 'rgba(255,255,255,.06)' : BG, color: darkMode ? '#a49f92' : MUTED, fontSize: 14, fontWeight: 600, borderRight: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}` }}>£</span>
+                      <input type="number" min="5" placeholder="5.00" value={customAmount} onChange={e => { setCustomAmount(e.target.value); setTopupAmount(null) }} style={{ flex: 1, padding: '10px 12px', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 14, background: 'transparent', color: darkMode ? '#f3f0ea' : TEXT }} />
                     </div>
                     {topupError && <p style={{ fontSize: 12, color: '#DC2626', marginBottom: 12 }}>{topupError}</p>}
                     <button
@@ -4441,7 +4441,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: finalAmount && finalAmount >= 5 ? TEAL : BORDER, color: finalAmount && finalAmount >= 5 ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: finalAmount && finalAmount >= 5 ? 'pointer' : 'default' }}>
                       {topupLoading ? 'Loading…' : finalAmount && finalAmount >= 5 ? `Top up £${finalAmount.toFixed(2)} →` : 'Select or enter an amount'}
                     </button>
-                    <p style={{ fontSize: 11, color: HINT, textAlign: 'center', marginTop: 10 }}>Secured by Stripe · Funds added after successful payment</p>
+                    <p style={{ fontSize: 11, color: darkMode ? '#a49f92' : HINT, textAlign: 'center', marginTop: 10 }}>Secured by Stripe · Funds added after successful payment</p>
                   </div>
                 </>
               ) : (
@@ -4449,7 +4449,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   {topupSuccess ? (
                     <p style={{ fontSize: 13, color: TEAL, textAlign: 'center', marginTop: 12, fontWeight: 600 }}>Payment received — updating your balance…</p>
                   ) : topupClientSecret ? (
-                    <Elements stripe={getStripe()} options={{ clientSecret: topupClientSecret, customerSessionClientSecret: topupCustomerSession }}>
+                    <Elements stripe={getStripe()} options={{ clientSecret: topupClientSecret, customerSessionClientSecret: topupCustomerSession, appearance: { theme: darkMode ? 'night' : 'stripe' } }}>
                       <TopupCheckoutForm
                         amount={finalAmount || 0}
                         primaryColor={TEAL}
@@ -4527,24 +4527,24 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           setAudioDocxUrl(null)
         }
 
-        const inputStyle = { width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none', background: '#fff', boxSizing: 'border-box' as const }
-        const labelStyle = { display: 'block' as const, fontSize: 12, fontWeight: 600 as const, color: MUTED, marginBottom: 5, textTransform: 'uppercase' as const, letterSpacing: 0.5 }
+        const inputStyle = { width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none', background: darkMode ? 'rgba(255,255,255,.06)' : '#fff', color: darkMode ? '#f3f0ea' : TEXT, boxSizing: 'border-box' as const }
+        const labelStyle = { display: 'block' as const, fontSize: 12, fontWeight: 600 as const, color: darkMode ? '#a49f92' : MUTED, marginBottom: 5, textTransform: 'uppercase' as const, letterSpacing: 0.5 }
 
         return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(60,60,65,0.22)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-            <div style={{ background: 'rgba(255,255,255,.96)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22, border: '1px solid rgba(255,255,255,.85)', width: '100%', maxWidth: 520, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 30px 70px rgba(30,20,10,.2)' }}>
+            <div style={{ background: darkMode ? 'rgba(26,22,16,.94)' : 'rgba(255,255,255,.96)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22, border: `1px solid ${darkMode ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.85)'}`, width: '100%', maxWidth: 520, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 30px 70px rgba(30,20,10,.2)' }}>
 
               {/* Header */}
-              <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'rgba(255,255,255,.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', zIndex: 1 }}>
+              <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,.12)' : BORDER}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: darkMode ? 'rgba(26,22,16,.97)' : 'rgba(255,255,255,.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', zIndex: 1 }}>
                 <div>
-                  <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>🎙️ Convert Audio to Word</p>
-                  <p style={{ fontSize: 12, color: MUTED, margin: 0 }}>{price ? `£${price.toFixed(2)} · £${Number(credits).toFixed(2)} remaining` : 'Select property size to see price'}</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: darkMode ? '#f3f0ea' : TEXT }}>🎙️ Convert Audio to Word</p>
+                  <p style={{ fontSize: 12, color: darkMode ? '#a49f92' : MUTED, margin: 0 }}>{price ? `£${price.toFixed(2)} · £${Number(credits).toFixed(2)} remaining` : 'Select property size to see price'}</p>
                 </div>
-                <button onClick={closeAudioModal} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: MUTED }}>×</button>
+                <button onClick={closeAudioModal} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, background: 'transparent', cursor: 'pointer', fontSize: 16, color: darkMode ? '#a49f92' : MUTED }}>×</button>
               </div>
 
-              <div style={{ margin: '16px 24px 0', padding: '10px 14px', background: '#FFF8E1', border: '1px solid #FFD54F', borderRadius: 8 }}>
-                <p style={{ fontSize: 11, color: '#7B5E00', margin: 0, lineHeight: 1.5 }}>⚠️ This conversion uses AI and is not guaranteed to be 100% accurate. Audio quality and clarity may affect the result. Please check the Word document against the original recording before use.</p>
+              <div style={{ margin: '16px 24px 0', padding: '10px 14px', background: darkMode ? 'rgba(251,191,36,.1)' : '#FFF8E1', border: `1px solid ${darkMode ? 'rgba(251,191,36,.3)' : '#FFD54F'}`, borderRadius: 8 }}>
+                <p style={{ fontSize: 11, color: darkMode ? '#FCD34D' : '#7B5E00', margin: 0, lineHeight: 1.5 }}>⚠️ This conversion uses AI and is not guaranteed to be 100% accurate. Audio quality and clarity may affect the result. Please check the Word document against the original recording before use.</p>
               </div>
 
               <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 18 }}>
