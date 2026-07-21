@@ -461,7 +461,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
   )
 }
 
-function HelpPage({ TEAL, TEAL_LIGHT, BORDER, SURFACE, BG, HINT, MUTED, TEXT }: any) {
+function HelpPage({ TEAL, TEAL_LIGHT, BORDER, SURFACE, BG, HINT, MUTED, TEXT, darkMode }: any) {
   const sections = [
     {
       title: 'Getting Started',
@@ -543,7 +543,7 @@ Use the feedback option on your report, or contact support directly with the pro
 
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Help & FAQ</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3, color: darkMode ? '#f3f0ea' : TEXT }}>Help & FAQ</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {sections.map(({ title, content }) => (
           <LegalSection key={title} title={title} content={content} BORDER={BORDER} SURFACE={SURFACE} HINT={HINT} TEXT={TEXT} TEAL={TEAL} />
@@ -553,7 +553,7 @@ Use the feedback option on your report, or contact support directly with the pro
   )
 }
 
-function LegalPage({ TEAL, TEAL_LIGHT, BORDER, SURFACE, BG, HINT, MUTED, TEXT, brand }: any) {
+function LegalPage({ TEAL, TEAL_LIGHT, BORDER, SURFACE, BG, HINT, MUTED, TEXT, brand, darkMode }: any) {
   const productName = brand.display_name || 'InventoryTools'
   const supportEmail = brand.company_name === 'InventoryTools' ? 'admin@inventorytools.co.uk' : ('support@' + (brand.domain || 'inventorytools.co.uk'))
   const sections = [
@@ -786,7 +786,7 @@ Users can request deletion of their account or personal data by contacting ${sup
 
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Legal & Compliance</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3, color: darkMode ? '#f3f0ea' : TEXT }}>Legal & Compliance</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {sections.map(({ title, content }) => (
           <LegalSection key={title} title={title} content={content} BORDER={BORDER} SURFACE={SURFACE} HINT={HINT} TEXT={TEXT} TEAL={TEAL} />
@@ -3804,11 +3804,11 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           )}
 
           {page === 'legal' && (
-            <LegalPage TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} brand={brand} />
+            <LegalPage TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} brand={brand} darkMode={darkMode} />
           )}
 
           {page === 'help' && (
-            <HelpPage TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} />
+            <HelpPage TEAL={TEAL} TEAL_LIGHT={TEAL_LIGHT} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} darkMode={darkMode} />
           )}
 
           {page === 'team' && (
