@@ -73,7 +73,7 @@ function formatDocxName(address: string): string {
   return words.map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
 }
 
-function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT, typistRateMode, typistReportRate, typistPageRate, isMobile, audioTypistRates }: any) {
+function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, HINT, MUTED, TEXT, typistRateMode, typistReportRate, typistPageRate, isMobile, audioTypistRates, darkMode }: any) {
   const MARKET_UNFURNISHED: Record<string, number> = {
     room_only: 10.00, studio: 15.00, '1bed': 15.00, '2bed': 20.00, '3bed': 25.00,
     '4bed': 35.00, '5bed': 45.00, '6bed': 50.00, '7bed': 55.00, '8bed': 60.00,
@@ -272,7 +272,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, letterSpacing: -0.3 }}>Statistics <span style={{ fontSize: 13, fontWeight: 400, color: HINT }}>— reports showing in your dashboard</span></h2>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, letterSpacing: -0.3, color: darkMode ? '#f3f0ea' : TEXT }}>Statistics <span style={{ fontSize: 13, fontWeight: 400, color: darkMode ? '#a49f92' : HINT }}>— reports showing in your dashboard</span></h2>
         <div className="it-card" style={{ display: 'flex', border: `1px solid ${BORDER}`, borderRadius: 12, padding: 4, gap: 3 }}>
           {[['today','Today'],['week','Week'],['month','Month'],['all','All Time']].map(([v,l]) => (
             <button key={v} onClick={() => setPeriod(v)} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: period === v ? TEAL : 'transparent', color: period === v ? '#fff' : MUTED, fontFamily: 'inherit', fontSize: 12, fontWeight: 500, cursor: 'pointer' }}>{l}</button>
@@ -419,7 +419,7 @@ function StatsPage({ conversions, userStats, toolTab, TEAL, TEAL_LIGHT, TEAL_DAR
         return (
           <div style={{ marginTop: 32 }}>
             <div style={{ marginBottom: 16 }}>
-              <p style={{ fontSize: 16, fontWeight: 700, margin: '0 0 2px', letterSpacing: -0.3 }}>Lifetime statistics</p>
+              <p style={{ fontSize: 16, fontWeight: 700, margin: '0 0 2px', letterSpacing: -0.3, color: darkMode ? '#f3f0ea' : TEXT }}>Lifetime statistics</p>
               <p style={{ fontSize: 12, color: HINT, margin: 0 }}>Permanent record — includes deleted reports</p>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 18, marginBottom: 18 }}>
@@ -916,7 +916,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Team</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: darkMode ? '#f3f0ea' : TEXT }}>Team</h2>
         {isAdmin && <button onClick={() => setShowInvite(!showInvite)} style={{ padding: '9px 18px', borderRadius: 10, border: 'none', background: TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: `0 10px 22px -8px ${TEAL}` }}>+ Invite member</button>}
       </div>
 
@@ -3064,7 +3064,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               <div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}` }}>
-                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700, margin: 0 }}>Lifetime statistics <span style={{ fontSize: 12, fontWeight: 400, color: HINT, fontFamily: "'Inter', sans-serif" }}>— includes deleted reports</span></p>
+                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700, margin: 0, color: darkMode ? '#f3f0ea' : TEXT }}>Lifetime statistics <span style={{ fontSize: 12, fontWeight: 400, color: darkMode ? '#a49f92' : HINT, fontFamily: "'Inter', sans-serif" }}>— includes deleted reports</span></p>
                 </div>
                 <div style={{ padding: '16px 0' }}>
               {(() => {
@@ -3626,7 +3626,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
           {page === 'billing' && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3 }}>Billing</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 20px', letterSpacing: -0.3, color: darkMode ? '#f3f0ea' : TEXT }}>Billing</h2>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: 20, marginBottom: 20 }}>
                 <div style={{ background: TEAL, borderRadius: 20, boxShadow: `0 14px 32px -10px ${TEAL}`, padding: 26, color: '#fff' }}>
                   <p style={{ fontSize: 12, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Current balance</p>
@@ -3800,7 +3800,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           )}
 
           {page === 'stats' && (
-            <StatsPage conversions={conversions} userStats={userStats} toolTab={toolTab} TEAL={toolTab === 'audio' ? '#2563EB' : TEAL} TEAL_LIGHT={toolTab === 'audio' ? '#DBEAFE' : TEAL_LIGHT} TEAL_DARK={toolTab === 'audio' ? '#1D4ED8' : TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} typistRateMode={typistRateMode} typistReportRate={typistReportRate} typistPageRate={typistPageRate} isMobile={isMobile} audioTypistRates={audioTypistRates} />
+            <StatsPage conversions={conversions} userStats={userStats} toolTab={toolTab} TEAL={toolTab === 'audio' ? '#2563EB' : TEAL} TEAL_LIGHT={toolTab === 'audio' ? '#DBEAFE' : TEAL_LIGHT} TEAL_DARK={toolTab === 'audio' ? '#1D4ED8' : TEAL_DARK} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} MUTED={MUTED} TEXT={TEXT} typistRateMode={typistRateMode} typistReportRate={typistReportRate} typistPageRate={typistPageRate} isMobile={isMobile} audioTypistRates={audioTypistRates} darkMode={darkMode} />
           )}
 
           {page === 'legal' && (
