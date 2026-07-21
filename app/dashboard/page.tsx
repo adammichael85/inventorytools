@@ -1012,7 +1012,7 @@ function TeamPage({ supabase, TEAL, TEAL_LIGHT, TEAL_DARK, BORDER, SURFACE, BG, 
   )
 }
 
-function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE, BG, HINT, isMobile, onTypistRatesSaved, onAudioTypistRatesSaved }: any) {
+function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE, BG, HINT, isMobile, darkMode, onTypistRatesSaved, onAudioTypistRatesSaved }: any) {
   const [profile, setProfile] = React.useState<any>(null)
   const [saving, setSaving] = React.useState(false)
   const [saved, setSaved] = React.useState(false)
@@ -1104,8 +1104,8 @@ function SettingsPage({ supabase, userEmail, TEXT, MUTED, TEAL, BORDER, SURFACE,
     setTimeout(() => setSaved(false), 3000)
   }
 
-  const inputStyle = { width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none', background: '#fff', boxSizing: 'border-box' as const }
-  const labelStyle = { display: 'block' as const, fontSize: 12, fontWeight: 500, marginBottom: 6, color: MUTED }
+  const inputStyle = { width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none', background: darkMode ? 'rgba(255,255,255,.06)' : '#fff', color: darkMode ? '#f3f0ea' : TEXT, boxSizing: 'border-box' as const }
+  const labelStyle = { display: 'block' as const, fontSize: 12, fontWeight: 500, marginBottom: 6, color: darkMode ? '#a49f92' : MUTED }
 
   if (!profile) return <div style={{ padding: 40, color: MUTED, fontSize: 13 }}>Loading...</div>
 
@@ -2958,7 +2958,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
       <aside className="it-glass-sidebar" style={{ width: isMobile ? 0 : 290, background: SURFACE, borderRight: isMobile ? 'none' : `1px solid ${BORDER}`, display: isMobile ? 'none' : 'flex', flexDirection: 'column', height: '100vh', flexShrink: 0, position: 'relative', zIndex: 1 }}>
         <div style={{ height: 64, padding: '0 18px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: brand.company_name === 'InventoryTools' ? 'flex-start' : 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, width: '100%', cursor: 'default' }}>
-            <img src={brand.logo_url || '/logo-full.png'} alt={brand.display_name} style={{ maxWidth: '100%', height: 'auto', maxHeight: brand.company_name === 'InventoryTools' ? 21 : 44, filter: darkMode && brand.company_name !== 'InventoryTools' ? 'brightness(0) invert(1)' : 'none' }} />
+            <img src={brand.company_name === 'InventoryTools' && darkMode ? '/logo-white.png' : (brand.logo_url || '/logo-full.png')} alt={brand.display_name} style={{ maxWidth: '100%', height: 'auto', maxHeight: brand.company_name === 'InventoryTools' ? 21 : 44, filter: darkMode && brand.company_name !== 'InventoryTools' ? 'brightness(0) invert(1)' : 'none' }} />
           </div>
         </div>
         <nav style={{ padding: '12px 10px', flex: 1 }}>
@@ -3288,24 +3288,24 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           {page === 'cleanpdf' && (
             <div style={{ maxWidth: 560, margin: '0 auto' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: 28 }}>
-                <div style={{ width: 64, height: 64, borderRadius: 16, background: '#E8EAF0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                <div style={{ width: 64, height: 64, borderRadius: 16, background: darkMode ? 'rgba(255,255,255,.08)' : '#E8EAF0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><polyline points="21,3 21,8 16,8"/></svg>
                 </div>
-                <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px' }}>Clean &amp; Unlock PDF</h2>
-                <p style={{ fontSize: 14, color: MUTED, margin: '0 0 12px', lineHeight: 1.6 }}>Some PDFs have a security/encryption wrapper applied — even with no password, this can stop our AI from reading the file properly during conversion, causing rooms or rows to be missed.</p>
-                <p style={{ fontSize: 14, color: MUTED, margin: '0 0 12px', lineHeight: 1.6 }}>This tool removes that restriction and gives you back a clean copy you can convert normally.</p>
+                <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px', color: darkMode ? '#f3f0ea' : TEXT }}>Clean &amp; Unlock PDF</h2>
+                <p style={{ fontSize: 14, color: darkMode ? '#a49f92' : MUTED, margin: '0 0 12px', lineHeight: 1.6 }}>Some PDFs have a security/encryption wrapper applied — even with no password, this can stop our AI from reading the file properly during conversion, causing rooms or rows to be missed.</p>
+                <p style={{ fontSize: 14, color: darkMode ? '#a49f92' : MUTED, margin: '0 0 12px', lineHeight: 1.6 }}>This tool removes that restriction and gives you back a clean copy you can convert normally.</p>
                 <p style={{ fontSize: 14, color: MUTED, margin: 0, lineHeight: 1.6 }}>If a conversion fails or comes back incomplete, try cleaning the file here first.</p>
               </div>
 
               {cleanPdfState === 'idle' && (
                 <div>
                   <label htmlFor="clean-pdf-upload" style={{ display: 'block', cursor: 'pointer' }}>
-                    <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 16, padding: '40px 24px', textAlign: 'center', background: SURFACE }}>
-                      <div style={{ width: 52, height: 52, borderRadius: 12, background: '#E8EAF0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                    <div style={{ border: `2px dashed ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, borderRadius: 16, padding: '40px 24px', textAlign: 'center', background: darkMode ? 'rgba(255,255,255,.04)' : SURFACE }}>
+                      <div style={{ width: 52, height: 52, borderRadius: 12, background: darkMode ? 'rgba(255,255,255,.08)' : '#E8EAF0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                       </div>
-                      <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your PDF here</p>
-                      <p style={{ fontSize: 13, color: HINT }}>or click to browse</p>
+                      <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: darkMode ? '#f3f0ea' : TEXT }}>Drop your PDF here</p>
+                      <p style={{ fontSize: 13, color: darkMode ? '#a49f92' : HINT }}>or click to browse</p>
                     </div>
                   </label>
                   <input id="clean-pdf-upload" type="file" accept=".pdf,application/pdf" style={{ display: 'none' }} onChange={e => {
@@ -3417,19 +3417,19 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 <div style={{ width: 52, height: 52, borderRadius: 14, background: `${TEAL}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>
                 </div>
-                <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px' }}>Audio Splitter</h2>
-                <p style={{ fontSize: 14, color: MUTED, margin: '0 0 12px', lineHeight: 1.6 }}>Got one long continuous recording instead of separate files per room? Upload it here to view the waveform, cut it into room-by-room slices, name each one, and download them ready to upload to Convert Audio.</p>
+                <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px', color: darkMode ? '#f3f0ea' : TEXT }}>Audio Splitter</h2>
+                <p style={{ fontSize: 14, color: darkMode ? '#a49f92' : MUTED, margin: '0 0 12px', lineHeight: 1.6 }}>Got one long continuous recording instead of separate files per room? Upload it here to view the waveform, cut it into room-by-room slices, name each one, and download them ready to upload to Convert Audio.</p>
               </div>
 
               {splitterState === 'idle' && (
                 <div>
                   <label htmlFor="splitter-upload" style={{ display: 'block', cursor: 'pointer' }}>
-                    <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 16, padding: '40px 24px', textAlign: 'center', background: SURFACE }}>
+                    <div style={{ border: `2px dashed ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, borderRadius: 16, padding: '40px 24px', textAlign: 'center', background: darkMode ? 'rgba(255,255,255,.04)' : SURFACE }}>
                       <div style={{ width: 52, height: 52, borderRadius: 12, background: `${TEAL}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                       </div>
-                      <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Drop your audio file here</p>
-                      <p style={{ fontSize: 13, color: HINT }}>or click to browse · MP3, WAV, M4A</p>
+                      <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: darkMode ? '#f3f0ea' : TEXT }}>Drop your audio file here</p>
+                      <p style={{ fontSize: 13, color: darkMode ? '#a49f92' : HINT }}>or click to browse · MP3, WAV, M4A</p>
                     </div>
                   </label>
                   <input id="splitter-upload" type="file" accept="audio/*" style={{ display: 'none' }} onChange={e => {
@@ -3704,8 +3704,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     }
                     return (
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                      <thead><tr style={{ background: BG }}>
-                        {['Date','Invoice #','Description','Amount',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: HINT, textTransform: 'uppercase' as const, letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
+                      <thead><tr style={{ background: darkMode ? 'rgba(255,255,255,.04)' : BG }}>
+                        {['Date','Invoice #','Description','Amount',''].map(h => <th key={h} style={{ fontSize: 11, fontWeight: 600, color: darkMode ? '#a49f92' : HINT, textTransform: 'uppercase' as const, letterSpacing: 0.8, padding: '10px 20px', textAlign: 'left', borderBottom: `1px solid ${BORDER}` }}>{h}</th>)}
                       </tr></thead>
                       <tbody>
                         {filteredTxns.map(t => (
@@ -3755,10 +3755,10 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       const total = items.reduce((s: number, c: any) => s + (c.cost ? Number(c.cost) : (c.type === 'audio' ? 4.88 : 4.00)), 0)
                       return (
                         <>
-                          <div style={{ background: BG, borderRadius: 12, padding: '16px 18px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ background: darkMode ? 'rgba(255,255,255,.04)' : BG, borderRadius: 12, padding: '16px 18px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                              <p style={{ fontSize: 13, color: MUTED, margin: '0 0 2px' }}>{items.length} report{items.length === 1 ? '' : 's'} in this period</p>
-                              <p style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>£{total.toFixed(2)}</p>
+                              <p style={{ fontSize: 13, color: darkMode ? '#a49f92' : MUTED, margin: '0 0 2px' }}>{items.length} report{items.length === 1 ? '' : 's'} in this period</p>
+                              <p style={{ fontSize: 20, fontWeight: 700, margin: 0, color: darkMode ? '#f3f0ea' : TEXT }}>£{total.toFixed(2)}</p>
                             </div>
                             <button onClick={downloadUsageInvoicePDF} disabled={generatingUsageInvoice || items.length === 0} style={{ padding: '11px 22px', borderRadius: 10, border: 'none', background: items.length === 0 ? BORDER : TEAL, color: items.length === 0 ? MUTED : '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: items.length === 0 ? 'default' : 'pointer', boxShadow: items.length === 0 ? 'none' : `0 10px 22px -8px ${TEAL}` }}>
                               {generatingUsageInvoice ? 'Generating...' : '↓ Download PDF'}
@@ -3794,7 +3794,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           )}
 
            {page === 'settings' && (
-            <SettingsPage supabase={supabase} userEmail={userEmail} TEXT={TEXT} MUTED={MUTED} TEAL={TEAL} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} isMobile={isMobile}
+            <SettingsPage supabase={supabase} userEmail={userEmail} TEXT={TEXT} MUTED={MUTED} TEAL={TEAL} BORDER={BORDER} SURFACE={SURFACE} BG={BG} HINT={HINT} isMobile={isMobile} darkMode={darkMode}
               onTypistRatesSaved={(report: number, page: number, mode: string) => { setTypistReportRateD(report); setTypistPageRateD(page); setTypistRateModeD(mode) }}
               onAudioTypistRatesSaved={(rates: any) => setAudioTypistRates(rates)} />
           )}
