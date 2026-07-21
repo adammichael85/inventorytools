@@ -3064,7 +3064,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               <div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ padding: '14px 20px', borderBottom: `1px solid ${BORDER}` }}>
-                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700, margin: 0, color: darkMode ? '#f3f0ea' : TEXT }}>Lifetime statistics <span style={{ fontSize: 12, fontWeight: 400, color: darkMode ? '#a49f92' : HINT, fontFamily: "'Inter', sans-serif" }}>— includes deleted reports</span></p>
+                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, margin: 0, letterSpacing: -0.3, color: darkMode ? '#f3f0ea' : TEXT }}>Lifetime statistics <span style={{ fontSize: 13, fontWeight: 400, color: darkMode ? '#a49f92' : HINT, fontFamily: "'Inter', sans-serif" }}>— includes deleted reports</span></p>
                 </div>
                 <div style={{ padding: '16px 0' }}>
               {(() => {
