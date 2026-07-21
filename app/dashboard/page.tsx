@@ -1643,7 +1643,7 @@ export default function Dashboard() {
   const TEAL_DARK = brand.primary_color_dark || brand.primary_color
   const [isMobile, setIsMobile] = React.useState(false)
   React.useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
+    const check = () => setIsMobile(window.innerWidth < 1024)
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
