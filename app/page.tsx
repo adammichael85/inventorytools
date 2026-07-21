@@ -51,7 +51,7 @@ h1{font-size:clamp(2.3rem,5vw,3.6rem);font-weight:700}h2{font-size:clamp(1.6rem,
 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.14em;color:var(--orange);font-weight:500;text-transform:uppercase;display:inline-block;margin-bottom:16px}
 .eyebrow.pill{background:var(--orange-tint);padding:7px 16px;border-radius:100px}
 .glass-card{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:22px;box-shadow:var(--shadow)}
-header{position:sticky;top:0;z-index:100;background:transparent!important}
+header{position:relative;z-index:100;background:transparent!important}
 .nav{display:flex;align-items:center;justify-content:space-between;height:68px;position:relative}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
 .logo-text{font-family:'Space Grotesk';font-weight:700;font-size:1.12rem;color:var(--ink)}.logo-text span{color:var(--orange)}
