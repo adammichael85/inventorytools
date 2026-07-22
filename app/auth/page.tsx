@@ -6,6 +6,67 @@ import HCaptcha from '@hcaptcha/react-hcaptcha'
 
 const HCAPTCHA_SITEKEY = 'a316dd3a-5010-4d00-89ea-4506c7eed068'
 
+const DISCLAIMER_VERSION = 'v1-2026-07-22'
+
+const DISCLAIMER_SCREENS = [
+  {
+    id: 'welcome',
+    title: 'Before you get started',
+    body: [
+      "InventoryTools uses AI to convert PDFs, Word documents, and audio recordings into inventory reports.",
+      "Before creating your account, please read how each tool works and its limits. You'll need to agree to each section to continue.",
+    ],
+    checkbox: null as string | null,
+  },
+  {
+    id: 'pdf',
+    title: 'PDF to Word',
+    body: [
+      "This tool uses AI to read an existing PDF or Word inventory report and rebuild it as a structured, editable Word document.",
+      "AI conversion is not guaranteed to be 100% accurate. Scanned pages, unusual layouts, faded text, or complex tables can cause rows to be missed, misread, or misplaced.",
+    ],
+    checkbox: "I understand PDF to Word conversions may contain errors and it's my responsibility to check the result against the original file before use.",
+  },
+  {
+    id: 'audio',
+    title: 'Audio to Word',
+    body: [
+      "This tool uses AI to transcribe dictated inspection recordings, room by room, into a structured Word inventory document.",
+      "Transcription accuracy depends on recording quality, background noise, accents, and clarity of speech. Words, items, or entire sections may be mis-heard, missed, or misattributed.",
+    ],
+    checkbox: "I understand Audio to Word conversions may contain errors and it's my responsibility to check the result against the original recording before use.",
+  },
+  {
+    id: 'splitter',
+    title: 'Audio Splitter',
+    body: [
+      "This tool lets you mark where each room starts on a long recording, name each section, and export separate files.",
+      "The Audio Splitter is a manual tool. It does not check or verify that you've marked the correct boundaries or given each file the correct name.",
+    ],
+    checkbox: "I understand it's my responsibility to correctly mark, name, and check my own audio splits before uploading them for conversion.",
+  },
+  {
+    id: 'cleanpdf',
+    title: 'Clean & Unlock PDF',
+    body: [
+      "This tool attempts to remove security wrappers or corruption from a PDF so it can be read and converted properly.",
+      "Repair is not guaranteed to succeed on every file, and cleaning a PDF does not affect or guarantee the accuracy of anything converted from it afterwards.",
+    ],
+    checkbox: "I understand this tool doesn't guarantee successful repair, and it doesn't guarantee the accuracy of any conversion carried out afterwards.",
+  },
+  {
+    id: 'final',
+    title: 'Please read carefully',
+    body: [
+      "InventoryTools accepts no responsibility for inaccurate, incomplete, or incorrect information in any converted or processed document, including reports produced by PDF to Word, Audio to Word, Audio Splitter, or Clean & Unlock PDF.",
+      "It is entirely your responsibility to review, verify, and correct all output before sending it to a client, tenant, landlord, or any third party.",
+      "No compensation, refund, or liability claim will be accepted in connection with inaccurate, missing, incomplete, or incorrect conversions, however they arise.",
+    ],
+    checkbox: "I have read and agree to all of the above.",
+    highlight: true,
+  },
+]
+
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 .aw *{box-sizing:border-box;margin:0;padding:0}
@@ -81,6 +142,39 @@ const css = `
 .aw.dark .aw-warn-btn-secondary{background:rgba(255,255,255,.08)!important;color:#f3f0ea!important}
 .aw-foot{font-size:.78rem;color:#8a8577;position:relative;z-index:1;margin-top:32px}
 @media(max-width:820px){.aw-two{grid-template-columns:1fr}.aw-hero{display:none}.aw-right{padding:32px 20px;min-height:100vh}}
+.aw-disc-overlay{position:fixed;inset:0;background:rgba(26,22,16,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.aw-disc-card{background:rgba(255,255,255,.97);border-radius:22px;border:1px solid rgba(255,255,255,.85);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;box-shadow:0 30px 70px rgba(30,20,10,.25)}
+.aw.dark .aw-disc-card{background:rgba(34,29,22,.96);border-color:rgba(255,255,255,.1)}
+.aw-disc-head{padding:22px 26px 16px;border-bottom:1px solid #ecebe8}
+.aw.dark .aw-disc-head{border-color:rgba(255,255,255,.1)}
+.aw-disc-dots{display:flex;gap:6px;margin-bottom:14px}
+.aw-disc-dot{width:22px;height:4px;border-radius:2px;background:#ecebe8;transition:background .2s}
+.aw-disc-dot.on{background:var(--p,#fd6a02)}
+.aw.dark .aw-disc-dot{background:rgba(255,255,255,.15)}
+.aw-disc-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.2rem;color:#1a1a1a;margin:0 0 4px}
+.aw.dark .aw-disc-title{color:#f3f0ea}
+.aw-disc-sub{font-size:.82rem;color:#8a8577;margin:0}
+.aw.dark .aw-disc-sub{color:#c2bbaf}
+.aw-disc-body{padding:22px 26px}
+.aw-disc-body p{font-size:.92rem;color:#4a4a4a;line-height:1.65;margin:0 0 14px}
+.aw-disc-body p:last-child{margin-bottom:0}
+.aw.dark .aw-disc-body p{color:#dcd6cb}
+.aw-disc-check{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-radius:12px;background:#f6f5f3;margin-top:14px;cursor:pointer}
+.aw.dark .aw-disc-check{background:rgba(255,255,255,.06)}
+.aw-disc-check input{margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:var(--p,#fd6a02);cursor:pointer}
+.aw-disc-check span{font-size:.86rem;color:#1a1a1a;font-weight:600;line-height:1.5}
+.aw.dark .aw-disc-check span{color:#f3f0ea}
+.aw-disc-foot{padding:16px 26px 24px;display:flex;gap:12px;justify-content:space-between;align-items:center}
+.aw-disc-back{background:none;border:none;color:#8a8577;font-size:.88rem;font-weight:600;cursor:pointer;padding:10px 0}
+.aw.dark .aw-disc-back{color:#c2bbaf}
+.aw-disc-next{background:var(--p,#fd6a02);color:#fff;border:none;border-radius:12px;padding:12px 26px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:'Inter',sans-serif;margin-left:auto}
+.aw-disc-next:disabled{background:#ecebe8;color:#8a8577;cursor:default}
+.aw.dark .aw-disc-next:disabled{background:rgba(255,255,255,.08);color:#a49f92}
+.aw-disc-final{background:#FFF8E1;border:1px solid #FFD54F;border-radius:10px;padding:14px 16px}
+.aw.dark .aw-disc-final{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3)}
+.aw-disc-final p{color:#7B5E00!important;font-size:.86rem!important}
+.aw.dark .aw-disc-final p{color:#FCD34D!important}
+.aw-disc-err{font-size:.8rem;color:#DC2626;margin:0}
 `
 
 export default function Auth() {
@@ -117,6 +211,9 @@ export default function Auth() {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const [forgotCaptchaToken, setForgotCaptchaToken] = useState<string | null>(null)
   const [darkMode, setDarkMode] = useState(false)
+  const [showDisclaimer, setShowDisclaimer] = useState(false)
+  const [disclaimerStep, setDisclaimerStep] = useState(0)
+  const [disclaimerChecks, setDisclaimerChecks] = useState<boolean[]>(new Array(DISCLAIMER_SCREENS.length).fill(false))
   const captchaRef = useRef<HCaptcha>(null)
   const forgotCaptchaRef = useRef<HCaptcha>(null)
 
@@ -248,8 +345,8 @@ export default function Auth() {
     await completeLogin(userId)
   }
 
-  async function handleSignUp(e: React.FormEvent) {
-    e.preventDefault(); setError(''); setMessage(''); setLoading(true)
+  async function performSignUp() {
+    setError(''); setMessage(''); setLoading(true)
     try {
       const limitCheck = await fetch('/api/check-signup-limit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) })
       const limitData = await limitCheck.json()
@@ -264,10 +361,19 @@ export default function Auth() {
     setCaptchaToken(null)
     if (err) { setError(err.message); setLoading(false); return }
     if (data.user) {
-      await fetch('/api/create-profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: data.user.id, full_name: firstName+' '+lastName, company_name: company, company_type: companyType, company_position: position, company_address: address, company_phone: phone, invite_token: inviteToken||undefined }) })
+      await fetch('/api/create-profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: data.user.id, full_name: firstName+' '+lastName, company_name: company, company_type: companyType, company_position: position, company_address: address, company_phone: phone, invite_token: inviteToken||undefined, terms_agreed_at: new Date().toISOString(), terms_version: DISCLAIMER_VERSION }) })
     }
+    setShowDisclaimer(false)
     setMessage('Check your email to confirm your account! Please check your spam folder too.')
     setLoading(false)
+  }
+
+  function handleSignUp(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    setDisclaimerStep(0)
+    setDisclaimerChecks(new Array(DISCLAIMER_SCREENS.length).fill(false))
+    setShowDisclaimer(true)
   }
 
   const cardStyle = { '--p': P } as React.CSSProperties
@@ -325,6 +431,54 @@ export default function Auth() {
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div className={`aw${darkMode?' dark':''}`} style={{ filter:revealed?'none':'grayscale(.9) blur(6px)', transition:'filter 0.4s ease', '--p':P } as React.CSSProperties}>
+        {showDisclaimer && (() => {
+          const screen = DISCLAIMER_SCREENS[disclaimerStep]
+          const isLast = disclaimerStep === DISCLAIMER_SCREENS.length - 1
+          return (
+            <div className="aw-disc-overlay">
+              <div className="aw-disc-card">
+                <div className="aw-disc-head">
+                  <div className="aw-disc-dots">
+                    {DISCLAIMER_SCREENS.map((_, i) => <div key={i} className={`aw-disc-dot${i <= disclaimerStep ? ' on' : ''}`} />)}
+                  </div>
+                  <p className="aw-disc-title">{screen.title}</p>
+                  <p className="aw-disc-sub">Step {disclaimerStep + 1} of {DISCLAIMER_SCREENS.length}</p>
+                </div>
+                <div className="aw-disc-body">
+                  {screen.highlight ? (
+                    <div className="aw-disc-final">
+                      {screen.body.map((p, i) => <p key={i}>{p}</p>)}
+                    </div>
+                  ) : (
+                    screen.body.map((p, i) => <p key={i}>{p}</p>)
+                  )}
+                  {screen.checkbox && (
+                    <label className="aw-disc-check">
+                      <input
+                        type="checkbox"
+                        checked={disclaimerChecks[disclaimerStep]}
+                        onChange={e => { const next = [...disclaimerChecks]; next[disclaimerStep] = e.target.checked; setDisclaimerChecks(next) }}
+                      />
+                      <span>{screen.checkbox}</span>
+                    </label>
+                  )}
+                </div>
+                <div className="aw-disc-foot">
+                  {disclaimerStep > 0 && <button className="aw-disc-back" type="button" onClick={() => setDisclaimerStep(s => s - 1)}>&larr; Back</button>}
+                  {error && <p className="aw-disc-err">{error}</p>}
+                  <button
+                    className="aw-disc-next"
+                    type="button"
+                    disabled={!!(screen.checkbox && !disclaimerChecks[disclaimerStep]) || loading}
+                    onClick={() => { if (isLast) { performSignUp() } else { setDisclaimerStep(s => s + 1) } }}
+                  >
+                    {disclaimerStep === 0 ? 'Continue' : isLast ? (loading ? 'Creating account…' : 'I Agree & Create Account') : 'Next'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
         <div className="aw-backdrop">
           <div className="aw-blob b1" />
           <div className="aw-blob b2" />

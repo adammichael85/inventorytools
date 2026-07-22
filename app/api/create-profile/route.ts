@@ -46,6 +46,8 @@ export async function POST(req: NextRequest) {
       company_address: body.company_address,
       company_phone: body.company_phone,
       audio_enabled: false,
+      terms_agreed_at: body.terms_agreed_at || null,
+      terms_version: body.terms_version || null,
     })
     if (error) throw new Error(error.message)
 
