@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import OjLoginClient from "./OjLoginClient";
+import Auth from "../auth/page";
 
 export const metadata: Metadata = {
   title: "Oakley Jane",
@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function OjLoginPage() {
-  return <OjLoginClient />;
+  return <Auth />;
 }
