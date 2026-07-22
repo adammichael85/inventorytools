@@ -130,9 +130,10 @@ export default function SuperAdminPage() {
       <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' as const }}>
         {[
           ['Total reports', totalReports.toString()],
-          ['Total charged (per-report)', '£' + totalCharged.toFixed(2)],
-          ['Total real cost (per-report)', '£' + totalRealCost.toFixed(2)],
-          ['Per-report margin', '£' + totalMargin.toFixed(2)],
+          ['Total charged (all reports combined)', '£' + totalCharged.toFixed(2)],
+          ['Total real cost (all reports combined)', '£' + totalRealCost.toFixed(2)],
+          ['Total profit', '£' + totalMargin.toFixed(2)],
+          ['Average report profit', '£' + (totalReports > 0 ? (totalMargin / totalReports) : 0).toFixed(2)],
         ].map(([label, value]) => (
           <div key={label} style={cardStyle}>
             <p style={labelStyle}>{label}</p>
