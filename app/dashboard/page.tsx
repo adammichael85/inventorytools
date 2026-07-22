@@ -2986,6 +2986,11 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         <div style={{ padding: isMobile ? '0 16px' : '0 32px', height: isMobile ? 56 : 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 0 }}>
             {isMobile && (
+              <button onClick={() => setShowMobileNav(true)} aria-label="Open menu" style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, background: darkMode ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={darkMode ? '#f3f0ea' : TEXT} strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              </button>
+            )}
+            {isMobile && (
               brand.company_name === 'InventoryTools' ? (
                 <svg width="30" height="30" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
                   <rect width="120" height="120" rx="26" fill={TEAL}/>
@@ -3058,7 +3063,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           </div>
         </div>
 
-        <div style={{ flex: 1, overflow: 'auto', padding: isMobile ? 16 : 28, paddingBottom: isMobile ? 100 : 28, position: 'relative', zIndex: 1 }}>
+        <div style={{ flex: 1, overflow: 'auto', padding: isMobile ? 16 : 28, paddingBottom: isMobile ? 24 : 28, position: 'relative', zIndex: 1 }}>
           {page === 'dashboard' && (
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 20 }}>
               <div>
@@ -3818,15 +3823,30 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
       </main>
 
       
+      {isMobile && showMobileNav && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,22,16,.45)', zIndex: 400 }} onClick={() => setShowMobileNav(false)} />
+      )}
       {isMobile && (
-        <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: SURFACE, borderTop: `1px solid ${BORDER}`, display: 'flex', zIndex: 100, overflowX: 'auto' }}>
-          {navItems.map(item => (
-            <button key={item.id} onClick={() => { if (item.id === 'contact') { window.location.href = 'mailto:admin@inventorytools.co.uk' } else { setPage(item.id) } }} style={{ flex: 1, padding: '10px 4px 8px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={page === item.id ? TEAL : HINT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={item.icon}/></svg>
-              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 9, color: page === item.id ? TEAL : HINT, fontWeight: page === item.id ? 600 : 400 }}>{item.label}</span>
-            </button>
-          ))}
-        </nav>
+        <aside style={{ position: 'fixed', top: 0, bottom: 0, left: 0, width: '78%', maxWidth: 300, background: darkMode ? '#1a1611' : SURFACE, boxShadow: '12px 0 40px rgba(0,0,0,.25)', zIndex: 401, display: 'flex', flexDirection: 'column', overflowY: 'auto', transform: showMobileNav ? 'translateX(0)' : 'translateX(-100%)', transition: 'transform .28s cubic-bezier(.32,.72,0,1)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 16px', borderBottom: `1px solid ${BORDER}` }}>
+            <img src={brand.company_name === 'InventoryTools' && darkMode ? '/logo-white.png' : (brand.logo_url || '/logo-full.png')} alt={brand.display_name} style={{ maxWidth: '70%', height: 'auto', maxHeight: brand.company_name === 'InventoryTools' ? 21 : 36, filter: darkMode && brand.company_name !== 'InventoryTools' ? 'brightness(0) invert(1)' : 'none' }} />
+            <button onClick={() => setShowMobileNav(false)} aria-label="Close menu" style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, background: 'transparent', color: darkMode ? '#a49f92' : MUTED, cursor: 'pointer', fontSize: 16 }}>×</button>
+          </div>
+          <nav style={{ padding: '10px 10px', flex: 1 }}>
+            {navItems.map(item => (
+              <button key={item.id} onClick={() => { setShowMobileNav(false); if (item.id === 'contact') { window.location.href = 'mailto:admin@inventorytools.co.uk' } else if (item.id === 'convert') { if (toolTab === 'audio' ? audioEnabled : pdfEnabled) setShowConvert(true) } else { setPage(item.id) } }}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 12px', borderRadius: 10, width: '100%', textAlign: 'left', border: 'none', background: page === item.id ? (darkMode ? 'rgba(255,255,255,.14)' : TEAL_LIGHT) : 'transparent', color: page === item.id ? (darkMode ? '#fff' : TEAL_DARK) : (darkMode ? '#c9c4b8' : MUTED), fontFamily: "'Inter', sans-serif", fontSize: 14, fontWeight: page === item.id ? 700 : 500, cursor: 'pointer', marginBottom: 2 }}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={item.icon}/></svg>
+                {item.label}
+                {item.badge && <span style={{ marginLeft: 'auto', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, fontFamily: "'IBM Plex Mono', monospace" }}>{item.badge}</span>}
+              </button>
+            ))}
+          </nav>
+          <div style={{ padding: '14px 16px', borderTop: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: darkMode ? 'rgba(255,255,255,.14)' : TEAL_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: darkMode ? '#fff' : TEAL_DARK, flexShrink: 0 }}>{userName ? userName.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase() : userEmail.slice(0,2).toUpperCase()}</div>
+            <p style={{ fontSize: 11, color: darkMode ? '#c9c4b8' : MUTED, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userEmail}</p>
+          </div>
+        </aside>
       )}
       {showSessionEnded && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,40,32,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
