@@ -217,7 +217,7 @@ export default function OjLoginClient() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 22 }}>
               <button onClick={() => { setShowForgotModal(true); setForgotEmail(email); setForgotSent(false) }} style={{ fontSize: 13, color: darkMode ? '#8FA0E8' : NAVY, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>Forgot password?</button>
             </div>
-            <div style={{ marginBottom: 16 }}><HCaptcha ref={captchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setCaptchaToken} onExpire={()=>setCaptchaToken(null)} /></div>
+            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}><HCaptcha ref={captchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setCaptchaToken} onExpire={()=>setCaptchaToken(null)} /></div>
             <button onClick={handleSignIn} disabled={loading || !captchaToken} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: (loading || !captchaToken) ? HINT : NAVY, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: (loading || !captchaToken) ? 'default' : 'pointer' }}>
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
@@ -243,7 +243,7 @@ export default function OjLoginClient() {
                     <label className="ojl-label">Email address</label>
                     <input className="ojl-input" type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} placeholder="you@example.com" autoFocus />
                   </div>
-                  <div style={{ marginBottom: 20 }}><HCaptcha ref={forgotCaptchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setForgotCaptchaToken} onExpire={() => setForgotCaptchaToken(null)} /></div>
+                  <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'center' }}><HCaptcha ref={forgotCaptchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setForgotCaptchaToken} onExpire={() => setForgotCaptchaToken(null)} /></div>
                   <button onClick={handleForgotPassword} disabled={forgotLoading || !forgotEmail || !forgotCaptchaToken} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: (forgotLoading || !forgotEmail || !forgotCaptchaToken) ? HINT : NAVY, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: (forgotLoading || !forgotEmail || !forgotCaptchaToken) ? 'default' : 'pointer', marginBottom: 10 }}>{forgotLoading ? 'Sending…' : 'Send reset link'}</button>
                   <button onClick={() => setShowForgotModal(false)} style={{ width: '100%', padding: 13, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: TEXT, fontFamily: 'inherit', fontSize: 15, fontWeight: 500, cursor: 'pointer' }}>Cancel</button>
                 </>
