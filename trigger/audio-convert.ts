@@ -4,6 +4,15 @@ import OpenAI, { toFile } from "openai"
 import { dedupeLines, findMissingFixtures, buildSystemPrompt, RECONCILIATION_SYSTEM } from "@/lib/audioPrompt"
 import ws from "ws"
 
+// Must stay in sync with AUDIO_PRICES in app/dashboard/page.tsx's Convert Audio modal.
+// Price is keyed by property size only - furnished/unfurnished only affects the
+// typist-market-rate savings estimate shown to the user, not what they're actually charged.
+const AUDIO_PRICES: Record<string, number> = {
+  room_only: 3.25, studio: 6.00, '1bed': 7.92, '2bed': 9.54, '3bed': 13.70,
+  '4bed': 17.45, '5bed': 21.64, '6bed': 25.84, '7bed': 30.04, '8bed': 34.24,
+  '9bed': 38.45, '10bed': 42.64, '11bed': 46.84, '12bed': 51.04,
+}
+
 export const audioConvertTask = task({
   id: "audio-convert",
   maxDuration: 3600,
@@ -333,7 +342,7 @@ ${roomTranscript}`
             property_size: propertySize,
             furnished: furnished,
             audio_length_seconds: totalSeconds,
-            cost: 4.00,
+            cost: (propertySize && AUDIO_PRICES[propertySize]) ?? 4.88,
             actual_api_cost: actualApiCost,
             converted_json: { rooms: roomResults, address, reconciliation_audit: reconciliationAudits },
             whisper_transcript: perRoomWhisperTranscript,
