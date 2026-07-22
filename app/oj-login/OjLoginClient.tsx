@@ -231,21 +231,21 @@ export default function OjLoginClient() {
             <div className="ojl-modal-card">
               {forgotSent ? (
                 <>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px', color: TEXT }}>Check your email</h3>
-                  <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.6, marginBottom: 24 }}>We've sent a password reset link to <strong style={{ color: TEXT }}>{forgotEmail}</strong>. Check your inbox and spam folder.</p>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px', color: darkMode ? '#f0f1f7' : TEXT }}>Check your email</h3>
+                  <p style={{ fontSize: 14, color: darkMode ? '#b7bccb' : MUTED, lineHeight: 1.6, marginBottom: 24 }}>We've sent a password reset link to <strong style={{ color: darkMode ? '#f0f1f7' : TEXT }}>{forgotEmail}</strong>. Check your inbox and spam folder.</p>
                   <button onClick={() => setShowForgotModal(false)} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: NAVY, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Done</button>
                 </>
               ) : (
                 <>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px', color: TEXT }}>Reset your password</h3>
-                  <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.6, marginBottom: 20 }}>Enter your email address and we'll send you a reset link.</p>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px', color: darkMode ? '#f0f1f7' : TEXT }}>Reset your password</h3>
+                  <p style={{ fontSize: 14, color: darkMode ? '#b7bccb' : MUTED, lineHeight: 1.6, marginBottom: 20 }}>Enter your email address and we'll send you a reset link.</p>
                   <div style={{ marginBottom: 16 }}>
                     <label className="ojl-label">Email address</label>
                     <input className="ojl-input" type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} placeholder="you@example.com" autoFocus />
                   </div>
                   <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'center' }}><HCaptcha ref={forgotCaptchaRef} sitekey={HCAPTCHA_SITEKEY} onVerify={setForgotCaptchaToken} onExpire={() => setForgotCaptchaToken(null)} /></div>
                   <button onClick={handleForgotPassword} disabled={forgotLoading || !forgotEmail || !forgotCaptchaToken} style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: (forgotLoading || !forgotEmail || !forgotCaptchaToken) ? HINT : NAVY, color: '#fff', fontFamily: 'inherit', fontSize: 15, fontWeight: 600, cursor: (forgotLoading || !forgotEmail || !forgotCaptchaToken) ? 'default' : 'pointer', marginBottom: 10 }}>{forgotLoading ? 'Sending…' : 'Send reset link'}</button>
-                  <button onClick={() => setShowForgotModal(false)} style={{ width: '100%', padding: 13, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: TEXT, fontFamily: 'inherit', fontSize: 15, fontWeight: 500, cursor: 'pointer' }}>Cancel</button>
+                  <button onClick={() => setShowForgotModal(false)} style={{ width: '100%', padding: 13, borderRadius: 10, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, background: 'transparent', color: darkMode ? '#f0f1f7' : TEXT, fontFamily: 'inherit', fontSize: 15, fontWeight: 500, cursor: 'pointer' }}>Cancel</button>
                 </>
               )}
             </div>
@@ -255,10 +255,10 @@ export default function OjLoginClient() {
         {showSessionWarning && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(21,32,69,0.5)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
             <div className="ojl-modal-card">
-              <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px', color: TEXT }}>Active session detected</h3>
-              <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.6, marginBottom: 24 }}>You're already signed in on <strong style={{ color: TEXT }}>{existingSessionDevice}</strong>. Each account can only be active on one device at a time. Do you want to log that device out and continue here?</p>
+              <h3 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 10px', color: darkMode ? '#f0f1f7' : TEXT }}>Active session detected</h3>
+              <p style={{ fontSize: 14, color: darkMode ? '#b7bccb' : MUTED, lineHeight: 1.6, marginBottom: 24 }}>You're already signed in on <strong style={{ color: darkMode ? '#f0f1f7' : TEXT }}>{existingSessionDevice}</strong>. Each account can only be active on one device at a time. Do you want to log that device out and continue here?</p>
               <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={() => { setShowSessionWarning(false); setPendingLoginUserId(''); setLoading(false) }} style={{ flex: 1, padding: 12, borderRadius: 10, border: `1px solid ${BORDER}`, background: 'transparent', color: MUTED, fontFamily: 'inherit', fontSize: 14, cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => { setShowSessionWarning(false); setPendingLoginUserId(''); setLoading(false) }} style={{ flex: 1, padding: 12, borderRadius: 10, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, background: 'transparent', color: darkMode ? '#b7bccb' : MUTED, fontFamily: 'inherit', fontSize: 14, cursor: 'pointer' }}>Cancel</button>
                 <button onClick={async () => { setShowSessionWarning(false); setLoading(true); await completeLogin(pendingLoginUserId) }} style={{ flex: 1, padding: 12, borderRadius: 10, border: 'none', background: NAVY, color: '#fff', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Log out other device</button>
               </div>
             </div>
