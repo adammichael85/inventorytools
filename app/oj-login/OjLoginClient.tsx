@@ -200,8 +200,8 @@ export default function OjLoginClient() {
           </div>
 
           <div className="ojl-card">
-            <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.4, marginBottom: 6, color: TEXT }}>Welcome back</h2>
-            <p style={{ fontSize: 14, color: MUTED, marginBottom: 24 }}>Sign in to your Oakley Jane account.</p>
+            <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.4, marginBottom: 6, color: darkMode ? '#f0f1f7' : TEXT }}>Welcome back</h2>
+            <p style={{ fontSize: 14, color: darkMode ? '#b7bccb' : MUTED, marginBottom: 24 }}>Sign in to your Oakley Jane account.</p>
 
             {error && <div style={{ background: darkMode ? 'rgba(220,38,38,.12)' : '#FEE2E2', border: `1px solid ${darkMode ? 'rgba(220,38,38,.35)' : '#FECACA'}`, borderRadius: 8, padding: '10px 14px', fontSize: 13, color: darkMode ? '#FCA5A5' : '#DC2626', marginBottom: 16 }}>{error}</div>}
             {message && <div style={{ background: darkMode ? 'rgba(255,255,255,.06)' : '#E8EAF0', border: `1px solid ${darkMode ? 'rgba(255,255,255,.12)' : '#C5C9D6'}`, borderRadius: 8, padding: '10px 14px', fontSize: 13, color: darkMode ? '#e2e4ee' : NAVY, marginBottom: 16, whiteSpace: 'pre-line' as const }}>{message}</div>}
