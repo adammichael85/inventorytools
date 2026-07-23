@@ -4778,7 +4778,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
                   {audioFiles.length > 0 && (
                     <div style={{ marginTop: 14 }}>
-                      <label style={labelStyle}>Room order <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(drag to reorder — this is the order rooms will appear in the Word document. Room names come from the file names above.)</span></label>
+                      <label style={labelStyle}>Room order <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(type a number in the box to reorder, or use the arrow keys — this is the order rooms will appear in the Word document. Room names come from the file names above.)</span></label>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {audioFiles.map((f, i) => (
                           <div
