@@ -1660,7 +1660,7 @@ export default function Dashboard() {
   const [audioAddress, setAudioAddress] = React.useState('')
   const [audioPropertySize, setAudioPropertySize] = React.useState('')
   const [audioFurnished, setAudioFurnished] = React.useState('')
-  const [audioRoomOrder, setAudioRoomOrder] = React.useState('')
+  const [draggedAudioIndex, setDraggedAudioIndex] = React.useState<number | null>(null)
   const [audioConvertState, setAudioConvertState] = React.useState<'idle'|'selected'|'processing'|'done'|'error'>('idle')
   const [leadersStyle, setLeadersStyle] = React.useState(false)
   const [audioElapsed, setAudioElapsed] = React.useState(0)
@@ -3165,7 +3165,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
               </div>
             )}
             {page !== 'cleanpdf' && (
-              <button onClick={() => { if (toolTab === 'audio') { if (audioEnabled) { setAudioFiles([]); setAudioAddress(''); setAudioPropertySize(''); setAudioFurnished(''); setAudioRoomOrder(''); setAudioConvertState('idle'); setAudioError(''); setAudioDocxUrl(null); setShowAudioConvert(true) } } else { if (pdfEnabled) setShowConvert(true) } }} style={{ padding: isMobile ? '6px 12px' : '9px 18px', borderRadius: 10, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: isMobile ? 12 : 13, fontWeight: 700, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap', boxShadow: `0 10px 22px -8px ${toolTab === 'audio' ? '#2563EB' : TEAL}` }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF or Word'}</button>
+              <button onClick={() => { if (toolTab === 'audio') { if (audioEnabled) { setAudioFiles([]); setAudioAddress(''); setAudioPropertySize(''); setAudioFurnished(''); setAudioConvertState('idle'); setAudioError(''); setAudioDocxUrl(null); setShowAudioConvert(true) } } else { if (pdfEnabled) setShowConvert(true) } }} style={{ padding: isMobile ? '6px 12px' : '9px 18px', borderRadius: 10, border: 'none', background: toolTab === 'audio' ? '#2563EB' : TEAL, color: '#fff', fontFamily: "'Space Grotesk', sans-serif", fontSize: isMobile ? 12 : 13, fontWeight: 700, cursor: 'pointer', minWidth: isMobile ? 120 : 140, whiteSpace: 'nowrap', boxShadow: `0 10px 22px -8px ${toolTab === 'audio' ? '#2563EB' : TEAL}` }}>+ {toolTab === 'audio' ? 'Convert Audio' : 'Convert PDF or Word'}</button>
             )}
           </div>
         </div>
@@ -4683,10 +4683,13 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
           setAudioAddress('')
           setAudioPropertySize('')
           setAudioFurnished('')
-          setAudioRoomOrder('')
           setAudioConvertState('idle')
           setAudioError('')
           setAudioDocxUrl(null)
+        }
+
+        function deriveRoomName(filename: string) {
+          return filename.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim().replace(/\b\w/g, (c: string) => c.toUpperCase())
         }
 
         const inputStyle = { width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${darkMode ? 'rgba(255,255,255,.15)' : BORDER}`, fontFamily: 'inherit', fontSize: 13, outline: 'none', background: darkMode ? 'rgba(255,255,255,.06)' : '#fff', color: darkMode ? '#f3f0ea' : TEXT, boxSizing: 'border-box' as const }
@@ -4749,34 +4752,12 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 )}
 
                 {audioConvertState !== 'processing' && audioConvertState !== 'done' && (<>
-                {/* Room order */}
-                <div>
-                  <label style={labelStyle}>Room order <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(one room per line — audio file names must match these room names exactly. The order here is the order rooms will appear in the Word document.)</span></label>
-                  <textarea
-                    value={audioRoomOrder}
-                    onChange={e => {
-                      const lines = e.target.value.split('\n')
-                      const cased = lines.map((line, idx) => {
-                        // Only auto-capitalise completed lines (not the one being typed)
-                        if (idx < lines.length - 1) {
-                          return line.replace(/\b\w/g, (c: string) => c.toUpperCase())
-                        }
-                        return line
-                      })
-                      setAudioRoomOrder(cased.join('\n'))
-                    }}
-                    placeholder={"Hall\nLiving Room\nKitchen\nBedroom 1\nBedroom 2\nBathroom"}
-                    rows={6}
-                    style={{ ...inputStyle, resize: 'vertical' as const, lineHeight: 1.6 }}
-                  />
-                </div>
-
                 {/* Audio file upload */}
                 <div>
                   <div style={{ background: '#FEF2F2', border: '1.5px solid #DC2626', borderRadius: 10, padding: '10px 14px', marginBottom: 10 }}>
                     <p style={{ fontSize: 12, fontWeight: 700, color: '#DC2626', margin: 0, lineHeight: 1.5 }}>WARNING: Rooms must be split into separate files. Do not upload one long continuous audio file covering multiple rooms. Individual room audio files are the only currently supported method.</p>
                   </div>
-                  <label style={labelStyle}>Audio files <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(upload one or more — any combination of files)</span></label>
+                  <label style={labelStyle}>Audio files <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(upload one file per room — any combination of files)</span></label>
                   <label htmlFor="audio-upload">
                     <div
                       style={{ border: `2px dashed ${audioFiles.length > 0 ? AUDIO_BLUE : BORDER}`, borderRadius: 18, boxShadow: SHADOW, padding: 20, textAlign: 'center', cursor: 'pointer', background: audioFiles.length > 0 ? AUDIO_BLUE_LIGHT : BG, transition: 'all 0.15s' }}
@@ -4797,20 +4778,40 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                   <input id="audio-upload" type="file" accept=".mp3,.wav,.m4a,.ogg,.webm,audio/*" multiple style={{ display: 'none' }} onChange={e => { if (e.target.files) setAudioFiles(prev => [...prev, ...Array.from(e.target.files!)]) }} />
 
                   {audioFiles.length > 0 && (
-                    <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {audioFiles.map((f, i) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 8, padding: '8px 12px' }}>
-                          <div style={{ width: 28, height: 28, borderRadius: 6, background: AUDIO_BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg>
+                    <div style={{ marginTop: 14 }}>
+                      <label style={labelStyle}>Room order <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>(drag to reorder — this is the order rooms will appear in the Word document. Room names come from the file names above.)</span></label>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {audioFiles.map((f, i) => (
+                          <div
+                            key={i}
+                            draggable
+                            onDragStart={() => setDraggedAudioIndex(i)}
+                            onDragOver={e => e.preventDefault()}
+                            onDrop={e => {
+                              e.preventDefault()
+                              if (draggedAudioIndex === null || draggedAudioIndex === i) return
+                              setAudioFiles(prev => {
+                                const next = [...prev]
+                                const [moved] = next.splice(draggedAudioIndex, 1)
+                                next.splice(i, 0, moved)
+                                return next
+                              })
+                              setDraggedAudioIndex(null)
+                            }}
+                            onDragEnd={() => setDraggedAudioIndex(null)}
+                            style={{ display: 'flex', alignItems: 'center', gap: 10, background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 8, padding: '8px 12px', cursor: 'grab', opacity: draggedAudioIndex === i ? 0.4 : 1 }}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={AUDIO_BLUE} strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0 }}><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>
+                            <div style={{ width: 22, height: 22, borderRadius: 6, background: AUDIO_BLUE, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11, fontWeight: 700 }}>{i + 1}</div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ fontSize: 13, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{deriveRoomName(f.name)}</p>
+                              <p style={{ fontSize: 11, color: AUDIO_BLUE, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name} · {(f.size / 1024 / 1024).toFixed(1)} MB</p>
+                            </div>
+                            <button onClick={e => { e.preventDefault(); setAudioFiles(prev => prev.filter((_, idx) => idx !== i)) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: MUTED, fontSize: 16, padding: 2, flexShrink: 0 }}>×</button>
                           </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontSize: 12, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</p>
-                            <p style={{ fontSize: 11, color: AUDIO_BLUE, margin: 0 }}>{(f.size / 1024 / 1024).toFixed(1)} MB</p>
-                          </div>
-                          <button onClick={e => { e.preventDefault(); setAudioFiles(prev => prev.filter((_, idx) => idx !== i)) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: MUTED, fontSize: 16, padding: 2, flexShrink: 0 }}>×</button>
-                        </div>
-                      ))}
-                      <button onClick={e => { e.preventDefault(); setAudioFiles([]) }} style={{ fontSize: 11, color: MUTED, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '2px 0', fontFamily: 'inherit' }}>Clear all files</button>
+                        ))}
+                      </div>
+                      <button onClick={e => { e.preventDefault(); setAudioFiles([]) }} style={{ fontSize: 11, color: MUTED, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '6px 0 0', fontFamily: 'inherit' }}>Clear all files</button>
                     </div>
                   )}
                 </div>
@@ -4879,7 +4880,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     setAudioElapsed(0)
                     audioElapsedRef.current = 0
                     setAudioRestoredJobComplete(false)
-                    const initialRoomList = (audioRoomOrder || '').trim().split('\n').filter((r: string) => r.trim()).map((r: string) => r.trim())
+                    const initialRoomList = audioFiles.map((f: File) => deriveRoomName(f.name))
                     setAudioProcessingRooms(initialRoomList.map((name: string) => ({ name, state: 'pending' })))
                     const localTimer = setInterval(() => {
                       audioElapsedRef.current += 1
@@ -4908,7 +4909,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                       const startRes = await fetch('/api/convert-audio-start', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${uploadSession.access_token}` },
-                        body: JSON.stringify({ filePaths, fileNames, roomOrder: audioRoomOrder, propertySize: audioPropertySize, furnished: audioFurnished, address: audioAddress, userId: uploadSession.user.id, convertedBy: userName || uploadSession.user.email })
+                        body: JSON.stringify({ filePaths, fileNames, roomOrder: audioFiles.map((f: File) => deriveRoomName(f.name)).join('\n'), propertySize: audioPropertySize, furnished: audioFurnished, address: audioAddress, userId: uploadSession.user.id, convertedBy: userName || uploadSession.user.email })
                       })
                       const startData = await startRes.json()
                       if (!startRes.ok || startData.error) throw new Error(startData.error || 'Failed to start conversion')
