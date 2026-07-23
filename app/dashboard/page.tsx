@@ -2356,27 +2356,27 @@ export default function Dashboard() {
 
       doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2])
       doc.setLineWidth(0.3)
-      doc.line(leftPanelX + 8, panelY + 15, leftPanelX + panelW - 8, panelY + 15)
-      doc.line(rightPanelX + 8, panelY + 15, rightPanelX + panelW - 8, panelY + 15)
+      doc.line(leftPanelX + 8, panelY + 18, leftPanelX + panelW - 8, panelY + 18)
+      doc.line(rightPanelX + 8, panelY + 18, rightPanelX + panelW - 8, panelY + 18)
 
       doc.setFontSize(10)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(DARK[0], DARK[1], DARK[2])
-      doc.text(brand.display_name || 'InventoryTools', leftPanelX + 8, panelY + 22)
+      doc.text(brand.display_name || 'InventoryTools', leftPanelX + 8, panelY + 24)
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(9)
       doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
-      doc.text(userEmail || '', leftPanelX + 8, panelY + 28)
+      doc.text(userEmail || '', leftPanelX + 8, panelY + 30)
 
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(10)
       doc.setTextColor(DARK[0], DARK[1], DARK[2])
-      doc.text('Payment successful', rightPanelX + 8, panelY + 22)
+      doc.text('Payment successful', rightPanelX + 8, panelY + 24)
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(9)
       doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
-      doc.text('Your account has been topped up', rightPanelX + 8, panelY + 28)
-      doc.text('with credit.', rightPanelX + 8, panelY + 32.5)
+      doc.text('Your account has been topped up', rightPanelX + 8, panelY + 30)
+      doc.text('with credit.', rightPanelX + 8, panelY + 34.5)
 
       y = panelY + panelH + 14
 
@@ -2467,39 +2467,7 @@ export default function Dashboard() {
         rowCursor += 12
       })
 
-      const helpBoxH = 48
-      doc.setFillColor(CARD_BG[0], CARD_BG[1], CARD_BG[2])
-      doc.roundedRect(rightPanelX, infoY - 6, panelW, helpBoxH, 3, 3, 'F')
-      const helpCx = rightPanelX + 11, helpCy = infoY - 6 + 11
-      doc.setFillColor(accent[0], accent[1], accent[2])
-      doc.circle(helpCx, helpCy, 5, 'F')
-      doc.setDrawColor(255, 255, 255)
-      doc.setLineWidth(0.9)
-      doc.line(helpCx - 3, helpCy, helpCx - 3, helpCy - 2)
-      doc.line(helpCx + 3, helpCy, helpCx + 3, helpCy - 2)
-      doc.circle(helpCx, helpCy - 1, 3, 'D')
-      doc.setFillColor(255, 255, 255)
-      doc.circle(helpCx - 3, helpCy + 0.8, 1, 'F')
-      doc.circle(helpCx + 3, helpCy + 0.8, 1, 'F')
-
-      doc.setFontSize(10.5)
-      doc.setFont('helvetica', 'bold')
-      doc.setTextColor(DARK[0], DARK[1], DARK[2])
-      doc.text('Need help?', rightPanelX + 20, infoY - 3)
-      doc.setFontSize(8.5)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
-      doc.text('If you have any questions about', rightPanelX + 8, infoY + 8)
-      doc.text('this top-up, please contact us.', rightPanelX + 8, infoY + 12.5)
-
-      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2])
-      doc.line(rightPanelX + 8, infoY + 18, rightPanelX + panelW - 8, infoY + 18)
-      doc.setFontSize(9)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(DARK[0], DARK[1], DARK[2])
-      doc.text(contactEmail, rightPanelX + 8, infoY + 25)
-
-      const bottomLineY = Math.max(rowCursor + 6, infoY - 6 + helpBoxH + 8)
+      const bottomLineY = rowCursor + 6
       doc.setDrawColor(accent[0], accent[1], accent[2])
       doc.setLineWidth(0.6)
       doc.line(LEFT, bottomLineY, RIGHT, bottomLineY)
