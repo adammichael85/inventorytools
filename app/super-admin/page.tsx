@@ -341,7 +341,7 @@ export default function SuperAdminPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
               <tr style={{ background: '#f6f5f3' }}>
-                {['Company', 'Address', 'Type', 'Charged', 'Real Cost', 'Margin', 'By', 'Date'].map(h => (
+                {['Company', 'Address', 'Type', 'Rooms/Size', 'Audio Length', 'Conv. Time', 'Charged', 'Real Cost', 'Margin', 'By', 'Date'].map(h => (
                   <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: '#8a8a8a', textTransform: 'uppercase' as const, letterSpacing: 0.5, borderBottom: '1px solid #ecebe8' }}>{h}</th>
                 ))}
               </tr>
@@ -351,11 +351,15 @@ export default function SuperAdminPage() {
                 const charged = c.cost ? Number(c.cost) : 0
                 const realCost = c.actual_api_cost != null ? Number(c.actual_api_cost) : null
                 const margin = realCost != null ? charged - realCost : null
+                const fmtDuration = (secs: number | null | undefined) => secs == null ? '—' : (secs >= 60 ? `${Math.floor(secs / 60)}m ${secs % 60}s` : `${secs}s`)
                 return (
                   <tr key={c.id} style={{ borderBottom: '1px solid #ecebe8' }}>
                     <td style={{ padding: '10px 14px' }}>{c.company_name}</td>
                     <td style={{ padding: '10px 14px', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{c.address || '—'}</td>
                     <td style={{ padding: '10px 14px' }}>{c.type === 'audio' ? 'Audio' : 'PDF'}</td>
+                    <td style={{ padding: '10px 14px' }}>{c.type === 'audio' ? (c.property_size ? c.property_size.replace('bed', ' bed').replace('_', ' ') : '—') : (c.rooms != null ? `${c.rooms} rooms` : '—')}</td>
+                    <td style={{ padding: '10px 14px' }}>{c.type === 'audio' ? fmtDuration(c.audio_length_seconds) : '—'}</td>
+                    <td style={{ padding: '10px 14px' }}>{fmtDuration(c.duration_seconds)}</td>
                     <td style={{ padding: '10px 14px', fontWeight: 600 }}>£{charged.toFixed(2)}</td>
                     <td style={{ padding: '10px 14px', fontWeight: 600 }}>{realCost != null ? '£' + realCost.toFixed(2) : '—'}</td>
                     <td style={{ padding: '10px 14px', fontWeight: 600, color: margin != null ? (margin < 0 ? '#DC2626' : '#16A34A') : '#8a8a8a' }}>{margin != null ? '£' + margin.toFixed(2) : '—'}</td>
