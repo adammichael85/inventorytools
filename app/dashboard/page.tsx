@@ -2138,6 +2138,7 @@ export default function Dashboard() {
       const items = getUsageInvoiceConversions()
       const { from, to } = getUsageInvoiceDateRange()
       const total = items.reduce((s: number, c: any) => s + (c.cost ? Number(c.cost) : (c.type === 'audio' ? 4.88 : 4.00)), 0)
+      const fmtDuration = (secs: number | null | undefined) => secs == null ? 'N/A' : (secs >= 60 ? Math.floor(secs / 60) + 'm ' + (secs % 60) + 's' : secs + 's')
 
       const hexToRgb = (hex: string): [number, number, number] => {
         const h = (hex || '#fd6a02').replace('#', '')
@@ -2165,72 +2166,79 @@ export default function Dashboard() {
       const accent = hexToRgb(brand.primary_color || '#fd6a02')
       const logoUrl = brand.company_name === 'InventoryTools' ? '/logo-email-full.png' : (brand.logo_url || '/logo-email-full.png')
 
-      const doc = new jsPDF()
+      const DARK: [number, number, number] = [26, 26, 26]
+      const GRAY: [number, number, number] = [138, 138, 138]
+      const BORDER: [number, number, number] = [230, 230, 228]
 
-      let headerBottom = 22
+      const doc = new jsPDF({ orientation: 'landscape' })
+      const RIGHT = doc.internal.pageSize.getWidth() - 14
+      const LEFT = 14
+
+      let logoBottom = 24
       try {
         const logo = await loadImageData(logoUrl)
-        const dispW = 46
+        const dispW = 40
         const dispH = dispW * (logo.h / logo.w)
-        doc.addImage(logo.dataUrl, 'PNG', 14, 14, dispW, dispH)
-        headerBottom = 14 + dispH + 8
+        doc.addImage(logo.dataUrl, 'PNG', LEFT, 14, dispW, dispH)
+        logoBottom = 14 + dispH
       } catch (e) {
-        doc.setFontSize(18)
+        doc.setFontSize(16)
         doc.setFont('helvetica', 'bold')
-        doc.setTextColor(26, 26, 26)
-        doc.text(brand.display_name || 'InventoryTools', 14, 22)
-        headerBottom = 30
+        doc.setTextColor(DARK[0], DARK[1], DARK[2])
+        doc.text(brand.display_name || 'InventoryTools', LEFT, 24)
+        logoBottom = 26
       }
 
-      doc.setFontSize(15)
+      const titleY = 22
+      doc.setFontSize(20)
       doc.setFont('helvetica', 'bold')
-      doc.setTextColor(26, 26, 26)
-      doc.text('Usage Invoice', 14, headerBottom)
-      doc.setDrawColor(accent[0], accent[1], accent[2])
-      doc.setLineWidth(1.2)
-      doc.line(14, headerBottom + 3, 44, headerBottom + 3)
+      doc.setTextColor(accent[0], accent[1], accent[2])
+      doc.text('USAGE INVOICE', RIGHT, titleY, { align: 'right' })
 
-      const panelY = headerBottom + 10
-      doc.setFillColor(246, 245, 243)
-      doc.roundedRect(14, panelY, 182, 20, 3, 3, 'F')
-      doc.setFontSize(8.5)
+      const periodStr = from.toLocaleDateString('en-GB') + ' - ' + new Date(to.getTime() - 1).toLocaleDateString('en-GB')
+      doc.setFontSize(9)
       doc.setFont('helvetica', 'normal')
-      doc.setTextColor(138, 138, 138)
-      doc.text('Period', 20, panelY + 8)
-      doc.text('Generated', 105, panelY + 8)
-      doc.setFont('helvetica', 'bold')
-      doc.setTextColor(26, 26, 26)
-      doc.text(`${from.toLocaleDateString('en-GB')} - ${new Date(to.getTime() - 1).toLocaleDateString('en-GB')}`, 20, panelY + 15)
-      doc.text(new Date().toLocaleDateString('en-GB'), 105, panelY + 15)
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text('Period:  ' + periodStr, RIGHT, titleY + 9, { align: 'right' })
+      doc.text('Generated:  ' + new Date().toLocaleDateString('en-GB'), RIGHT, titleY + 15, { align: 'right' })
+
+      const y = Math.max(logoBottom, titleY + 15) + 8
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2])
+      doc.setLineWidth(0.4)
+      doc.line(LEFT, y, RIGHT, y)
 
       autoTable(doc, {
-        startY: panelY + 28,
-        head: [['Date', 'Property', 'Type', 'Cost']],
+        startY: y + 10,
+        head: [['Date', 'Property', 'Type', 'Size / Rooms', 'Furn / Unfurn', 'Audio Length', 'Cost']],
         body: items.map((c: any) => [
           new Date(c.created_at).toLocaleDateString('en-GB'),
           c.address || 'Unknown',
           c.type === 'audio' ? 'Audio' : 'PDF',
-          '£' + (c.cost ? Number(c.cost).toFixed(2) : (c.type === 'audio' ? '4.88' : '4.00'))
+          c.type === 'audio' ? (c.property_size ? c.property_size.replace('bed', ' bed').replace('_', ' ') : 'N/A') : (c.rooms != null ? c.rooms + ' rooms' : 'N/A'),
+          c.type === 'audio' ? (c.furnished ? c.furnished.replace('_', ' ') : 'N/A') : 'N/A',
+          c.type === 'audio' ? fmtDuration(c.audio_length_seconds) : 'N/A',
+          'GBP ' + (c.cost ? Number(c.cost).toFixed(2) : (c.type === 'audio' ? '4.88' : '4.00'))
         ]),
         styles: { fontSize: 9, cellPadding: 3, textColor: [40, 40, 40] },
         headStyles: { fillColor: accent, textColor: [255, 255, 255], fontStyle: 'bold' },
         alternateRowStyles: { fillColor: [246, 245, 243] },
+        margin: { left: LEFT, right: 14 },
       })
 
       const finalY = (doc as any).lastAutoTable.finalY || 60
-      doc.setDrawColor(236, 235, 232)
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2])
       doc.setLineWidth(0.4)
-      doc.line(14, finalY + 6, 196, finalY + 6)
+      doc.line(LEFT, finalY + 6, RIGHT, finalY + 6)
       doc.setFontSize(16)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(accent[0], accent[1], accent[2])
-      doc.text(`Total: £${total.toFixed(2)}`, 14, finalY + 18)
+      doc.text('Total: GBP ' + total.toFixed(2), LEFT, finalY + 18)
       doc.setFontSize(8.5)
       doc.setFont('helvetica', 'normal')
-      doc.setTextColor(138, 138, 138)
-      doc.text(`${items.length} report${items.length === 1 ? '' : 's'} in this period`, 14, finalY + 24)
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
+      doc.text(items.length + ' report' + (items.length === 1 ? '' : 's') + ' in this period', LEFT, finalY + 24)
 
-      doc.save(`usage-invoice-${from.toISOString().slice(0,10)}-to-${new Date(to.getTime()-1).toISOString().slice(0,10)}.pdf`)
+      doc.save('usage-invoice-' + from.toISOString().slice(0,10) + '-to-' + new Date(to.getTime()-1).toISOString().slice(0,10) + '.pdf')
     } catch (e) {
       alert('Failed to generate usage invoice PDF')
     } finally {
