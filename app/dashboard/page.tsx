@@ -1660,7 +1660,6 @@ export default function Dashboard() {
   const [audioAddress, setAudioAddress] = React.useState('')
   const [audioPropertySize, setAudioPropertySize] = React.useState('')
   const [audioFurnished, setAudioFurnished] = React.useState('')
-  const [draggedAudioIndex, setDraggedAudioIndex] = React.useState<number | null>(null)
   const [audioConvertState, setAudioConvertState] = React.useState<'idle'|'selected'|'processing'|'done'|'error'>('idle')
   const [leadersStyle, setLeadersStyle] = React.useState(false)
   const [audioElapsed, setAudioElapsed] = React.useState(0)
@@ -4784,25 +4783,26 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                         {audioFiles.map((f, i) => (
                           <div
                             key={i}
-                            draggable
-                            onDragStart={() => setDraggedAudioIndex(i)}
-                            onDragOver={e => e.preventDefault()}
-                            onDrop={e => {
-                              e.preventDefault()
-                              if (draggedAudioIndex === null || draggedAudioIndex === i) return
-                              setAudioFiles(prev => {
-                                const next = [...prev]
-                                const [moved] = next.splice(draggedAudioIndex, 1)
-                                next.splice(i, 0, moved)
-                                return next
-                              })
-                              setDraggedAudioIndex(null)
-                            }}
-                            onDragEnd={() => setDraggedAudioIndex(null)}
-                            style={{ display: 'flex', alignItems: 'center', gap: 10, background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 8, padding: '8px 12px', cursor: 'grab', opacity: draggedAudioIndex === i ? 0.7 : 1 }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 10, background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 8, padding: '8px 12px' }}
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={AUDIO_BLUE} strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0 }}><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>
-                            <div style={{ width: 22, height: 22, borderRadius: 6, background: AUDIO_BLUE, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11, fontWeight: 700 }}>{i + 1}</div>
+                            <input
+                              type="number"
+                              min={1}
+                              max={audioFiles.length}
+                              value={i + 1}
+                              onChange={e => {
+                                let newPos = parseInt(e.target.value, 10) - 1
+                                if (isNaN(newPos)) return
+                                newPos = Math.max(0, Math.min(audioFiles.length - 1, newPos))
+                                setAudioFiles(prev => {
+                                  const next = [...prev]
+                                  const [moved] = next.splice(i, 1)
+                                  next.splice(newPos, 0, moved)
+                                  return next
+                                })
+                              }}
+                              style={{ width: 38, height: 28, borderRadius: 6, border: `1px solid #BFDBFE`, textAlign: 'center', fontSize: 13, fontWeight: 700, color: AUDIO_BLUE_DARK, flexShrink: 0, fontFamily: 'inherit' }}
+                            />
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <p style={{ fontSize: 13, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{deriveRoomName(f.name)}</p>
                               <p style={{ fontSize: 11, color: AUDIO_BLUE, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name} · {(f.size / 1024 / 1024).toFixed(1)} MB</p>
