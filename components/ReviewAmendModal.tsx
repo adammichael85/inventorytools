@@ -683,7 +683,7 @@ const overlayStyle: React.CSSProperties = {
   alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 24,
 }
 const modalStyle: React.CSSProperties = {
-  width: '92vw', maxWidth: 1400, height: '86vh', background: 'rgba(255,255,255,.96)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22,
+  width: '80vw', height: '86vh', background: 'rgba(255,255,255,.96)', backdropFilter: 'blur(30px) saturate(160%)', WebkitBackdropFilter: 'blur(30px) saturate(160%)', borderRadius: 22,
   boxShadow: '0 30px 70px rgba(30,20,10,.2)', display: 'flex', flexDirection: 'column',
   overflow: 'hidden', border: '1px solid rgba(255,255,255,.85)',
 }
