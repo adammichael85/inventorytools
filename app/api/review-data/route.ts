@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     const { data: conv, error } = await supabase
       .from('conversions')
-      .select('id, converted_json, whisper_words, audio_paths, address, gpt4o_transcript')
+      .select('id, converted_json, whisper_words, audio_paths, address, gpt4o_transcript, whisper_transcript')
       .eq('id', conversion_id)
       .eq('user_id', user_id)
       .single()
@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
     // gpt4o_transcript is stored as one block with "=== RoomName ===" markers (for display),
     // not per-room JSON like whisper_words - split it back out per room here.
     const gpt4oText: string = conv.gpt4o_transcript || ''
+    const gpt4oHasMarkers = /=== .+? ===/.test(gpt4oText)
     const gpt4oWordsByRoom: Record<string, string[]> = {}
     for (const roomName of roomNames) {
       const marker = `=== ${roomName} ===\n`
@@ -66,13 +67,33 @@ export async function POST(req: NextRequest) {
       gpt4oWordsByRoom[roomName] = roomText.split(/\s+/).filter(Boolean)
     }
 
+    // Fallback: audio wasn't matched one-to-one with room names during conversion, so there's
+    // no genuine per-room split available at all (not for gpt4o text, not for whisper words either -
+    // the upstream job only populates per-room whisper word timing when matching succeeds).
+    // Rather than showing every room blank, show the full combined transcript in every room tab
+    // so the reviewer can still read what was actually transcribed.
+    const whisperWordsRaw: Record<string, any[]> = conv.whisper_words || {}
+    const whisperHasAnyRoomData = roomNames.some(r => Array.isArray(whisperWordsRaw[r]) && whisperWordsRaw[r].length > 0)
+    const isFallbackMode = !gpt4oHasMarkers && !whisperHasAnyRoomData && roomNames.length > 0
+
+    if (isFallbackMode) {
+      const fallbackWhisperText: string = conv.whisper_transcript || ''
+      const fallbackGpt4oWords = gpt4oText.split(/\s+/).filter(Boolean)
+      const fallbackWhisperWords = fallbackWhisperText.split(/\s+/).filter(Boolean)
+      for (const roomName of roomNames) {
+        gpt4oWordsByRoom[roomName] = fallbackGpt4oWords
+        whisperWordsRaw[roomName] = fallbackWhisperWords.map((w: string) => ({ word: w, start: 0, end: 0 }))
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       address: conv.address,
       rooms,
-      whisperWords: conv.whisper_words || {},
+      whisperWords: whisperWordsRaw,
       gpt4oWords: gpt4oWordsByRoom,
       audioUrls: signedUrls,
+      fallbackMode: isFallbackMode,
     })
   } catch (err: any) {
     console.error('[API Error]', err)
