@@ -1658,6 +1658,34 @@ export default function Dashboard() {
   const [showAudioConvert, setShowAudioConvert] = React.useState(false)
   const [audioFiles, setAudioFiles] = React.useState<File[]>([])
   const [draggedAudioIndex, setDraggedAudioIndex] = React.useState<number | null>(null)
+  const audioRowElsRef = React.useRef<Map<File, HTMLDivElement>>(new Map())
+  const audioRowRectsRef = React.useRef<Map<File, DOMRect>>(new Map())
+  React.useLayoutEffect(() => {
+    // FLIP animation: for each row, if it moved since the last render, immediately paint it at its
+    // old position (via transform), then release the transform with a transition so the browser
+    // animates it sliding into its new spot - rather than the whole list just snapping instantly.
+    audioFiles.forEach(f => {
+      const el = audioRowElsRef.current.get(f)
+      const prevRect = audioRowRectsRef.current.get(f)
+      if (!el || !prevRect) return
+      const newRect = el.getBoundingClientRect()
+      const deltaY = prevRect.top - newRect.top
+      if (Math.abs(deltaY) > 0.5) {
+        el.style.transition = 'none'
+        el.style.transform = `translateY(${deltaY}px)`
+        requestAnimationFrame(() => {
+          el.style.transition = 'transform 0.18s ease'
+          el.style.transform = ''
+        })
+      }
+    })
+    const rects = new Map<File, DOMRect>()
+    audioFiles.forEach(f => {
+      const el = audioRowElsRef.current.get(f)
+      if (el) rects.set(f, el.getBoundingClientRect())
+    })
+    audioRowRectsRef.current = rects
+  }, [audioFiles])
   const [audioAddress, setAudioAddress] = React.useState('')
   const [audioPropertySize, setAudioPropertySize] = React.useState('')
   const [audioFurnished, setAudioFurnished] = React.useState('')
@@ -4784,6 +4812,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                         {audioFiles.map((f, i) => (
                           <div
                             key={i}
+                            ref={el => { if (el) audioRowElsRef.current.set(f, el) }}
                             draggable
                             onDragStart={() => setDraggedAudioIndex(i)}
                             onDragOver={e => {
@@ -4799,7 +4828,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                             }}
                             onDrop={e => e.preventDefault()}
                             onDragEnd={() => setDraggedAudioIndex(null)}
-                            style={{ display: 'flex', alignItems: 'center', gap: 10, background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 8, padding: '8px 12px', cursor: 'grab', opacity: draggedAudioIndex === i ? 0.5 : 1, transition: 'transform .15s ease' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 10, background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 8, padding: '8px 12px', cursor: 'grab', opacity: draggedAudioIndex === i ? 0.88 : 1, transition: 'opacity .15s ease', boxShadow: draggedAudioIndex === i ? '0 6px 16px rgba(37,99,235,.25)' : 'none' }}
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={AUDIO_BLUE} strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0 }}><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>
                             <div style={{ width: 22, height: 22, borderRadius: 6, background: AUDIO_BLUE, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11, fontWeight: 700 }}>{i + 1}</div>
