@@ -2267,78 +2267,244 @@ export default function Dashboard() {
 
       const accent = hexToRgb(brand.primary_color || '#fd6a02')
       const logoUrl = brand.company_name === 'InventoryTools' ? '/logo-email-full.png' : (brand.logo_url || '/logo-email-full.png')
-      const showPaymentMethod = brand.company_name === 'InventoryTools' && t.card_brand && t.card_last4
+      const hasCard = !!(t.card_brand && t.card_last4)
+      const contactEmail = brand.company_name === 'InventoryTools' ? 'admin@inventorytools.co.uk' : ('support@' + (brand.domain || 'inventorytools.co.uk'))
+
+      const DARK: [number, number, number] = [26, 26, 26]
+      const GRAY: [number, number, number] = [138, 138, 138]
+      const CARD_BG: [number, number, number] = [246, 245, 243]
+      const BORDER: [number, number, number] = [230, 230, 228]
+      const GREEN: [number, number, number] = [22, 163, 74]
+      const GREEN_BG: [number, number, number] = [232, 245, 233]
 
       const doc = new jsPDF()
+      const RIGHT = 196
+      const LEFT = 14
 
-      let headerBottom = 22
+      let logoBottom = 24
       try {
         const logo = await loadImageData(logoUrl)
-        const dispW = 46
+        const dispW = 40
         const dispH = dispW * (logo.h / logo.w)
-        doc.addImage(logo.dataUrl, 'PNG', 14, 14, dispW, dispH)
-        headerBottom = 14 + dispH + 8
+        doc.addImage(logo.dataUrl, 'PNG', LEFT, 14, dispW, dispH)
+        logoBottom = 14 + dispH
       } catch (e) {
-        doc.setFontSize(18)
+        doc.setFontSize(16)
         doc.setFont('helvetica', 'bold')
-        doc.setTextColor(26, 26, 26)
-        doc.text(brand.display_name || 'InventoryTools', 14, 22)
-        headerBottom = 30
+        doc.setTextColor(DARK[0], DARK[1], DARK[2])
+        doc.text(brand.display_name || 'InventoryTools', LEFT, 24)
+        logoBottom = 26
       }
 
-      doc.setFontSize(15)
-      doc.setFont('helvetica', 'bold')
-      doc.setTextColor(26, 26, 26)
-      doc.text('Invoice', 14, headerBottom)
-      doc.setDrawColor(accent[0], accent[1], accent[2])
-      doc.setLineWidth(1.2)
-      doc.line(14, headerBottom + 3, 44, headerBottom + 3)
-
-      const panelY = headerBottom + 10
-      const panelH = showPaymentMethod ? 32 : 24
-      doc.setFillColor(246, 245, 243)
-      doc.roundedRect(14, panelY, 182, panelH, 3, 3, 'F')
-      doc.setFontSize(8.5)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(138, 138, 138)
-      doc.text('Invoice #', 20, panelY + 8)
-      doc.text('Date', 105, panelY + 8)
-      doc.setFont('helvetica', 'bold')
-      doc.setTextColor(26, 26, 26)
-      doc.text(t.invoice_number || '—', 20, panelY + 14)
-      doc.text(new Date(t.created_at).toLocaleDateString('en-GB'), 105, panelY + 14)
-
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(138, 138, 138)
-      doc.text('Description', 20, panelY + 22)
-      doc.setFont('helvetica', 'bold')
-      doc.setTextColor(26, 26, 26)
-      doc.text(t.description || 'Balance top-up', 20, panelY + 28)
-
-      if (showPaymentMethod) {
-        doc.setFont('helvetica', 'normal')
-        doc.setTextColor(138, 138, 138)
-        doc.text('Payment method', 105, panelY + 22)
-        doc.setFont('helvetica', 'bold')
-        doc.setTextColor(26, 26, 26)
-        doc.text(`${t.card_brand} \u2022\u2022\u2022\u2022 ${t.card_last4}`, 105, panelY + 28)
-      }
-
-      const afterPanelY = panelY + panelH + 14
-      doc.setDrawColor(236, 235, 232)
-      doc.setLineWidth(0.4)
-      doc.line(14, afterPanelY, 196, afterPanelY)
-
-      doc.setFontSize(22)
+      const titleY = 22
+      doc.setFontSize(20)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(accent[0], accent[1], accent[2])
-      doc.text(`£${Number(t.amount).toFixed(2)}`, 14, afterPanelY + 16)
+      doc.text('TOP-UP RECEIPT', RIGHT, titleY, { align: 'right' })
+
+      const dateStr = new Date(t.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
       doc.setFontSize(9)
       doc.setFont('helvetica', 'normal')
-      doc.setTextColor(138, 138, 138)
-      doc.text('Amount paid', 14, afterPanelY + 22)
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text('Receipt reference:  ' + (t.invoice_number || 'N/A'), RIGHT, titleY + 9, { align: 'right' })
+      doc.text('Date:  ' + dateStr, RIGHT, titleY + 15, { align: 'right' })
 
-      doc.save(`invoice-${t.invoice_number || t.id}.pdf`)
+      const badgeW = 24, badgeH = 7, badgeX = RIGHT - badgeW, badgeY = titleY + 20
+      doc.setFillColor(GREEN_BG[0], GREEN_BG[1], GREEN_BG[2])
+      doc.setDrawColor(GREEN[0], GREEN[1], GREEN[2])
+      doc.setLineWidth(0.3)
+      doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 3, 3, 'FD')
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(GREEN[0], GREEN[1], GREEN[2])
+      doc.text('PAID', badgeX + badgeW / 2, badgeY + 4.8, { align: 'center' })
+
+      let y = Math.max(logoBottom, badgeY + badgeH) + 8
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2])
+      doc.setLineWidth(0.4)
+      doc.line(LEFT, y, RIGHT, y)
+
+      const panelY = y + 10
+      const panelW = 87, panelGap = 8, panelH = 36
+      const leftPanelX = LEFT
+      const rightPanelX = LEFT + panelW + panelGap
+
+      doc.setFillColor(CARD_BG[0], CARD_BG[1], CARD_BG[2])
+      doc.roundedRect(leftPanelX, panelY, panelW, panelH, 3, 3, 'F')
+      doc.roundedRect(rightPanelX, panelY, panelW, panelH, 3, 3, 'F')
+
+      const accCx = leftPanelX + 11, accCy = panelY + 11
+      doc.setFillColor(accent[0], accent[1], accent[2])
+      doc.circle(accCx, accCy, 5, 'F')
+      doc.setFillColor(255, 255, 255)
+      doc.circle(accCx, accCy - 1.3, 1.4, 'F')
+      doc.roundedRect(accCx - 2.6, accCy + 0.6, 5.2, 3.4, 1.5, 1.5, 'F')
+
+      const paySumCx = rightPanelX + 11, paySumCy = panelY + 11
+      doc.setFillColor(GREEN[0], GREEN[1], GREEN[2])
+      doc.circle(paySumCx, paySumCy, 5, 'F')
+      doc.setDrawColor(255, 255, 255)
+      doc.setLineWidth(1)
+      doc.line(paySumCx - 2, paySumCy, paySumCx - 0.5, paySumCy + 1.6)
+      doc.line(paySumCx - 0.5, paySumCy + 1.6, paySumCx + 2.6, paySumCy - 2)
+
+      doc.setFontSize(10.5)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text('ACCOUNT', leftPanelX + 20, panelY + 9)
+      doc.text('PAYMENT SUMMARY', rightPanelX + 20, panelY + 9)
+
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2])
+      doc.setLineWidth(0.3)
+      doc.line(leftPanelX + 8, panelY + 15, leftPanelX + panelW - 8, panelY + 15)
+      doc.line(rightPanelX + 8, panelY + 15, rightPanelX + panelW - 8, panelY + 15)
+
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text(brand.display_name || 'InventoryTools', leftPanelX + 8, panelY + 22)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
+      doc.text(userEmail || '', leftPanelX + 8, panelY + 28)
+
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(10)
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text('Payment successful', rightPanelX + 8, panelY + 22)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
+      doc.text('Your account has been topped up', rightPanelX + 8, panelY + 28)
+      doc.text('with credit.', rightPanelX + 8, panelY + 32.5)
+
+      y = panelY + panelH + 14
+
+      doc.setFontSize(11.5)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(accent[0], accent[1], accent[2])
+      doc.text('TRANSACTION DETAILS', LEFT, y)
+
+      const tableY = y + 6
+      doc.setFillColor(accent[0], accent[1], accent[2])
+      doc.rect(LEFT, tableY, 182, 9, 'F')
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(255, 255, 255)
+      doc.text('DESCRIPTION', LEFT + 6, tableY + 6)
+      doc.text('AMOUNT', RIGHT - 6, tableY + 6, { align: 'right' })
+
+      const rowY = tableY + 9, rowH = 20
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2])
+      doc.setLineWidth(0.3)
+      doc.rect(LEFT, rowY, 182, rowH)
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text((brand.display_name || 'InventoryTools') + ' account credit top-up', LEFT + 6, rowY + 8)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(8.5)
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
+      doc.text('Prepaid credit added to your account.', LEFT + 6, rowY + 14)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(13)
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text('GBP ' + Number(t.amount).toFixed(2), RIGHT - 6, rowY + 12, { align: 'right' })
+
+      const sumW = 68, sumX = RIGHT - sumW, sumY = rowY + rowH + 10, sumRowH = 8.5
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2])
+      doc.roundedRect(sumX, sumY, sumW, sumRowH * 3, 2, 2, 'D')
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
+      doc.text('Credit added', sumX + 6, sumY + 6)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text('GBP ' + Number(t.amount).toFixed(2), sumX + sumW - 6, sumY + 6, { align: 'right' })
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
+      doc.text('Total paid', sumX + 6, sumY + 6 + sumRowH)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text('GBP ' + Number(t.amount).toFixed(2), sumX + sumW - 6, sumY + 6 + sumRowH, { align: 'right' })
+
+      doc.setFillColor(CARD_BG[0], CARD_BG[1], CARD_BG[2])
+      doc.rect(sumX, sumY + sumRowH * 2, sumW, sumRowH, 'F')
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2])
+      doc.line(sumX, sumY + sumRowH * 2, sumX + sumW, sumY + sumRowH * 2)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(9)
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text('Current balance', sumX + 6, sumY + 6 + sumRowH * 2)
+      doc.text('GBP ' + Number(credits).toFixed(2), sumX + sumW - 6, sumY + 6 + sumRowH * 2, { align: 'right' })
+
+      const infoY = sumY + sumRowH * 3 + 14
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(accent[0], accent[1], accent[2])
+      doc.text('PAYMENT INFORMATION', LEFT, infoY)
+
+      const infoRows: [string, string][] = []
+      if (hasCard) infoRows.push(['Payment method', t.card_brand + ' card ending ' + t.card_last4])
+      infoRows.push(['Transaction reference', t.stripe_payment_id || t.invoice_number || 'N/A'])
+      infoRows.push(['Payment date', dateStr + ' at ' + new Date(t.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })])
+      infoRows.push(['Status', 'Paid'])
+
+      let rowCursor = infoY + 8
+      infoRows.forEach(([label, value], idx) => {
+        doc.setFontSize(8.5)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
+        doc.text(label + ':', LEFT, rowCursor)
+        doc.setFontSize(9.5)
+        doc.setFont('helvetica', 'bold')
+        if (label === 'Status') { doc.setTextColor(GREEN[0], GREEN[1], GREEN[2]) } else { doc.setTextColor(DARK[0], DARK[1], DARK[2]) }
+        doc.text(value, LEFT, rowCursor + 5)
+        if (idx < infoRows.length - 1) {
+          doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2])
+          doc.line(LEFT, rowCursor + 8, LEFT + panelW, rowCursor + 8)
+        }
+        rowCursor += 12
+      })
+
+      const helpBoxH = 48
+      doc.setFillColor(CARD_BG[0], CARD_BG[1], CARD_BG[2])
+      doc.roundedRect(rightPanelX, infoY - 6, panelW, helpBoxH, 3, 3, 'F')
+      const helpCx = rightPanelX + 11, helpCy = infoY - 6 + 11
+      doc.setFillColor(accent[0], accent[1], accent[2])
+      doc.circle(helpCx, helpCy, 5, 'F')
+      doc.setDrawColor(255, 255, 255)
+      doc.setLineWidth(0.9)
+      doc.line(helpCx - 3, helpCy, helpCx - 3, helpCy - 2)
+      doc.line(helpCx + 3, helpCy, helpCx + 3, helpCy - 2)
+      doc.circle(helpCx, helpCy - 1, 3, 'D')
+      doc.setFillColor(255, 255, 255)
+      doc.circle(helpCx - 3, helpCy + 0.8, 1, 'F')
+      doc.circle(helpCx + 3, helpCy + 0.8, 1, 'F')
+
+      doc.setFontSize(10.5)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text('Need help?', rightPanelX + 20, infoY - 3)
+      doc.setFontSize(8.5)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2])
+      doc.text('If you have any questions about', rightPanelX + 8, infoY + 8)
+      doc.text('this top-up, please contact us.', rightPanelX + 8, infoY + 12.5)
+
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2])
+      doc.line(rightPanelX + 8, infoY + 18, rightPanelX + panelW - 8, infoY + 18)
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(DARK[0], DARK[1], DARK[2])
+      doc.text(contactEmail, rightPanelX + 8, infoY + 25)
+
+      const bottomLineY = Math.max(rowCursor + 6, infoY - 6 + helpBoxH + 8)
+      doc.setDrawColor(accent[0], accent[1], accent[2])
+      doc.setLineWidth(0.6)
+      doc.line(LEFT, bottomLineY, RIGHT, bottomLineY)
+
+      doc.save('invoice-' + (t.invoice_number || t.id) + '.pdf')
     } catch (e) {
       alert('Failed to generate invoice PDF')
     }
