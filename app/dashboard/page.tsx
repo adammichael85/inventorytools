@@ -4799,7 +4799,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                               setDraggedAudioIndex(null)
                             }}
                             onDragEnd={() => setDraggedAudioIndex(null)}
-                            style={{ display: 'flex', alignItems: 'center', gap: 10, background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 8, padding: '8px 12px', cursor: 'grab', opacity: draggedAudioIndex === i ? 0.4 : 1 }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 10, background: AUDIO_BLUE_LIGHT, border: `1px solid #BFDBFE`, borderRadius: 8, padding: '8px 12px', cursor: 'grab', opacity: draggedAudioIndex === i ? 0.7 : 1 }}
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={AUDIO_BLUE} strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0 }}><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>
                             <div style={{ width: 22, height: 22, borderRadius: 6, background: AUDIO_BLUE, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11, fontWeight: 700 }}>{i + 1}</div>
