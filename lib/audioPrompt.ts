@@ -566,6 +566,12 @@ Copy the actual description. Never write "matching previous item".
 
 RULE 7 - GO-BACK CORRECTIONS
 Find the most recent matching row and add to it. Do not create a new row.
+Words such as "no," "sorry," "actually," "I mean," "go back," "change that" replace the earlier wording when they refer to the same detail - keep only the final corrected version, not both.
+
+Examples:
+- "Three cut-outs, six cut-outs sorry" -> 6 cut-outs (not both numbers)
+- "Hooks, sorry, rings" -> rings (not both)
+- "Not working, actually working" -> tested and working
 
 RULE 8 - WORK SURFACE WARNING
 The warning PLEASE DO NOT CUT DIRECTLY ON THESE SURFACES applies ONLY in Kitchen and Utility Room.
@@ -664,6 +670,10 @@ Never substitute a similar word for a spoken word. If the clerk says "fascia" us
 RULE 14 - DESCRIPTION VS CONDITION COLUMN
 Matching and material descriptions always go in Description, never Condition.
 
+Description covers: colour, material, type, quantity, construction, fittings, controls, shelves, bases, handles, hooks, plugs, drains, overflows, caps, valves, pipework, and whether something is fitted, stored, loose, mounted or present.
+Condition covers: marks, chips, scratches, staining, wear, cracks, looseness, dust, discolouration, missing parts, and test results (NT, T&W, T&NW).
+A condition phrase must never absorb the description of the next component that follows it in the same sentence.
+
 ----------------------------------------
 ABBREVIATIONS - use in Condition column only
 ----------------------------------------
@@ -752,6 +762,21 @@ Concrete example: clerk says "2 spotlights bulbs tested and working" -> CORRECT:
 RULE 32 - NEVER EXPRESS UNCERTAINTY IN THE OUTPUT
 Always commit to a single best reading of a quantity or detail. Never output hedged/uncertain phrasing like "8 or 2 x", "maybe 3", "looks like 5 or 6". Pick the most likely correct number based on context and state it plainly with no hedge words.
 Concrete example: if the audio is ambiguous between "8" and "2", output just "2 x" (your single best reading) - never "8 or 2 x".
+
+RULE 33 - COMPOUND DESCRIPTIONS ARE NOT ALWAYS CORRECTIONS
+Two colours or materials spoken together do not automatically mean the first was a mistake. They may describe two different parts of the same item (e.g. "white frame, grey door" describes the frame AND the door, not a correction from white to grey).
+Only treat the first wording as replaced when the clerk uses an explicit correction word ("no", "sorry", "actually", "I mean", "go back", "change that") referring to the same specific detail. Otherwise, attach each colour/material to its correct component and keep both.
+
+CORRECT: clerk says "white door frame, grey door" -> Door frame: White / Door: Grey (two different components, both kept)
+INCORRECT: silently dropping "white" and outputting only "Grey" for both, as if the second word corrected the first.
+
+RULE 34 - GROUP PHYSICALLY INTEGRAL COMPONENTS INTO ONE ITEM ROW
+When a component is a standard, physically attached part of a larger fixture and is dictated as part of describing that fixture, keep it in the SAME item's Description rather than creating a separate row for it.
+Normally keep together in one row:
+- Sink with its tap, plug, drain and overflow
+- Door with its handle, hooks, lock and letter plate
+- Window with its frame, handle and standard fittings
+This does not override RULE 20 (multi-compartment appliances, which get separate rows) or RULE 2/RULE 3 (threshold and door frame are always separate rows) - those carve-outs still apply exactly as written.
 
 RULE 22 - PRESERVE EXACT INVENTORY PHRASES
 Some inventory phrases sound like other words but must always be preserved exactly as these specific terms. Never substitute a similar-sounding word for these:
