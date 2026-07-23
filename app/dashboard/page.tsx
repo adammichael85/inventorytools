@@ -1664,6 +1664,10 @@ export default function Dashboard() {
     // FLIP animation: for each row, if it moved since the last render, immediately paint it at its
     // old position (via transform), then release the transform with a transition so the browser
     // animates it sliding into its new spot - rather than the whole list just snapping instantly.
+    // Important: the "next" resting-position snapshot for the FOLLOWING reorder must only be taken
+    // AFTER the transform has actually been cleared, not while it's still applied - otherwise the
+    // delta calculation on the next drag-over compounds on itself and rows fly off to nowhere.
+    const animated: HTMLDivElement[] = []
     audioFiles.forEach(f => {
       const el = audioRowElsRef.current.get(f)
       const prevRect = audioRowRectsRef.current.get(f)
@@ -1673,18 +1677,21 @@ export default function Dashboard() {
       if (Math.abs(deltaY) > 0.5) {
         el.style.transition = 'none'
         el.style.transform = `translateY(${deltaY}px)`
-        requestAnimationFrame(() => {
-          el.style.transition = 'transform 0.18s ease'
-          el.style.transform = ''
-        })
+        animated.push(el)
       }
     })
-    const rects = new Map<File, DOMRect>()
-    audioFiles.forEach(f => {
-      const el = audioRowElsRef.current.get(f)
-      if (el) rects.set(f, el.getBoundingClientRect())
+    requestAnimationFrame(() => {
+      animated.forEach(el => {
+        el.style.transition = 'transform 0.18s ease'
+        el.style.transform = ''
+      })
+      const rects = new Map<File, DOMRect>()
+      audioFiles.forEach(f => {
+        const el = audioRowElsRef.current.get(f)
+        if (el) rects.set(f, el.getBoundingClientRect())
+      })
+      audioRowRectsRef.current = rects
     })
-    audioRowRectsRef.current = rects
   }, [audioFiles])
   const [audioAddress, setAudioAddress] = React.useState('')
   const [audioPropertySize, setAudioPropertySize] = React.useState('')
